@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"go.uber.org/zap"
+	"go.uber.org/zap" // logger
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/fluire"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/delivery"
