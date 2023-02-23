@@ -1,4 +1,4 @@
-package fluire
+package server
 
 import (
 	"context"
@@ -14,7 +14,7 @@ type Server struct {
 // Run launches http Server on chosen port with given handler
 func (s *Server) Run(port string, handler http.Handler) error {
 	s.httpServer = &http.Server{
-		Addr:           ":" + port,
+		Addr:           "127.0.0.1:" + port,
 		Handler:        handler,
 		MaxHeaderBytes: 1 << 20,
 		ReadTimeout:    10 * time.Second,
