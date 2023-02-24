@@ -1,6 +1,8 @@
 package repository
 
-import "github.com/go-park-mail-ru/2023_1_Technokaif/models"
+import (
+	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
+)
 
 type Repository struct {
 	Auth
@@ -10,4 +12,10 @@ type Repository struct {
 type Auth interface {
 	CreateUser(user models.User) (int, error)
 	GetUser(username, password string) (models.User, error)
+}
+
+func NewRepository() *Repository {
+	return &Repository{
+		Auth: NewAuthFake(),
+	}
 }

@@ -1,11 +1,13 @@
 package usecase
 
-import "github.com/go-park-mail-ru/2023_1_Technokaif/models"
+import (
+	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/repository"
+)
 
 // Usecase implements all current app's services
 type Usecase struct {
 	Auth
-	// Other services
 }
 
 // Auth describes which methods have to be implemented by auth-service
@@ -16,4 +18,10 @@ type Auth interface {
 
 	// GenerateToken returns token created with user's username and password
 	GenerateToken(username, password string) (string, error)
+}
+
+func NewUsecase(r *repository.Repository) *Usecase {
+	return &Usecase{
+		Auth: NewAuthUsecase(r.Auth),
+	}
 }
