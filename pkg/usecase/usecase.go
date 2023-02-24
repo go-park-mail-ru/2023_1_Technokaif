@@ -16,8 +16,11 @@ type Auth interface {
 	// CreateUser creates new entity of user and returns it's id
 	CreateUser(user models.User) (int, error)
 
+	// GetUserID gets User's ID if such User exists
+	GetUserID(username, password string) (uint, error)
+
 	// GenerateToken returns token created with user's username and password
-	GenerateToken(username, password string) (string, error)
+	GenerateToken(userID uint) (string, error)
 }
 
 func NewUsecase(r *repository.Repository) *Usecase {
