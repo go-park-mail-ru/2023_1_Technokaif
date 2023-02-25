@@ -27,6 +27,8 @@ func (h *Handler) InitRouter() *chi.Mux {
 
 	r.Get("/", h.index)
 
+	r.With(h.CheckToken).Get("/feed", h.feed)
+
 	r.Route("/auth", func(r chi.Router) {
 		r.Route("/login", func(r chi.Router) {
 			// r.Get("/", h.login)

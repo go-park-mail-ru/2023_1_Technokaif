@@ -78,7 +78,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.services.Auth.GenerateToken(userID)
+	token, err := h.services.Auth.GenerateAccessToken(userID)
 	if err != nil {
 		httpErrorResponce(w, err.Error(), http.StatusInternalServerError) // TODO change error message
 		return

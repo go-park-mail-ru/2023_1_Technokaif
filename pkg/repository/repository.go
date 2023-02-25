@@ -9,7 +9,9 @@ import (
 // Repository
 type Repository struct {
 	Auth
-	// Other services
+	Artist
+	Album
+	Track
 }
 
 // Auth includes DBMS-relatable methods for authentication
@@ -18,13 +20,28 @@ type Auth interface {
 	GetUser(username, password string) (models.User, error)
 }
 
+type Artist interface {
+
+}
+
+type Album interface {
+	
+}
+
+type Track interface {
+
+}
+
 // NewRepository initialize SQL DBMS
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
 		Auth: NewAuthPostgres(db),
-		// Other services
+		Artist: NewArtistPostgres(db),
+		Album: NewAlbumPostgres(db),
+		Track: NewTrackPostgres(db),
 	}
 }
+
 
 // AUTH ERRORS
 type UserAlreadyExistsError struct {

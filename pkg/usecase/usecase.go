@@ -8,6 +8,9 @@ import (
 // Usecase implements all current app's services
 type Usecase struct {
 	Auth
+	Album
+	Artist
+	Track
 }
 
 // Auth describes which methods have to be implemented by auth-service
@@ -20,11 +23,28 @@ type Auth interface {
 	GetUserID(username, password string) (uint, error)
 
 	// GenerateToken returns token created with user's username and password
-	GenerateToken(userID uint) (string, error)
+	GenerateAccessToken(userID uint) (string, error)
+
+	CheckAccessToken(accessToken string) (uint, error)
+}
+
+type Album interface {
+	GetAlbums() []Album
+}
+
+type Artist interface {
+	GetArtists() []Artist
+}
+
+type Track interface {
+	GetTracks() []Track
 }
 
 func NewUsecase(r *repository.Repository) *Usecase {
 	return &Usecase{
 		Auth: NewAuthUsecase(r.Auth),
+		Album: NewAlbumUsecase(r.Album),
+		Artist: NewArtistUsecase(r.Artist),
+		Track: NewTrackUsecase(r.Track),
 	}
 }

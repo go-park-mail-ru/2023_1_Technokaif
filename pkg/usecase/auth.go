@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"time"
+	"errors"
 
 	"github.com/golang-jwt/jwt/v5"
 
@@ -48,7 +49,7 @@ func (a *AuthUsecase) GetUserID(username, password string) (uint, error) {
 	return user.ID, nil
 }
 
-func (a *AuthUsecase) GenerateToken(userID uint) (string, error) {
+func (a *AuthUsecase) GenerateAccessToken(userID uint) (string, error) {
 	claims := &jwtClaims{
 		userID,
 		jwt.RegisteredClaims{
@@ -63,6 +64,25 @@ func (a *AuthUsecase) GenerateToken(userID uint) (string, error) {
 	}
 
 	return signedToken, nil
+}
+
+func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, error) {
+	token, err := jwt.ParseWithClaims(acessToken, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	claims, ok := token.Claims.(*jwtClaims)
+	if !ok {
+		return 0, errors.New("token claims are not of type *tokenClaims")
+	}
+
+	return claims.UserId, nil
 }
 
 func getPasswordHash(password string) string {
