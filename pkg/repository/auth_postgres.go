@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lib/pq"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
 )
 
@@ -16,6 +18,8 @@ func NewAuthPostgres(db *sql.DB) *AuthPostgres {
 	return &AuthPostgres{db: db}
 }
 
+const ERROR_NAME_USER_EXISTS = "unique_violation"
+
 func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 	query := fmt.Sprintf("INSERT INTO %s"+
 		"(username, email, password_hash, first_name, last_name, user_sex, birth_date)"+
@@ -26,6 +30,14 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 
 	var id int
 	err := row.Scan(&id)
+	
+	if pqerr, ok := err.(*pq.Error); ok {
+		if pqerr.Code.Name() == ERROR_NAME_USER_EXISTS {
+			return 0, &UserAlreadyExistsError{} 
+		} else {
+			return 0, err
+		}
+	}
 
 	return id, err
 }
@@ -37,9 +49,9 @@ func (ap *AuthPostgres) GetUser(username, password string) (models.User, error) 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
-
-	if err != nil {
-		return models.User{}, err
+	
+	if err == sql.ErrNoRows {
+		return u, &NoSuchUserError{}
 	}
 
 	return u, err

@@ -25,3 +25,19 @@ func NewRepository(db *sql.DB) *Repository {
 		// Other services
 	}
 }
+
+// AUTH ERRORS
+type UserAlreadyExistsError struct {
+
+}
+func (e *UserAlreadyExistsError) Error() string {
+	return "user already exists"
+}
+
+type NoSuchUserError struct {
+
+}
+func (e *NoSuchUserError) Error() string {
+	return "no such user"
+}
+

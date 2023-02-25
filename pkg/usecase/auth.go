@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"crypto/sha256"
-	"errors"
 	"fmt"
 	"time"
 
@@ -41,7 +40,7 @@ func (a *AuthUsecase) GetUserID(username, password string) (uint, error) {
 	passwordHash := getPasswordHash(password)
 	user, err := a.repo.GetUser(username, passwordHash)
 	if err != nil {
-		return 0, errors.New("user not found") // TODO it can be repos error too
+		return 0, err // TODO it can be repos error too
 	}
 
 	fmt.Println(user.ID)
