@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	salt   = "aknfio1h189fwahg"
-	secret = "yarik_tri"
+	salt     = "@k8#&o1h18-9fwa_hg"
+	secret   = "yarik_tri"
 	tokenTTL = 24 * time.Hour
 )
 
@@ -40,14 +40,14 @@ func (a *AuthUsecase) GetUserID(username, password string) (uint, error) {
 	passwordHash := getPasswordHash(password)
 	user, err := a.repo.GetUser(username, passwordHash)
 	if err != nil {
-		return 0, errors.New(username + " not found")  // TODO it can be repos error too
+		return 0, errors.New("user not found") // TODO it can be repos error too
 	}
 
 	return user.ID, nil
 }
 
 func (a *AuthUsecase) GenerateToken(userID uint) (string, error) {
-	claims := &jwtClaims {
+	claims := &jwtClaims{
 		userID,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL)),

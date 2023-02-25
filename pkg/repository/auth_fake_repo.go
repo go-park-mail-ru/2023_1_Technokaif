@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
 )
 
@@ -11,7 +12,7 @@ type AuthFake struct {
 
 func (a *AuthFake) CreateUser(user models.User) (int, error) {
 	a.db = append(a.db, user)
-	return len(a.db) - 1, nil
+	return len(a.db) - 1, nil // No errors in fake DBMS!!!
 }
 
 func (a *AuthFake) GetUser(username, password string) (models.User, error) {
@@ -21,7 +22,7 @@ func (a *AuthFake) GetUser(username, password string) (models.User, error) {
 			return u, nil
 		}
 	}
-	return models.User{}, errors.New("ERROR")
+	return models.User{}, errors.New("Error while getting user from fake repo lol")
 }
 
 func NewAuthFake() *AuthFake {
