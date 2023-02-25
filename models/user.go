@@ -1,7 +1,9 @@
 package models
 
 import (
+	"time"
 	"unicode"
+	"strings"
 
 	valid "github.com/asaskevich/govalidator"
 )
@@ -14,15 +16,31 @@ const (
 	Other  Sex = "O"
 )
 
+
 // User implements information about app's users
+type Date struct {
+	time.Time
+}
 type User struct {
 	ID        uint   `json:"-" valid:"-"`
-	Username  string `json:"username"  valid:"runelength(4|20)"`
-	Email     string `json:"email"     valid:"email"`
-	Password  string `json:"password"  valid:"runelength(8|20),passwordcheck"`
-	FirstName string `json:"firstName" valid:"runelength(2|20)"`
-	LastName  string `json:"lastName"  valid:"runelength(2|20)"`
-	Sex       Sex    `json:"sex"       valid:"in(F|M|O)"`
+	Username  string `json:"username"  valid:"required,runelength(4|20)"`
+	Email     string `json:"email"     valid:"required,email"`
+	Password  string `json:"password"  valid:"required,runelength(8|20),passwordcheck"`
+	FirstName string `json:"firstName" valid:"required,runelength(2|20)"`
+	LastName  string `json:"lastName"  valid:"required,runelength(2|20)"`
+	Sex       Sex    `json:"sex"       valid:"required,in(F|M|O)"`
+	BirhDate  Date	 `json:"birthDate" valid:"required"`
+}
+
+func (d *Date) UnmarshalJSON(b []byte) error {
+    s := strings.Trim(string(b), "\"")
+    t, err := time.Parse("2006-01-02", s)  // RFC 3339
+    if err != nil {
+        return err
+    }
+
+    d.Time = t
+    return nil
 }
 
 func (u *User) DeliveryValidate() bool {
@@ -45,7 +63,6 @@ func (u *User) DeliveryValidate() bool {
 		return hasLowLetters && hasUpperLetters && hasDigits
 	})
 
-	valid.SetFieldsRequiredByDefault(true)
 	isValid, err := valid.ValidateStruct(u)
 	if err != nil || !isValid {
 		return false

@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
 )
@@ -17,11 +18,11 @@ func NewAuthPostgres(db *sql.DB) *AuthPostgres {
 
 func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 	query := fmt.Sprintf("INSERT INTO %s"+
-		"(username, email, password_hash, first_name, last_name, user_sex)"+
-		"VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;", UsersTable)
+		"(username, email, password_hash, first_name, last_name, user_sex, birth_date)"+
+		"VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id;", UsersTable)
 
 	row := ap.db.QueryRow(query,
-		u.Username, u.Email, u.Password, u.FirstName, u.LastName, u.Sex)
+		u.Username, u.Email, u.Password, u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339))
 
 	var id int
 	err := row.Scan(&id)
@@ -30,12 +31,16 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 }
 
 func (ap *AuthPostgres) GetUser(username, password string) (models.User, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE username=$1 AND password_hash=$2;", UsersTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE (username=$1 OR email=$1) AND password_hash=$2;", UsersTable)
 	row := ap.db.QueryRow(query, username, password)
 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password,
-		&u.FirstName, &u.LastName, &u.Sex)
+		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
+
+	if err != nil {
+		return models.User{}, err
+	}
 
 	return u, err
 }

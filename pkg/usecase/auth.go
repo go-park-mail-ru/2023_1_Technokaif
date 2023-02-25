@@ -69,7 +69,7 @@ func (a *AuthUsecase) GenerateToken(userID uint) (string, error) {
 func getPasswordHash(password string) string {
 	hash := sha256.New()
 	hash.Write([]byte(password))
-	hash.Sum([]byte(salt))
+	hashWithSalt := hash.Sum([]byte(salt))
 
-	return fmt.Sprintf("%x", hash)
+	return fmt.Sprintf("%x", hashWithSalt)
 }
