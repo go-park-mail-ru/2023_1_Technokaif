@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	salt     = "@k8#&o1h18-9fwa_hg"
+	salt = "@k8#&o1h18-9fwa_hg"
+
 	secret   = "yarik_tri"
 	tokenTTL = 24 * time.Hour
 )
@@ -43,6 +44,8 @@ func (a *AuthUsecase) GetUserID(username, password string) (uint, error) {
 		return 0, errors.New("user not found") // TODO it can be repos error too
 	}
 
+	fmt.Println(user.ID)
+
 	return user.ID, nil
 }
 
@@ -63,9 +66,10 @@ func (a *AuthUsecase) GenerateToken(userID uint) (string, error) {
 	return signedToken, nil
 }
 
-func getPasswordHash(passwd string) string {
+func getPasswordHash(password string) string {
 	hash := sha256.New()
-	hash.Write([]byte(passwd))
-	hashWithSalt := sha256.Sum256([]byte(salt))
-	return fmt.Sprintf("%x", hashWithSalt)
+	hash.Write([]byte(password))
+	hash.Sum([]byte(salt))
+
+	return fmt.Sprintf("%x", hash)
 }
