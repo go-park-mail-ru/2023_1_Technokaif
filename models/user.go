@@ -1,11 +1,9 @@
 package models
 
 import (
-	"time"
-	"unicode"
+	"fmt"
 	"strings"
-
-	valid "github.com/asaskevich/govalidator"
+	"time"
 )
 
 type Sex string
@@ -29,44 +27,17 @@ type User struct {
 	FirstName string `json:"firstName" valid:"required,runelength(2|20)"`
 	LastName  string `json:"lastName"  valid:"required,runelength(2|20)"`
 	Sex       Sex    `json:"sex"       valid:"required,in(F|M|O)"`
-	BirhDate  Date	 `json:"birthDate" valid:"required"`
+	BirhDate  Date	 `json:"birthDate" valid:"required,born"`
 }
 
 func (d *Date) UnmarshalJSON(b []byte) error {
     s := strings.Trim(string(b), "\"")
     t, err := time.Parse("2006-01-02", s)  // RFC 3339
     if err != nil {
+		fmt.Println("UnmarshalJSON")
         return err
     }
 
     d.Time = t
     return nil
-}
-
-func (u *User) DeliveryValidate() bool {
-	valid.TagMap["passwordcheck"] = valid.Validator(func(password string) bool {
-		hasLowLetters := false
-		hasUpperLetters := false
-		hasDigits := false
-
-		for _, c := range password {
-			switch {
-			case unicode.IsNumber(c):
-				hasDigits = true
-			case unicode.IsUpper(c):
-				hasUpperLetters = true
-			case unicode.IsLower(c):
-				hasLowLetters = true
-			}
-		}
-
-		return hasLowLetters && hasUpperLetters && hasDigits
-	})
-
-	isValid, err := valid.ValidateStruct(u)
-	if err != nil || !isValid {
-		return false
-	}
-
-	return true
 }
