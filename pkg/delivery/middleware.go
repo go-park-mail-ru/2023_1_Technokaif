@@ -3,11 +3,13 @@ package delivery
 import (
 	"net/http"
 	"context"
+	"fmt"
+	"strings"
 )
 
 // HTTP middleware setting a value on the request context
 func (h Handler) Authorization(next http.Handler) http.Handler {  // TEST IT
-    return http.HandlerFunc(func(w http.ResponseWriter, rhttp.Request) {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         prefix := "Bearer "
         authHeader := r.Header.Get("Authorization")
         reqToken := strings.TrimPrefix(authHeader, prefix)
@@ -27,4 +29,3 @@ func (h Handler) Authorization(next http.Handler) http.Handler {  // TEST IT
         next.ServeHTTP(w, r.WithContext(ctx))
     })
   }
-  
