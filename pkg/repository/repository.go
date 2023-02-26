@@ -21,40 +21,35 @@ type Auth interface {
 }
 
 type Artist interface {
-
 }
 
 type Album interface {
-	
 }
 
 type Track interface {
-
 }
 
 // NewRepository initialize SQL DBMS
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
-		Auth: NewAuthPostgres(db),
+		Auth:   NewAuthPostgres(db),
 		Artist: NewArtistPostgres(db),
-		Album: NewAlbumPostgres(db),
-		Track: NewTrackPostgres(db),
+		Album:  NewAlbumPostgres(db),
+		Track:  NewTrackPostgres(db),
 	}
 }
 
-
 // AUTH ERRORS
 type UserAlreadyExistsError struct {
-
 }
+
 func (e *UserAlreadyExistsError) Error() string {
 	return "user already exists"
 }
 
 type NoSuchUserError struct {
-
 }
+
 func (e *NoSuchUserError) Error() string {
 	return "no such user"
 }
-

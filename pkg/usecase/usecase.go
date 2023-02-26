@@ -42,9 +42,9 @@ type Track interface {
 
 func NewUsecase(r *repository.Repository) *Usecase {
 	return &Usecase{
-		Auth: NewAuthUsecase(r.Auth),
-		Album: NewAlbumUsecase(r.Album),
+		Auth:   NewAuthUsecase(r.Auth),
+		Album:  NewAlbumUsecase(r.Album),
 		Artist: NewArtistUsecase(r.Artist),
-		Track: NewTrackUsecase(r.Track),
+		Track:  NewTrackUsecase(r.Track),
 	}
 }

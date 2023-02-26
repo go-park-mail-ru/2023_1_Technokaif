@@ -7,7 +7,7 @@ import (
 	valid "github.com/asaskevich/govalidator"
 )
 
-func init() {  // For validation
+func init() { // For validation
 	valid.CustomTypeTagMap.Set("born", func(date interface{}, context interface{}) bool {
 		if _, ok := context.(User); !ok {
 			return false

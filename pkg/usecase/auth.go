@@ -2,9 +2,9 @@ package usecase
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"time"
-	"errors"
 
 	"github.com/golang-jwt/jwt/v5"
 

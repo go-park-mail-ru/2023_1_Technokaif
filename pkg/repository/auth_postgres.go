@@ -30,10 +30,10 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 
 	var id int
 	err := row.Scan(&id)
-	
+
 	if pqerr, ok := err.(*pq.Error); ok {
 		if pqerr.Code.Name() == ERROR_NAME_USER_EXISTS {
-			return 0, &UserAlreadyExistsError{} 
+			return 0, &UserAlreadyExistsError{}
 		} else {
 			return 0, err
 		}
@@ -49,7 +49,7 @@ func (ap *AuthPostgres) GetUser(username, password string) (models.User, error) 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
-	
+
 	if err == sql.ErrNoRows {
 		return u, &NoSuchUserError{}
 	}

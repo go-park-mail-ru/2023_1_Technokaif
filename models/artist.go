@@ -1,6 +1,6 @@
 package models
 
 type Artist struct {
-	ID 	 uint
+	ID   uint
 	Name string
 }

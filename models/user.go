@@ -14,7 +14,6 @@ const (
 	Other  Sex = "O"
 )
 
-
 // User implements information about app's users
 type Date struct {
 	time.Time
@@ -27,17 +26,17 @@ type User struct {
 	FirstName string `json:"firstName" valid:"required,runelength(2|20)"`
 	LastName  string `json:"lastName"  valid:"required,runelength(2|20)"`
 	Sex       Sex    `json:"sex"       valid:"required,in(F|M|O)"`
-	BirhDate  Date	 `json:"birthDate" valid:"required,born"`
+	BirhDate  Date   `json:"birthDate" valid:"required,born"`
 }
 
 func (d *Date) UnmarshalJSON(b []byte) error {
-    s := strings.Trim(string(b), "\"")
-    t, err := time.Parse("2006-01-02", s)  // RFC 3339
-    if err != nil {
+	s := strings.Trim(string(b), "\"")
+	t, err := time.Parse("2006-01-02", s) // RFC 3339
+	if err != nil {
 		fmt.Println("UnmarshalJSON")
-        return err
-    }
+		return err
+	}
 
-    d.Time = t
-    return nil
+	d.Time = t
+	return nil
 }

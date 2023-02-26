@@ -47,7 +47,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 
 type loginInput struct {
 	Username string `json:"username" valid:"runelength(4|20)"`
-	Password string `json:"password" valid:"-"` 
+	Password string `json:"password" valid:"-"`
 }
 
 func (i *loginInput) validate() bool {
