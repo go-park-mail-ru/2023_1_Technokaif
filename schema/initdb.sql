@@ -8,8 +8,7 @@ CREATE TABLE Users
     first_name    VARCHAR(20)              NOT NULL,
     last_name     VARCHAR(20)              NOT NULL,
     user_sex      SEX                      NOT NULL,
-    birth_date    DATE                     NOT NULL,
-    avatar_src    TEXT
+    birth_date    DATE                     NOT NULL
 );
 
 CREATE TABLE Artists

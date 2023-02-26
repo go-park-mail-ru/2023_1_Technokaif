@@ -46,12 +46,11 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 }
 
 type loginInput struct {
-	Username string `json:"username" valid:"runelength(4|20)"`
-	Password string `json:"password" valid:"-"`
+	Username string `json:"username" valid:"required,runelength(4|20)"`
+	Password string `json:"password" valid:"required"`
 }
 
 func (i *loginInput) validate() bool {
-	valid.SetFieldsRequiredByDefault(true)
 	isValid, err := valid.ValidateStruct(i)
 	if err != nil || !isValid {
 		return false
