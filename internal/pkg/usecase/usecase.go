@@ -40,7 +40,7 @@ type Artist interface {
 }
 
 type Track interface {
-	GetTracks() []Track
+	GetFeed() ([]models.TrackFeed, error)
 }
 
 func NewUsecase(r *repository.Repository, l *logger.Logger) *Usecase {

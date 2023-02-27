@@ -30,7 +30,7 @@ func (h *Handler) InitRouter() *chi.Mux {
 
 	r.Get("/", h.index)
 
-	r.With(h.Authorization).Get("/feed", h.feed)
+	r.Get("/feed", h.feed)
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Route("/login", func(r chi.Router) {

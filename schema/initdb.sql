@@ -43,7 +43,7 @@ CREATE TABLE Listens
     track_id INT    REFERENCES Tracks(id) ON DELETE CASCADE  NOT NULL
 );
 
-CREATE TABLE ArtistsAlbums
+CREATE TABLE Artists_Albums
 (   
     artist_id INT REFERENCES Artists(id) ON DELETE CASCADE NOT NULL,
     album_id  INT REFERENCES Albums(id)  ON DELETE CASCADE NOT NULL,
@@ -51,10 +51,17 @@ CREATE TABLE ArtistsAlbums
     PRIMARY KEY(artist_id, album_id)
 );
 
-CREATE TABLE ArtistsTracks
+CREATE TABLE Artists_Tracks
 (
     artist_id INT REFERENCES Artists(id) ON DELETE CASCADE NOT NULL,
     track_id  INT REFERENCES Tracks(id)  ON DELETE CASCADE NOT NULL,
 
     PRIMARY KEY(artist_id, track_id)
 );
+
+/* Mock */
+INSERT INTO Artists (name) VALUES ('Oxxxymiron');
+
+INSERT INTO Tracks (name, artist_id) VALUES ('Где нас нет', 1);
+INSERT INTO Tracks (name, artist_id) VALUES ('Город под подошвой', 1);
+INSERT INTO Tracks (name, artist_id) VALUES ('Признаки жизни', 1);

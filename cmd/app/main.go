@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv" // load environment
-	// logger
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/delivery"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"

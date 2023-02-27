@@ -30,6 +30,7 @@ type Album interface {
 }
 
 type Track interface {
+	GetFeed() ([]models.TrackFeed, error)
 }
 
 // NewRepository initialize SQL DBMS
