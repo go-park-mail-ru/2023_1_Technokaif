@@ -15,23 +15,46 @@ func NewAlbumPostgres(db *sql.DB) *AlbumPostgres {
 	return &AlbumPostgres{db: db}
 }
 
+type ArtistsAlbums struct {
+	AlbumID     int
+	AlbumName   string
+	ArtistID    int
+	ArtistName  string
+	Description string
+}
+
 func (tp *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
-	query := fmt.Sprintf("SELECT al.name, a.name "+
-		"FROM %s al INNER JOIN %s a ON al.artist_id = a.id;",
-		AlbumsTable, ArtistsTable)
+	query := fmt.Sprintf("SELECT al.id, al.name, ar.id, ar.name, al.description "+
+		"FROM %s al INNER JOIN %s aa ON al.id = aa.album_id "+
+		"INNER JOIN %s ar ON aa.artist_id = ar.id;",
+		AlbumsTable, ArtistsAlbumsTable, ArtistsTable)
 
 	rows, err := tp.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 
-	var albums []models.AlbumFeed
+	var m = make(map[int]models.AlbumFeed)
 	for rows.Next() {
-		var album models.AlbumFeed
-		if err = rows.Scan(&album.Name, &album.ArtistName); err != nil {
+		var aa ArtistsAlbums
+		if err = rows.Scan(&aa.AlbumID, &aa.AlbumName, &aa.ArtistID, &aa.ArtistName, &aa.Description); err != nil {
 			return nil, err
 		}
-		albums = append(albums, album)
+
+		if af, ok := m[aa.AlbumID]; !ok {
+			m[aa.AlbumID] = models.AlbumFeed{ID: aa.AlbumID, Name: aa.AlbumName,
+				Artists:     []models.ArtistFeed{{ID: aa.ArtistID, Name: aa.ArtistName}},
+				Description: aa.Description}
+		} else {
+			af.Artists = append(af.Artists,
+				models.ArtistFeed{ID: aa.ArtistID, Name: aa.ArtistName})
+			m[aa.AlbumID] = af
+		}
+	}
+
+	var albums []models.AlbumFeed
+	for _, v := range m {
+		albums = append(albums, v)
 	}
 
 	return albums, nil

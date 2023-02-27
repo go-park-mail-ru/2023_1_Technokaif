@@ -9,10 +9,12 @@ import (
 
 // PostgreSQL tables
 const (
-	UsersTable   = "Users"
-	TracksTable  = "Tracks"
-	ArtistsTable = "Artists"
-	AlbumsTable  = "Albums"
+	UsersTable         = "Users"
+	TracksTable        = "Tracks"
+	ArtistsTable       = "Artists"
+	AlbumsTable        = "Albums"
+	ArtistsAlbumsTable = "Artists_Albums"
+	ArtistsTracksTable = "Artists_Tracks"
 )
 
 // Config sets info about postgres DB we want to connect to

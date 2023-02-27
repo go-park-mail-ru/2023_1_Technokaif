@@ -1,16 +1,25 @@
 package delivery
 
 import (
+	"encoding/json"
 	"net/http"
+
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
+
+type FeedResponse struct {
+	Artists []models.ArtistFeed `json:"artists"`
+	Tracks  []models.TrackFeed  `json:"tracks"`
+	Albums  []models.AlbumFeed  `json:"albums"`
+}
 
 func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	/* userId, ok := r.Context().Value("ID").(uint)
-	   if !ok {
-	       httpErrorResponce(w, "api error", http.StatusInternalServerError)
-	   } */
+	if !ok {
+		httpErrorResponce(w, "api error", http.StatusInternalServerError)
+		} */
 
 	artists, err := h.services.Artist.GetFeed()
 	if err != nil {
@@ -29,18 +38,16 @@ func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Error while getting albums"))
 		return
 	}
-
-	for _, artist := range artists {
-		w.Write([]byte(artist.Name + "\n"))
-	}
-
-	for _, track := range tracks {
-		w.Write([]byte(track.Name + " " + track.ArtistName + "\n"))
-	}
-
-	for _, album := range albums {
-		w.Write([]byte(album.Name + " " + album.ArtistName + "\n"))
-	}
-
 	w.Header().Set("Content-Type", "json/application; charset=utf-8")
+
+	fr := FeedResponse{Artists: artists,
+		Tracks: tracks,
+		Albums: albums}
+
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(&fr); err != nil {
+		httpErrorResponce(w, err.Error()+" json upal :(", http.StatusInternalServerError)
+		return
+	}
+
 }

@@ -44,8 +44,6 @@ func (a *AuthUsecase) GetUserID(username, password string) (uint, error) {
 		return 0, err // TODO it can be repos error too
 	}
 
-	fmt.Println(user.ID)
-
 	return user.ID, nil
 }
 
