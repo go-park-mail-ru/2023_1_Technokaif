@@ -43,7 +43,8 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 }
 
 func (ap *AuthPostgres) GetUser(username, password string) (models.User, error) {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE (username=$1 OR email=$1) AND password_hash=$2;", UsersTable)
+	query := fmt.Sprintf("SELECT id, username, email, password_hash, first_name, last_name, user_sex, birth_date "+
+		"FROM %s WHERE (username=$1 OR email=$1) AND password_hash=$2;", UsersTable)
 	row := ap.db.QueryRow(query, username, password)
 
 	var u models.User

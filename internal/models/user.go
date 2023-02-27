@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"strings"
 	"time"
 )
@@ -27,13 +26,13 @@ type User struct {
 	LastName  string `json:"lastName"  valid:"required,runelength(2|20)"`
 	Sex       Sex    `json:"sex"       valid:"required,in(F|M|O)"`
 	BirhDate  Date   `json:"birthDate" valid:"required,born"`
+	// AvatarSrc string `json:"-" valid:"-"`
 }
 
 func (d *Date) UnmarshalJSON(b []byte) error {
 	s := strings.Trim(string(b), "\"")
 	t, err := time.Parse("2006-01-02", s) // RFC 3339
 	if err != nil {
-		fmt.Println("UnmarshalJSON")
 		return err
 	}
 

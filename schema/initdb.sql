@@ -9,6 +9,7 @@ CREATE TABLE Users
     last_name     VARCHAR(20)              NOT NULL,
     user_sex      SEX                      NOT NULL,
     birth_date    DATE                     NOT NULL
+    -- avatar_src    TEXT
 );
 
 CREATE TABLE Artists
@@ -22,8 +23,9 @@ CREATE TABLE Albums
 (
     id        SERIAL        PRIMARY KEY,
     name      VARCHAR(40)               NOT NULL,
-    cover_src TEXT,
-    info      VARCHAR(2000)
+    artist_id INT           REFERENCES Artists(id) ON DELETE CASCADE,
+    info      VARCHAR(2000),
+    cover_src TEXT
 );
 
 CREATE TABLE Tracks
@@ -43,25 +45,28 @@ CREATE TABLE Listens
     track_id INT    REFERENCES Tracks(id) ON DELETE CASCADE  NOT NULL
 );
 
-CREATE TABLE Artists_Albums
-(   
-    artist_id INT REFERENCES Artists(id) ON DELETE CASCADE NOT NULL,
-    album_id  INT REFERENCES Albums(id)  ON DELETE CASCADE NOT NULL,
+-- CREATE TABLE Artists_Albums
+-- (   
+--     artist_id INT REFERENCES Artists(id) ON DELETE CASCADE NOT NULL,
+--     album_id  INT REFERENCES Albums(id)  ON DELETE CASCADE NOT NULL,
 
-    PRIMARY KEY(artist_id, album_id)
-);
+--     PRIMARY KEY(artist_id, album_id)
+-- );
 
-CREATE TABLE Artists_Tracks
-(
-    artist_id INT REFERENCES Artists(id) ON DELETE CASCADE NOT NULL,
-    track_id  INT REFERENCES Tracks(id)  ON DELETE CASCADE NOT NULL,
+-- CREATE TABLE Artists_Tracks
+-- (
+--     artist_id INT REFERENCES Artists(id) ON DELETE CASCADE NOT NULL,
+--     track_id  INT REFERENCES Tracks(id)  ON DELETE CASCADE NOT NULL,
 
-    PRIMARY KEY(artist_id, track_id)
-);
+--     PRIMARY KEY(artist_id, track_id)
+-- );
 
 /* Mock */
 INSERT INTO Artists (name) VALUES ('Oxxxymiron');
 
-INSERT INTO Tracks (name, artist_id) VALUES ('Где нас нет', 1);
+INSERT INTO Albums (name, artist_id) VALUES ('Горгород', 1);
+INSERT INTO Albums (name, artist_id) VALUES ('Долгий путь домой', 1);
+
+INSERT INTO Tracks (name, artist_id, album_id) VALUES ('Где нас нет', 1, 1);
+INSERT INTO Tracks (name, artist_id, album_id) VALUES ('Признаки жизни', 1, 2);
 INSERT INTO Tracks (name, artist_id) VALUES ('Город под подошвой', 1);
-INSERT INTO Tracks (name, artist_id) VALUES ('Признаки жизни', 1);

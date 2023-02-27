@@ -17,12 +17,11 @@ func NewTrackPostgres(db *sql.DB) *TrackPostgres {
 
 func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 	query := fmt.Sprintf("SELECT t.name, a.name "+
-		"FROM %s t INNER JOIN %s a ON t.artist_id = a.id",
+		"FROM %s t INNER JOIN %s a ON t.artist_id = a.id;",
 		TracksTable, ArtistsTable)
 
 	rows, err := tp.db.Query(query)
 	if err != nil {
-		fmt.Println("Err query")
 		return nil, err
 	}
 
@@ -30,13 +29,10 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 	for rows.Next() {
 		var track models.TrackFeed
 		if err = rows.Scan(&track.Name, &track.ArtistName); err != nil {
-			fmt.Println("Err scan")
 			return nil, err
 		}
 		tracks = append(tracks, track)
 	}
-
-	fmt.Println("Success")
 
 	return tracks, nil
 }

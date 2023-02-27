@@ -24,9 +24,11 @@ type Auth interface {
 }
 
 type Artist interface {
+	GetFeed() ([]models.ArtistFeed, error)
 }
 
 type Album interface {
+	GetFeed() ([]models.AlbumFeed, error)
 }
 
 type Track interface {

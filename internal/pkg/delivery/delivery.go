@@ -30,7 +30,7 @@ func (h *Handler) InitRouter() *chi.Mux {
 
 	r.Get("/", h.index)
 
-	r.Get("/feed", h.feed)
+	r.Get("/feed", h.feed) // Auth middleware
 
 	r.Route("/auth", func(r chi.Router) {
 		r.Route("/login", func(r chi.Router) {
