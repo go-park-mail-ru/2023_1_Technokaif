@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/repository"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
 )
 
 type TrackUsecase struct {

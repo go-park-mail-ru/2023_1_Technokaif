@@ -1,8 +1,9 @@
 package usecase
 
 import (
-	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/repository"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
 )
 
 // Usecase implements all current app's services
@@ -11,6 +12,8 @@ type Usecase struct {
 	Album
 	Artist
 	Track
+
+	log *logger.Logger
 }
 
 // Auth describes which methods have to be implemented by auth-service
@@ -40,11 +43,12 @@ type Track interface {
 	GetTracks() []Track
 }
 
-func NewUsecase(r *repository.Repository) *Usecase {
+func NewUsecase(r *repository.Repository, l *logger.Logger) *Usecase {
 	return &Usecase{
 		Auth:   NewAuthUsecase(r.Auth),
 		Album:  NewAlbumUsecase(r.Album),
 		Artist: NewArtistUsecase(r.Artist),
 		Track:  NewTrackUsecase(r.Track),
+		log:    l,
 	}
 }

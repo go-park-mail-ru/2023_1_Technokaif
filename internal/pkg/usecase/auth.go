@@ -8,8 +8,8 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/repository"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
 )
 
 const (

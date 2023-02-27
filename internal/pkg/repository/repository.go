@@ -3,7 +3,8 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
 // Repository
@@ -12,6 +13,8 @@ type Repository struct {
 	Artist
 	Album
 	Track
+
+	log *logger.Logger
 }
 
 // Auth includes DBMS-relatable methods for authentication
@@ -30,12 +33,13 @@ type Track interface {
 }
 
 // NewRepository initialize SQL DBMS
-func NewRepository(db *sql.DB) *Repository {
+func NewRepository(db *sql.DB, l *logger.Logger) *Repository {
 	return &Repository{
 		Auth:   NewAuthPostgres(db),
 		Artist: NewArtistPostgres(db),
 		Album:  NewAlbumPostgres(db),
 		Track:  NewTrackPostgres(db),
+		log:    l,
 	}
 }
 

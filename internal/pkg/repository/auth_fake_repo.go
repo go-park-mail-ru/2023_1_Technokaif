@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
 type AuthFake struct {

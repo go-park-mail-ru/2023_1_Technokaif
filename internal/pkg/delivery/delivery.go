@@ -4,16 +4,19 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/usecase"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/usecase"
 )
 
 type Handler struct {
 	services *usecase.Usecase
+	log      *logger.Logger
 }
 
-func NewHandler(u *usecase.Usecase) *Handler {
+func NewHandler(u *usecase.Usecase, l *logger.Logger) *Handler {
 	return &Handler{
 		services: u,
+		log:      l,
 	}
 }
 

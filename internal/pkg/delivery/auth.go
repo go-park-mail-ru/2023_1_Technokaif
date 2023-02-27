@@ -6,7 +6,7 @@ import (
 
 	valid "github.com/asaskevich/govalidator"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
 type signUpResponse struct {
