@@ -25,13 +25,13 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&user)
 	if err != nil || !user.DeliveryValidate() {
-		httpErrorResponce(w, "incorrect input body", http.StatusBadRequest)
+		h.errorResponce(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
 	id, err := h.services.Auth.CreateUser(user)
 	if err != nil {
-		httpErrorResponce(w, err.Error(), http.StatusInternalServerError)
+		h.errorResponce(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -40,7 +40,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	response := signUpResponse{ID: id}
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
-		httpErrorResponce(w, err.Error(), http.StatusInternalServerError) // TODO change error message
+		h.errorResponce(w, err.Error(), http.StatusInternalServerError) // TODO change error message
 		return
 	}
 }
@@ -67,19 +67,19 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&userInput)
 	if err != nil || !userInput.validate() {
-		httpErrorResponce(w, "incorrect input body", http.StatusBadRequest)
+		h.errorResponce(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
 	userID, err := h.services.Auth.GetUserID(userInput.Username, userInput.Password)
 	if err != nil {
-		httpErrorResponce(w, err.Error(), http.StatusBadRequest) // TODO it can be repos error too
+		h.errorResponce(w, err.Error(), http.StatusBadRequest) // TODO it can be repos error too
 		return
 	}
 
 	token, err := h.services.Auth.GenerateAccessToken(userID)
 	if err != nil {
-		httpErrorResponce(w, err.Error(), http.StatusInternalServerError) // TODO change error message
+		h.errorResponce(w, err.Error(), http.StatusInternalServerError) // TODO change error message
 		return
 	}
 
@@ -88,7 +88,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	response := loginResponse{JWT: token}
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
-		httpErrorResponce(w, err.Error(), http.StatusInternalServerError) // TODO change error message
+		h.errorResponce(w, err.Error(), http.StatusInternalServerError) // TODO change error message
 		return
 	}
 }

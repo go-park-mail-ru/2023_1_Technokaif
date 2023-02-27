@@ -13,7 +13,7 @@ type Usecase struct {
 	Artist
 	Track
 
-	log *logger.Logger
+	logger logger.Logger
 }
 
 // Auth describes which methods have to be implemented by auth-service
@@ -43,12 +43,12 @@ type Track interface {
 	GetFeed() ([]models.TrackFeed, error)
 }
 
-func NewUsecase(r *repository.Repository, l *logger.Logger) *Usecase {
+func NewUsecase(r *repository.Repository, l logger.Logger) *Usecase {
 	return &Usecase{
 		Auth:   NewAuthUsecase(r.Auth),
 		Album:  NewAlbumUsecase(r.Album),
 		Artist: NewArtistUsecase(r.Artist),
 		Track:  NewTrackUsecase(r.Track),
-		log:    l,
+		logger: l,
 	}
 }

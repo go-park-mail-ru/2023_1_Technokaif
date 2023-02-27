@@ -14,7 +14,7 @@ type Repository struct {
 	Album
 	Track
 
-	log *logger.Logger
+	logger logger.Logger
 }
 
 // Auth includes DBMS-relatable methods for authentication
@@ -36,13 +36,13 @@ type Track interface {
 }
 
 // NewRepository initialize SQL DBMS
-func NewRepository(db *sql.DB, l *logger.Logger) *Repository {
+func NewRepository(db *sql.DB, l logger.Logger) *Repository {
 	return &Repository{
 		Auth:   NewAuthPostgres(db),
 		Artist: NewArtistPostgres(db),
 		Album:  NewAlbumPostgres(db),
 		Track:  NewTrackPostgres(db),
-		log:    l,
+		logger: l,
 	}
 }
 

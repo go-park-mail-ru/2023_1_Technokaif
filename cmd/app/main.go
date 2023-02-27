@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	logger, err := logger.NewLogger()
+	logger, err := logger.NewFLogger()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Logger can not be defined: "+err.Error())
 	}

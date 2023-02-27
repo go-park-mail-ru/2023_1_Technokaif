@@ -6,25 +6,29 @@ import (
 	"go.uber.org/zap"
 )
 
-// Can't come up with name
-// type Logger interface {
-// 	Error(msg string)
-// }
+type Logger interface {
+	Error(msg string)
+	Info(msg string)
+}
 
-type Logger struct {
+type FLogger struct {
 	logger *zap.Logger
 }
 
-func NewLogger() (*Logger, error) {
+func NewFLogger() (*FLogger, error) {
 	logger, err := zap.NewProduction()
 
 	if err != nil {
 		return nil, errors.New("Can't initialize logger: " + err.Error())
 	}
 
-	return &Logger{logger: logger}, nil
+	return &FLogger{logger: logger}, nil
 }
 
-func (l *Logger) Error(msg string) {
+func (l *FLogger) Error(msg string) {
 	l.logger.Error(msg)
+}
+
+func (l *FLogger) Info(msg string) {
+	l.logger.Info(msg)
 }
