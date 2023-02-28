@@ -17,24 +17,24 @@ func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
 		h.logger.Info("auth token : " + reqToken)
 
 		if authHeader == "" || reqToken == authHeader {
-			next.ServeHTTP(w, r)  // missing token
+			next.ServeHTTP(w, r) // missing token
 			return
 		}
 
 		userId, err := h.services.CheckAccessToken(reqToken)
 		if err != nil {
 			h.logger.Error(err.Error())
-			next.ServeHTTP(w, r)  // token check failed
+			next.ServeHTTP(w, r) // token check failed
 			return
 		}
 
 		ctx := context.WithValue(r.Context(), "ID", userId)
-		next.ServeHTTP(w, r.WithContext(ctx))  // token check successed
+		next.ServeHTTP(w, r.WithContext(ctx)) // token check successed
 	})
 }
 
 // returns error if authentication failed
-func (h *Handler) GetIdFromAuthorization(r *http.Request) (uint, error) { 
+func (h *Handler) GetIdFromAuthorization(r *http.Request) (uint, error) {
 	userId, ok := r.Context().Value("ID").(uint)
 	if !ok {
 		h.logger.Error("no User ID")

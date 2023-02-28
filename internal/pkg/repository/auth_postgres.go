@@ -33,7 +33,9 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 
 	var id int
 	err := row.Scan(&id)
-	if err != nil { ap.logger.Error(err.Error()) } // logger
+	if err != nil {
+		ap.logger.Error(err.Error())
+	} // logger
 
 	if pqerr, ok := err.(*pq.Error); ok {
 		if pqerr.Code.Name() == ERROR_NAME_USER_EXISTS {
@@ -55,7 +57,9 @@ func (ap *AuthPostgres) GetUser(username, password string) (models.User, error) 
 	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
 
-	if err != nil { ap.logger.Error(err.Error()) } // logger
+	if err != nil {
+		ap.logger.Error(err.Error())
+	} // logger
 	if err == sql.ErrNoRows {
 		return u, &NoSuchUserError{}
 	}

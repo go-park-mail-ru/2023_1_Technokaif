@@ -2,14 +2,17 @@ package logger
 
 import (
 	"errors"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 const LOG_FILENAME = "log.log"
 
+// Fluire + Logger = FLogger :)
+// Customized zap.Logger
 type FLogger struct {
 	logger *zap.Logger
 }
@@ -24,14 +27,17 @@ func NewFLogger() (*FLogger, error) {
 	return &FLogger{logger: logger}, nil
 }
 
+// Error is used to log error-sort events
 func (l *FLogger) Error(msg string) {
 	l.logger.Error(msg)
 }
 
+// Info is used to log informational messages
 func (l *FLogger) Info(msg string) {
 	l.logger.Info(msg)
 }
 
+// initZapLogger customizes zap.Logger and returns, generally, FLogger
 func initZapLogger() (*zap.Logger, error) {
 	configConsole := zap.NewProductionEncoderConfig()
 	configConsole.EncodeTime = ConsoleTimeEncoder
