@@ -13,6 +13,7 @@ func NewArtistUsecase(ra repository.Artist) *ArtistUsecase {
 	return &ArtistUsecase{repo: ra}
 }
 
+// GetFeed returns artists for main page
 func (a *ArtistUsecase) GetFeed() ([]models.ArtistFeed, error) {
 	artists, err := a.repo.GetFeed()
 	if err != nil {

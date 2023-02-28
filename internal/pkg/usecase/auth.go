@@ -65,12 +65,13 @@ func (a *AuthUsecase) GenerateAccessToken(userID uint) (string, error) {
 }
 
 func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, error) {
-	token, err := jwt.ParseWithClaims(acessToken, &jwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signing method")
-		}
-		return []byte(secret), nil
-	})
+	token, err := jwt.ParseWithClaims(acessToken, &jwtClaims{},
+		func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, errors.New("invalid signing method")
+			}
+			return []byte(secret), nil
+		})
 	if err != nil {
 		return 0, err
 	}

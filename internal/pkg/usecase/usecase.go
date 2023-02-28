@@ -19,15 +19,16 @@ type Usecase struct {
 // Auth describes which methods have to be implemented by auth-service
 type Auth interface {
 
-	// CreateUser creates new entity of user and returns it's id
+	// CreateUser creates new user and returns it's id
 	CreateUser(user models.User) (int, error)
 
-	// GetUserID gets User's ID if such User exists
+	// GetUserID returns User's ID if such User exists
 	GetUserID(username, password string) (uint, error)
 
-	// GenerateToken returns token created with user's username and password
+	// GenerateAccessToken returns token created with user's username and password
 	GenerateAccessToken(userID uint) (string, error)
 
+	// CheckAccessToken
 	CheckAccessToken(accessToken string) (uint, error)
 }
 

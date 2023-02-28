@@ -17,7 +17,7 @@ const (
 	ArtistsTracksTable = "Artists_Tracks"
 )
 
-// Config sets info about postgres DB we want to connect to
+// Config includes info about postgres DB we want to connect to
 type Config struct {
 	Host     string
 	Port     string

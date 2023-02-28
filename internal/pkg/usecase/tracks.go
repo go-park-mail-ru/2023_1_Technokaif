@@ -9,14 +9,11 @@ type TrackUsecase struct {
 	repo repository.Track
 }
 
-func (t *TrackUsecase) GetTracks() []Track {
-	return nil
-}
-
 func NewTrackUsecase(rt repository.Track) *TrackUsecase {
 	return &TrackUsecase{repo: rt}
 }
 
+// GetFeed returns tracks for main page
 func (t *TrackUsecase) GetFeed() ([]models.TrackFeed, error) {
 	tracks, err := t.repo.GetFeed()
 	if err != nil {

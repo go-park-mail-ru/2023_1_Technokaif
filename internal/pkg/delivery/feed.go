@@ -13,6 +13,7 @@ type FeedResponse struct {
 	Albums  []models.AlbumFeed  `json:"albums"`
 }
 
+// Main Page
 func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 

@@ -19,18 +19,25 @@ type Repository struct {
 
 // Auth includes DBMS-relatable methods for authentication
 type Auth interface {
+	// CreateUser inserts new user into DB and return it's id
+	// or error if it already exists
 	CreateUser(user models.User) (int, error)
+
+	// GetUser returns models.User if it's entry in DB exists or error otherwise
 	GetUser(username, password string) (models.User, error)
 }
 
+// Artist includes DBMS-relatable methods to work with artists
 type Artist interface {
 	GetFeed() ([]models.ArtistFeed, error)
 }
 
+// Album includes DBMS-relatable methods to work with albums
 type Album interface {
 	GetFeed() ([]models.AlbumFeed, error)
 }
 
+// Track includes DBMS-relatable methods to work with tracks
 type Track interface {
 	GetFeed() ([]models.TrackFeed, error)
 }
@@ -47,14 +54,11 @@ func NewRepository(db *sql.DB, l logger.Logger) *Repository {
 }
 
 // AUTH ERRORS
-type UserAlreadyExistsError struct {
-}
+type UserAlreadyExistsError struct{}
+type NoSuchUserError struct{}
 
 func (e *UserAlreadyExistsError) Error() string {
 	return "user already exists"
-}
-
-type NoSuchUserError struct {
 }
 
 func (e *NoSuchUserError) Error() string {

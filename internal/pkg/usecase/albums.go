@@ -13,6 +13,7 @@ func NewAlbumUsecase(ra repository.Album) *AlbumUsecase {
 	return &AlbumUsecase{repo: ra}
 }
 
+// GetFeed returns albums for main page
 func (a *AlbumUsecase) GetFeed() ([]models.AlbumFeed, error) {
 	albums, err := a.repo.GetFeed()
 	if err != nil {

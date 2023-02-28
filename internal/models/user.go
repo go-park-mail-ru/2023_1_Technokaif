@@ -13,10 +13,11 @@ const (
 	Other  Sex = "O"
 )
 
-// User implements information about app's users
 type Date struct {
 	time.Time
 }
+
+// User implements information about app's users
 type User struct {
 	ID        uint   `json:"-" valid:"-"`
 	Username  string `json:"username"  valid:"required,runelength(4|20)"`

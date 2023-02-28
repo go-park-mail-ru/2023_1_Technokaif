@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+// ArtistPostgres implements Artist
 type ArtistPostgres struct {
 	db *sql.DB
 }

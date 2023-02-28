@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/joho/godotenv" // load environment
 
@@ -23,7 +26,7 @@ func main() {
 		logger.Error("Error while loading environment: " + err.Error())
 	}
 
-	db, err := repository.NewPostrgresDB(InitConfig())
+	db, err := repository.NewPostrgresDB(InitDBConfig())
 	if err != nil {
 		logger.Error("Error while connecting to database: " + err.Error())
 	}
@@ -33,13 +36,33 @@ func main() {
 	handler := delivery.NewHandler(services, logger)
 
 	server := new(server.Server)
-	if err := server.Run(os.Getenv("SERVERHOST"), os.Getenv("SERVERPORT"), handler.InitRouter()); err != nil {
-		logger.Error("Error while launching server: " + err.Error())
+	host := os.Getenv("SERVERHOST")
+	port := os.Getenv("SERVERPORT")
+
+	go func() {
+		if err := server.Run(host, port, handler.InitRouter()); err != nil {
+			logger.Error("Error while launching server: " + err.Error())
+		}
+	}()
+	logger.Info("Server launched at " + host + ":" + port)
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	<-stop
+
+	logger.Info("Server gracefully shutting down...")
+
+	if err := server.Shutdown(context.Background()); err != nil {
+		logger.Error("Error while shutting down server: " + err.Error())
+	}
+
+	if err := db.Close(); err != nil {
+		logger.Error("Error while closing DB-connection: " + err.Error())
 	}
 }
 
 // InitConfig inits DB configuration from environment variables
-func InitConfig() repository.Config {
+func InitDBConfig() repository.Config {
 	return repository.Config{
 		Host:     os.Getenv("DBHOST"),
 		Port:     os.Getenv("DBPORT"),

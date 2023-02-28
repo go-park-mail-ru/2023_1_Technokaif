@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+// TrackPostgres implements Track
 type TrackPostgres struct {
 	db *sql.DB
 }
@@ -15,7 +16,7 @@ func NewTrackPostgres(db *sql.DB) *TrackPostgres {
 	return &TrackPostgres{db: db}
 }
 
-type ArtistsTracks struct {
+type artistsTracks struct {
 	TrackID    int
 	TrackName  string
 	ArtistID   int
@@ -35,7 +36,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 
 	var m = make(map[int]models.TrackFeed)
 	for rows.Next() {
-		var at ArtistsTracks
+		var at artistsTracks
 		if err = rows.Scan(&at.TrackID, &at.TrackName, &at.ArtistID, &at.ArtistName); err != nil {
 			return nil, err
 		}

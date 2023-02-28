@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+// AlbumPostgres implements Album
 type AlbumPostgres struct {
 	db *sql.DB
 }
@@ -15,7 +16,7 @@ func NewAlbumPostgres(db *sql.DB) *AlbumPostgres {
 	return &AlbumPostgres{db: db}
 }
 
-type ArtistsAlbums struct {
+type artistsAlbums struct {
 	AlbumID     int
 	AlbumName   string
 	ArtistID    int
@@ -24,9 +25,10 @@ type ArtistsAlbums struct {
 }
 
 func (tp *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
-	query := fmt.Sprintf("SELECT al.id, al.name, ar.id, ar.name, al.description "+
-		"FROM %s al INNER JOIN %s aa ON al.id = aa.album_id "+
-		"INNER JOIN %s ar ON aa.artist_id = ar.id;",
+	query := fmt.Sprintf(
+		"SELECT al.id, al.name, ar.id, ar.name, al.description "+
+			"FROM %s al INNER JOIN %s aa ON al.id = aa.album_id "+
+			"INNER JOIN %s ar ON aa.artist_id = ar.id;",
 		AlbumsTable, ArtistsAlbumsTable, ArtistsTable)
 
 	rows, err := tp.db.Query(query)
@@ -36,7 +38,7 @@ func (tp *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 
 	var m = make(map[int]models.AlbumFeed)
 	for rows.Next() {
-		var aa ArtistsAlbums
+		var aa artistsAlbums
 		if err = rows.Scan(&aa.AlbumID, &aa.AlbumName, &aa.ArtistID, &aa.ArtistName, &aa.Description); err != nil {
 			return nil, err
 		}
