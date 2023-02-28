@@ -12,8 +12,6 @@ type Usecase struct {
 	Album
 	Artist
 	Track
-
-	logger logger.Logger
 }
 
 // Auth describes which methods have to be implemented by auth-service
@@ -46,10 +44,9 @@ type Track interface {
 
 func NewUsecase(r *repository.Repository, l logger.Logger) *Usecase {
 	return &Usecase{
-		Auth:   NewAuthUsecase(r.Auth),
-		Album:  NewAlbumUsecase(r.Album),
-		Artist: NewArtistUsecase(r.Artist),
-		Track:  NewTrackUsecase(r.Track),
-		logger: l,
+		Auth:   NewAuthUsecase(r.Auth, l),
+		Album:  NewAlbumUsecase(r.Album, l),
+		Artist: NewArtistUsecase(r.Artist, l),
+		Track:  NewTrackUsecase(r.Track, l),
 	}
 }

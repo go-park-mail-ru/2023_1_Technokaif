@@ -7,16 +7,18 @@ import (
 
 	"github.com/lib/pq"
 
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
 // AuthPostgres implements Auth
 type AuthPostgres struct {
-	db *sql.DB
+	db     *sql.DB
+	logger logger.Logger
 }
 
-func NewAuthPostgres(db *sql.DB) *AuthPostgres {
-	return &AuthPostgres{db: db}
+func NewAuthPostgres(db *sql.DB, l logger.Logger) *AuthPostgres {
+	return &AuthPostgres{db: db, logger: l}
 }
 
 const ERROR_NAME_USER_EXISTS = "unique_violation"
@@ -31,6 +33,7 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 
 	var id int
 	err := row.Scan(&id)
+	if err != nil { ap.logger.Error(err.Error()) } // logger
 
 	if pqerr, ok := err.(*pq.Error); ok {
 		if pqerr.Code.Name() == ERROR_NAME_USER_EXISTS {
@@ -52,6 +55,7 @@ func (ap *AuthPostgres) GetUser(username, password string) (models.User, error) 
 	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
 
+	if err != nil { ap.logger.Error(err.Error()) } // logger
 	if err == sql.ErrNoRows {
 		return u, &NoSuchUserError{}
 	}

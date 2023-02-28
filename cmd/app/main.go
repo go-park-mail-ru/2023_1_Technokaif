@@ -29,6 +29,7 @@ func main() {
 	db, err := repository.NewPostrgresDB(InitDBConfig())
 	if err != nil {
 		logger.Error("Error while connecting to database: " + err.Error())
+		return
 	}
 
 	repository := repository.NewRepository(db, logger)

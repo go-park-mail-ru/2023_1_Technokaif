@@ -25,11 +25,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&user)
 	if err != nil || !user.DeliveryValidate() {
-		if err != nil {
-			h.logger.Error(err.Error())
-		} else {
-			h.logger.Error("user validation failed")
-		} // logger
+		if err != nil { h.logger.Error(err.Error()) } else { h.logger.Error("user validation failed") } // logger
 		h.errorResponce(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
@@ -74,11 +70,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&userInput)
 	if err != nil || !userInput.validate() {
-		if err != nil {
-			h.logger.Error(err.Error())
-		} else {
-			h.logger.Error("user validation failed")
-		} // logger
+		if err != nil { h.logger.Error(err.Error()) } else { h.logger.Error("user validation failed") } // logger
 		h.errorResponce(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}

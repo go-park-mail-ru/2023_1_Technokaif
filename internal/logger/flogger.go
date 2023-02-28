@@ -62,7 +62,7 @@ func initZapLogger() (*zap.Logger, error) {
 }
 
 func ConsoleTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(t.Format("15:04:05"))
+	enc.AppendString("[" + t.Format("15:04:05") + "]")
 }
 
 func FileTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {

@@ -4,16 +4,18 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
 // TrackPostgres implements Track
 type TrackPostgres struct {
-	db *sql.DB
+	db     *sql.DB
+	logger logger.Logger
 }
 
-func NewTrackPostgres(db *sql.DB) *TrackPostgres {
-	return &TrackPostgres{db: db}
+func NewTrackPostgres(db *sql.DB, l logger.Logger) *TrackPostgres {
+	return &TrackPostgres{db: db, logger: l}
 }
 
 type artistsTracks struct {
@@ -31,6 +33,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 
 	rows, err := tp.db.Query(query)
 	if err != nil {
+		tp.logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -38,6 +41,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 	for rows.Next() {
 		var at artistsTracks
 		if err = rows.Scan(&at.TrackID, &at.TrackName, &at.ArtistID, &at.ArtistName); err != nil {
+			tp.logger.Error(err.Error())
 			return nil, err
 		}
 

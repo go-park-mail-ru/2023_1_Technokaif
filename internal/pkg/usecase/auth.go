@@ -8,6 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
 )
@@ -20,7 +21,8 @@ const (
 )
 
 type AuthUsecase struct {
-	repo repository.Auth
+	repo   repository.Auth
+	logger logger.Logger
 }
 
 type jwtClaims struct {
@@ -28,8 +30,8 @@ type jwtClaims struct {
 	jwt.RegisteredClaims
 }
 
-func NewAuthUsecase(ra repository.Auth) *AuthUsecase {
-	return &AuthUsecase{repo: ra}
+func NewAuthUsecase(ra repository.Auth, l logger.Logger) *AuthUsecase {
+	return &AuthUsecase{repo: ra, logger: l}
 }
 
 func (a *AuthUsecase) CreateUser(u models.User) (int, error) {
