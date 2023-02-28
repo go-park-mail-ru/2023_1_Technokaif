@@ -19,3 +19,6 @@ go.work
 
 # Environment
 .env
+
+# Logs
+*.log

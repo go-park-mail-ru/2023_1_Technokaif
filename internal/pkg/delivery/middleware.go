@@ -13,12 +13,15 @@ func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
 		authHeader := r.Header.Get("Authorization")
 		reqToken := strings.TrimPrefix(authHeader, prefix)
 
+		h.logger.Info("auth token : " + reqToken)
+
 		if authHeader == "" || reqToken == authHeader {
 			h.errorResponce(w, "no token found", http.StatusBadRequest)
 			return
 		}
 		userId, err := h.services.CheckAccessToken(reqToken)
 		if err != nil {
+			h.logger.Error(err.Error())
 			h.errorResponce(w, "failed to authenticate", http.StatusBadRequest)
 		}
 

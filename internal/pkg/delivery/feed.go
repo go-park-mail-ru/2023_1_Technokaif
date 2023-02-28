@@ -51,6 +51,7 @@ func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
 
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&fr); err != nil {
+		h.logger.Error(err.Error())
 		h.errorResponce(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	logger, err := logger.NewFLogger()
+	logger, err := logger.NewLogger()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Logger can not be defined: "+err.Error())
 	}
@@ -69,6 +69,6 @@ func InitDBConfig() repository.Config {
 		User:     os.Getenv("DBUSER"),
 		DBName:   os.Getenv("DBNAME"),
 		Password: os.Getenv("DBPASSWORD"),
-		SSLMode:  os.Getenv("DBSSLMODE"),
+		SSLMode:  os.Getenv("DBPASSWORD"),
 	}
 }
