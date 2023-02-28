@@ -49,7 +49,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 }
 
 type loginInput struct {
-	Username string `json:"username" valid:"required,runelength(4|20)"`
+	Username string `json:"username" valid:"required"`
 	Password string `json:"password" valid:"required"`
 }
 

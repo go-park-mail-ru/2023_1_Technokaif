@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 )
@@ -16,16 +17,29 @@ func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
 		h.logger.Info("auth token : " + reqToken)
 
 		if authHeader == "" || reqToken == authHeader {
-			h.errorResponce(w, "no token found", http.StatusBadRequest)
+			next.ServeHTTP(w, r)  // missing token
 			return
 		}
+
 		userId, err := h.services.CheckAccessToken(reqToken)
 		if err != nil {
 			h.logger.Error(err.Error())
-			h.errorResponce(w, "failed to authenticate", http.StatusBadRequest)
+			next.ServeHTTP(w, r)  // token check failed
+			return
 		}
 
 		ctx := context.WithValue(r.Context(), "ID", userId)
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r.WithContext(ctx))  // token check successed
 	})
+}
+
+// returns error if authentication failed
+func (h *Handler) GetIdFromAuthorization(r *http.Request) (uint, error) { 
+	userId, ok := r.Context().Value("ID").(uint)
+	if !ok {
+		h.logger.Error("no User ID")
+		return 0, errors.New("failed to authenticate")
+	}
+
+	return userId, nil
 }

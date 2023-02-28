@@ -3,6 +3,7 @@ package delivery
 import (
 	"encoding/json"
 	"net/http"
+	// "strconv"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -15,12 +16,13 @@ type FeedResponse struct {
 
 // Main Page
 func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 
-	/* userId, ok := r.Context().Value("ID").(uint)
-	if !ok {
-		httpErrorResponce(w, "api error", http.StatusInternalServerError)
-	} */
+	/* userId, err := h.GetIdFromAuthorization(r)
+	if err != nil {
+		h.errorResponce(w, "failed to authenticate", http.StatusBadRequest)
+		return
+	}
+	h.logger.Info("User id : " + strconv.Itoa(int(userId))) */
 
 	artists, err := h.services.Artist.GetFeed()
 	if err != nil {
