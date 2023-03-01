@@ -22,19 +22,20 @@ func NewHandler(u *usecase.Usecase, l logger.Logger) *Handler {
 func (h *Handler) InitRouter() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Get("/", h.feed)
-	r.With(h.Authorization).Get("/feed", h.feed) // Auth middleware
+	r.Route("/api", func(r chi.Router) {
+		r.With(h.Authorization).Get("/feed", h.feed) // Auth middleware
 
-	r.Route("/auth", func(r chi.Router) {
-		r.Route("/login", func(r chi.Router) {
-			r.Post("/", h.login)
+		r.Route("/auth", func(r chi.Router) {
+			r.Route("/login", func(r chi.Router) {
+				r.Post("/", h.login)
+			})
+
+			r.Route("/signup", func(r chi.Router) {
+				r.Post("/", h.signUp)
+			})
+
+			r.Get("/logout", h.logout)
 		})
-
-		r.Route("/signup", func(r chi.Router) {
-			r.Post("/", h.signUp)
-		})
-
-		r.Get("/logout", h.logout)
 	})
 
 	return r
