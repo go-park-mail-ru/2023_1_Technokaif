@@ -3,6 +3,7 @@ package delivery
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	valid "github.com/asaskevich/govalidator"
 
@@ -40,6 +41,8 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		h.errorResponce(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	h.logger.Info("user created, Id : " + strconv.Itoa(id))
 
 	// TODO maybe make wrapper for responses
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -96,6 +99,8 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		h.errorResponce(w, "can't generate access token", http.StatusInternalServerError)
 		return
 	}
+
+	h.logger.Info("login returned token : " + token)
 
 	// TODO maybe make wrapper for responses
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
