@@ -37,6 +37,7 @@ func NewPostrgresDB(cfg Config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	db.SetMaxIdleConns(5)
 
 	err = db.Ping()
 	if err != nil {
