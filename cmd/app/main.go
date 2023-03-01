@@ -70,6 +70,6 @@ func InitDBConfig() repository.Config {
 		User:     os.Getenv("DBUSER"),
 		DBName:   os.Getenv("DBNAME"),
 		Password: os.Getenv("DBPASSWORD"),
-		SSLMode:  os.Getenv("DBPASSWORD"),
+		SSLMode:  os.Getenv("DBSSLMODE"),
 	}
 }
