@@ -2,7 +2,7 @@ CREATE TYPE SEX AS ENUM('M', 'F', 'O');
 CREATE TABLE Users
 (
     id            SERIAL       PRIMARY KEY,
-    user_version  INT                      NOT NULL DEFAULT 1,
+    version       INT                      NOT NULL DEFAULT 1,
     username      VARCHAR(20)  UNIQUE      NOT NULL,
     email         VARCHAR(30)  UNIQUE      NOT NULL,
     password_hash VARCHAR(256)             NOT NULL,

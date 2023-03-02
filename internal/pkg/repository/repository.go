@@ -25,6 +25,8 @@ type Auth interface {
 	GetUserByCreds(username, password string) (*models.User, error)
 
 	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
+
+	ChangeUserVersion(userID uint) (error)
 }
 
 // Artist includes DBMS-relatable methods to work with artists

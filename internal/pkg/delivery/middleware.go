@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -11,7 +12,7 @@ import (
 
 const contextValueUser = "user"
 
-// HTTP middleware setting a value on the request context
+// Authorization is HTTP middleware which sets a value on the request context
 func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		prefix := "Bearer "
@@ -39,12 +40,14 @@ func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
 			return
 		}
 
+		h.logger.Info("User verion : " + strconv.Itoa(int(user.Version)))
+
 		ctx := context.WithValue(r.Context(), contextValueUser, user)
 		next.ServeHTTP(w, r.WithContext(ctx)) // token check successed
 	})
 }
 
-// returns error if authentication failed
+// GetUserFromAuthorization returns error if authentication failed
 func (h *Handler) GetUserFromAuthorization(r *http.Request) (*models.User, error) {
 	user, ok := r.Context().Value(contextValueUser).(*models.User)
 	if !ok {

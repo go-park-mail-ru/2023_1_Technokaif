@@ -92,6 +92,15 @@ func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
 	return claims.UserId, claims.UserVersion, nil
 }
 
+func (a *AuthUsecase) ChangeUserVersion(userID uint) (error) {
+	err := a.repo.ChangeUserVersion(userID)
+	if err != nil {
+		return errors.New("failed to update user version")
+	}
+
+	return nil
+}
+
 func getPasswordHash(password string) string {
 	hash := sha256.New()
 	hash.Write([]byte(password))

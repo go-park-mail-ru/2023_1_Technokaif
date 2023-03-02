@@ -34,7 +34,7 @@ func (h *Handler) InitRouter() *chi.Mux {
 				r.Post("/", h.signUp)
 			})
 
-			r.Get("/logout", h.logout)
+			r.With(h.Authorization).Get("/logout", h.logout) // Auth middleware
 		})
 	})
 

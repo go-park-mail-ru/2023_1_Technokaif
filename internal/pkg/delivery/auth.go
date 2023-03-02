@@ -18,6 +18,10 @@ type loginResponse struct {
 	JWT string `json:"jwt"`
 }
 
+type logoutResponse struct {
+	Status string `json:"status"`
+}
+
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -69,6 +73,7 @@ func (i *loginInput) validate() bool {
 	return true
 }
 
+
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -114,5 +119,26 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("You've been successfully logout"))
+	user, err := h.GetUserFromAuthorization(r)
+	if err != nil {
+		h.errorResponce(w, "invalid token", http.StatusBadRequest)
+		return 
+	}
+	h.logger.Info("UserID for logout : " + strconv.Itoa(int(user.ID)))
+
+	if err = h.services.ChangeUserVersion(user.ID); err != nil {
+		h.logger.Error(err.Error())
+		h.errorResponce(w, "failed to log out", http.StatusBadRequest)
+		return 
+	}
+
+	// TODO maybe make wrapper for responses
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	response := logoutResponse{Status: "ok"}
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(&response); err != nil {
+		h.logger.Error(err.Error())
+		h.errorResponce(w, "can't encode responce into json", http.StatusInternalServerError)
+		return
+	}
 }

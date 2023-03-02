@@ -50,7 +50,7 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 
 // TODO make helping func for GetUser*
 func (ap *AuthPostgres) GetUserByCreds(username, password string) (*models.User, error) {
-	query := fmt.Sprintf("SELECT id, user_version, username, email, password_hash, first_name, last_name, user_sex, birth_date "+
+	query := fmt.Sprintf("SELECT id, version, username, email, password_hash, first_name, last_name, user_sex, birth_date "+
 		"FROM %s WHERE (username=$1 OR email=$1) AND password_hash=$2;", UsersTable)
 	row := ap.db.QueryRow(query, username, password)
 
@@ -69,8 +69,8 @@ func (ap *AuthPostgres) GetUserByCreds(username, password string) (*models.User,
 }
 
 func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint) (*models.User, error) {
-	query := fmt.Sprintf("SELECT id, user_version, username, email, password_hash, first_name, last_name, user_sex, birth_date "+
-		"FROM %s WHERE id=$1 AND user_version=$2;", UsersTable)
+	query := fmt.Sprintf("SELECT id, version, username, email, password_hash, first_name, last_name, user_sex, birth_date "+
+		"FROM %s WHERE id=$1 AND version=$2;", UsersTable)
 	row := ap.db.QueryRow(query, userID, userVersion)
 
 	var u models.User
@@ -85,4 +85,21 @@ func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint) (*models.Use
 	}
 
 	return &u, err
+}
+
+func (ap *AuthPostgres) ChangeUserVersion(userID uint) (error) {  // TODO maybe return user with new version
+	query := fmt.Sprintf("UPDATE %s SET version = version + 1 WHERE id=$1 RETURNING id;", UsersTable)
+	row := ap.db.QueryRow(query, userID)
+	
+	err := row.Scan(&userID)
+	if err != nil {
+		ap.logger.Error(err.Error())
+	} // logger
+
+	if err == sql.ErrNoRows {
+		ap.logger.Error(err.Error())
+		return &NoSuchUserError{}
+	} 
+
+	return err
 }
