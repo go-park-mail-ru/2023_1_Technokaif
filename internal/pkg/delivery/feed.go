@@ -3,7 +3,6 @@ package delivery
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -14,15 +13,21 @@ type FeedResponse struct {
 	Albums  []models.AlbumFeed  `json:"albums"`
 }
 
-// Main Page
+//	@Summary		Main Page
+//	@Tags			feed
+//	@Description	User's feed (Tracks, artists, albums)
+//	@Accept			json
+//	@Produce		json
+//	@Success		200			{object}	FeedResponse	"Show feed"
+//	@Failure		500			{object}	errorResponse	"Server DB error"
+//	@Router			/api/feed [get]
 func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
-
-	user, err := h.GetUserFromAuthorization(r)
-	if err != nil {
-		h.errorResponce(w, "failed to authenticate", http.StatusBadRequest)
-		return
-	}
-	h.logger.Info("User id : " + strconv.Itoa(int(user.ID)))
+	// user, err := h.GetUserFromAuthorization(r)
+	// if err != nil {
+	// 	h.errorResponce(w, "failed to authenticate", http.StatusBadRequest)
+	// 	return
+	// }
+	// h.logger.Info("User id : " + strconv.Itoa(int(user.ID)))
 
 	artists, err := h.services.Artist.GetFeed()
 	if err != nil {

@@ -1,0 +1,224 @@
+basePath: /feed
+definitions:
+  delivery.FeedResponse:
+    properties:
+      albums:
+        items:
+          $ref: '#/definitions/models.AlbumFeed'
+        type: array
+      artists:
+        items:
+          $ref: '#/definitions/models.ArtistFeed'
+        type: array
+      tracks:
+        items:
+          $ref: '#/definitions/models.TrackFeed'
+        type: array
+    type: object
+  delivery.errorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  delivery.loginInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  delivery.loginResponse:
+    properties:
+      jwt:
+        type: string
+    type: object
+  delivery.logoutResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  delivery.signUpResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  models.AlbumFeed:
+    properties:
+      artists:
+        items:
+          $ref: '#/definitions/models.ArtistFeed'
+        type: array
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.ArtistFeed:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.Date:
+    properties:
+      time.Time:
+        type: string
+    type: object
+  models.Sex:
+    enum:
+    - M
+    - F
+    - O
+    type: string
+    x-enum-varnames:
+    - Male
+    - Female
+    - Other
+  models.TrackFeed:
+    properties:
+      artists:
+        items:
+          $ref: '#/definitions/models.ArtistFeed'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      birthDate:
+        $ref: '#/definitions/models.Date'
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      sex:
+        $ref: '#/definitions/models.Sex'
+      username:
+        type: string
+    type: object
+host: localhost:4443
+info:
+  contact: {}
+  description: Server API for Fluire Streaming Service Application
+  title: Fluire API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: login account
+      parameters:
+      - description: username and password
+        in: body
+        name: userInput
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.loginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user created
+          schema:
+            $ref: '#/definitions/delivery.loginResponse'
+        "400":
+          description: incorrect input
+          schema:
+            $ref: '#/definitions/delivery.errorResponse'
+        "500":
+          description: server DB error
+          schema:
+            $ref: '#/definitions/delivery.errorResponse'
+      summary: Sign In
+      tags:
+      - auth
+  /api/auth/logout:
+    get:
+      consumes:
+      - application/json
+      description: logout account
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user loged out
+          schema:
+            $ref: '#/definitions/delivery.logoutResponse'
+        "400":
+          description: logout fail
+          schema:
+            $ref: '#/definitions/delivery.errorResponse'
+        "500":
+          description: server DB error
+          schema:
+            $ref: '#/definitions/delivery.errorResponse'
+      summary: Log Out
+      tags:
+      - auth
+  /api/auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: create account
+      parameters:
+      - description: user info
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user created
+          schema:
+            $ref: '#/definitions/delivery.signUpResponse'
+        "400":
+          description: incorrect input
+          schema:
+            $ref: '#/definitions/delivery.errorResponse'
+        "500":
+          description: server DB error
+          schema:
+            $ref: '#/definitions/delivery.errorResponse'
+      summary: Sign Up
+      tags:
+      - auth
+  /api/feed:
+    get:
+      consumes:
+      - application/json
+      description: User's feed (Tracks, artists, albums)
+      parameters:
+      - description: username and password
+        in: body
+        name: userInput
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.loginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: show feed
+          schema:
+            $ref: '#/definitions/delivery.FeedResponse'
+        "500":
+          description: server DB error
+          schema:
+            $ref: '#/definitions/delivery.errorResponse'
+      summary: Main Page
+      tags:
+      - feed
+swagger: "2.0"

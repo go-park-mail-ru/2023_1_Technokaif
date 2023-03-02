@@ -16,6 +16,17 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/server"
 )
 
+//	@title			Fluire API
+//	@version		1.0
+//	@description	Server API for Fluire Streaming Service Application
+
+//	@host		localhost:4443
+//	@BasePath	/feed
+
+//	@securityDefinitions	AuthKey
+//	@in						header
+//	@name					Authorization
+
 func main() {
 	logger, err := logger.NewLogger()
 	if err != nil {
