@@ -25,9 +25,7 @@ func NewHandler(u *usecase.Usecase, l logger.Logger) *Handler {
 func (h *Handler) InitRouter() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:4443/swagger/doc.json"), //The url pointing to API definition
-	))
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	r.Route("/api", func(r chi.Router) {
 		r.With(h.Authorization).Get("/feed", h.feed) // Auth middleware
