@@ -16,7 +16,7 @@ import (
 const (
 	salt = "@k8#&o1h18-9fwa_hg"
 
-	secret   = "yarik_tri"
+	secret   = "yarik_tri_is_god_of_russia"
 	tokenTTL = 24 * time.Hour
 )
 
@@ -26,7 +26,8 @@ type AuthUsecase struct {
 }
 
 type jwtClaims struct {
-	UserId uint `json:"id"`
+	UserId 		uint `json:"id"`
+	UserVersion uint `json:"user_version"`
 	jwt.RegisteredClaims
 }
 
@@ -39,19 +40,24 @@ func (a *AuthUsecase) CreateUser(u models.User) (int, error) {
 	return a.repo.CreateUser(u)
 }
 
-func (a *AuthUsecase) GetUserID(username, password string) (uint, error) {
+func (a *AuthUsecase) GetUserByCreds(username, password string) (*models.User, error) {
 	passwordHash := getPasswordHash(password)
-	user, err := a.repo.GetUser(username, passwordHash)
+	user, err := a.repo.GetUserByCreds(username, passwordHash)
 	if err != nil {
-		return 0, err // TODO it can be repos error too
+		return &models.User{}, err // TODO it can be repos error too
 	}
 
-	return user.ID, nil
+	return user, nil
 }
 
-func (a *AuthUsecase) GenerateAccessToken(userID uint) (string, error) {
+func (a *AuthUsecase) GetUserByAuthData(userID, userVersion uint) (*models.User, error) {
+	return a.repo.GetUserByAuthData(userID, userVersion)
+}
+
+func (a *AuthUsecase) GenerateAccessToken(userID uint, userVersion uint) (string, error) {
 	claims := &jwtClaims{
 		userID,
+		userVersion,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -66,7 +72,7 @@ func (a *AuthUsecase) GenerateAccessToken(userID uint) (string, error) {
 	return signedToken, nil
 }
 
-func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, error) {
+func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
 	token, err := jwt.ParseWithClaims(acessToken, &jwtClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -75,15 +81,15 @@ func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, error) {
 			return []byte(secret), nil
 		})
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	claims, ok := token.Claims.(*jwtClaims)
 	if !ok {
-		return 0, errors.New("token claims are not of type *tokenClaims")
+		return 0, 0, errors.New("token claims are not of type *tokenClaims")
 	}
 
-	return claims.UserId, nil
+	return claims.UserId, claims.UserVersion, nil
 }
 
 func getPasswordHash(password string) string {

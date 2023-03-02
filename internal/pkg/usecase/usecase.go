@@ -21,13 +21,15 @@ type Auth interface {
 	CreateUser(user models.User) (int, error)
 
 	// GetUserID returns User's ID if such User exists
-	GetUserID(username, password string) (uint, error)
+	GetUserByCreds(username, password string) (*models.User, error)
+
+	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
 
 	// GenerateAccessToken returns token created with user's username and password
-	GenerateAccessToken(userID uint) (string, error)
+	GenerateAccessToken(userID, userVersion uint) (string, error)
 
 	// CheckAccessToken
-	CheckAccessToken(accessToken string) (uint, error)
+	CheckAccessToken(accessToken string) (uint, uint, error)
 }
 
 type Album interface {

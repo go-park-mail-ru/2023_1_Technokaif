@@ -22,7 +22,9 @@ type Auth interface {
 	CreateUser(user models.User) (int, error)
 
 	// GetUser returns models.User if it's entry in DB exists or error otherwise
-	GetUser(username, password string) (models.User, error)
+	GetUserByCreds(username, password string) (*models.User, error)
+
+	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
 }
 
 // Artist includes DBMS-relatable methods to work with artists

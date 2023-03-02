@@ -86,14 +86,14 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := h.services.Auth.GetUserID(userInput.Username, userInput.Password)
+	user, err := h.services.Auth.GetUserByCreds(userInput.Username, userInput.Password)
 	if err != nil {
 		h.logger.Error(err.Error())
 		h.errorResponce(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	token, err := h.services.Auth.GenerateAccessToken(userID)
+	token, err := h.services.Auth.GenerateAccessToken(user.ID, user.Version)
 	if err != nil {
 		h.logger.Error(err.Error())
 		h.errorResponce(w, "can't generate access token", http.StatusInternalServerError)

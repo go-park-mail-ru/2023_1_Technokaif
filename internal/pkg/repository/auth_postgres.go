@@ -48,21 +48,41 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 	return id, err
 }
 
-func (ap *AuthPostgres) GetUser(username, password string) (models.User, error) {
-	query := fmt.Sprintf("SELECT id, username, email, password_hash, first_name, last_name, user_sex, birth_date "+
+// TODO make helping func for GetUser*
+func (ap *AuthPostgres) GetUserByCreds(username, password string) (*models.User, error) {
+	query := fmt.Sprintf("SELECT id, user_version, username, email, password_hash, first_name, last_name, user_sex, birth_date "+
 		"FROM %s WHERE (username=$1 OR email=$1) AND password_hash=$2;", UsersTable)
 	row := ap.db.QueryRow(query, username, password)
 
 	var u models.User
-	err := row.Scan(&u.ID, &u.Username, &u.Email, &u.Password,
+	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
 
 	if err != nil {
 		ap.logger.Error(err.Error())
 	} // logger
 	if err == sql.ErrNoRows {
-		return u, &NoSuchUserError{}
+		return &u, &NoSuchUserError{}
 	}
 
-	return u, err
+	return &u, err
+}
+
+func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint) (*models.User, error) {
+	query := fmt.Sprintf("SELECT id, user_version, username, email, password_hash, first_name, last_name, user_sex, birth_date "+
+		"FROM %s WHERE id=$1 AND user_version=$2;", UsersTable)
+	row := ap.db.QueryRow(query, userID, userVersion)
+
+	var u models.User
+	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password,
+		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
+
+	if err != nil {
+		ap.logger.Error(err.Error())
+	} // logger
+	if err == sql.ErrNoRows {
+		return &u, &NoSuchUserError{}
+	}
+
+	return &u, err
 }

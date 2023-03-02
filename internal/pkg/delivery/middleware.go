@@ -5,7 +5,11 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
+
+const contextValueUser = "user"
 
 // HTTP middleware setting a value on the request context
 func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
@@ -21,25 +25,32 @@ func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
 			return
 		}
 
-		userId, err := h.services.CheckAccessToken(reqToken)
+		userId, userVersion, err := h.services.CheckAccessToken(reqToken)
 		if err != nil {
 			h.logger.Error(err.Error())
 			next.ServeHTTP(w, r) // token check failed
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "ID", userId)
+		user, err := h.services.GetUserByAuthData(userId, userVersion)
+		if err != nil {
+			h.logger.Error(err.Error())
+			next.ServeHTTP(w, r) // UserAuth data check failed
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), contextValueUser, user)
 		next.ServeHTTP(w, r.WithContext(ctx)) // token check successed
 	})
 }
 
 // returns error if authentication failed
-func (h *Handler) GetIdFromAuthorization(r *http.Request) (uint, error) {
-	userId, ok := r.Context().Value("ID").(uint)
+func (h *Handler) GetUserFromAuthorization(r *http.Request) (*models.User, error) {
+	user, ok := r.Context().Value(contextValueUser).(*models.User)
 	if !ok {
-		h.logger.Error("no User ID")
-		return 0, errors.New("failed to authenticate")
+		h.logger.Error("no User")
+		return nil, errors.New("failed to authenticate")
 	}
 
-	return userId, nil
+	return user, nil
 }
