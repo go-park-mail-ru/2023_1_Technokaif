@@ -6,6 +6,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
 )
 
+//go:generate mockgen -source=usecase.go -destination=mocks/mock.go
+
 // Usecase implements all current app's services
 type Usecase struct {
 	Auth
@@ -31,7 +33,7 @@ type Auth interface {
 	// CheckAccessToken
 	CheckAccessToken(accessToken string) (uint, uint, error)
 
-	ChangeUserVersion(userID uint) (error)
+	ChangeUserVersion(userID uint) error
 }
 
 type Album interface {

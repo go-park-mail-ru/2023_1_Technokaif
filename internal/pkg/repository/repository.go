@@ -7,6 +7,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+//go:generate mockgen -source=repository.go -destination=mocks/mock.go
+
 // Repository
 type Repository struct {
 	Auth
@@ -26,7 +28,7 @@ type Auth interface {
 
 	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
 
-	ChangeUserVersion(userID uint) (error)
+	ChangeUserVersion(userID uint) error
 }
 
 // Artist includes DBMS-relatable methods to work with artists
