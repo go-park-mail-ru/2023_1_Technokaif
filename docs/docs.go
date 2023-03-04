@@ -41,19 +41,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "user created",
+                        "description": "User created",
                         "schema": {
                             "$ref": "#/definitions/delivery.loginResponse"
                         }
                     },
                     "400": {
-                        "description": "incorrect input",
+                        "description": "Incorrect input",
                         "schema": {
                             "$ref": "#/definitions/delivery.errorResponse"
                         }
                     },
                     "500": {
-                        "description": "server DB error",
+                        "description": "Server DB error",
                         "schema": {
                             "$ref": "#/definitions/delivery.errorResponse"
                         }
@@ -76,19 +76,19 @@ const docTemplate = `{
                 "summary": "Log Out",
                 "responses": {
                     "200": {
-                        "description": "user loged out",
+                        "description": "User loged out",
                         "schema": {
                             "$ref": "#/definitions/delivery.logoutResponse"
                         }
                     },
                     "400": {
-                        "description": "logout fail",
+                        "description": "Logout fail",
                         "schema": {
                             "$ref": "#/definitions/delivery.errorResponse"
                         }
                     },
                     "500": {
-                        "description": "server DB error",
+                        "description": "Server DB error",
                         "schema": {
                             "$ref": "#/definitions/delivery.errorResponse"
                         }
@@ -122,19 +122,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "user created",
+                        "description": "User created",
                         "schema": {
                             "$ref": "#/definitions/delivery.signUpResponse"
                         }
                     },
                     "400": {
-                        "description": "incorrect input",
+                        "description": "Incorrect input",
                         "schema": {
                             "$ref": "#/definitions/delivery.errorResponse"
                         }
                     },
                     "500": {
-                        "description": "server DB error",
+                        "description": "Server DB error",
                         "schema": {
                             "$ref": "#/definitions/delivery.errorResponse"
                         }
@@ -155,26 +155,15 @@ const docTemplate = `{
                     "feed"
                 ],
                 "summary": "Main Page",
-                "parameters": [
-                    {
-                        "description": "username and password",
-                        "name": "userInput",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/delivery.loginInput"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "show feed",
+                        "description": "Show feed",
                         "schema": {
                             "$ref": "#/definitions/delivery.FeedResponse"
                         }
                     },
                     "500": {
-                        "description": "server DB error",
+                        "description": "Server DB error",
                         "schema": {
                             "$ref": "#/definitions/delivery.errorResponse"
                         }

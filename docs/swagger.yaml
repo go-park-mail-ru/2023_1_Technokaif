@@ -128,15 +128,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: user created
+          description: User created
           schema:
             $ref: '#/definitions/delivery.loginResponse'
         "400":
-          description: incorrect input
+          description: Incorrect input
           schema:
             $ref: '#/definitions/delivery.errorResponse'
         "500":
-          description: server DB error
+          description: Server DB error
           schema:
             $ref: '#/definitions/delivery.errorResponse'
       summary: Sign In
@@ -151,15 +151,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: user loged out
+          description: User loged out
           schema:
             $ref: '#/definitions/delivery.logoutResponse'
         "400":
-          description: logout fail
+          description: Logout fail
           schema:
             $ref: '#/definitions/delivery.errorResponse'
         "500":
-          description: server DB error
+          description: Server DB error
           schema:
             $ref: '#/definitions/delivery.errorResponse'
       summary: Log Out
@@ -181,15 +181,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: user created
+          description: User created
           schema:
             $ref: '#/definitions/delivery.signUpResponse'
         "400":
-          description: incorrect input
+          description: Incorrect input
           schema:
             $ref: '#/definitions/delivery.errorResponse'
         "500":
-          description: server DB error
+          description: Server DB error
           schema:
             $ref: '#/definitions/delivery.errorResponse'
       summary: Sign Up
@@ -200,22 +200,15 @@ paths:
       consumes:
       - application/json
       description: User's feed (Tracks, artists, albums)
-      parameters:
-      - description: username and password
-        in: body
-        name: userInput
-        required: true
-        schema:
-          $ref: '#/definitions/delivery.loginInput'
       produces:
       - application/json
       responses:
         "200":
-          description: show feed
+          description: Show feed
           schema:
             $ref: '#/definitions/delivery.FeedResponse'
         "500":
-          description: server DB error
+          description: Server DB error
           schema:
             $ref: '#/definitions/delivery.errorResponse'
       summary: Main Page
