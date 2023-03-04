@@ -6,7 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/usecase"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
-	httpSwagger "github.com/swaggo/http-swagger"
+	swagger "github.com/swaggo/http-swagger"
 )
 
 type Handler struct {
@@ -25,7 +25,7 @@ func NewHandler(u *usecase.Usecase, l logger.Logger) *Handler {
 func (h *Handler) InitRouter() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Get("/swagger/*", httpSwagger.WrapHandler)
+	r.Get("/swagger/*", swagger.WrapHandler)
 
 	r.Route("/api", func(r chi.Router) {
 		r.With(h.Authorization).Get("/feed", h.feed) // Auth middleware
