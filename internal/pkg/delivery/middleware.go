@@ -13,15 +13,17 @@ import (
 const contextValueUser = "user"
 
 // Authorization is HTTP middleware which sets a value on the request context
-func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
+func (h *Handler) authorization(next http.Handler) http.Handler { // TEST IT
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		prefix := "Bearer "
+		prefix := "Bearer"
 		authHeader := r.Header.Get("Authorization")
 		reqToken := strings.TrimPrefix(authHeader, prefix)
+		reqToken = strings.ReplaceAll(reqToken, " ", "")
 
 		h.logger.Info("auth token : " + reqToken)
 
-		if authHeader == "" || reqToken == authHeader {
+
+		if authHeader == "" || reqToken == authHeader || reqToken == "" {
 			next.ServeHTTP(w, r) // missing token
 			return
 		}
@@ -48,7 +50,7 @@ func (h *Handler) Authorization(next http.Handler) http.Handler { // TEST IT
 }
 
 // GetUserFromAuthorization returns error if authentication failed
-func (h *Handler) GetUserFromAuthorization(r *http.Request) (*models.User, error) {
+func (h *Handler) getUserFromAuthorization(r *http.Request) (*models.User, error) {
 	user, ok := r.Context().Value(contextValueUser).(*models.User)
 	if !ok {
 		h.logger.Error("no User")

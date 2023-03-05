@@ -140,7 +140,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	errorResponse	"Server DB error"
 //	@Router			/api/auth/logout [get]
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	user, err := h.GetUserFromAuthorization(r)
+	user, err := h.getUserFromAuthorization(r)
 	if err != nil || user == nil {
 		h.errorResponse(w, "invalid token", http.StatusBadRequest)
 		return

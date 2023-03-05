@@ -76,7 +76,7 @@ func TestDelivery_signUp(t *testing.T) {
 			// to convince the error is caught
 			name: "Validation Error",
 			requestBody: `{"username": "yar", "password": "Love1234",
-			"email": "yarik1448kuzmin@gmail.com", "firstName: "Yaroslav", "lastName": "Kuzmin",
+			"email": "yarik1448kuzmin@gmail.com", "firstName": "Yaroslav", "lastName": "Kuzmin",
 			"birthDate": "2003-08-23", "sex": "M"}`,
 			userFromBody:     models.User{},
 			mockBehavior:     func(a *mocks.MockAuth, u models.User) {},
@@ -301,6 +301,7 @@ func TestDelivery_logout(t *testing.T) {  // TODO maybe mock GetUserFromAuthoriz
 			// Request
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/logout", nil)
+
 			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
 
 			// Test

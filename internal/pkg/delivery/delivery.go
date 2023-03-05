@@ -28,7 +28,7 @@ func (h *Handler) InitRouter() *chi.Mux {
 	r.Get("/swagger/*", swagger.WrapHandler)
 
 	r.Route("/api", func(r chi.Router) {
-		r.With(h.Authorization).Get("/feed", h.feed) // Auth middleware
+		r.With(h.authorization).Get("/feed", h.feed) // Auth middleware
 
 		r.Route("/auth", func(r chi.Router) {
 			r.Route("/login", func(r chi.Router) {
@@ -39,7 +39,7 @@ func (h *Handler) InitRouter() *chi.Mux {
 				r.Post("/", h.signUp)
 			})
 
-			r.With(h.Authorization).Get("/logout", h.logout) // Auth middleware
+			r.With(h.authorization).Get("/logout", h.logout) // Auth middleware
 		})
 	})
 
