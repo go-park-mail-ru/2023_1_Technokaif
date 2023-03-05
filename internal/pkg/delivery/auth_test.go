@@ -2,14 +2,15 @@ package delivery
 
 import (
 	"bytes"
-	"encoding/json"
+	"context"
 	"fmt"
 	"net/http/httptest"
+	"net/http"
 	"testing"
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
+	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger/mocks"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/usecase"
 	mocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/usecase/mocks"
@@ -107,7 +108,11 @@ func TestDelivery_signUp(t *testing.T) {
 			u := &usecase.Usecase{
 				Auth: a,
 			}
-			l, _ := logger.NewFLogger()
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+
 			h := NewHandler(u, l)
 
 			// Routing
@@ -119,14 +124,9 @@ func TestDelivery_signUp(t *testing.T) {
 			req := httptest.NewRequest("POST", "/signup", bytes.NewBufferString(tc.requestBody))
 			r.ServeHTTP(w, req)
 
-			var expResp signUpResponse
-			var actualResp signUpResponse
-			json.Unmarshal([]byte(tc.expectedResponse), &expResp)
-			json.Unmarshal(w.Body.Bytes(), &actualResp)
-
 			// Test
 			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.Equal(t, expResp, actualResp)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
 		})
 	}
 }
@@ -204,7 +204,11 @@ func TestDelivery_login(t *testing.T) {
 			u := &usecase.Usecase{
 				Auth: a,
 			}
-			l, _ := logger.NewFLogger()
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+
 			h := NewHandler(u, l)
 
 			// Routing
@@ -216,35 +220,58 @@ func TestDelivery_login(t *testing.T) {
 			req := httptest.NewRequest("POST", "/login", bytes.NewBufferString(tc.requestBody))
 			r.ServeHTTP(w, req)
 
-			var expResp loginResponse
-			var actualResp loginResponse
-			json.Unmarshal([]byte(tc.expectedResponse), &expResp)
-			json.Unmarshal(w.Body.Bytes(), &actualResp)
-
-			// Test
 			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.Equal(t, expResp, actualResp)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
 		})
 	}
 }
 
-func TestDelivery_logout(t *testing.T) {
-	type mockBehavior func(a *mocks.MockAuth)
+func TestDelivery_logout(t *testing.T) {  // TODO maybe mock GetUserFromAuthorization
+	correctTestUser := &models.User{
+		ID: 1,
+	}
+	wrapRequestWithUser := func(r *http.Request, user *models.User) *http.Request {
+		if user == nil {
+			return r
+		}
+		ctx := context.WithValue(r.Context(), contextValueUser, user)
+		return r.WithContext(ctx)
+	}
+
+	type mockBehavior func(a *mocks.MockAuth, user *models.User)
 
 	testTable := []struct {
-		name             string
-		mockBehavior     mockBehavior
-		expectedStatus   int
-		expectedResponse string
+		name             	string
+		user	 			*models.User
+		mockBehavior     	mockBehavior
+		expectedStatus   	int
+		expectedResponse 	string
 	}{
-		// {
-		// 	name:             "Common",
-		// 	mockBehavior:     func(a *mocks.MockAuth) {
-		// 		a.EXPECT().ChangeUserVersion()
-		// 	},
-		// 	expectedStatus:   200,
-		// 	expectedResponse: `{"status": "ok"}`,
-		// },
+		{
+		 	name:             "Common",
+			user:			  correctTestUser,	
+		 	mockBehavior:     func(a *mocks.MockAuth, user *models.User) {
+		 		a.EXPECT().IncreaseUserVersion(user.ID).Return(nil)
+		 	},
+		 	expectedStatus:   200,
+		 	expectedResponse: `{"status": "ok"}`,
+		},
+		{
+			name:             "No user in request",
+		   	user:			  nil,	
+			mockBehavior:     func(a *mocks.MockAuth, user *models.User) {},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "invalid token"}`,
+	   	},
+		{
+			name:             "Failed to increase user version",
+		   	user:			  correctTestUser,	
+			mockBehavior:     func(a *mocks.MockAuth, user *models.User) {
+				a.EXPECT().IncreaseUserVersion(user.ID).Return(fmt.Errorf(""))
+			},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "failed to log out"}`,
+	   	},
 	}
 
 	for _, tc := range testTable {
@@ -255,31 +282,30 @@ func TestDelivery_logout(t *testing.T) {
 
 			a := mocks.NewMockAuth(c)
 
-			tc.mockBehavior(a)
+			tc.mockBehavior(a, tc.user)
 
 			u := &usecase.Usecase{
 				Auth: a,
 			}
-			l, _ := logger.NewFLogger()
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+
 			h := NewHandler(u, l)
 
 			// Routing
 			r := chi.NewRouter()
-			r.With(h.Authorization).Get("/logout", h.logout)
+			r.Get("/logout", h.logout)
 
 			// Request
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/logout", nil)
-			r.ServeHTTP(w, req)
-
-			var expResp logoutResponse
-			var actualResp logoutResponse
-			json.Unmarshal([]byte(tc.expectedResponse), &expResp)
-			json.Unmarshal(w.Body.Bytes(), &actualResp)
+			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
 
 			// Test
 			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.Equal(t, expResp, actualResp)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
 		})
 	}
 }

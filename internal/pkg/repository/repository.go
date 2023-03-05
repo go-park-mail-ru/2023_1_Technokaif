@@ -28,7 +28,7 @@ type Auth interface {
 
 	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
 
-	ChangeUserVersion(userID uint) error
+	IncreaseUserVersion(userID uint) error
 }
 
 // Artist includes DBMS-relatable methods to work with artists

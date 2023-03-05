@@ -34,20 +34,6 @@ func (m *MockAuth) EXPECT() *MockAuthMockRecorder {
 	return m.recorder
 }
 
-// ChangeUserVersion mocks base method.
-func (m *MockAuth) ChangeUserVersion(userID uint) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChangeUserVersion", userID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ChangeUserVersion indicates an expected call of ChangeUserVersion.
-func (mr *MockAuthMockRecorder) ChangeUserVersion(userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeUserVersion", reflect.TypeOf((*MockAuth)(nil).ChangeUserVersion), userID)
-}
-
 // CreateUser mocks base method.
 func (m *MockAuth) CreateUser(user models.User) (int, error) {
 	m.ctrl.T.Helper()
@@ -91,6 +77,20 @@ func (m *MockAuth) GetUserByCreds(username, password string) (*models.User, erro
 func (mr *MockAuthMockRecorder) GetUserByCreds(username, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByCreds", reflect.TypeOf((*MockAuth)(nil).GetUserByCreds), username, password)
+}
+
+// IncreaseUserVersion mocks base method.
+func (m *MockAuth) IncreaseUserVersion(userID uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncreaseUserVersion", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// IncreaseUserVersion indicates an expected call of IncreaseUserVersion.
+func (mr *MockAuthMockRecorder) IncreaseUserVersion(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncreaseUserVersion", reflect.TypeOf((*MockAuth)(nil).IncreaseUserVersion), userID)
 }
 
 // MockArtist is a mock of Artist interface.

@@ -87,7 +87,7 @@ func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint) (*models.Use
 	return &u, err
 }
 
-func (ap *AuthPostgres) ChangeUserVersion(userID uint) (error) {  // TODO maybe return user with new version
+func (ap *AuthPostgres) IncreaseUserVersion(userID uint) (error) {  // TODO maybe return user with new version
 	query := fmt.Sprintf("UPDATE %s SET version = version + 1 WHERE id=$1 RETURNING id;", UsersTable)
 	row := ap.db.QueryRow(query, userID)
 	

@@ -54,6 +54,10 @@ func (h *Handler) GetUserFromAuthorization(r *http.Request) (*models.User, error
 		h.logger.Error("no User")
 		return nil, errors.New("failed to authenticate")
 	}
+	if user == nil {
+		h.logger.Error("nil User")
+		return nil, errors.New("failed to authenticate")
+	}
 
 	return user, nil
 }

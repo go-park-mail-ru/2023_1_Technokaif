@@ -106,8 +106,8 @@ func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
 	return claims.UserId, claims.UserVersion, nil
 }
 
-func (a *AuthUsecase) ChangeUserVersion(userID uint) error {
-	err := a.repo.ChangeUserVersion(userID)
+func (a *AuthUsecase) IncreaseUserVersion(userID uint) error {
+	err := a.repo.IncreaseUserVersion(userID)
 	if err != nil {
 		return errors.New("failed to update user version")
 	}

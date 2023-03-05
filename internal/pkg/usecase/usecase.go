@@ -36,8 +36,8 @@ type Auth interface {
 	// CheckAccessToken ...
 	CheckAccessToken(accessToken string) (uint, uint, error)
 
-	// ChangeUserVersion ...
-	ChangeUserVersion(userID uint) error
+	// IncreaseUserVersion ...
+	IncreaseUserVersion(userID uint) error
 }
 
 type Album interface {

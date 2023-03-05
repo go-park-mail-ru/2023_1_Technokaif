@@ -52,7 +52,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	id, err := h.services.Auth.CreateUser(user)
 	if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, err.Error(), http.StatusBadRequest)
+		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
@@ -141,13 +141,13 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/auth/logout [get]
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	user, err := h.GetUserFromAuthorization(r)
-	if err != nil {
+	if err != nil || user == nil {
 		h.errorResponse(w, "invalid token", http.StatusBadRequest)
 		return
 	}
 	h.logger.Info("UserID for logout : " + strconv.Itoa(int(user.ID)))
 
-	if err = h.services.ChangeUserVersion(user.ID); err != nil {
+	if err = h.services.IncreaseUserVersion(user.ID); err != nil {  // userVersion UP UP UP
 		h.logger.Error(err.Error())
 		h.errorResponse(w, "failed to log out", http.StatusBadRequest)
 		return
