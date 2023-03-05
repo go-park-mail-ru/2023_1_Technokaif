@@ -51,7 +51,7 @@ func (a *AuthUsecase) LoginUser(username, password string) (string, error) {
 		return "", err
 	}
 
-	return token, fmt.Errorf("can't generate access token: %w", err)
+	return token, nil
 }
 
 func (a *AuthUsecase) GetUserByCreds(username, password string) (*models.User, error) {
