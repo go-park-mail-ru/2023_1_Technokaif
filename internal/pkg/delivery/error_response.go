@@ -10,7 +10,7 @@ type errorResponse struct {
 	Message string `json:"message"`
 }
 
-func (h *Handler) errorResponce(w http.ResponseWriter, msg string, code int) error {
+func (h *Handler) errorResponse(w http.ResponseWriter, msg string, code int) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 

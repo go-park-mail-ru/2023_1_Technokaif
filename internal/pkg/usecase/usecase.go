@@ -18,6 +18,8 @@ type Usecase struct {
 
 // Auth describes which methods have to be implemented by auth-service
 type Auth interface {
+	// LoginUser finds user in repository and returns its access token
+	LoginUser(username, password string) (string, error)
 
 	// CreateUser creates new user and returns it's id
 	CreateUser(user models.User) (int, error)
@@ -25,14 +27,16 @@ type Auth interface {
 	// GetUserID returns User's ID if such User exists
 	GetUserByCreds(username, password string) (*models.User, error)
 
+	// GetUserByAuthData ...
 	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
 
 	// GenerateAccessToken returns token created with user's username and password
 	GenerateAccessToken(userID, userVersion uint) (string, error)
 
-	// CheckAccessToken
+	// CheckAccessToken ...
 	CheckAccessToken(accessToken string) (uint, uint, error)
 
+	// ChangeUserVersion ...
 	ChangeUserVersion(userID uint) error
 }
 

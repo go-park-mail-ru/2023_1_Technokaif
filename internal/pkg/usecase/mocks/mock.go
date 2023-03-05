@@ -124,6 +124,21 @@ func (mr *MockAuthMockRecorder) GetUserByCreds(username, password interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByCreds", reflect.TypeOf((*MockAuth)(nil).GetUserByCreds), username, password)
 }
 
+// LoginUser mocks base method.
+func (m *MockAuth) LoginUser(username, password string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LoginUser", username, password)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// LoginUser indicates an expected call of LoginUser.
+func (mr *MockAuthMockRecorder) LoginUser(username, password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoginUser", reflect.TypeOf((*MockAuth)(nil).LoginUser), username, password)
+}
+
 // MockAlbum is a mock of Album interface.
 type MockAlbum struct {
 	ctrl     *gomock.Controller

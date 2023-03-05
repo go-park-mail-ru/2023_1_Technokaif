@@ -45,18 +45,18 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		} else {
 			h.logger.Error("user validation failed")
 		}
-		h.errorResponce(w, "incorrect input body", http.StatusBadRequest)
+		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
 	id, err := h.services.Auth.CreateUser(user)
 	if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponce(w, err.Error(), http.StatusBadRequest)
+		h.errorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	h.logger.Info("user created, Id : " + strconv.Itoa(id))
+	h.logger.Info("user created with id: " + strconv.Itoa(id))
 
 	// TODO maybe make wrapper for responses
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -64,7 +64,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponce(w, err.Error(), http.StatusInternalServerError) // TODO change error message
+		h.errorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }
@@ -106,25 +106,18 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		} else {
 			h.logger.Error("user validation failed")
 		}
-		h.errorResponce(w, "incorrect input body", http.StatusBadRequest)
+		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
-	user, err := h.services.Auth.GetUserByCreds(userInput.Username, userInput.Password)
+	token, err := h.services.Auth.LoginUser(userInput.Username, userInput.Password)
 	if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponce(w, err.Error(), http.StatusBadRequest)
+		h.errorResponse(w, "can't login user", http.StatusBadRequest)
 		return
 	}
 
-	token, err := h.services.Auth.GenerateAccessToken(user.ID, user.Version)
-	if err != nil {
-		h.logger.Error(err.Error())
-		h.errorResponce(w, "can't generate access token", http.StatusInternalServerError)
-		return
-	}
-
-	h.logger.Info("login returned token : " + token)
+	h.logger.Info("login with token: " + token)
 
 	// TODO maybe make wrapper for responses
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -132,7 +125,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponce(w, "can't encode responce into json", http.StatusInternalServerError)
+		h.errorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }
@@ -149,14 +142,14 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	user, err := h.GetUserFromAuthorization(r)
 	if err != nil {
-		h.errorResponce(w, "invalid token", http.StatusBadRequest)
+		h.errorResponse(w, "invalid token", http.StatusBadRequest)
 		return
 	}
 	h.logger.Info("UserID for logout : " + strconv.Itoa(int(user.ID)))
 
 	if err = h.services.ChangeUserVersion(user.ID); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponce(w, "failed to log out", http.StatusBadRequest)
+		h.errorResponse(w, "failed to log out", http.StatusBadRequest)
 		return
 	}
 
@@ -166,7 +159,7 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponce(w, "can't encode responce into json", http.StatusInternalServerError)
+		h.errorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }

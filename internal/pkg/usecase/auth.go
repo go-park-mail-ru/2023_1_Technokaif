@@ -26,7 +26,7 @@ type AuthUsecase struct {
 }
 
 type jwtClaims struct {
-	UserId 		uint `json:"id"`
+	UserId      uint `json:"id"`
 	UserVersion uint `json:"user_version"`
 	jwt.RegisteredClaims
 }
@@ -38,6 +38,20 @@ func NewAuthUsecase(ra repository.Auth, l logger.Logger) *AuthUsecase {
 func (a *AuthUsecase) CreateUser(u models.User) (int, error) {
 	u.Password = getPasswordHash(u.Password)
 	return a.repo.CreateUser(u)
+}
+
+func (a *AuthUsecase) LoginUser(username, password string) (string, error) {
+	user, err := a.GetUserByCreds(username, password)
+	if err != nil {
+		return "", fmt.Errorf("can't find user: %w", err)
+	}
+
+	token, err := a.GenerateAccessToken(user.ID, user.Version)
+	if err != nil {
+		return "", err
+	}
+
+	return token, fmt.Errorf("can't generate access token: %w", err)
 }
 
 func (a *AuthUsecase) GetUserByCreds(username, password string) (*models.User, error) {
@@ -92,7 +106,7 @@ func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
 	return claims.UserId, claims.UserVersion, nil
 }
 
-func (a *AuthUsecase) ChangeUserVersion(userID uint) (error) {
+func (a *AuthUsecase) ChangeUserVersion(userID uint) error {
 	err := a.repo.ChangeUserVersion(userID)
 	if err != nil {
 		return errors.New("failed to update user version")
