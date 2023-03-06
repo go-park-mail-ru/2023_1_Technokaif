@@ -52,7 +52,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	id, err := h.services.Auth.CreateUser(user)
 	if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		h.errorResponse(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

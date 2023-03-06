@@ -73,8 +73,8 @@ func (a *AuthUsecase) GenerateAccessToken(userID uint, userVersion uint) (string
 		userID,
 		userVersion,
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(tokenTTL)),
+			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -101,6 +101,11 @@ func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
 	claims, ok := token.Claims.(*jwtClaims)
 	if !ok {
 		return 0, 0, errors.New("token claims are not of type *tokenClaims")
+	}
+
+	now := time.Now().UTC()
+	if claims.ExpiresAt.Time.After(now) {
+		return 0, 0, errors.New("token is expired")  // Test it!!!
 	}
 
 	return claims.UserId, claims.UserVersion, nil

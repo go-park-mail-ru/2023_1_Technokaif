@@ -88,10 +88,10 @@ func TestDelivery_signUp(t *testing.T) {
 			requestBody:  correctTestRequestBody,
 			userFromBody: correctTestUser,
 			mockBehavior: func(a *mocks.MockAuth, u models.User) {
-				a.EXPECT().CreateUser(u).Return(0, fmt.Errorf(""))
+				a.EXPECT().CreateUser(u).Return(0, fmt.Errorf("user already exists"))
 			},
 			expectedStatus:   400,
-			expectedResponse: `{"message": "incorrect input body"}`,
+			expectedResponse: `{"message": "user already exists"}`,
 		},
 	}
 

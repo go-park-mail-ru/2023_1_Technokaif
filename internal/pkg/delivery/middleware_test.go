@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDelivery_Authorization(t *testing.T) {  // TODO maybe without h.getUserFromAuthorization
+func TestDelivery_authorization(t *testing.T) {  // TODO maybe without h.getUserFromAuthorization
 	type mockBehavior func(r *mocks.MockAuth, token string, user models.User)
 
 	testTable := []struct {
