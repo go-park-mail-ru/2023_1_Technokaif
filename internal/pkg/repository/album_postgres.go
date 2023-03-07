@@ -21,6 +21,7 @@ func NewAlbumPostgres(db *sql.DB, l logger.Logger) *AlbumPostgres {
 type artistsAlbums struct {
 	AlbumID     int
 	AlbumName   string
+	AlbumCover  string
 	ArtistID    int
 	ArtistName  string
 	Description string
@@ -28,7 +29,7 @@ type artistsAlbums struct {
 
 func (ap *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 	query := fmt.Sprintf(
-		"SELECT al.id, al.name, ar.id, ar.name, al.description "+
+		"SELECT al.id, al.name, al.cover_src, ar.id, ar.name, al.description "+
 			"FROM %s al INNER JOIN %s aa ON al.id = aa.album_id "+
 			"INNER JOIN %s ar ON aa.artist_id = ar.id;",
 		AlbumsTable, ArtistsAlbumsTable, ArtistsTable)
@@ -42,13 +43,17 @@ func (ap *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 	var m = make(map[int]models.AlbumFeed)
 	for rows.Next() {
 		var aa artistsAlbums
-		if err = rows.Scan(&aa.AlbumID, &aa.AlbumName, &aa.ArtistID, &aa.ArtistName, &aa.Description); err != nil {
+		if err = rows.Scan(&aa.AlbumID, &aa.AlbumName, &aa.AlbumCover,
+			&aa.ArtistID, &aa.ArtistName, &aa.Description); err != nil {
 			ap.logger.Error(err.Error())
 			return nil, err
 		}
 
 		if af, ok := m[aa.AlbumID]; !ok {
-			m[aa.AlbumID] = models.AlbumFeed{ID: aa.AlbumID, Name: aa.AlbumName,
+			m[aa.AlbumID] = models.AlbumFeed{
+				ID:          aa.AlbumID,
+				Name:        aa.AlbumName,
+				CoverSrc:    aa.AlbumCover,
 				Artists:     []models.ArtistFeed{{ID: aa.ArtistID, Name: aa.ArtistName}},
 				Description: aa.Description}
 		} else {

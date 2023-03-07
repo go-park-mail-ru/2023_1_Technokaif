@@ -12,4 +12,5 @@ type AlbumFeed struct {
 	Name        string       `json:"name"`
 	Artists     []ArtistFeed `json:"artists"`
 	Description string       `json:"description"`
+	CoverSrc    string       `json:"cover"`
 }

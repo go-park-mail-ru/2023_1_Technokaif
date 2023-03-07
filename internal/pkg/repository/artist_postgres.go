@@ -19,7 +19,7 @@ func NewArtistPostgres(db *sql.DB, l logger.Logger) *ArtistPostgres {
 }
 
 func (tp *ArtistPostgres) GetFeed() ([]models.ArtistFeed, error) {
-	query := fmt.Sprintf("SELECT id, name FROM %s;", ArtistsTable)
+	query := fmt.Sprintf("SELECT id, name, avatar_src FROM %s;", ArtistsTable)
 
 	rows, err := tp.db.Query(query)
 	if err != nil {
@@ -30,7 +30,7 @@ func (tp *ArtistPostgres) GetFeed() ([]models.ArtistFeed, error) {
 	var artists []models.ArtistFeed
 	for rows.Next() {
 		var artist models.ArtistFeed
-		if err = rows.Scan(&artist.ID, &artist.Name); err != nil {
+		if err = rows.Scan(&artist.ID, &artist.Name, &artist.AvatarSrc); err != nil {
 			tp.logger.Error(err.Error())
 			return nil, err
 		}

@@ -61,13 +61,13 @@ CREATE TABLE Artists_Tracks
     PRIMARY KEY(artist_id, track_id)
 );
 
-/* Mock */
-INSERT INTO Artists (name) VALUES ('Oxxxymiron');
-INSERT INTO Artists (name) VALUES ('Instasamka');
+/* Filling */
+INSERT INTO Artists (name, avatar_src) VALUES ('Oxxxymiron', '/artists/oxxxymiron.jpeg');
+INSERT INTO Artists (name, avatar_src) VALUES ('Instasamka', '/artists/instasamka.jpeg');
 
-INSERT INTO Albums (name, description) VALUES ('Горгород', 'Антиутопия классная');
-INSERT INTO Albums (name, description) VALUES ('Долгий путь домой', 'Качает жёстко');
-INSERT INTO Albums (name, description) VALUES ('POPSTAR', 'КАЙФ');
+INSERT INTO Albums (name, description, cover_src) VALUES ('Горгород', 'Антиутопия классная', '/albums/gorgorod.jpg');
+INSERT INTO Albums (name, description, cover_src) VALUES ('Долгий путь домой', 'Качает жёстко', '/albums/longWayHome.png');
+INSERT INTO Albums (name, description, cover_src) VALUES ('POPSTAR', 'КАЙФ', '/albums/popstar.jpg');
 
 INSERT INTO Tracks (name, album_id) VALUES ('Где нас нет', 1);
 INSERT INTO Tracks (name, album_id) VALUES ('Признаки жизни', 2);

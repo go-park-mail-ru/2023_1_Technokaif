@@ -7,6 +7,7 @@ type Artist struct {
 }
 
 type ArtistFeed struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	AvatarSrc string `json:"cover"`
 }
