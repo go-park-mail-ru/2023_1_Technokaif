@@ -1,12 +1,14 @@
 package usecase
 
 import (
-	"crypto/sha256"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/argon2"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -14,9 +16,7 @@ import (
 )
 
 const (
-	salt = "@k8#&o1h18-9fwa_hg"
-
-	secret   = "yarik_tri_is_god_of_russia"
+	secret   = "stepkapopov"
 	tokenTTL = 24 * time.Hour
 )
 
@@ -36,7 +36,11 @@ func NewAuthUsecase(ra repository.Auth, l logger.Logger) *AuthUsecase {
 }
 
 func (a *AuthUsecase) CreateUser(u models.User) (int, error) {
-	u.Password = getPasswordHash(u.Password)
+	salt := make([]byte, 8)
+	rand.Read(salt)
+	u.Salt = fmt.Sprintf("%x", salt)
+
+	u.Password = hashPassword(u.Password, salt)
 	return a.repo.CreateUser(u)
 }
 
@@ -55,10 +59,22 @@ func (a *AuthUsecase) LoginUser(username, password string) (string, error) {
 }
 
 func (a *AuthUsecase) GetUserByCreds(username, password string) (*models.User, error) {
-	passwordHash := getPasswordHash(password)
-	user, err := a.repo.GetUserByCreds(username, passwordHash)
+	user, err := a.repo.GetUserByUsername(username)
+
 	if err != nil {
-		return &models.User{}, err // TODO it can be repos error too
+		return nil, err // TODO it can be repos error too
+	}
+
+	salt, err := hex.DecodeString(user.Salt)
+	if err != nil {
+		a.logger.Error("Can't get user by credentials: " + err.Error())
+		return nil, err
+	}
+
+	hashedPassword := hashPassword(password, salt)
+
+	if hashedPassword != user.Password {
+		return nil, errors.New("No such user")
 	}
 
 	return user, nil
@@ -104,8 +120,8 @@ func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
 	}
 
 	now := time.Now().UTC()
-	if claims.ExpiresAt.Time.After(now) {
-		return 0, 0, errors.New("token is expired")  // Test it!!!
+	if claims.ExpiresAt.Time.Before(now) {
+		return 0, 0, errors.New("token is expired")
 	}
 
 	return claims.UserId, claims.UserVersion, nil
@@ -120,10 +136,7 @@ func (a *AuthUsecase) IncreaseUserVersion(userID uint) error {
 	return nil
 }
 
-func getPasswordHash(password string) string {
-	hash := sha256.New()
-	hash.Write([]byte(password))
-	hashWithSalt := hash.Sum([]byte(salt))
-
-	return fmt.Sprintf("%x", hashWithSalt)
+func hashPassword(plainPassword string, salt []byte) string {
+	hashedPassword := argon2.IDKey([]byte(plainPassword), []byte(salt), 1, 64*1024, 4, 32)
+	return fmt.Sprintf("%x", hashedPassword)
 }

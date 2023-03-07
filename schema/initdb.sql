@@ -6,9 +6,10 @@ CREATE TABLE Users
     username      VARCHAR(20)  UNIQUE      NOT NULL,
     email         VARCHAR(30)  UNIQUE      NOT NULL,
     password_hash VARCHAR(256)             NOT NULL,
+    salt          VARCHAR(64)              NOT NULL,
     first_name    VARCHAR(20)              NOT NULL,
     last_name     VARCHAR(20)              NOT NULL,
-    user_sex      SEX                      NOT NULL,
+    sex           SEX                      NOT NULL,
     birth_date    DATE                     NOT NULL,
     avatar_src    TEXT
 );
@@ -74,9 +75,10 @@ INSERT INTO Tracks (name, album_id) VALUES ('За деньги да', 3);
 INSERT INTO Tracks (name) VALUES ('Город под подошвой');
 
 INSERT INTO Artists_Albums (artist_id, album_id) VALUES (1, 1);
-INSERT INTO Artists_Albums (artist_id, album_id) VALUES (2, 1);
+INSERT INTO Artists_Albums (artist_id, album_id) VALUES (1, 2);
 INSERT INTO Artists_Albums (artist_id, album_id) VALUES (2, 3);
 
 INSERT INTO Artists_Tracks (artist_id, track_id) VALUES (1, 1);
 INSERT INTO Artists_Tracks (artist_id, track_id) VALUES (1, 2);
 INSERT INTO Artists_Tracks (artist_id, track_id) VALUES (2, 3);
+INSERT INTO Artists_Tracks (artist_id, track_id) VALUES (1, 4);

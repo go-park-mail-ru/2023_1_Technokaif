@@ -23,8 +23,8 @@ type Auth interface {
 	// or error if it already exists
 	CreateUser(user models.User) (int, error)
 
-	// GetUser returns models.User if it's entry in DB exists or error otherwise
-	GetUserByCreds(username, password string) (*models.User, error)
+	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
+	GetUserByUsername(username string) (*models.User, error)
 
 	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
 

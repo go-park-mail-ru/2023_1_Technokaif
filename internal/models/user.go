@@ -24,6 +24,7 @@ type User struct {
 	Username  string `json:"username"  valid:"required,runelength(4|20)"`
 	Email     string `json:"email"     valid:"required,email"`
 	Password  string `json:"password"  valid:"required,runelength(8|30),passwordcheck"`
+	Salt      string `json:"-" 		   valid:"-"`
 	FirstName string `json:"firstName" valid:"required,runelength(2|20)"`
 	LastName  string `json:"lastName"  valid:"required,runelength(2|20)"`
 	Sex       Sex    `json:"sex"       valid:"required,in(F|M|O)"`
