@@ -62,7 +62,7 @@ CREATE TABLE Artists_Tracks
 );
 
 /* Filling */
-INSERT INTO Artists (name, avatar_src) VALUES ('Oxxxymiron', '/artists/oxxxymiron.jpeg');
+INSERT INTO Artists (name, avatar_src) VALUES ('Oxxxymiron', '/artists/oxxxymiron.jpg');
 INSERT INTO Artists (name, avatar_src) VALUES ('Instasamka', '/artists/instasamka.jpeg');
 
 INSERT INTO Albums (name, description, cover_src) VALUES ('Горгород', 'Антиутопия классная', '/albums/gorgorod.jpg');
