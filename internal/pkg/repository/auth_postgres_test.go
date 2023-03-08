@@ -6,8 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
+	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger/mocks"
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -54,7 +55,12 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 	}
 	defer db.Close()
 
-	l, err := logger.NewFLogger()
+	c := gomock.NewController(t)
+	defer c.Finish()
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+
 	if err != nil {
 		t.Errorf("%v", err)
 	}
@@ -143,7 +149,12 @@ func TestAuthPostgresGetUserByUsername(t *testing.T) {
 	}
 	defer db.Close()
 
-	l, err := logger.NewFLogger()
+	c := gomock.NewController(t)
+	defer c.Finish()
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+
 	if err != nil {
 		t.Errorf("%v", err)
 	}
@@ -220,7 +231,12 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 	}
 	defer db.Close()
 
-	l, err := logger.NewFLogger()
+	c := gomock.NewController(t)
+	defer c.Finish()
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+
 	if err != nil {
 		t.Errorf("%v", err)
 	}
@@ -299,7 +315,12 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 	}
 	defer db.Close()
 
-	l, err := logger.NewFLogger()
+	c := gomock.NewController(t)
+	defer c.Finish()
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+
 	if err != nil {
 		t.Errorf("%v", err)
 	}
