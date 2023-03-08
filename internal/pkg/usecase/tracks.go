@@ -18,9 +18,6 @@ func NewTrackUsecase(rt repository.Track, l logger.Logger) *TrackUsecase {
 // GetFeed returns tracks for main page
 func (t *TrackUsecase) GetFeed() ([]models.TrackFeed, error) {
 	tracks, err := t.repo.GetFeed()
-	if err != nil {
-		return nil, err
-	}
 
-	return tracks, nil
+	return tracks, err
 }

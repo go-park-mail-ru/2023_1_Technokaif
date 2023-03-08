@@ -64,19 +64,19 @@ func (mr *MockAuthMockRecorder) GetUserByAuthData(userID, userVersion interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByAuthData", reflect.TypeOf((*MockAuth)(nil).GetUserByAuthData), userID, userVersion)
 }
 
-// GetUserByCreds mocks base method.
-func (m *MockAuth) GetUserByCreds(username, password string) (*models.User, error) {
+// GetUserByUsername mocks base method.
+func (m *MockAuth) GetUserByUsername(username string) (*models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserByCreds", username, password)
+	ret := m.ctrl.Call(m, "GetUserByUsername", username)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetUserByCreds indicates an expected call of GetUserByCreds.
-func (mr *MockAuthMockRecorder) GetUserByCreds(username, password interface{}) *gomock.Call {
+// GetUserByUsername indicates an expected call of GetUserByUsername.
+func (mr *MockAuthMockRecorder) GetUserByUsername(username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByCreds", reflect.TypeOf((*MockAuth)(nil).GetUserByCreds), username, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByUsername", reflect.TypeOf((*MockAuth)(nil).GetUserByUsername), username)
 }
 
 // IncreaseUserVersion mocks base method.

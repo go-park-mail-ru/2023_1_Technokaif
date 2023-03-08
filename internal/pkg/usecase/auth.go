@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -15,10 +16,9 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
 )
 
-const (
-	secret   = "stepkapopov"
-	tokenTTL = 24 * time.Hour
-)
+var secret = os.Getenv("SECRET")
+
+const tokenTTL = 24 * time.Hour
 
 type AuthUsecase struct {
 	repo   repository.Auth
@@ -60,21 +60,20 @@ func (a *AuthUsecase) LoginUser(username, password string) (string, error) {
 
 func (a *AuthUsecase) GetUserByCreds(username, password string) (*models.User, error) {
 	user, err := a.repo.GetUserByUsername(username)
-
 	if err != nil {
 		return nil, err // TODO it can be repos error too
 	}
 
 	salt, err := hex.DecodeString(user.Salt)
 	if err != nil {
-		a.logger.Error("Can't get user by credentials: " + err.Error())
+		a.logger.Error("can't get user by credentials: " + err.Error())
 		return nil, err
 	}
 
 	hashedPassword := hashPassword(password, salt)
 
 	if hashedPassword != user.Password {
-		return nil, errors.New("No such user")
+		return nil, errors.New("no such user")
 	}
 
 	return user, nil
@@ -128,8 +127,7 @@ func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
 }
 
 func (a *AuthUsecase) IncreaseUserVersion(userID uint) error {
-	err := a.repo.IncreaseUserVersion(userID)
-	if err != nil {
+	if err := a.repo.IncreaseUserVersion(userID); err != nil {
 		return errors.New("failed to update user version")
 	}
 

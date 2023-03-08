@@ -24,19 +24,19 @@ type Auth interface {
 	// CreateUser creates new user and returns it's id
 	CreateUser(user models.User) (int, error)
 
-	// GetUserID returns User's ID if such User exists
+	// GetUserID returns User if such User exists in repository
 	GetUserByCreds(username, password string) (*models.User, error)
 
-	// GetUserByAuthData ...
+	// GetUserByAuthData returns User if such User exists in repository
 	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
 
 	// GenerateAccessToken returns token created with user's username and password
 	GenerateAccessToken(userID, userVersion uint) (string, error)
 
-	// CheckAccessToken ...
+	// CheckAccessToken validates accessToken
 	CheckAccessToken(accessToken string) (uint, uint, error)
 
-	// IncreaseUserVersion ...
+	// IncreaseUserVersion increases user's access token version
 	IncreaseUserVersion(userID uint) error
 }
 
