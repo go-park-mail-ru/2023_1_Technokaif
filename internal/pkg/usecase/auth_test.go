@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUsecase_authCreateUser(t *testing.T) {
+func TestUsecaseAuthCreateUser(t *testing.T) {
 	type mockBehavior func(a *mocks.MockAuth, u models.User)
 	type result struct {
 		Id  int

@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"net/http/httptest"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDelivery_signUp(t *testing.T) {
+func TestDeliverySignUp(t *testing.T) {
 	type mockBehavior func(a *mocks.MockAuth, u models.User)
 
 	correctTestRequestBody := `{"username": "yarik_tri", "password": "Love1234",
@@ -131,7 +131,7 @@ func TestDelivery_signUp(t *testing.T) {
 	}
 }
 
-func TestDelivery_login(t *testing.T) {
+func TestDeliveryLogin(t *testing.T) {
 	type mockBehavior func(a *mocks.MockAuth, l loginInput)
 
 	correctTestRequestBody := `{"username": "yarik_tri", "password": "Love1234"}`
@@ -226,7 +226,7 @@ func TestDelivery_login(t *testing.T) {
 	}
 }
 
-func TestDelivery_logout(t *testing.T) {  // TODO maybe mock GetUserFromAuthorization
+func TestDeliveryLogout(t *testing.T) { // TODO maybe mock GetUserFromAuthorization
 	correctTestUser := &models.User{
 		ID: 1,
 	}
@@ -241,37 +241,37 @@ func TestDelivery_logout(t *testing.T) {  // TODO maybe mock GetUserFromAuthoriz
 	type mockBehavior func(a *mocks.MockAuth, user *models.User)
 
 	testTable := []struct {
-		name             	string
-		user	 			*models.User
-		mockBehavior     	mockBehavior
-		expectedStatus   	int
-		expectedResponse 	string
+		name             string
+		user             *models.User
+		mockBehavior     mockBehavior
+		expectedStatus   int
+		expectedResponse string
 	}{
 		{
-		 	name:             "Common",
-			user:			  correctTestUser,	
-		 	mockBehavior:     func(a *mocks.MockAuth, user *models.User) {
-		 		a.EXPECT().IncreaseUserVersion(user.ID).Return(nil)
-		 	},
-		 	expectedStatus:   200,
-		 	expectedResponse: `{"status": "ok"}`,
+			name: "Common",
+			user: correctTestUser,
+			mockBehavior: func(a *mocks.MockAuth, user *models.User) {
+				a.EXPECT().IncreaseUserVersion(user.ID).Return(nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "ok"}`,
 		},
 		{
 			name:             "No user in request",
-		   	user:			  nil,	
+			user:             nil,
 			mockBehavior:     func(a *mocks.MockAuth, user *models.User) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid token"}`,
-	   	},
+		},
 		{
-			name:             "Failed to increase user version",
-		   	user:			  correctTestUser,	
-			mockBehavior:     func(a *mocks.MockAuth, user *models.User) {
+			name: "Failed to increase user version",
+			user: correctTestUser,
+			mockBehavior: func(a *mocks.MockAuth, user *models.User) {
 				a.EXPECT().IncreaseUserVersion(user.ID).Return(fmt.Errorf(""))
 			},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "failed to log out"}`,
-	   	},
+		},
 	}
 
 	for _, tc := range testTable {

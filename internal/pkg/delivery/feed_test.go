@@ -7,15 +7,15 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
+	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger/mocks"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/usecase"
 	mocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/usecase/mocks"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDelivery_feed(t *testing.T) {
+func TestDeliveryFeed(t *testing.T) {
 	type mockBehavior func(ar *mocks.MockArtist, tr *mocks.MockTrack, al *mocks.MockAlbum)
 
 	testTable := []struct {
