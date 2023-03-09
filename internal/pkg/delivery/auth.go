@@ -33,8 +33,6 @@ type logoutResponse struct {
 //	@Failure		500		{object}	errorResponse	"Server DB error"
 //	@Router			/api/auth/signup [post]
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	var user models.User
 
 	decoder := json.NewDecoder(r.Body)
@@ -94,8 +92,6 @@ func (i *loginInput) validate() bool {
 //	@Failure		500			{object}	errorResponse	"Server DB error"
 //	@Router			/api/auth/login [post]
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	var userInput loginInput
 
 	decoder := json.NewDecoder(r.Body)
@@ -147,7 +143,7 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Info("UserID for logout : " + strconv.Itoa(int(user.ID)))
 
-	if err = h.services.IncreaseUserVersion(user.ID); err != nil {  // userVersion UP UP UP
+	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP UP UP
 		h.logger.Error(err.Error())
 		h.errorResponse(w, "failed to log out", http.StatusBadRequest)
 		return

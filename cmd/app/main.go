@@ -30,7 +30,7 @@ import (
 func main() {
 	logger, err := logger.NewLogger()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Logger can not be defined: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "Logger can not be defined: %v\n", err)
 		return
 	}
 

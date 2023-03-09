@@ -22,13 +22,6 @@ type FeedResponse struct {
 //	@Failure		500			{object}	errorResponse	"Server DB error"
 //	@Router			/api/feed [get]
 func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
-	// user, err := h.GetUserFromAuthorization(r)
-	// if err != nil {
-	// 	h.errorResponce(w, "failed to authenticate", http.StatusBadRequest)
-	// 	return
-	// }
-	// h.logger.Info("User id : " + strconv.Itoa(int(user.ID)))
-
 	artists, err := h.services.Artist.GetFeed()
 	if err != nil {
 		h.logger.Error(err.Error())

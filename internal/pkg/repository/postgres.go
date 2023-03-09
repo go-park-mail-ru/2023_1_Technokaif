@@ -41,7 +41,10 @@ func NewPostrgresDB(cfg Config) (*sql.DB, error) {
 
 	err = db.Ping()
 	if err != nil {
-		db.Close()
+		errClose := db.Close()
+		if errClose != nil {
+			return nil, fmt.Errorf("can't close DB (%w) after failed ping: %w", errClose, err)
+		}
 		return nil, err
 	}
 
