@@ -62,10 +62,6 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
 
-	if err != nil {
-		t.Errorf("%v", err)
-	}
-
 	r := NewAuthPostgres(db, l)
 
 	correctTestUser, err := defaultUser()
@@ -156,10 +152,6 @@ func TestAuthPostgresGetUserByUsername(t *testing.T) {
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
 
-	if err != nil {
-		t.Errorf("%v", err)
-	}
-
 	r := NewAuthPostgres(db, l)
 
 	u, err := defaultUser()
@@ -237,10 +229,6 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
-
-	if err != nil {
-		t.Errorf("%v", err)
-	}
 
 	r := NewAuthPostgres(db, l)
 
@@ -321,10 +309,6 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
-
-	if err != nil {
-		t.Errorf("%v", err)
-	}
 
 	r := NewAuthPostgres(db, l)
 
