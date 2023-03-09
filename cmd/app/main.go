@@ -17,7 +17,7 @@ import (
 )
 
 //	@title			Fluire API
-//	@version		1.0
+//	@version		0.1.0
 //	@description	Server API for Fluire Streaming Service Application
 
 //	@host		localhost:4443

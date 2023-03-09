@@ -22,7 +22,6 @@ func (h *Handler) authorization(next http.Handler) http.Handler { // TEST IT
 
 		h.logger.Info("auth token : " + reqToken)
 
-
 		if authHeader == "" || reqToken == authHeader || reqToken == "" {
 			next.ServeHTTP(w, r) // missing token
 			return
@@ -42,7 +41,7 @@ func (h *Handler) authorization(next http.Handler) http.Handler { // TEST IT
 			return
 		}
 
-		h.logger.Info("User verion : " + strconv.Itoa(int(user.Version)))
+		h.logger.Info("user version : " + strconv.Itoa(int(user.Version)))
 
 		ctx := context.WithValue(r.Context(), contextValueUser, user)
 		next.ServeHTTP(w, r.WithContext(ctx)) // token check successed
