@@ -72,7 +72,7 @@ INSERT INTO Albums (name, description, cover_src) VALUES ('На Человека
 INSERT INTO Tracks (name, album_id, cover_src) VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg');
 INSERT INTO Tracks (name, album_id, cover_src) VALUES ('Признаки жизни', 2, '/tracks/longWayHome.png');
 INSERT INTO Tracks (name, cover_src) VALUES ('LAGG OUT', '/tracks/laggOut.jpeg');
-INSERT INTO Tracks (name, cover_src) VALUES ('Город под подошвой', '/tracks/gorodPopPod.png');
+INSERT INTO Tracks (name, cover_src) VALUES ('Город под подошвой', '/tracks/gorodPodPod.png');
 
 INSERT INTO Artists_Albums (artist_id, album_id) VALUES (1, 1);
 INSERT INTO Artists_Albums (artist_id, album_id) VALUES (1, 2);
