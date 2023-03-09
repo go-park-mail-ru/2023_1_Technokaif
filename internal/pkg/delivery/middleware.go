@@ -10,7 +10,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
-const contextValueUser = "user"
+type contextKeyUserType struct{}
 
 // Authorization is HTTP middleware which sets a value on the request context
 func (h *Handler) authorization(next http.Handler) http.Handler { // TEST IT
@@ -43,14 +43,14 @@ func (h *Handler) authorization(next http.Handler) http.Handler { // TEST IT
 
 		h.logger.Info("user version : " + strconv.Itoa(int(user.Version)))
 
-		ctx := context.WithValue(r.Context(), contextValueUser, user)
+		ctx := context.WithValue(r.Context(), contextKeyUserType{}, user)
 		next.ServeHTTP(w, r.WithContext(ctx)) // token check successed
 	})
 }
 
 // GetUserFromAuthorization returns error if authentication failed
 func (h *Handler) getUserFromAuthorization(r *http.Request) (*models.User, error) {
-	user, ok := r.Context().Value(contextValueUser).(*models.User)
+	user, ok := r.Context().Value(contextKeyUserType{}).(*models.User)
 	if !ok {
 		h.logger.Error("no User")
 		return nil, errors.New("failed to authenticate")

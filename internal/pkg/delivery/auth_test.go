@@ -234,7 +234,7 @@ func TestDeliveryLogout(t *testing.T) { // TODO maybe mock GetUserFromAuthorizat
 		if user == nil {
 			return r
 		}
-		ctx := context.WithValue(r.Context(), contextValueUser, user)
+		ctx := context.WithValue(r.Context(), contextKeyUserType{}, user)
 		return r.WithContext(ctx)
 	}
 
