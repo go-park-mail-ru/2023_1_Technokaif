@@ -42,7 +42,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 	var m = make(map[int]models.TrackFeed)
 	for rows.Next() {
 		var at artistsTracks
-		if err = rows.Scan(&at.TrackID, &at.TrackName, &at.TrackCover, &at.ArtistID, &at.ArtistName); err != nil {
+		if err = rows.Scan(&at.TrackID, &at.TrackName, &at.ArtistID, &at.ArtistName, &at.TrackCover); err != nil {
 			tp.logger.Error(err.Error())
 			return nil, err
 		}
