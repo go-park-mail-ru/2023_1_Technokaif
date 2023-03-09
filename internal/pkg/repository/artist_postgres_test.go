@@ -8,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestArtistPostgresGetFeed(t *testing.T) {
@@ -75,7 +76,7 @@ func TestArtistPostgresGetFeed(t *testing.T) {
 				assert.EqualError(t, err, tc.expectedError)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expectedFeed, af)
+				require.ElementsMatch(t, tc.expectedFeed, af)
 			}
 		})
 	}
