@@ -137,11 +137,11 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 //	@Router			/api/auth/logout [get]
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	user, err := h.getUserFromAuthorization(r)
-	if err != nil || user == nil {
+	if err != nil {
 		h.errorResponse(w, "invalid token", http.StatusBadRequest)
 		return
 	}
-	h.logger.Info("UserID for logout : " + strconv.Itoa(int(user.ID)))
+	h.logger.Info("userID for logout: " + strconv.Itoa(int(user.ID)))
 
 	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
 		h.logger.Error(err.Error())
