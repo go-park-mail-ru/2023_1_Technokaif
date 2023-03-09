@@ -41,6 +41,7 @@ func NewPostrgresDB(cfg Config) (*sql.DB, error) {
 
 	err = db.Ping()
 	if err != nil {
+		db.Close()
 		return nil, err
 	}
 

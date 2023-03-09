@@ -3,10 +3,10 @@ package repository
 import (
 	"testing"
 
-	"github.com/golang/mock/gomock"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger/mocks"
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger/mocks"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func TestTrackPostgresGetFeed(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		t.Errorf("%v", err)
+		t.Fatalf("%v", err)
 	}
 	defer db.Close()
 
@@ -24,10 +24,6 @@ func TestTrackPostgresGetFeed(t *testing.T) {
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
-
-	if err != nil {
-		t.Errorf("%v", err)
-	}
 
 	r := NewTrackPostgres(db, l)
 

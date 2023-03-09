@@ -15,7 +15,7 @@ func TestArtistPostgresGetFeed(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		t.Errorf("%v", err)
+		t.Fatalf("%v", err)
 	}
 	defer db.Close()
 
