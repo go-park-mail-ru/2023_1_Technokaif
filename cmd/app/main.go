@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -56,7 +57,7 @@ func main() {
 	go func() {
 		if err := server.Run(host, port, handler.InitRouter()); err != nil {
 			logger.Error("Error while launching server: " + err.Error())
-			return
+			log.Fatalf("Can't launch server: %v", err)
 		}
 	}()
 	logger.Info("Server launched at " + host + ":" + port)

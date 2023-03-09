@@ -63,16 +63,16 @@ CREATE TABLE Artists_Tracks
 
 /* Filling */
 INSERT INTO Artists (name, avatar_src) VALUES ('Oxxxymiron', '/artists/oxxxymiron.jpg');
-INSERT INTO Artists (name, avatar_src) VALUES ('Instasamka', '/artists/instasamka.jpeg');
+INSERT INTO Artists (name, avatar_src) VALUES ('SALUKI', '/artists/sluki.jpg');
 
-INSERT INTO Albums (name, description, cover_src) VALUES ('Горгород', 'Антиутопия классная', '/albums/gorgorod.jpg');
-INSERT INTO Albums (name, description, cover_src) VALUES ('Долгий путь домой', 'Качает жёстко', '/albums/longWayHome.png');
-INSERT INTO Albums (name, description, cover_src) VALUES ('POPSTAR', 'КАЙФ', '/albums/popstar.jpg');
+INSERT INTO Albums (name, description, cover_src) VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg');
+INSERT INTO Albums (name, description, cover_src) VALUES ('Долгий путь домой', 'Грайм из Лондона', '/albums/longWayHome.png');
+INSERT INTO Albums (name, description, cover_src) VALUES ('На Человека', 'Стильная музыка от русского Канье Уэста', '/albums/onHuman.jpg');
 
-INSERT INTO Tracks (name, album_id) VALUES ('Где нас нет', 1);
-INSERT INTO Tracks (name, album_id) VALUES ('Признаки жизни', 2);
-INSERT INTO Tracks (name, album_id) VALUES ('За деньги да', 3);
-INSERT INTO Tracks (name) VALUES ('Город под подошвой');
+INSERT INTO Tracks (name, album_id, cover_src) VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg');
+INSERT INTO Tracks (name, album_id, cover_src) VALUES ('Признаки жизни', 2, '/tracks/longWayHome.png');
+INSERT INTO Tracks (name, cover_src) VALUES ('LAGG OUT', '/tracks/laggOut.jpeg');
+INSERT INTO Tracks (name, cover_src) VALUES ('Город под подошвой', '/tracks/gorodPopPod.png');
 
 INSERT INTO Artists_Albums (artist_id, album_id) VALUES (1, 1);
 INSERT INTO Artists_Albums (artist_id, album_id) VALUES (1, 2);
