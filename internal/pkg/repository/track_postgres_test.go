@@ -58,11 +58,11 @@ func TestTrackPostgresGetFeed(t *testing.T) {
 			name:       "Common",
 			actualFeed: commonTF,
 			mockBehavior: func(tf []models.TrackFeed) {
-				rows := sqlmock.NewRows([]string{"t.id", "t.name", "a.id", "a.name"})
+				rows := sqlmock.NewRows([]string{"t.id", "t.name", "t.cover_src", "a.id", "a.name"})
 
 				for _, track := range tf {
 					for _, artist := range track.Artists {
-						rows.AddRow(track.ID, track.Name, artist.ID, artist.Name)
+						rows.AddRow(track.ID, track.Name, track.CoverSrc, artist.ID, artist.Name)
 					}
 				}
 
