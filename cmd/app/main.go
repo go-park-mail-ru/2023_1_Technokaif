@@ -30,11 +30,13 @@ import (
 func main() {
 	logger, err := logger.NewLogger()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Logger can not be defined: "+err.Error())
+		fmt.Fprintf(os.Stderr, "Logger can not be defined: %s", err.Error())
+		return
 	}
 
 	if err = godotenv.Load(); err != nil {
 		logger.Error("Error while loading environment: " + err.Error())
+		return
 	}
 
 	db, err := repository.NewPostrgresDB(InitDBConfig())
@@ -54,6 +56,7 @@ func main() {
 	go func() {
 		if err := server.Run(host, port, handler.InitRouter()); err != nil {
 			logger.Error("Error while launching server: " + err.Error())
+			return
 		}
 	}()
 	logger.Info("Server launched at " + host + ":" + port)

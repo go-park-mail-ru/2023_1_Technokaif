@@ -26,6 +26,7 @@ func (tp *ArtistPostgres) GetFeed() ([]models.ArtistFeed, error) {
 		tp.logger.Error(err.Error())
 		return nil, err
 	}
+	defer rows.Close()
 
 	var artists []models.ArtistFeed
 	for rows.Next() {
@@ -35,6 +36,10 @@ func (tp *ArtistPostgres) GetFeed() ([]models.ArtistFeed, error) {
 			return nil, err
 		}
 		artists = append(artists, artist)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return artists, nil

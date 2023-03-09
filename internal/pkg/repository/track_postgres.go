@@ -36,6 +36,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 		tp.logger.Error(err.Error())
 		return nil, err
 	}
+	defer rows.Close()
 
 	var m = make(map[int]models.TrackFeed)
 	for rows.Next() {
@@ -53,6 +54,10 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 				models.ArtistFeed{ID: at.ArtistID, Name: at.ArtistName})
 			m[at.TrackID] = tf
 		}
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	var tracks []models.TrackFeed

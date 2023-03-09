@@ -39,6 +39,7 @@ func (ap *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 		ap.logger.Error(err.Error())
 		return nil, err
 	}
+	defer rows.Close()
 
 	var m = make(map[int]models.AlbumFeed)
 	for rows.Next() {
@@ -61,6 +62,10 @@ func (ap *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 				models.ArtistFeed{ID: aa.ArtistID, Name: aa.ArtistName})
 			m[aa.AlbumID] = af
 		}
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
 	}
 
 	var albums []models.AlbumFeed

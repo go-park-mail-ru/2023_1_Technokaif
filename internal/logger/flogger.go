@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -21,7 +21,7 @@ func NewFLogger() (*FLogger, error) {
 	logger, err := initZapLogger()
 
 	if err != nil {
-		return nil, errors.New("Can't initialize logger: " + err.Error())
+		return nil, fmt.Errorf("can't initialize logger: %w", err)
 	}
 
 	return &FLogger{logger: logger}, nil
@@ -40,11 +40,11 @@ func (l *FLogger) Info(msg string) {
 // initZapLogger customizes zap.Logger and returns, generally, FLogger
 func initZapLogger() (*zap.Logger, error) {
 	configConsole := zap.NewProductionEncoderConfig()
-	configConsole.EncodeTime = ConsoleTimeEncoder
+	configConsole.EncodeTime = consoleTimeEncoder
 	configConsole.EncodeCaller = zapcore.ShortCallerEncoder
 
 	configFile := zap.NewProductionEncoderConfig()
-	configFile.EncodeTime = FileTimeEncoder
+	configFile.EncodeTime = fileTimeEncoder
 	configFile.EncodeCaller = zapcore.ShortCallerEncoder
 
 	fileEncoder := zapcore.NewJSONEncoder(configFile)
@@ -67,10 +67,10 @@ func initZapLogger() (*zap.Logger, error) {
 	return logger, nil
 }
 
-func ConsoleTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+func consoleTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString("[" + t.Format("15:04:05") + "]")
 }
 
-func FileTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+func fileTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format("Jan 01, 2006  15:04:05"))
 }
