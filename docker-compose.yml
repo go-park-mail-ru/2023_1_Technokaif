@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DBNAME}
+      POSTGRES_USER: ${DBUSER}
+      POSTGRES_PASSWORD: ${DBPASSWORD}
+    ports:
+      - 5436:5432
+    volumes:
+      - ./schema/:/docker-entrypoint-initdb.d
