@@ -66,7 +66,7 @@ func TestTrackPostgresGetFeed(t *testing.T) {
 					}
 				}
 
-				mock.ExpectQuery("SELECT (.+) FROM " + TracksTable).
+				mock.ExpectQuery("SELECT (.+) FROM " + tracksTable).
 					WillReturnRows(rows)
 			},
 			expectedFeed: commonTF,

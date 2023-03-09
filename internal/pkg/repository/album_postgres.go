@@ -32,7 +32,7 @@ func (ap *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 		"SELECT al.id, al.name, al.cover_src, ar.id, ar.name, al.description "+
 			"FROM %s al INNER JOIN %s aa ON al.id = aa.album_id "+
 			"INNER JOIN %s ar ON aa.artist_id = ar.id;",
-		AlbumsTable, ArtistsAlbumsTable, ArtistsTable)
+		albumsTable, artistsAlbumsTable, artistsTable)
 
 	rows, err := ap.db.Query(query)
 	if err != nil {

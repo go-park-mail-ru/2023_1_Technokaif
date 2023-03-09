@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -26,7 +27,7 @@ const errorUserExists = "unique_violation"
 func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 	query := fmt.Sprintf(`INSERT INTO %s 
 	(username, email, password_hash, salt, first_name, last_name, sex, birth_date) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`, UsersTable)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`, usersTable)
 
 	row := ap.db.QueryRow(query, u.Username, u.Email, u.Password, u.Salt,
 		u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339))
@@ -52,7 +53,7 @@ func (ap *AuthPostgres) CreateUser(u models.User) (int, error) {
 func (ap *AuthPostgres) GetUserByUsername(username string) (*models.User, error) {
 	query := fmt.Sprintf(`SELECT id, version, username, email, password_hash, salt, 
 		first_name, last_name, sex, birth_date 
-		FROM %s WHERE (username=$1 OR email=$1);`, UsersTable)
+		FROM %s WHERE (username=$1 OR email=$1);`, usersTable)
 	row := ap.db.QueryRow(query, username)
 
 	var u models.User
@@ -62,7 +63,7 @@ func (ap *AuthPostgres) GetUserByUsername(username string) (*models.User, error)
 	if err != nil {
 		ap.logger.Error(err.Error())
 	}
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, &NoSuchUserError{}
 	}
 
@@ -72,7 +73,7 @@ func (ap *AuthPostgres) GetUserByUsername(username string) (*models.User, error)
 func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint) (*models.User, error) {
 	query := fmt.Sprintf(`SELECT id, version, username, email, password_hash, salt, 
 		first_name, last_name, sex, birth_date 
-		FROM %s WHERE id=$1 AND version=$2;`, UsersTable)
+		FROM %s WHERE id=$1 AND version=$2;`, usersTable)
 	row := ap.db.QueryRow(query, userID, userVersion)
 
 	var u models.User
@@ -82,7 +83,7 @@ func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint) (*models.Use
 	if err != nil {
 		ap.logger.Error(err.Error())
 	} // logger
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return &u, &NoSuchUserError{}
 	}
 
@@ -90,7 +91,7 @@ func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint) (*models.Use
 }
 
 func (ap *AuthPostgres) IncreaseUserVersion(userID uint) error {
-	query := fmt.Sprintf("UPDATE %s SET version = version + 1 WHERE id=$1 RETURNING id;", UsersTable)
+	query := fmt.Sprintf("UPDATE %s SET version = version + 1 WHERE id=$1 RETURNING id;", usersTable)
 	row := ap.db.QueryRow(query, userID)
 
 	err := row.Scan(&userID)
@@ -98,7 +99,7 @@ func (ap *AuthPostgres) IncreaseUserVersion(userID uint) error {
 		ap.logger.Error(err.Error())
 	}
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return &NoSuchUserError{}
 	}
 

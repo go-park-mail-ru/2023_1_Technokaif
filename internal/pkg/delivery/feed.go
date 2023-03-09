@@ -25,21 +25,21 @@ func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
 	artists, err := h.services.Artist.GetFeed()
 	if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "error while getting artists: "+err.Error(), http.StatusInternalServerError)
+		h.errorResponse(w, "error while getting artists", http.StatusInternalServerError)
 		return
 	}
 
 	tracks, err := h.services.Track.GetFeed()
 	if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "error while getting tracks: "+err.Error(), http.StatusInternalServerError)
+		h.errorResponse(w, "error while getting tracks", http.StatusInternalServerError)
 		return
 	}
 
 	albums, err := h.services.Album.GetFeed()
 	if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "error while getting albums: "+err.Error(), http.StatusInternalServerError)
+		h.errorResponse(w, "error while getting albums", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "json/application; charset=utf-8")
@@ -52,7 +52,7 @@ func (h *Handler) feed(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&fr); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "can't encode response into json: "+err.Error(), http.StatusInternalServerError)
+		h.errorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }

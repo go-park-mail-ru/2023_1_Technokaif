@@ -9,12 +9,15 @@ import (
 
 // PostgreSQL tables
 const (
-	UsersTable         = "Users"
-	TracksTable        = "Tracks"
-	ArtistsTable       = "Artists"
-	AlbumsTable        = "Albums"
-	ArtistsAlbumsTable = "Artists_Albums"
-	ArtistsTracksTable = "Artists_Tracks"
+	maxIdleConns = 10
+	maxOpenConns = 10
+
+	usersTable         = "Users"
+	tracksTable        = "Tracks"
+	artistsTable       = "Artists"
+	albumsTable        = "Albums"
+	artistsAlbumsTable = "Artists_Albums"
+	artistsTracksTable = "Artists_Tracks"
 )
 
 // Config includes info about postgres DB we want to connect to
@@ -37,13 +40,15 @@ func NewPostrgresDB(cfg Config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.SetMaxIdleConns(5)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(maxOpenConns)
 
 	err = db.Ping()
 	if err != nil {
 		errClose := db.Close()
 		if errClose != nil {
-			return nil, fmt.Errorf("can't close DB (%w) after failed ping: %w", errClose, err)
+			// TODO: change %w and %s (double wrap only in go1.20+)
+			return nil, fmt.Errorf("can't close DB (%w) after failed ping: %s", errClose, err.Error())
 		}
 		return nil, err
 	}

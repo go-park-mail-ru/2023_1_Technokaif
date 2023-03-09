@@ -59,7 +59,7 @@ func TestArtistPostgresGetFeed(t *testing.T) {
 					rows.AddRow(artist.ID, artist.Name, artist.AvatarSrc)
 				}
 
-				mock.ExpectQuery("SELECT (.+) FROM " + ArtistsTable).
+				mock.ExpectQuery("SELECT (.+) FROM " + artistsTable).
 					WillReturnRows(rows)
 			},
 			expectedFeed: commonAF,

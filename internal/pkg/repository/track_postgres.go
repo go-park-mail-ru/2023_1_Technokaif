@@ -29,7 +29,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 	query := fmt.Sprintf("SELECT t.id, t.name, a.id, a.name "+
 		"FROM %s t INNER JOIN %s at ON t.id = at.track_id "+
 		"INNER JOIN %s a ON at.artist_id = a.id;",
-		TracksTable, ArtistsTracksTable, ArtistsTable)
+		tracksTable, artistsTracksTable, artistsTable)
 
 	rows, err := tp.db.Query(query)
 	if err != nil {

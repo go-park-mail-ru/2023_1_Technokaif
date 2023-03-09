@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+const (
+	maxHeaderBytes = 1 << 20
+	readTimeout    = 10 * time.Second
+	writeTimeout   = 10 * time.Second
+)
+
 // Server is the wrapper for http.Server
 type Server struct {
 	httpServer *http.Server
@@ -16,9 +22,9 @@ func (s *Server) Run(host, port string, handler http.Handler) error {
 	s.httpServer = &http.Server{
 		Addr:           host + ":" + port,
 		Handler:        handler,
-		MaxHeaderBytes: 1 << 20,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: maxHeaderBytes,
+		ReadTimeout:    readTimeout,
+		WriteTimeout:   writeTimeout,
 	}
 
 	return s.httpServer.ListenAndServe()

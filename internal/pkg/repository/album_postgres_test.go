@@ -70,7 +70,7 @@ func TestAlbumPostgresGetFeed(t *testing.T) {
 					}
 				}
 
-				mock.ExpectQuery("SELECT (.+) FROM " + AlbumsTable).
+				mock.ExpectQuery("SELECT (.+) FROM " + albumsTable).
 					WillReturnRows(rows)
 			},
 			expectedFeed: commonAF,

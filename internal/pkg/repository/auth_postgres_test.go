@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger/mocks"
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger/mocks"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,6 +57,7 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 
 	c := gomock.NewController(t)
 	defer c.Finish()
+
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
@@ -92,7 +93,7 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 				row := sqlmock.NewRows([]string{"id"}).AddRow(id)
 
 				// Exec request and expect rows to be result
-				mock.ExpectQuery("INSERT INTO "+UsersTable).
+				mock.ExpectQuery("INSERT INTO "+usersTable).
 					WithArgs(u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339)).
 					WillReturnRows(row)
@@ -103,7 +104,7 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 			name:         "Empty required Fields",
 			userToCreate: userWithoutUsername,
 			mockBehavior: func(u models.User, id int) {
-				mock.ExpectQuery("INSERT INTO "+UsersTable).
+				mock.ExpectQuery("INSERT INTO "+usersTable).
 					WithArgs(u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339)).
 					WillReturnError(errors.New("required field is null"))
@@ -115,7 +116,7 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 			name:         "user already exists",
 			userToCreate: correctTestUser,
 			mockBehavior: func(u models.User, id int) {
-				mock.ExpectQuery("INSERT INTO "+UsersTable).
+				mock.ExpectQuery("INSERT INTO "+usersTable).
 					WithArgs(u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339)).
 					WillReturnError(errors.New("user already exists"))
@@ -184,7 +185,7 @@ func TestAuthPostgresGetUserByUsername(t *testing.T) {
 					AddRow(u.ID, u.Version, u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirhDate.Time)
 
-				mock.ExpectQuery("SELECT (.+) FROM " + UsersTable).
+				mock.ExpectQuery("SELECT (.+) FROM " + usersTable).
 					WithArgs(username).
 					WillReturnRows(row)
 			},
@@ -194,7 +195,7 @@ func TestAuthPostgresGetUserByUsername(t *testing.T) {
 			name:     "No such user",
 			username: "yarik_dva",
 			mockBehavior: func(username string, u *models.User) {
-				mock.ExpectQuery("SELECT (.+) FROM " + UsersTable).
+				mock.ExpectQuery("SELECT (.+) FROM " + usersTable).
 					WithArgs(username).
 					WillReturnError(errors.New("no such user"))
 			},
@@ -269,7 +270,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 					AddRow(u.ID, u.Version, u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirhDate.Time)
 
-				mock.ExpectQuery("SELECT (.+) FROM "+UsersTable).
+				mock.ExpectQuery("SELECT (.+) FROM "+usersTable).
 					WithArgs(userID, userVersion).
 					WillReturnRows(row)
 			},
@@ -282,7 +283,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 				userVersion: 2,
 			},
 			mockBehavior: func(userID, userVersion uint, u *models.User) {
-				mock.ExpectQuery("SELECT (.+) FROM "+UsersTable).
+				mock.ExpectQuery("SELECT (.+) FROM "+usersTable).
 					WithArgs(userID, userVersion).
 					WillReturnError(errors.New("no such user"))
 			},
@@ -341,7 +342,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			mockBehavior: func(userID uint) {
 				row := sqlmock.NewRows([]string{"id"}).AddRow(userID)
 
-				mock.ExpectQuery("UPDATE " + UsersTable).
+				mock.ExpectQuery("UPDATE " + usersTable).
 					WithArgs(userID).
 					WillReturnRows(row)
 			},
@@ -351,7 +352,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			name:   "No such user",
 			userID: 1,
 			mockBehavior: func(userID uint) {
-				mock.ExpectQuery("UPDATE " + UsersTable).
+				mock.ExpectQuery("UPDATE " + usersTable).
 					WithArgs(userID).
 					WillReturnError(errors.New("no such user"))
 			},

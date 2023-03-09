@@ -143,7 +143,7 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Info("UserID for logout : " + strconv.Itoa(int(user.ID)))
 
-	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP UP UP
+	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
 		h.logger.Error(err.Error())
 		h.errorResponse(w, "failed to log out", http.StatusBadRequest)
 		return
