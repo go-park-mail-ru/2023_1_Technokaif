@@ -51,7 +51,7 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		t.Errorf("%v", err)
+		t.Fatalf("%v", err)
 	}
 	defer db.Close()
 
@@ -142,7 +142,7 @@ func TestAuthPostgresGetUserByUsername(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		t.Errorf("%v", err)
+		t.Fatalf("%v", err)
 	}
 	defer db.Close()
 
@@ -220,7 +220,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		t.Errorf("%v", err)
+		t.Fatalf("%v", err)
 	}
 	defer db.Close()
 
@@ -300,7 +300,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		t.Errorf("%v", err)
+		t.Fatalf("%v", err)
 	}
 	defer db.Close()
 
