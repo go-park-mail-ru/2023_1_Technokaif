@@ -35,11 +35,11 @@ func (m *MockAuth) EXPECT() *MockAuthMockRecorder {
 }
 
 // CheckAccessToken mocks base method.
-func (m *MockAuth) CheckAccessToken(accessToken string) (uint, uint, error) {
+func (m *MockAuth) CheckAccessToken(accessToken string) (uint32, uint32, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckAccessToken", accessToken)
-	ret0, _ := ret[0].(uint)
-	ret1, _ := ret[1].(uint)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(uint32)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
@@ -51,10 +51,10 @@ func (mr *MockAuthMockRecorder) CheckAccessToken(accessToken interface{}) *gomoc
 }
 
 // CreateUser mocks base method.
-func (m *MockAuth) CreateUser(user models.User) (int, error) {
+func (m *MockAuth) CreateUser(user models.User) (uint32, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", user)
-	ret0, _ := ret[0].(int)
+	ret0, _ := ret[0].(uint32)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -66,7 +66,7 @@ func (mr *MockAuthMockRecorder) CreateUser(user interface{}) *gomock.Call {
 }
 
 // GenerateAccessToken mocks base method.
-func (m *MockAuth) GenerateAccessToken(userID, userVersion uint) (string, error) {
+func (m *MockAuth) GenerateAccessToken(userID, userVersion uint32) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GenerateAccessToken", userID, userVersion)
 	ret0, _ := ret[0].(string)
@@ -81,7 +81,7 @@ func (mr *MockAuthMockRecorder) GenerateAccessToken(userID, userVersion interfac
 }
 
 // GetUserByAuthData mocks base method.
-func (m *MockAuth) GetUserByAuthData(userID, userVersion uint) (*models.User, error) {
+func (m *MockAuth) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByAuthData", userID, userVersion)
 	ret0, _ := ret[0].(*models.User)
@@ -111,7 +111,7 @@ func (mr *MockAuthMockRecorder) GetUserByCreds(username, password interface{}) *
 }
 
 // IncreaseUserVersion mocks base method.
-func (m *MockAuth) IncreaseUserVersion(userID uint) error {
+func (m *MockAuth) IncreaseUserVersion(userID uint32) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IncreaseUserVersion", userID)
 	ret0, _ := ret[0].(error)

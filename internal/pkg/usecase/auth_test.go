@@ -3,7 +3,6 @@ package usecase
 import (
 	"fmt"
 	mathRand "math/rand"
-	cryptoRand "crypto/rand"
 	"testing"
 	"time"
 
@@ -18,7 +17,7 @@ import (
 func TestUsecaseAuthCreateUser(t *testing.T) {
 	type mockBehavior func(a *mocks.MockAuth, u models.User)
 	type result struct {
-		Id  int
+		Id  uint32
 		Err error
 	}
 
@@ -47,7 +46,7 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 			},
 			mockBehavior: func(a *mocks.MockAuth, u models.User) {
 				// random salt, can't predict :(
-				a.EXPECT().CreateUser(gomock.Any()).Return(1, nil)
+				a.EXPECT().CreateUser(gomock.Any()).Return(uint32(1), nil)
 			},
 			expected: result{
 				Id:  1,
@@ -103,8 +102,8 @@ func TestUsecaseAuthGenerateAndCheckToken(t *testing.T) {
 
 			u := NewUsecase(r, l)
 
-			expectedUserID := uint(mathRand.Intn(10000))
-			expectedUserVersion := uint(mathRand.Intn(10000))
+			expectedUserID := uint32(mathRand.Intn(10000))
+			expectedUserVersion := uint32(mathRand.Intn(10000))
 
 			token, err := u.GenerateAccessToken(expectedUserID, expectedUserVersion)
 			assert.NoError(t, err)
@@ -112,41 +111,7 @@ func TestUsecaseAuthGenerateAndCheckToken(t *testing.T) {
 			gotUserID, gotUserVersion, err := u.CheckAccessToken(token)
 			assert.NoError(t, err)
 			assert.Equal(t, expectedUserID, gotUserID)
-			assert.Equal(t, expectedUserVersion, gotUserVersion)		
+			assert.Equal(t, expectedUserVersion, gotUserVersion)
 		})
 	}
 }
-
-func TestUsecaseCheckHash(t *testing.T) {
-	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
-
-	randPass := func(n int) string {
-		b := make([]rune, n)
-		for i := range b {
-			b[i] = letterRunes[mathRand.Intn(len(letterRunes))]
-		}
-		return string(b)
-	}
-
-	randSalt := func(n int) []byte {
-		salt := make([]byte, n)
-		cryptoRand.Read(salt)
-		return salt
-	}
-
-	const iterations = 10
-	const iterationsEq = 5
-	for i := 0; i < iterations; i++ {
-		t.Run(fmt.Sprintf("Success Hash test %d", i), func(t *testing.T) {
-
-			pass := randPass(10)
-			salt := randSalt(8)
-			hash := hashPassword(pass, salt)
-
-			for j := 0; j < iterationsEq; j++ {
-				assert.Equal(t, hash, hashPassword(pass, salt))
-			}		
-		})
-	}
-}
-

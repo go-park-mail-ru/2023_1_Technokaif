@@ -54,7 +54,7 @@ func TestDeliverySignUp(t *testing.T) {
 			requestBody:  correctTestRequestBody,
 			userFromBody: correctTestUser,
 			mockBehavior: func(a *mocks.MockAuth, u models.User) {
-				a.EXPECT().CreateUser(u).Return(1, nil)
+				a.EXPECT().CreateUser(u).Return(uint32(1), nil)
 			},
 			expectedStatus:   200,
 			expectedResponse: `{"id": 1}`,
@@ -88,7 +88,7 @@ func TestDeliverySignUp(t *testing.T) {
 			requestBody:  correctTestRequestBody,
 			userFromBody: correctTestUser,
 			mockBehavior: func(a *mocks.MockAuth, u models.User) {
-				a.EXPECT().CreateUser(u).Return(0, fmt.Errorf("user already exists"))
+				a.EXPECT().CreateUser(u).Return(uint32(0), fmt.Errorf("user already exists"))
 			},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "user already exists"}`,

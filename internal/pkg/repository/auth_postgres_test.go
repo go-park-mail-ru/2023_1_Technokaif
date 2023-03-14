@@ -47,7 +47,7 @@ func userWithoutUsername() (models.User, error) {
 }
 
 func TestAuthPostgresCreateUser(t *testing.T) {
-	type mockBehavior func(u models.User, id int)
+	type mockBehavior func(u models.User, id uint32)
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -77,14 +77,14 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 		name          string
 		userToCreate  models.User
 		mockBehavior  mockBehavior
-		expectedId    int
+		expectedId    uint32
 		expectError   bool
 		expectedError string
 	}{
 		{
 			name:         "Common",
 			userToCreate: correctTestUser,
-			mockBehavior: func(u models.User, id int) {
+			mockBehavior: func(u models.User, id uint32) {
 				// Just creates query row (expected result after exec)
 				row := sqlmock.NewRows([]string{"id"}).AddRow(id)
 
@@ -99,7 +99,7 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 		{
 			name:         "Empty required Fields",
 			userToCreate: userWithoutUsername,
-			mockBehavior: func(u models.User, id int) {
+			mockBehavior: func(u models.User, id uint32) {
 				mock.ExpectQuery("INSERT INTO "+usersTable).
 					WithArgs(u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339)).
@@ -111,7 +111,7 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 		{
 			name:         "user already exists",
 			userToCreate: correctTestUser,
-			mockBehavior: func(u models.User, id int) {
+			mockBehavior: func(u models.User, id uint32) {
 				mock.ExpectQuery("INSERT INTO "+usersTable).
 					WithArgs(u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339)).
@@ -212,10 +212,10 @@ func TestAuthPostgresGetUserByUsername(t *testing.T) {
 }
 
 func TestAuthPostgresGetUserByAuthData(t *testing.T) {
-	type mockBehavior func(userID, userVersion uint, u *models.User)
+	type mockBehavior func(userID, userVersion uint32, u *models.User)
 	type authData struct {
-		userID      uint
-		userVersion uint
+		userID      uint32
+		userVersion uint32
 	}
 
 	db, mock, err := sqlmock.New()
@@ -251,7 +251,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 				userID:      1,
 				userVersion: 1,
 			},
-			mockBehavior: func(userID, userVersion uint, u *models.User) {
+			mockBehavior: func(userID, userVersion uint32, u *models.User) {
 				row := sqlmock.
 					NewRows([]string{"id", "version", "username", "email", "password_hash",
 						"salt", "first_name", "last_name", "sex", "birth_date"}).
@@ -270,7 +270,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 				userID:      1,
 				userVersion: 2,
 			},
-			mockBehavior: func(userID, userVersion uint, u *models.User) {
+			mockBehavior: func(userID, userVersion uint32, u *models.User) {
 				mock.ExpectQuery("SELECT (.+) FROM "+usersTable).
 					WithArgs(userID, userVersion).
 					WillReturnError(errors.New("no such user"))
@@ -296,7 +296,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 }
 
 func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
-	type mockBehavior func(userID uint)
+	type mockBehavior func(userID uint32)
 
 	db, mock, err := sqlmock.New()
 	if err != nil {
@@ -314,16 +314,16 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 
 	testTable := []struct {
 		name          string
-		userID        uint
+		userID        uint32
 		mockBehavior  mockBehavior
-		expectedId    uint
+		expectedId    uint32
 		expectError   bool
 		expectedError string
 	}{
 		{
 			name:   "Common",
 			userID: 1,
-			mockBehavior: func(userID uint) {
+			mockBehavior: func(userID uint32) {
 				row := sqlmock.NewRows([]string{"id"}).AddRow(userID)
 
 				mock.ExpectQuery("UPDATE " + usersTable).
@@ -335,7 +335,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 		{
 			name:   "No such user",
 			userID: 1,
-			mockBehavior: func(userID uint) {
+			mockBehavior: func(userID uint32) {
 				mock.ExpectQuery("UPDATE " + usersTable).
 					WithArgs(userID).
 					WillReturnError(errors.New("no such user"))

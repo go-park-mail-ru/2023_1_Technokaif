@@ -35,10 +35,10 @@ func (m *MockAuth) EXPECT() *MockAuthMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockAuth) CreateUser(user models.User) (int, error) {
+func (m *MockAuth) CreateUser(user models.User) (uint32, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateUser", user)
-	ret0, _ := ret[0].(int)
+	ret0, _ := ret[0].(uint32)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -50,7 +50,7 @@ func (mr *MockAuthMockRecorder) CreateUser(user interface{}) *gomock.Call {
 }
 
 // GetUserByAuthData mocks base method.
-func (m *MockAuth) GetUserByAuthData(userID, userVersion uint) (*models.User, error) {
+func (m *MockAuth) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByAuthData", userID, userVersion)
 	ret0, _ := ret[0].(*models.User)
@@ -80,7 +80,7 @@ func (mr *MockAuthMockRecorder) GetUserByUsername(username interface{}) *gomock.
 }
 
 // IncreaseUserVersion mocks base method.
-func (m *MockAuth) IncreaseUserVersion(userID uint) error {
+func (m *MockAuth) IncreaseUserVersion(userID uint32) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IncreaseUserVersion", userID)
 	ret0, _ := ret[0].(error)

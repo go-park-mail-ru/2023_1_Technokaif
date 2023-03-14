@@ -26,8 +26,8 @@ type AuthUsecase struct {
 }
 
 type jwtClaims struct {
-	UserId      uint `json:"id"`
-	UserVersion uint `json:"user_version"`
+	UserId      uint32 `json:"id"`
+	UserVersion uint32 `json:"user_version"`
 	jwt.RegisteredClaims
 }
 
@@ -35,7 +35,7 @@ func NewAuthUsecase(ra repository.Auth, l logger.Logger) *AuthUsecase {
 	return &AuthUsecase{repo: ra, logger: l}
 }
 
-func (a *AuthUsecase) CreateUser(u models.User) (int, error) {
+func (a *AuthUsecase) CreateUser(u models.User) (uint32, error) {
 	salt := make([]byte, 8)
 	rand.Read(salt)
 	u.Salt = fmt.Sprintf("%x", salt)
@@ -61,7 +61,7 @@ func (a *AuthUsecase) LoginUser(username, password string) (string, error) {
 func (a *AuthUsecase) GetUserByCreds(username, password string) (*models.User, error) {
 	user, err := a.repo.GetUserByUsername(username)
 	if err != nil {
-		return nil, err // TODO it can be repos error too
+		return nil, err
 	}
 
 	salt, err := hex.DecodeString(user.Salt)
@@ -71,19 +71,18 @@ func (a *AuthUsecase) GetUserByCreds(username, password string) (*models.User, e
 	}
 
 	hashedPassword := hashPassword(password, salt)
-
 	if hashedPassword != user.Password {
-		return nil, errors.New("no such user")
+		return nil, errors.New("password hash doesn't match the real one")
 	}
 
 	return user, nil
 }
 
-func (a *AuthUsecase) GetUserByAuthData(userID, userVersion uint) (*models.User, error) {
+func (a *AuthUsecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	return a.repo.GetUserByAuthData(userID, userVersion)
 }
 
-func (a *AuthUsecase) GenerateAccessToken(userID uint, userVersion uint) (string, error) {
+func (a *AuthUsecase) GenerateAccessToken(userID, userVersion uint32) (string, error) {
 	claims := &jwtClaims{
 		userID,
 		userVersion,
@@ -101,7 +100,7 @@ func (a *AuthUsecase) GenerateAccessToken(userID uint, userVersion uint) (string
 	return signedToken, nil
 }
 
-func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
+func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint32, uint32, error) {
 	token, err := jwt.ParseWithClaims(acessToken, &jwtClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -126,7 +125,7 @@ func (a *AuthUsecase) CheckAccessToken(acessToken string) (uint, uint, error) {
 	return claims.UserId, claims.UserVersion, nil
 }
 
-func (a *AuthUsecase) IncreaseUserVersion(userID uint) error {
+func (a *AuthUsecase) IncreaseUserVersion(userID uint32) error {
 	if err := a.repo.IncreaseUserVersion(userID); err != nil {
 		return errors.New("failed to update user version")
 	}
