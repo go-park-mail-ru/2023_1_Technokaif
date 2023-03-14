@@ -3,6 +3,8 @@ package models
 import (
 	"strings"
 	"time"
+
+	valid "github.com/asaskevich/govalidator"
 )
 
 type Sex string
@@ -19,8 +21,8 @@ type Date struct {
 
 // User implements information about app's users
 type User struct {
-	ID        uint   `json:"-" 		   valid:"-"`
-	Version   uint   `json:"-" 		   valid:"-"`
+	ID        uint32 `json:"-" 		   valid:"-"`
+	Version   uint32 `json:"-" 		   valid:"-"`
 	Username  string `json:"username"  valid:"required,runelength(4|20)"`
 	Email     string `json:"email"     valid:"required,email"`
 	Password  string `json:"password"  valid:"required,runelength(8|30),passwordcheck"`
@@ -34,11 +36,14 @@ type User struct {
 
 func (d *Date) UnmarshalJSON(b []byte) error {
 	s := strings.Trim(string(b), "\"")
-	t, err := time.Parse("2006-01-02", s) // RFC 3339
-	if err != nil {
-		return err
-	}
 
-	d.Time = t
-	return nil
+	var err error
+	d.Time, err = time.Parse("2006-01-02", s) // RFC 3339
+
+	return err
+}
+
+func (u *User) DeliveryValidate() error {
+	_, err := valid.ValidateStruct(u)
+	return err
 }

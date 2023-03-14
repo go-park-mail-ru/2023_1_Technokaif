@@ -13,8 +13,6 @@ func (h *Handler) errorResponse(w http.ResponseWriter, msg string, code int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 
-	h.logger.Error(msg)
-
 	error := &errorResponse{Message: msg}
 	message, err := json.Marshal(error)
 	if err != nil {

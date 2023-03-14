@@ -21,14 +21,14 @@ type Repository struct {
 type Auth interface {
 	// CreateUser inserts new user into DB and return it's id
 	// or error if it already exists
-	CreateUser(user models.User) (int, error)
+	CreateUser(user models.User) (uint32, error)
 
 	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
 	GetUserByUsername(username string) (*models.User, error)
 
-	GetUserByAuthData(userID, userVersion uint) (*models.User, error)
+	GetUserByAuthData(userID, userVersion uint32) (*models.User, error)
 
-	IncreaseUserVersion(userID uint) error
+	IncreaseUserVersion(userID uint32) error
 }
 
 // Artist includes DBMS-relatable methods to work with artists

@@ -51,8 +51,8 @@ func main() {
 	handler := delivery.NewHandler(services, logger)
 
 	server := new(server.Server)
-	host := os.Getenv("SERVERHOST")
-	port := os.Getenv("SERVERPORT")
+	host := os.Getenv("SERVER_HOST")
+	port := os.Getenv("SERVER_PORT")
 
 	go func() {
 		if err := server.Run(host, port, handler.InitRouter()); err != nil {
@@ -80,11 +80,11 @@ func main() {
 // InitConfig inits DB configuration from environment variables
 func InitDBConfig() repository.Config {
 	return repository.Config{
-		Host:     os.Getenv("DBHOST"),
-		Port:     os.Getenv("DBPORT"),
-		User:     os.Getenv("DBUSER"),
-		DBName:   os.Getenv("DBNAME"),
-		Password: os.Getenv("DBPASSWORD"),
-		SSLMode:  os.Getenv("DBSSLMODE"),
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		User:     os.Getenv("DB_USER"),
+		DBName:   os.Getenv("DB_NAME"),
+		Password: os.Getenv("DB_PASSWORD"),
+		SSLMode:  os.Getenv("DB_SSLMODE"),
 	}
 }

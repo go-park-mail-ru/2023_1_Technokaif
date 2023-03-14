@@ -40,12 +40,3 @@ func init() { // For validation
 		return hasLowLetters && hasUpperLetters && hasDigits
 	})
 }
-
-func (u *User) DeliveryValidate() bool {
-	isValid, err := valid.ValidateStruct(u)
-	if err != nil || !isValid {
-		return false
-	}
-
-	return true
-}

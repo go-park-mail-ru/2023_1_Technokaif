@@ -11,7 +11,7 @@ import (
 )
 
 type signUpResponse struct {
-	ID int `json:"id"`
+	ID uint32 `json:"id"`
 }
 
 type loginResponse struct {
@@ -36,13 +36,14 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&user)
-	if err != nil || !user.DeliveryValidate() {
-		if err != nil {
-			h.logger.Error(err.Error())
-		} else {
-			h.logger.Error("user validation failed")
-		}
+	if err := decoder.Decode(&user); err != nil {
+		h.logger.Error(err.Error())
+		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		return
+	}
+
+	if err := user.DeliveryValidate(); err != nil {
+		h.logger.Error("user validation failed: " + err.Error())
 		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
@@ -54,7 +55,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.logger.Info("user created with id: " + strconv.Itoa(id))
+	h.logger.Info("user created with id: " + strconv.FormatUint(uint64(id), 10))
 
 	// TODO maybe make wrapper for responses
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -72,13 +73,9 @@ type loginInput struct {
 	Password string `json:"password" valid:"required"`
 }
 
-func (i *loginInput) validate() bool {
-	isValid, err := valid.ValidateStruct(i)
-	if err != nil || !isValid {
-		return false
-	}
-
-	return true
+func (i *loginInput) validate() error {
+	_, err := valid.ValidateStruct(i)
+	return err
 }
 
 //	@Summary		Sign In
@@ -95,13 +92,14 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
 
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&userInput)
-	if err != nil || !userInput.validate() {
-		if err != nil {
-			h.logger.Error(err.Error())
-		} else {
-			h.logger.Error("user validation failed")
-		}
+	if err := decoder.Decode(&userInput); err != nil {
+		h.logger.Error(err.Error())
+		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		return
+	}
+
+	if err := userInput.validate(); err != nil {
+		h.logger.Error("user validation failed: " + err.Error())
 		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
