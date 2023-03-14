@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"github.com/pkg/errors"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
@@ -19,5 +21,5 @@ func NewAlbumUsecase(ra repository.Album, l logger.Logger) *AlbumUsecase {
 func (a *AlbumUsecase) GetFeed() ([]models.AlbumFeed, error) {
 	albums, err := a.repo.GetFeed()
 
-	return albums, err
+	return albums, errors.Wrap(err, "(Usecase) cannot get feed")
 }

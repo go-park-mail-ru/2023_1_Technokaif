@@ -61,6 +61,8 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 	r := NewAuthPostgres(db, l)
 
@@ -106,10 +108,10 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 					WillReturnError(errors.New("required field is null"))
 			},
 			expectError:   true,
-			expectedError: "required field is null",
+			expectedError: "(Repo) failed to scan from query: required field is null",
 		},
 		{
-			name:         "user already exists",
+			name:         "User already exists",
 			userToCreate: correctTestUser,
 			mockBehavior: func(u models.User, id uint32) {
 				mock.ExpectQuery("INSERT INTO "+usersTable).
@@ -118,7 +120,7 @@ func TestAuthPostgresCreateUser(t *testing.T) {
 					WillReturnError(errors.New("user already exists"))
 			},
 			expectError:   true,
-			expectedError: "user already exists",
+			expectedError: "(Repo) failed to scan from query: user already exists",
 		},
 	}
 
@@ -151,6 +153,8 @@ func TestAuthPostgresGetUserByUsername(t *testing.T) {
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 	r := NewAuthPostgres(db, l)
 
@@ -192,7 +196,7 @@ func TestAuthPostgresGetUserByUsername(t *testing.T) {
 					WillReturnError(errors.New("no such user"))
 			},
 			expectError:   true,
-			expectedError: "no such user",
+			expectedError: "(Repo) failed to scan from query: no such user",
 		},
 	}
 
@@ -229,6 +233,8 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 	r := NewAuthPostgres(db, l)
 
@@ -276,7 +282,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 					WillReturnError(errors.New("no such user"))
 			},
 			expectError:   true,
-			expectedError: "no such user",
+			expectedError: "(Repo) failed to scan from query: no such user",
 		},
 	}
 
@@ -309,6 +315,8 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
 	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 	r := NewAuthPostgres(db, l)
 
@@ -341,7 +349,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 					WillReturnError(errors.New("no such user"))
 			},
 			expectError:   true,
-			expectedError: "no such user",
+			expectedError: "(Repo) failed to scan from query: no such user",
 		},
 	}
 

@@ -78,7 +78,7 @@ func main() {
 }
 
 // InitConfig inits DB configuration from environment variables
-func InitDBConfig() repository.Config {
+func InitDBConfig() repository.Config {  // TODO CHECK FIELDS
 	return repository.Config{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),

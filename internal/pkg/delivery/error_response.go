@@ -16,7 +16,7 @@ func (h *Handler) errorResponse(w http.ResponseWriter, msg string, code int) {
 	error := &errorResponse{Message: msg}
 	message, err := json.Marshal(error)
 	if err != nil {
-		h.logger.Error("failed to marshal error message: " + err.Error())
+		h.logger.Errorf("failed to marshal error message: %s", err.Error())
 	}
 
 	w.Write([]byte(message))

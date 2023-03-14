@@ -2,11 +2,11 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -36,15 +36,14 @@ func (ap *AuthPostgres) CreateUser(u models.User) (uint32, error) {
 
 	err := row.Scan(&id)
 	if err != nil {
-		ap.logger.Error(err.Error())
 		if pqerr, ok := err.(*pq.Error); ok {
 			if pqerr.Code.Name() == errorUserExists {
-				err = &UserAlreadyExistsError{}
+				return 0, errors.Wrapf(&models.UserAlreadyExistsError{}, "(Repo) %s", err.Error())
 			}
 		}
 	}
 
-	return id, err
+	return id, errors.Wrap(err, "(Repo) failed to scan from query")
 }
 
 // TODO make helping func for GetUser*
@@ -58,14 +57,11 @@ func (ap *AuthPostgres) GetUserByUsername(username string) (*models.User, error)
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
 
-	if err != nil {
-		ap.logger.Error(err.Error())
-	}
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &NoSuchUserError{}
+		return nil, errors.Wrapf(&models.NoSuchUserError{}, "(Repo) %s", err.Error())
 	}
 
-	return &u, err
+	return &u, errors.Wrap(err, "(Repo) failed to scan from query")
 }
 
 func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
@@ -78,14 +74,11 @@ func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint32) (*models.U
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
 
-	if err != nil {
-		ap.logger.Error(err.Error())
-	} // logger
 	if errors.Is(err, sql.ErrNoRows) {
-		return &u, &NoSuchUserError{}
+		return &u, errors.Wrapf(&models.NoSuchUserError{}, "(Repo) %s", err.Error())
 	}
 
-	return &u, err
+	return &u, errors.Wrap(err, "(Repo) failed to scan from query")
 }
 
 func (ap *AuthPostgres) IncreaseUserVersion(userID uint32) error {
@@ -93,13 +86,10 @@ func (ap *AuthPostgres) IncreaseUserVersion(userID uint32) error {
 	row := ap.db.QueryRow(query, userID)
 
 	err := row.Scan(&userID)
-	if err != nil {
-		ap.logger.Error(err.Error())
-	}
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return &NoSuchUserError{}
+		return errors.Wrapf(&models.NoSuchUserError{}, "(Repo) %s", err.Error())
 	}
 
-	return err
+	return errors.Wrap(err, "(Repo) failed to scan from query")
 }

@@ -71,6 +71,8 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 			l := logMocks.NewMockLogger(c)
 			l.EXPECT().Error(gomock.Any()).AnyTimes()
 			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 			u := NewUsecase(r, l)
 
@@ -99,6 +101,8 @@ func TestUsecaseAuthGenerateAndCheckToken(t *testing.T) {
 			l := logMocks.NewMockLogger(c)
 			l.EXPECT().Error(gomock.Any()).AnyTimes()
 			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 			u := NewUsecase(r, l)
 

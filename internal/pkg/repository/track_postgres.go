@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -34,8 +36,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 
 	rows, err := tp.db.Query(query)
 	if err != nil {
-		tp.logger.Error(err.Error())
-		return nil, err
+		return nil, errors.Wrap(err, "(Repo) failed to make query")
 	}
 	defer rows.Close()
 
@@ -43,8 +44,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 	for rows.Next() {
 		var at artistsTracks
 		if err = rows.Scan(&at.TrackID, &at.TrackName, &at.ArtistID, &at.ArtistName, &at.TrackCover); err != nil {
-			tp.logger.Error(err.Error())
-			return nil, err
+			return nil, errors.Wrap(err, "(Repo) failed to scan from query")
 		}
 
 		if tf, ok := m[at.TrackID]; !ok {
@@ -61,7 +61,7 @@ func (tp *TrackPostgres) GetFeed() ([]models.TrackFeed, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "(Repo) failed to scan from query")
 	}
 
 	var tracks []models.TrackFeed

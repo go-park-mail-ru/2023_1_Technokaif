@@ -84,14 +84,24 @@ func TestDeliverySignUp(t *testing.T) {
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
 		{
-			name:         "Creating Error",
+			name:         "Creating existing user Error",
 			requestBody:  correctTestRequestBody,
 			userFromBody: correctTestUser,
 			mockBehavior: func(a *mocks.MockAuth, u models.User) {
-				a.EXPECT().CreateUser(u).Return(uint32(0), fmt.Errorf("user already exists"))
+				a.EXPECT().CreateUser(u).Return(uint32(0), &models.UserAlreadyExistsError{})
 			},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "user already exists"}`,
+		},
+		{
+			name:         "Creating database Error",
+			requestBody:  correctTestRequestBody,
+			userFromBody: correctTestUser,
+			mockBehavior: func(a *mocks.MockAuth, u models.User) {
+				a.EXPECT().CreateUser(u).Return(uint32(0), fmt.Errorf("database query error"))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "server error"}`,
 		},
 	}
 
@@ -112,6 +122,8 @@ func TestDeliverySignUp(t *testing.T) {
 			l := logMocks.NewMockLogger(c)
 			l.EXPECT().Error(gomock.Any()).AnyTimes()
 			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 			h := NewHandler(u, l)
 
@@ -208,6 +220,8 @@ func TestDeliveryLogin(t *testing.T) {
 			l := logMocks.NewMockLogger(c)
 			l.EXPECT().Error(gomock.Any()).AnyTimes()
 			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 			h := NewHandler(u, l)
 
@@ -291,6 +305,8 @@ func TestDeliveryLogout(t *testing.T) { // TODO maybe mock GetUserFromAuthorizat
 			l := logMocks.NewMockLogger(c)
 			l.EXPECT().Error(gomock.Any()).AnyTimes()
 			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 			h := NewHandler(u, l)
 

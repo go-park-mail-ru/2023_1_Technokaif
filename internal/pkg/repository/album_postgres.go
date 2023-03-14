@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -36,8 +38,7 @@ func (ap *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 
 	rows, err := ap.db.Query(query)
 	if err != nil {
-		ap.logger.Error(err.Error())
-		return nil, err
+		return nil, errors.Wrap(err, "(Repo) failed to make query")
 	}
 	defer rows.Close()
 
@@ -46,8 +47,7 @@ func (ap *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 		var aa artistsAlbums
 		if err = rows.Scan(&aa.AlbumID, &aa.AlbumName, &aa.AlbumCover,
 			&aa.ArtistID, &aa.ArtistName, &aa.Description); err != nil {
-			ap.logger.Error(err.Error())
-			return nil, err
+			return nil, errors.Wrap(err, "(Repo) failed to scan from query")
 		}
 
 		if af, ok := m[aa.AlbumID]; !ok {
@@ -65,7 +65,7 @@ func (ap *AlbumPostgres) GetFeed() ([]models.AlbumFeed, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "(Repo) failed to scan from query")
 	}
 
 	var albums []models.AlbumFeed
