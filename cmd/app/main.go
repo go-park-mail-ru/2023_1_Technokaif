@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"syscall"
 	"strings"
+	"syscall"
 
 	"github.com/joho/godotenv" // load environment
 	"github.com/pkg/errors"
@@ -89,7 +89,7 @@ func main() {
 }
 
 // InitConfig inits DB configuration from environment variables
-func initDBConfig() (repository.Config, error) {  // TODO CHECK FIELDS
+func initDBConfig() (repository.Config, error) { // TODO CHECK FIELDS
 	cfg := repository.Config{
 		DBHost:     os.Getenv("DB_HOST"),
 		DBPort:     os.Getenv("DB_PORT"),
@@ -99,16 +99,15 @@ func initDBConfig() (repository.Config, error) {  // TODO CHECK FIELDS
 		DBSSLMode:  os.Getenv("DB_SSLMODE"),
 	}
 
-	if 	strings.TrimSpace(cfg.DBHost) == "" ||
+	if strings.TrimSpace(cfg.DBHost) == "" ||
 		strings.TrimSpace(cfg.DBPort) == "" ||
 		strings.TrimSpace(cfg.DBUser) == "" ||
 		strings.TrimSpace(cfg.DBName) == "" ||
 		strings.TrimSpace(cfg.DBPassword) == "" ||
 		strings.TrimSpace(cfg.DBSSLMode) == "" {
-		
+
 		return repository.Config{}, errors.New("invalid db config")
 	}
-
 
 	return cfg, nil
 }
@@ -119,9 +118,9 @@ func initServerRunConfig() (server.RunConfig, error) {
 		ServerHost: os.Getenv("SERVER_HOST"),
 	}
 
-	if 	strings.TrimSpace(cfg.ServerPort) == "" ||
+	if strings.TrimSpace(cfg.ServerPort) == "" ||
 		strings.TrimSpace(cfg.ServerHost) == "" {
-		
+
 		return server.RunConfig{}, errors.New("invalid server run config")
 	}
 
