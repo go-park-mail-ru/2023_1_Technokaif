@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"github.com/pkg/errors"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
@@ -19,5 +21,5 @@ func NewTrackUsecase(rt repository.Track, l logger.Logger) *TrackUsecase {
 func (t *TrackUsecase) GetFeed() ([]models.TrackFeed, error) {
 	tracks, err := t.repo.GetFeed()
 
-	return tracks, err
+	return tracks, errors.Wrap(err, "(Usecase) cannot get feed")
 }

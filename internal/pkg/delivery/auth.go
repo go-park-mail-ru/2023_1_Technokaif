@@ -3,15 +3,15 @@ package delivery
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	valid "github.com/asaskevich/govalidator"
+	"github.com/pkg/errors"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
 type signUpResponse struct {
-	ID int `json:"id"`
+	ID uint32 `json:"id"`
 }
 
 type loginResponse struct {
@@ -36,25 +36,31 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&user)
-	if err != nil || !user.DeliveryValidate() {
-		if err != nil {
-			h.logger.Error(err.Error())
-		} else {
-			h.logger.Error("user validation failed")
-		}
+	if err := decoder.Decode(&user); err != nil {
+		h.logger.Error(err.Error())
+		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		return
+	}
+
+	if err := user.DeliveryValidate(); err != nil {
+		h.logger.Errorf("user validation failed: %s", err.Error())
 		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
 	id, err := h.services.Auth.CreateUser(user)
-	if err != nil {
+	var errUserAlreadyExists *models.UserAlreadyExistsError
+	if errors.As(err, &errUserAlreadyExists) {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, err.Error(), http.StatusBadRequest)
+		h.errorResponse(w, "user already exists", http.StatusBadRequest)
+		return
+	} else if err != nil {
+		h.logger.Error(err.Error())
+		h.errorResponse(w, "server error", http.StatusInternalServerError)
 		return
 	}
 
-	h.logger.Info("user created with id: " + strconv.Itoa(id))
+	h.logger.Infof("user created with id: %d", id)
 
 	// TODO maybe make wrapper for responses
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -72,13 +78,9 @@ type loginInput struct {
 	Password string `json:"password" valid:"required"`
 }
 
-func (i *loginInput) validate() bool {
-	isValid, err := valid.ValidateStruct(i)
-	if err != nil || !isValid {
-		return false
-	}
-
-	return true
+func (i *loginInput) validate() error {
+	_, err := valid.ValidateStruct(i)
+	return err
 }
 
 //	@Summary		Sign In
@@ -95,13 +97,14 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
 
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&userInput)
-	if err != nil || !userInput.validate() {
-		if err != nil {
-			h.logger.Error(err.Error())
-		} else {
-			h.logger.Error("user validation failed")
-		}
+	if err := decoder.Decode(&userInput); err != nil {
+		h.logger.Errorf("incorrect json format: %s", err.Error())
+		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		return
+	}
+
+	if err := userInput.validate(); err != nil {
+		h.logger.Errorf("user validation failed: %s", err.Error())
 		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
@@ -113,7 +116,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.logger.Info("login with token: " + token)
+	h.logger.Infof("login with token: %s", token)
 
 	// TODO maybe make wrapper for responses
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -138,13 +141,14 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	user, err := h.getUserFromAuthorization(r)
 	if err != nil {
+		h.logger.Errorf("failed to logout: %s", err.Error())
 		h.errorResponse(w, "invalid token", http.StatusBadRequest)
 		return
 	}
-	h.logger.Info("userID for logout: " + strconv.Itoa(int(user.ID)))
+	h.logger.Infof("userID for logout: %d", user.ID)
 
 	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
-		h.logger.Error(err.Error())
+		h.logger.Errorf("failed to logout: %s", err.Error())
 		h.errorResponse(w, "failed to log out", http.StatusBadRequest)
 		return
 	}

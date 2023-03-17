@@ -9,8 +9,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const LOG_FILENAME = "log.log"
-
 // Fluire + Logger = FLogger :)
 // Customized zap.Logger
 type FLogger struct {
@@ -32,9 +30,18 @@ func (l *FLogger) Error(msg string) {
 	l.logger.Error(msg)
 }
 
+// Errorf is used to log error-sort events with fromat string
+func (l *FLogger) Errorf(format string, a ...any) {
+	l.logger.Error(fmt.Sprintf(format, a...))
+}
+
 // Info is used to log informational messages
 func (l *FLogger) Info(msg string) {
 	l.logger.Info(msg)
+}
+
+func (l *FLogger) Infof(format string, a ...any) {
+	l.logger.Info(fmt.Sprintf(format, a...))
 }
 
 // initZapLogger customizes zap.Logger and returns, generally, FLogger
@@ -43,22 +50,10 @@ func initZapLogger() (*zap.Logger, error) {
 	configConsole.EncodeTime = consoleTimeEncoder
 	configConsole.EncodeCaller = zapcore.ShortCallerEncoder
 
-	configFile := zap.NewProductionEncoderConfig()
-	configFile.EncodeTime = fileTimeEncoder
-	configFile.EncodeCaller = zapcore.ShortCallerEncoder
-
-	fileEncoder := zapcore.NewJSONEncoder(configFile)
 	consoleEncoder := zapcore.NewConsoleEncoder(configConsole)
-
-	logFile, err := os.OpenFile(LOG_FILENAME, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return nil, err
-	}
-	writer := zapcore.AddSync(logFile)
 
 	defaultLogLevel := zapcore.DebugLevel
 	core := zapcore.NewTee(
-		zapcore.NewCore(fileEncoder, writer, defaultLogLevel),
 		zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), defaultLogLevel),
 	)
 

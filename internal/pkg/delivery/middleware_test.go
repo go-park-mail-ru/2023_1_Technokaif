@@ -74,7 +74,7 @@ func TestDelivery_authorization(t *testing.T) { // TODO maybe without h.getUserF
 			headerValue: "Bearer token",
 			token:       "token",
 			mockBehavior: func(r *mocks.MockAuth, token string, user models.User) {
-				r.EXPECT().CheckAccessToken(token).Return(uint(0), uint(0), fmt.Errorf(""))
+				r.EXPECT().CheckAccessToken(token).Return(uint32(0), uint32(0), fmt.Errorf(""))
 			},
 			expectingError: true,
 			expectedUser:   models.User{},
@@ -85,7 +85,7 @@ func TestDelivery_authorization(t *testing.T) { // TODO maybe without h.getUserF
 			headerValue: "Bearer token",
 			token:       "token",
 			mockBehavior: func(r *mocks.MockAuth, token string, user models.User) {
-				randVal := uint(rand.Intn(100))
+				randVal := uint32(rand.Intn(100))
 
 				r.EXPECT().CheckAccessToken(token).Return(randVal, randVal, nil)
 				r.EXPECT().GetUserByAuthData(randVal, randVal).Return(&user, fmt.Errorf(""))
@@ -111,6 +111,8 @@ func TestDelivery_authorization(t *testing.T) { // TODO maybe without h.getUserF
 			l := logMocks.NewMockLogger(c)
 			l.EXPECT().Error(gomock.Any()).AnyTimes()
 			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
 			h := NewHandler(u, l)
 			r := chi.NewRouter()

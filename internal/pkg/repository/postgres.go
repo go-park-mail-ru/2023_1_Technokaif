@@ -22,19 +22,19 @@ const (
 
 // Config includes info about postgres DB we want to connect to
 type Config struct {
-	Host     string
-	Port     string
-	User     string
-	DBName   string
-	Password string
-	SSLMode  string
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBName     string
+	DBPassword string
+	DBSSLMode  string
 }
 
 // NewPostgresDB connects to chosen postgreSQL database
 // and returns interaction interface of the database
 func NewPostrgresDB(cfg Config) (*sql.DB, error) {
 	dbInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		cfg.Host, cfg.Port, cfg.User, cfg.DBName, cfg.Password, cfg.SSLMode)
+		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode)
 
 	db, err := sql.Open("postgres", dbInfo)
 	if err != nil {
