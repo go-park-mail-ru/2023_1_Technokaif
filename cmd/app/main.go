@@ -6,16 +6,13 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/joho/godotenv" // load environment
-	"github.com/pkg/errors"
 
+	app "github.com/go-park-mail-ru/2023_1_Technokaif/init/app"
+	initDB "github.com/go-park-mail-ru/2023_1_Technokaif/init/db"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/delivery"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/usecase"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/server"
 )
 
@@ -31,98 +28,49 @@ import (
 //	@name					Authorization
 
 func main() {
+	ctx := context.Background()
+
 	logger, err := logger.NewLogger()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Logger can not be defined: %v\n", err)
+		fmt.Fprintf(os.Stderr, "logger can not be defined: %v\n", err)
 		return
 	}
 
 	if err = godotenv.Load(); err != nil {
-		logger.Errorf("Error while loading environment: %v", err)
+		logger.Errorf("error while loading environment: %v", err)
 		return
 	}
 
-	dbConfig, err := initDBConfig()
+	db, err := initDB.InitPostgresDB()
 	if err != nil {
-		logger.Errorf("Error while connecting to database: %v", err)
+		logger.Errorf("error while connecting to database: %v", err)
 		return
 	}
 
-	db, err := repository.NewPostrgresDB(dbConfig)
+	router, err := app.Init(db, logger)
 	if err != nil {
-		logger.Errorf("Error while connecting to database: %v", err)
+		logger.Errorf("error while initializing app: %v", err)
 		return
 	}
 
-	repository := repository.NewRepository(db, logger)
-	services := usecase.NewUsecase(repository, logger)
-	handler := delivery.NewHandler(services, logger)
-
-	server := new(server.Server)
-	serverRunConfig, err := initServerRunConfig()
-	if err != nil {
-		logger.Errorf("Error while launching server: %v", err)
-		return
-	}
-
+	srv := new(server.Server)
 	go func() {
-		if err := server.Run(serverRunConfig, handler.InitRouter()); err != nil {
-			logger.Errorf("Error while launching server: %v", err)
-			log.Fatalf("Can't launch server: %v", err)
+		if err := srv.Run(router, logger); err != nil {
+			log.Fatalf("can't launch server: %v", err)
 		}
 	}()
-	logger.Infof("Server launched at %s:%s", serverRunConfig.ServerHost, serverRunConfig.ServerPort)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	<-stop
 
-	logger.Info("Server gracefully shutting down...")
+	logger.Info("server gracefully shutting down...")
 
-	if err := server.Shutdown(context.Background()); err != nil {
-		logger.Errorf("Error while shutting down server: %v", err)
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Errorf("error while shutting down server: %v", err)
 	}
 
 	if err := db.Close(); err != nil {
-		logger.Errorf("Error while closing DB-connection: %v", err)
+		logger.Errorf("error while closing DB connection: %v", err)
 	}
-}
-
-// InitConfig inits DB configuration from environment variables
-func initDBConfig() (repository.Config, error) { // TODO CHECK FIELDS
-	cfg := repository.Config{
-		DBHost:     os.Getenv("DB_HOST"),
-		DBPort:     os.Getenv("DB_PORT"),
-		DBUser:     os.Getenv("DB_USER"),
-		DBName:     os.Getenv("DB_NAME"),
-		DBPassword: os.Getenv("DB_PASSWORD"),
-		DBSSLMode:  os.Getenv("DB_SSLMODE"),
-	}
-
-	if strings.TrimSpace(cfg.DBHost) == "" ||
-		strings.TrimSpace(cfg.DBPort) == "" ||
-		strings.TrimSpace(cfg.DBUser) == "" ||
-		strings.TrimSpace(cfg.DBName) == "" ||
-		strings.TrimSpace(cfg.DBPassword) == "" ||
-		strings.TrimSpace(cfg.DBSSLMode) == "" {
-
-		return repository.Config{}, errors.New("invalid db config")
-	}
-
-	return cfg, nil
-}
-
-func initServerRunConfig() (server.RunConfig, error) {
-	cfg := server.RunConfig{
-		ServerPort: os.Getenv("SERVER_PORT"),
-		ServerHost: os.Getenv("SERVER_HOST"),
-	}
-
-	if strings.TrimSpace(cfg.ServerPort) == "" ||
-		strings.TrimSpace(cfg.ServerHost) == "" {
-
-		return server.RunConfig{}, errors.New("invalid server run config")
-	}
-
-	return cfg, nil
 }

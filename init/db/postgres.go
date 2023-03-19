@@ -2,7 +2,10 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"os"
+	"strings"
 
 	_ "github.com/lib/pq"
 )
@@ -15,17 +18,16 @@ type postgresTables struct {
 	Albums        string
 	ArtistsAlbums string
 	ArtistsTracks string
-} 
-
-var PostgresTables = postgresTables{
-	Users         : "Users",
-	Tracks        : "Tracks",
-	Artists       : "Artists",
-	Albums        : "Albums",
-	ArtistsAlbums : "Artists_Albums",
-	ArtistsTracks : "Artists_Tracks",
 }
 
+var PostgresTables = postgresTables{
+	Users:         "Users",
+	Tracks:        "Tracks",
+	Artists:       "Artists",
+	Albums:        "Albums",
+	ArtistsAlbums: "Artists_Albums",
+	ArtistsTracks: "Artists_Tracks",
+}
 
 const (
 	maxIdleConns = 10
@@ -42,9 +44,38 @@ type PostgresConfig struct {
 	DBSSLMode  string
 }
 
+// InitConfig inits DB configuration from environment variables
+func InitPostgresConfig() (PostgresConfig, error) { // TODO CHECK FIELDS
+	cfg := PostgresConfig{
+		DBHost:     os.Getenv("DB_HOST"),
+		DBPort:     os.Getenv("DB_PORT"),
+		DBUser:     os.Getenv("DB_USER"),
+		DBName:     os.Getenv("DB_NAME"),
+		DBPassword: os.Getenv("DB_PASSWORD"),
+		DBSSLMode:  os.Getenv("DB_SSLMODE"),
+	}
+
+	if strings.TrimSpace(cfg.DBHost) == "" ||
+		strings.TrimSpace(cfg.DBPort) == "" ||
+		strings.TrimSpace(cfg.DBUser) == "" ||
+		strings.TrimSpace(cfg.DBName) == "" ||
+		strings.TrimSpace(cfg.DBPassword) == "" ||
+		strings.TrimSpace(cfg.DBSSLMode) == "" {
+
+		return PostgresConfig{}, errors.New("invalid db config")
+	}
+
+	return cfg, nil
+}
+
 // NewPostgresDB connects to chosen postgreSQL database
 // and returns interaction interface of the database
-func NewPostgresDB(cfg PostgresConfig) (*sql.DB, error) {
+func InitPostgresDB() (*sql.DB, error) {
+	cfg, err := InitPostgresConfig()
+	if err != nil {
+		return nil, fmt.Errorf("can't init postgresql: %w", err)
+	}
+
 	dbInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode)
 
@@ -60,7 +91,7 @@ func NewPostgresDB(cfg PostgresConfig) (*sql.DB, error) {
 		errClose := db.Close()
 		if errClose != nil {
 			// TODO: change %w and %s (double wrap only in go1.20+)
-			return nil, fmt.Errorf("can't close DB (%w) after failed ping: %s", errClose, err.Error())
+			return nil, fmt.Errorf("can't close postgresql (%w) after failed ping: %s", errClose, err.Error())
 		}
 		return nil, err
 	}

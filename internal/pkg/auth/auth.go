@@ -29,7 +29,7 @@ type AuthUsecase interface {
 }
 
 // AuthRepository includes DBMS-relatable methods for authentication
-type AuthRepositury interface {
+type AuthRepository interface {
 	// CreateUser inserts new user into DB and return it's id
 	// or error if it already exists
 	CreateUser(user models.User) (uint32, error)
@@ -41,4 +41,3 @@ type AuthRepositury interface {
 
 	IncreaseUserVersion(userID uint32) error
 }
-

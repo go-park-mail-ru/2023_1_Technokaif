@@ -2,8 +2,14 @@ package server
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
+	"os"
+	"strings"
 	"time"
+
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 )
 
 const (
@@ -23,8 +29,29 @@ type RunConfig struct {
 	ServerPort string
 }
 
+func InitServerRunConfig() (RunConfig, error) {
+	cfg := RunConfig{
+		ServerPort: os.Getenv("SERVER_PORT"),
+		ServerHost: os.Getenv("SERVER_HOST"),
+	}
+
+	if strings.TrimSpace(cfg.ServerPort) == "" ||
+		strings.TrimSpace(cfg.ServerHost) == "" {
+
+		return RunConfig{}, errors.New("invalid server run config")
+	}
+
+	return cfg, nil
+}
+
 // Run launches http Server on chosen port with given handler
-func (s *Server) Run(cfg RunConfig, handler http.Handler) error {
+func (s *Server) Run(handler http.Handler, logger logger.Logger) error {
+	cfg, err := InitServerRunConfig()
+	if err != nil {
+		logger.Errorf("error while launching server: %v", err)
+		return fmt.Errorf("can't init server config: %w", err)
+	}
+
 	s.httpServer = &http.Server{
 		Addr:           cfg.ServerHost + ":" + cfg.ServerPort,
 		Handler:        handler,
@@ -33,7 +60,12 @@ func (s *Server) Run(cfg RunConfig, handler http.Handler) error {
 		WriteTimeout:   writeTimeout,
 	}
 
-	return s.httpServer.ListenAndServe()
+	if err := s.httpServer.ListenAndServe(); err != nil {
+		logger.Errorf("error while launching server: %v", err)
+		return err
+	}
+	logger.Infof("server launched at %s:%s", cfg.ServerHost, cfg.ServerPort)
+	return nil
 }
 
 // Shutdown gracefully shuts down Server without interrupting active connections

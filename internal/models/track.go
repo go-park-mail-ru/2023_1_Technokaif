@@ -1,17 +1,17 @@
 package models
 
 type Track struct {
-	ID        int
+	ID        uint32
 	Name      string
-	AlbumID   string
-	ArtistID  int
+	AlbumID   uint32
 	CoverSrc  string
 	RecordSrc string
 }
 
-type TrackFeed struct {
-	ID       int          `json:"id"`
-	Name     string       `json:"name"`
-	Artists  []ArtistFeed `json:"artists"`
-	CoverSrc string       `json:"cover"`
+type TrackTransfer struct {
+	ID        uint32           `json:"id"`
+	Name      string           `json:"name"`
+	Artists   []ArtistTransfer `json:"artists"`
+	CoverSrc  string           `json:"cover"`
+	RecordSrc string           `json:"record"`
 }

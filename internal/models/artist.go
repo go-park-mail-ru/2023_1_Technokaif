@@ -1,13 +1,13 @@
 package models
 
 type Artist struct {
-	ID        int
+	ID        uint32
 	Name      string
 	AvatarSrc string
 }
 
-type ArtistFeed struct {
-	ID        int    `json:"id"`
+type ArtistTransfer struct {
+	ID        uint32 `json:"id"`
 	Name      string `json:"name"`
 	AvatarSrc string `json:"cover"`
 }

@@ -62,23 +62,29 @@ CREATE TABLE Artists_Tracks
 );
 
 /* Filling */
-INSERT INTO Artists (name, avatar_src) VALUES ('Oxxxymiron', '/artists/oxxxymiron.jpg');
-INSERT INTO Artists (name, avatar_src) VALUES ('SALUKI', '/artists/saluki.jpg');
+INSERT INTO Artists (name, avatar_src)
+    VALUES ('Oxxxymiron', '/artists/oxxxymiron.jpg'),
+           ('SALUKI', '/artists/saluki.jpg');
 
-INSERT INTO Albums (name, description, cover_src) VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg');
-INSERT INTO Albums (name, description, cover_src) VALUES ('Долгий путь домой', 'Грайм из Лондона', '/albums/longWayHome.png');
-INSERT INTO Albums (name, description, cover_src) VALUES ('На Человека', 'Стильная музыка от русского Канье Уэста', '/albums/onHuman.jpg');
+INSERT INTO Albums (name, description, cover_src)
+    VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg'),
+           ('Долгий путь домой', 'Грайм из Лондона', '/albums/longWayHome.png'),
+           ('На Человека', 'Стильная музыка от русского Канье Уэста', '/albums/onHuman.jpg');
 
-INSERT INTO Tracks (name, album_id, cover_src) VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg');
-INSERT INTO Tracks (name, album_id, cover_src) VALUES ('Признаки жизни', 2, '/tracks/longWayHome.png');
-INSERT INTO Tracks (name, cover_src) VALUES ('LAGG OUT', '/tracks/laggOut.jpeg');
-INSERT INTO Tracks (name, cover_src) VALUES ('Город под подошвой', '/tracks/gorodPodPod.png');
+INSERT INTO Tracks (name, album_id, cover_src)
+    VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg'),
+           ('Признаки жизни', 2, '/tracks/longWayHome.png');
+INSERT INTO Tracks (name, cover_src)
+    VALUES ('LAGG OUT', '/tracks/laggOut.jpeg'),
+           ('Город под подошвой', '/tracks/gorodPodPod.png');
 
-INSERT INTO Artists_Albums (artist_id, album_id) VALUES (1, 1);
-INSERT INTO Artists_Albums (artist_id, album_id) VALUES (1, 2);
-INSERT INTO Artists_Albums (artist_id, album_id) VALUES (2, 3);
+INSERT INTO Artists_Albums (artist_id, album_id)
+    VALUES (1, 1),
+           (1, 2),
+           (2, 3);
 
-INSERT INTO Artists_Tracks (artist_id, track_id) VALUES (1, 1);
-INSERT INTO Artists_Tracks (artist_id, track_id) VALUES (1, 2);
-INSERT INTO Artists_Tracks (artist_id, track_id) VALUES (2, 3);
-INSERT INTO Artists_Tracks (artist_id, track_id) VALUES (1, 4);
+INSERT INTO Artists_Tracks (artist_id, track_id)
+    VALUES (1, 1),
+           (1, 2),
+           (2, 3),
+           (1, 4);

@@ -21,7 +21,7 @@ type Date struct {
 
 // User implements information about app's users
 type User struct {
-	ID        uint32 `json:"-" 		   valid:"-"`
+	ID        uint32 `json:"-" 	       valid:"-"`
 	Version   uint32 `json:"-" 		   valid:"-"`
 	Username  string `json:"username"  valid:"required,runelength(4|20)"`
 	Email     string `json:"email"     valid:"required,email"`
@@ -31,7 +31,26 @@ type User struct {
 	LastName  string `json:"lastName"  valid:"required,runelength(2|20)"`
 	Sex       Sex    `json:"sex"       valid:"required,in(F|M|O)"`
 	BirhDate  Date   `json:"birthDate" valid:"required,born"`
-	// AvatarSrc string `json:"-" valid:"-"`
+	AvatarSrc string `json:"avatar"    valid:"-"`
+}
+
+type UserBrief struct {
+	ID        uint32 `json:"id"`
+	Username  string `json:"username"`
+	AvatarSrc string `json:"avatar"`
+}
+
+type UserFull struct {
+	ID        uint32 `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Sex       Sex    `json:"sex"`
+	BirhDate  Date   `json:"birthDate"`
+	AvatarSrc string `json:"avatar"`
+	// LikedTracks []TrackTransfer
+	// LikedAlbums []AlbumTransfer
 }
 
 func (d *Date) UnmarshalJSON(b []byte) error {

@@ -1,16 +1,16 @@
 package models
 
 type Album struct {
-	ID       int
-	Name     string
-	Info     string
-	CoverSrc string
+	ID          int
+	Name        string
+	Description string
+	CoverSrc    string
 }
 
-type AlbumFeed struct {
-	ID          int          `json:"id"`
-	Name        string       `json:"name"`
-	Artists     []ArtistFeed `json:"artists"`
-	Description string       `json:"description"`
-	CoverSrc    string       `json:"cover"`
+type AlbumTransfer struct {
+	ID          int              `json:"id"`
+	Name        string           `json:"name"`
+	Artists     []ArtistTransfer `json:"artists"`
+	Description string           `json:"description"`
+	CoverSrc    string           `json:"cover"`
 }

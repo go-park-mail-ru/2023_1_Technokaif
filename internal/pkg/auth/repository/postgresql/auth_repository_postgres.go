@@ -8,10 +8,10 @@ import (
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
+	"github.com/go-park-mail-ru/2023_1_Technokaif/init/db"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/init/db"
 )
 
 // AuthPostgres implements Auth
@@ -20,7 +20,7 @@ type authPostgres struct {
 	logger logger.Logger
 }
 
-func NewAuthPostgres(db *sql.DB, l logger.Logger) auth.AuthRepositury {
+func NewAuthPostgres(db *sql.DB, l logger.Logger) auth.AuthRepository {
 	return &authPostgres{db: db, logger: l}
 }
 
@@ -54,7 +54,7 @@ func (ap *authPostgres) GetUserByUsername(username string) (*models.User, error)
 		first_name, last_name, sex, birth_date 
 		FROM %s WHERE (username=$1 OR email=$1);`, db.PostgresTables.Users)
 	row := ap.db.QueryRow(query, username)
-	
+
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
