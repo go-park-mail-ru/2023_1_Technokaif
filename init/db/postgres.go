@@ -1,4 +1,4 @@
-package repository
+package db
 
 import (
 	"database/sql"
@@ -8,20 +8,32 @@ import (
 )
 
 // PostgreSQL tables
+type postgresTables struct {
+	Users         string
+	Tracks        string
+	Artists       string
+	Albums        string
+	ArtistsAlbums string
+	ArtistsTracks string
+} 
+
+var PostgresTables = postgresTables{
+	Users         : "Users",
+	Tracks        : "Tracks",
+	Artists       : "Artists",
+	Albums        : "Albums",
+	ArtistsAlbums : "Artists_Albums",
+	ArtistsTracks : "Artists_Tracks",
+}
+
+
 const (
 	maxIdleConns = 10
 	maxOpenConns = 10
-
-	usersTable         = "Users"
-	tracksTable        = "Tracks"
-	artistsTable       = "Artists"
-	albumsTable        = "Albums"
-	artistsAlbumsTable = "Artists_Albums"
-	artistsTracksTable = "Artists_Tracks"
 )
 
 // Config includes info about postgres DB we want to connect to
-type Config struct {
+type PostgresConfig struct {
 	DBHost     string
 	DBPort     string
 	DBUser     string
@@ -32,7 +44,7 @@ type Config struct {
 
 // NewPostgresDB connects to chosen postgreSQL database
 // and returns interaction interface of the database
-func NewPostrgresDB(cfg Config) (*sql.DB, error) {
+func NewPostgresDB(cfg PostgresConfig) (*sql.DB, error) {
 	dbInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode)
 

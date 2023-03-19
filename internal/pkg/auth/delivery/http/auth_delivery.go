@@ -1,4 +1,4 @@
-package delivery
+package auth_delivery
 
 import (
 	"encoding/json"
@@ -8,7 +8,22 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 )
+
+type AuthHandler struct {
+	authServices auth.AuthUsecase
+	logger   logger.Logger
+}
+
+func NewAuthHandler(u auth.AuthUsecase, l logger.Logger) *AuthHandler {
+	return &AuthHandler{
+		authServices: u,
+		logger:   l,
+	}
+}
 
 type signUpResponse struct {
 	ID uint32 `json:"id"`
@@ -32,31 +47,31 @@ type logoutResponse struct {
 //	@Failure		400		{object}	errorResponse	"Incorrect input"
 //	@Failure		500		{object}	errorResponse	"Server DB error"
 //	@Router			/api/auth/signup [post]
-func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
 	if err := user.DeliveryValidate(); err != nil {
 		h.logger.Errorf("user validation failed: %s", err.Error())
-		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
-	id, err := h.services.Auth.CreateUser(user)
+	id, err := h.authServices.CreateUser(user)
 	var errUserAlreadyExists *models.UserAlreadyExistsError
 	if errors.As(err, &errUserAlreadyExists) {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "user already exists", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "user already exists", http.StatusBadRequest)
 		return
 	} else if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "server error", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -68,7 +83,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "can't encode response into json", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }
@@ -93,26 +108,26 @@ func (i *loginInput) validate() error {
 //	@Failure		400			{object}	errorResponse	"Incorrect input"
 //	@Failure		500			{object}	errorResponse	"Server DB error"
 //	@Router			/api/auth/login [post]
-func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&userInput); err != nil {
 		h.logger.Errorf("incorrect json format: %s", err.Error())
-		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
 	if err := userInput.validate(); err != nil {
 		h.logger.Errorf("user validation failed: %s", err.Error())
-		h.errorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
 		return
 	}
 
-	token, err := h.services.Auth.LoginUser(userInput.Username, userInput.Password)
+	token, err := h.authServices.LoginUser(userInput.Username, userInput.Password)
 	if err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "can't login user", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "can't login user", http.StatusBadRequest)
 		return
 	}
 
@@ -124,7 +139,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "can't encode response into json", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }
@@ -138,18 +153,18 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 //	@Failure		400	{object}	errorResponse	"Logout fail"
 //	@Failure		500	{object}	errorResponse	"Server DB error"
 //	@Router			/api/auth/logout [get]
-func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	user, err := h.getUserFromAuthorization(r)
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromAuthorization(r)
 	if err != nil {
 		h.logger.Errorf("failed to logout: %s", err.Error())
-		h.errorResponse(w, "invalid token", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "invalid token", http.StatusBadRequest)
 		return
 	}
 	h.logger.Infof("userID for logout: %d", user.ID)
 
-	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
+	if err = h.authServices.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
 		h.logger.Errorf("failed to logout: %s", err.Error())
-		h.errorResponse(w, "failed to log out", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "failed to log out", http.StatusBadRequest)
 		return
 	}
 
@@ -159,7 +174,7 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		h.errorResponse(w, "can't encode response into json", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }

@@ -1,23 +1,11 @@
-package usecase
+package auth
 
 import (
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/repository"
 )
 
-//go:generate mockgen -source=usecase.go -destination=mocks/mock.go
-
-// Usecase implements all current app's services
-type Usecase struct {
-	Auth
-	Album
-	Artist
-	Track
-}
-
-// Auth describes which methods have to be implemented by auth-service
-type Auth interface {
+// AuthUsecase describes which methods have to be implemented by auth-service
+type AuthUsecase interface {
 	// LoginUser finds user in repository and returns its access token
 	LoginUser(username, password string) (string, error)
 
@@ -40,23 +28,17 @@ type Auth interface {
 	IncreaseUserVersion(userID uint32) error
 }
 
-type Album interface {
-	GetFeed() ([]models.AlbumFeed, error)
+// AuthRepository includes DBMS-relatable methods for authentication
+type AuthRepositury interface {
+	// CreateUser inserts new user into DB and return it's id
+	// or error if it already exists
+	CreateUser(user models.User) (uint32, error)
+
+	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
+	GetUserByUsername(username string) (*models.User, error)
+
+	GetUserByAuthData(userID, userVersion uint32) (*models.User, error)
+
+	IncreaseUserVersion(userID uint32) error
 }
 
-type Artist interface {
-	GetFeed() ([]models.ArtistFeed, error)
-}
-
-type Track interface {
-	GetFeed() ([]models.TrackFeed, error)
-}
-
-func NewUsecase(r *repository.Repository, l logger.Logger) *Usecase {
-	return &Usecase{
-		Auth:   NewAuthUsecase(r.Auth, l),
-		Album:  NewAlbumUsecase(r.Album, l),
-		Artist: NewArtistUsecase(r.Artist, l),
-		Track:  NewTrackUsecase(r.Track, l),
-	}
-}

@@ -1,4 +1,4 @@
-package delivery
+package common_http
 
 import (
 	"encoding/json"
@@ -9,15 +9,17 @@ type errorResponse struct {
 	Message string `json:"message"`
 }
 
-func (h *Handler) errorResponse(w http.ResponseWriter, msg string, code int) {
+func ErrorResponse(w http.ResponseWriter, msg string, code int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 
 	error := &errorResponse{Message: msg}
-	message, err := json.Marshal(error)
-	if err != nil {
+	message, _ := json.Marshal(error)
+
+	// TODO
+	/* if err != nil {  
 		h.logger.Errorf("failed to marshal error message: %s", err.Error())
-	}
+	} */
 
 	w.Write([]byte(message))
 }

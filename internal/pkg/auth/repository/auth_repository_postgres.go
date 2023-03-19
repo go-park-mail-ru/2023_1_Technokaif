@@ -1,4 +1,4 @@
-package repository
+package auth_repository
 
 import (
 	"database/sql"
@@ -10,24 +10,26 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/init/db"
 )
 
 // AuthPostgres implements Auth
-type AuthPostgres struct {
+type authPostgres struct {
 	db     *sql.DB
 	logger logger.Logger
 }
 
-func NewAuthPostgres(db *sql.DB, l logger.Logger) *AuthPostgres {
-	return &AuthPostgres{db: db, logger: l}
+func NewAuthPostgres(db *sql.DB, l logger.Logger) auth.AuthRepositury {
+	return &authPostgres{db: db, logger: l}
 }
 
 const errorUserExists = "unique_violation"
 
-func (ap *AuthPostgres) CreateUser(u models.User) (uint32, error) {
+func (ap *authPostgres) CreateUser(u models.User) (uint32, error) {
 	query := fmt.Sprintf(`INSERT INTO %s 
 	(username, email, password_hash, salt, first_name, last_name, sex, birth_date) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`, usersTable)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`, db.PostgresTables.Users)
 
 	row := ap.db.QueryRow(query, u.Username, u.Email, u.Password, u.Salt,
 		u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339))
@@ -47,12 +49,12 @@ func (ap *AuthPostgres) CreateUser(u models.User) (uint32, error) {
 }
 
 // TODO make helping func for GetUser*
-func (ap *AuthPostgres) GetUserByUsername(username string) (*models.User, error) {
+func (ap *authPostgres) GetUserByUsername(username string) (*models.User, error) {
 	query := fmt.Sprintf(`SELECT id, version, username, email, password_hash, salt, 
 		first_name, last_name, sex, birth_date 
-		FROM %s WHERE (username=$1 OR email=$1);`, usersTable)
+		FROM %s WHERE (username=$1 OR email=$1);`, db.PostgresTables.Users)
 	row := ap.db.QueryRow(query, username)
-
+	
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
@@ -64,10 +66,10 @@ func (ap *AuthPostgres) GetUserByUsername(username string) (*models.User, error)
 	return &u, errors.Wrap(err, "(Repo) failed to scan from query")
 }
 
-func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
+func (ap *authPostgres) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	query := fmt.Sprintf(`SELECT id, version, username, email, password_hash, salt, 
 		first_name, last_name, sex, birth_date 
-		FROM %s WHERE id=$1 AND version=$2;`, usersTable)
+		FROM %s WHERE id=$1 AND version=$2;`, db.PostgresTables.Users)
 	row := ap.db.QueryRow(query, userID, userVersion)
 
 	var u models.User
@@ -81,8 +83,8 @@ func (ap *AuthPostgres) GetUserByAuthData(userID, userVersion uint32) (*models.U
 	return &u, errors.Wrap(err, "(Repo) failed to scan from query")
 }
 
-func (ap *AuthPostgres) IncreaseUserVersion(userID uint32) error {
-	query := fmt.Sprintf("UPDATE %s SET version = version + 1 WHERE id=$1 RETURNING id;", usersTable)
+func (ap *authPostgres) IncreaseUserVersion(userID uint32) error {
+	query := fmt.Sprintf("UPDATE %s SET version = version + 1 WHERE id=$1 RETURNING id;", db.PostgresTables.Users)
 	row := ap.db.QueryRow(query, userID)
 
 	err := row.Scan(&userID)
