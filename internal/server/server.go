@@ -64,7 +64,6 @@ func (s *Server) Run(handler http.Handler, logger logger.Logger) error {
 		logger.Errorf("error while launching server: %v", err)
 		return err
 	}
-	logger.Infof("server launched at %s:%s", cfg.ServerHost, cfg.ServerPort)
 	return nil
 }
 

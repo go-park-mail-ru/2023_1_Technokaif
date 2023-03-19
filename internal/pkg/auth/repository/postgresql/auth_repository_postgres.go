@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
@@ -16,11 +17,11 @@ import (
 
 // AuthPostgres implements Auth
 type authPostgres struct {
-	db     *sql.DB
+	db     *sqlx.DB
 	logger logger.Logger
 }
 
-func NewAuthPostgres(db *sql.DB, l logger.Logger) auth.AuthRepository {
+func NewAuthPostgres(db *sqlx.DB, l logger.Logger) auth.AuthRepository {
 	return &authPostgres{db: db, logger: l}
 }
 

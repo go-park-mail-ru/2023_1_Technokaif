@@ -1,11 +1,11 @@
 package models
 
 type Track struct {
-	ID        uint32
-	Name      string
-	AlbumID   uint32
-	CoverSrc  string
-	RecordSrc string
+	ID        uint32 `db:"id"`
+	Name      string `db:"name"`
+	AlbumID   uint32 `db:"album_id"`
+	CoverSrc  string `db:"cover_src"`
+	RecordSrc string `db:"record_src"`
 }
 
 type TrackTransfer struct {

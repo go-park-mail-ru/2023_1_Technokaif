@@ -47,11 +47,7 @@ func main() {
 		return
 	}
 
-	router, err := app.Init(db, logger)
-	if err != nil {
-		logger.Errorf("error while initializing app: %v", err)
-		return
-	}
+	router := app.Init(db, logger)
 
 	srv := new(server.Server)
 	go func() {
@@ -59,6 +55,7 @@ func main() {
 			log.Fatalf("can't launch server: %v", err)
 		}
 	}()
+	logger.Infof("server launched at %s:%s", os.Getenv("SERVER_HOST"), os.Getenv("SERVER_PORT"))
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)

@@ -1,32 +1,36 @@
 package db
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
 // PostgreSQL tables
-type postgresTables struct {
+var PostgresTables = struct {
 	Users         string
 	Tracks        string
 	Artists       string
 	Albums        string
 	ArtistsAlbums string
 	ArtistsTracks string
-}
-
-var PostgresTables = postgresTables{
+	LikedAlbums   string
+	LikedArtists  string
+	LikedTracks   string
+}{
 	Users:         "Users",
 	Tracks:        "Tracks",
 	Artists:       "Artists",
 	Albums:        "Albums",
 	ArtistsAlbums: "Artists_Albums",
 	ArtistsTracks: "Artists_Tracks",
+	LikedAlbums:   "Liked_albums",
+	LikedArtists:  "Liked_artists",
+	LikedTracks:   "Liked_tracks",
 }
 
 const (
@@ -70,7 +74,7 @@ func InitPostgresConfig() (PostgresConfig, error) { // TODO CHECK FIELDS
 
 // NewPostgresDB connects to chosen postgreSQL database
 // and returns interaction interface of the database
-func InitPostgresDB() (*sql.DB, error) {
+func InitPostgresDB() (*sqlx.DB, error) {
 	cfg, err := InitPostgresConfig()
 	if err != nil {
 		return nil, fmt.Errorf("can't init postgresql: %w", err)
@@ -79,7 +83,7 @@ func InitPostgresDB() (*sql.DB, error) {
 	dbInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode)
 
-	db, err := sql.Open("postgres", dbInfo)
+	db, err := sqlx.Open("postgres", dbInfo)
 	if err != nil {
 		return nil, err
 	}

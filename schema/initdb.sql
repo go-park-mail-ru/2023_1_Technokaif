@@ -61,30 +61,54 @@ CREATE TABLE Artists_Tracks
     PRIMARY KEY(artist_id, track_id)
 );
 
-/* Filling */
+CREATE TABLE Liked_albums
+(
+    user_id INT REFERENCES Users(id) ON DELETE CASCADE NOT NULL,
+    album_id  INT REFERENCES Albums(id)  ON DELETE CASCADE NOT NULL,
+
+    PRIMARY KEY(user_id, album_id)
+);
+
+CREATE TABLE Liked_artists
+(
+    user_id INT REFERENCES Users(id) ON DELETE CASCADE NOT NULL,
+    artist_id  INT REFERENCES Artists(id)  ON DELETE CASCADE NOT NULL,
+
+    PRIMARY KEY(user_id, artist_id)
+);
+
+CREATE TABLE Liked_tracks
+(
+    user_id INT REFERENCES Users(id) ON DELETE CASCADE NOT NULL,
+    track_id  INT REFERENCES Tracks(id)  ON DELETE CASCADE NOT NULL,
+
+    PRIMARY KEY(user_id, track_id)
+);
+
+/* Default filling */
 INSERT INTO Artists (name, avatar_src)
-    VALUES ('Oxxxymiron', '/artists/oxxxymiron.jpg'),
-           ('SALUKI', '/artists/saluki.jpg');
+VALUES ('Oxxxymiron', '/artists/oxxxymiron.jpg'),
+        ('SALUKI', '/artists/saluki.jpg');
 
 INSERT INTO Albums (name, description, cover_src)
-    VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg'),
-           ('Долгий путь домой', 'Грайм из Лондона', '/albums/longWayHome.png'),
-           ('На Человека', 'Стильная музыка от русского Канье Уэста', '/albums/onHuman.jpg');
+VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg'),
+    ('Долгий путь домой', 'Грайм из Лондона', '/albums/longWayHome.png'),
+    ('На Человека', 'Стильная музыка от русского Канье Уэста', '/albums/onHuman.jpg');
 
 INSERT INTO Tracks (name, album_id, cover_src)
-    VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg'),
-           ('Признаки жизни', 2, '/tracks/longWayHome.png');
+VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg'),
+    ('Признаки жизни', 2, '/tracks/longWayHome.png');
 INSERT INTO Tracks (name, cover_src)
-    VALUES ('LAGG OUT', '/tracks/laggOut.jpeg'),
-           ('Город под подошвой', '/tracks/gorodPodPod.png');
+VALUES ('LAGG OUT', '/tracks/laggOut.jpeg'),
+    ('Город под подошвой', '/tracks/gorodPodPod.png');
 
 INSERT INTO Artists_Albums (artist_id, album_id)
-    VALUES (1, 1),
-           (1, 2),
-           (2, 3);
+VALUES (1, 1),
+    (1, 2),
+    (2, 3);
 
 INSERT INTO Artists_Tracks (artist_id, track_id)
-    VALUES (1, 1),
-           (1, 2),
-           (2, 3),
-           (1, 4);
+VALUES (1, 1),
+    (1, 2),
+    (2, 3),
+    (1, 4);
