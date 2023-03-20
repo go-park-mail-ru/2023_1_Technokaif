@@ -3,9 +3,9 @@ package user_usecase
 import (
 	"fmt"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type userUsecase struct {
@@ -23,13 +23,13 @@ func (u *userUsecase) GetByID(userID uint32) (models.UserTransfer, error) {
 		return models.UserTransfer{}, fmt.Errorf("(usecase) can't get user by id : %w", err)
 	}
 	return models.UserTransfer{
-		ID: 		user.ID,
-		Username: 	user.Username,
-		Email: 		user.Email,
-		FirstName: 	user.FirstName,
-		LastName: 	user.LastName,
-		Sex: 		user.Sex, 
-		BirhDate:  	user.BirhDate,
-		AvatarSrc: 	user.AvatarSrc,
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Sex:       user.Sex,
+		BirhDate:  user.BirhDate,
+		AvatarSrc: user.AvatarSrc,
 	}, nil
 }

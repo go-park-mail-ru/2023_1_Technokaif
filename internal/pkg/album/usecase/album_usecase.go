@@ -3,9 +3,9 @@ package album_usecase
 import (
 	"fmt"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type albumUsecase struct {

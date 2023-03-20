@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 const (

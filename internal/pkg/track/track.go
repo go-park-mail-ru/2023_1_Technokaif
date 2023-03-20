@@ -4,10 +4,10 @@ import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
 // TrackUsecase includes bussiness logics methods to work with albums
 type TrackUsecase interface {
-	// Create(track models.Track) error
+	Create(track models.Track) error
 	GetByID(trackID uint32) (models.Track, error)
-	// Change(track models.Track) error
-	// Delete(trackID uint32) error
+	Change(track models.Track) error
+	Delete(trackID uint32) error
 	GetFeed() ([]models.Track, error)
 	GetByAlbum(albumID uint32) ([]models.Track, error)
 	GetByArtist(artistID uint32) ([]models.Track, error)

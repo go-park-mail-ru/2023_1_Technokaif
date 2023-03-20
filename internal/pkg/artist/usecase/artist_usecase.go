@@ -3,9 +3,9 @@ package artist_usecase
 import (
 	"fmt"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type artistUsecase struct {
@@ -35,7 +35,7 @@ func (au *artistUsecase) GetByID(artistID uint32) (models.Artist, error) {
 }
 
 func (au *artistUsecase) Change(artist models.Artist) error {
-	if err := au.repo.Insert(artist); err != nil {
+	if err := au.repo.Update(artist); err != nil {
 		return fmt.Errorf("(usecase) can't change entry of artist: %w", err)
 	}
 

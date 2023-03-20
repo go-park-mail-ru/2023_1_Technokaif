@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type ArtistHandler struct {

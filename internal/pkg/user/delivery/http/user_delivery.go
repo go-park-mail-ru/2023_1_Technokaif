@@ -2,13 +2,9 @@ package user_delivery
 
 import (
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi"
-
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type UserHandler struct {
@@ -23,15 +19,8 @@ func NewUserHandler(u user.UserUsecase, l logger.Logger) *UserHandler {
 	}
 }
 
-func(h *UserHandler) GetById(w http.ResponseWriter, r *http.Request) {
-	userParam := chi.URLParam(r, "userID")  // TODO const url param
-	userID, err := strconv.Atoi(userParam)
-	if err != nil {
-		
-	}
-
-	h.services.GetByID(userID)
-
-
+func (h *UserHandler) GetById(w http.ResponseWriter, r *http.Request) {
+	// userParam := chi.URLParam(r, "userID") // TODO const url param
+	// userID, err := strconv.Atoi(userParam)
+	// ...
 }
-

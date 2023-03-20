@@ -5,19 +5,19 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type AuthMiddleware struct {
 	authServices auth.AuthUsecase
-	logger   	 logger.Logger
+	logger       logger.Logger
 }
 
 func NewAuthMiddleware(u auth.AuthUsecase, l logger.Logger) *AuthMiddleware {
 	return &AuthMiddleware{
 		authServices: u,
-		logger:   l,
+		logger:       l,
 	}
 }
 

@@ -12,8 +12,8 @@ import (
 
 	app "github.com/go-park-mail-ru/2023_1_Technokaif/init/app"
 	initDB "github.com/go-park-mail-ru/2023_1_Technokaif/init/db"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/server"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 //	@title			Fluire API

@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/go-chi/chi"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/init/router"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/logger"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 	"github.com/jmoiron/sqlx"
 
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
