@@ -25,12 +25,12 @@ func InitRouter(album *album.AlbumHandler,
 	r.Get("/swagger/*", swagger.WrapHandler)
 
 	r.Route("/api", func(r chi.Router) {
-		// r.Route("/user", func(r chi.Router) {
+		// r.Route("/users", func(r chi.Router) {
 		// 	r.Get("/{userID}", user.GetByID)
 		// 	r.Get("/{userID}/brief", user.GetBriefByID)
 		// })
 
-		r.Route("/album", func(r chi.Router) {
+		r.Route("/albums", func(r chi.Router) {
 			r.Post("/", album.Create)
 			r.Route("/{albumID}", func(r chi.Router) {
 				r.Get("/", album.Read)
@@ -42,7 +42,7 @@ func InitRouter(album *album.AlbumHandler,
 			r.Get("/feed", album.Feed)
 		})
 
-		r.Route("/artist", func(r chi.Router) {
+		r.Route("/artists", func(r chi.Router) {
 			r.Post("/", artist.Create)
 			r.Route("/{artistID}", func(r chi.Router) {
 				r.Get("/", artist.Read)
@@ -55,7 +55,7 @@ func InitRouter(album *album.AlbumHandler,
 			r.Get("/feed", artist.Feed)
 		})
 
-		r.Route("/track", func(r chi.Router) {
+		r.Route("/tracks", func(r chi.Router) {
 			r.Post("/", track.Create)
 			r.Route("/{trackID}", func(r chi.Router) {
 				r.Get("/", track.Read)

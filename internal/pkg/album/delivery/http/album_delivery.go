@@ -90,7 +90,7 @@ func (ah *AlbumHandler) artistTransferFromQuery(artists []models.Artist) []model
 }
 
 func (ah *AlbumHandler) albumTransferFromQuery(albums []models.Album) ([]models.AlbumTransfer, error) {
-	at := make([]models.AlbumTransfer, len(albums))
+	at := make([]models.AlbumTransfer, 0, len(albums))
 	for _, a := range albums {
 		artists, err := ah.artistServices.GetByAlbum(a.ID)
 		if err != nil {

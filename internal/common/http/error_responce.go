@@ -17,7 +17,7 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int) {
 	message, _ := json.Marshal(error)
 
 	// TODO
-	/* if err != nil {  
+	/* if err != nil {
 		h.logger.Errorf("failed to marshal error message: %s", err.Error())
 	} */
 

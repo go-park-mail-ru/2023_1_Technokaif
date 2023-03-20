@@ -79,7 +79,7 @@ func (th *TrackHandler) Feed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (th *TrackHandler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
-	at := make([]models.ArtistTransfer, len(artists))
+	at := make([]models.ArtistTransfer, 0, len(artists))
 	for _, a := range artists {
 		at = append(at, models.ArtistTransfer{
 			ID:        a.ID,
@@ -92,7 +92,7 @@ func (th *TrackHandler) artistTransferFromQuery(artists []models.Artist) []model
 }
 
 func (th *TrackHandler) trackTransferFromQuery(tracks []models.Track) ([]models.TrackTransfer, error) {
-	tt := make([]models.TrackTransfer, len(tracks))
+	tt := make([]models.TrackTransfer, 0, len(tracks))
 	for _, t := range tracks {
 		artists, err := th.artistServices.GetByTrack(t.ID)
 		if err != nil {

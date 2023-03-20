@@ -93,7 +93,7 @@ func (ah *ArtistHandler) Feed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah *ArtistHandler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
-	at := make([]models.ArtistTransfer, len(artists))
+	at := make([]models.ArtistTransfer, 0, len(artists))
 	for _, a := range artists {
 		at = append(at, models.ArtistTransfer{
 			ID:        a.ID,

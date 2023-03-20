@@ -21,17 +21,17 @@ type Date struct {
 
 // User implements information about app's users
 type User struct {
-	ID        uint32 `json:"-" 	       valid:"-" 										db:"id"`
-	Version   uint32 `json:"-" 		   valid:"-"										db:"version"`
-	Username  string `json:"username"  valid:"required,runelength(4|20)"				db:"username"`
-	Email     string `json:"email"     valid:"required,email"							db:"email"`
-	Password  string `json:"password"  valid:"required,runelength(8|30),passwordcheck"	db:"password"`
-	Salt      string `json:"-" 		   valid:"-"										db:"salt"`
-	FirstName string `json:"firstName" valid:"required,runelength(2|20)" 				db:"first_name"`
-	LastName  string `json:"lastName"  valid:"required,runelength(2|20)"				db:"last_name"`
-	Sex       Sex    `json:"sex"       valid:"required,in(F|M|O)"						db:"sex"`
-	BirhDate  Date   `json:"birthDate" valid:"required,born"							db:"birth_date"`
-	AvatarSrc string `json:"avatar"    valid:"-"										db:"avatar_src"`
+	ID        uint32 `json:"-" valid:"-" db:"id"`
+	Version   uint32 `json:"-" valid:"-" db:"version"`
+	Username  string `json:"username" valid:"required,runelength(4|20)" db:"username"`
+	Email     string `json:"email" valid:"required,email" db:"email"`
+	Password  string `json:"password" valid:"required,runelength(8|30),passwordcheck" db:"password"`
+	Salt      string `json:"-" valid:"-" db:"salt"`
+	FirstName string `json:"firstName" valid:"required,runelength(2|20)" db:"first_name"`
+	LastName  string `json:"lastName" valid:"required,runelength(2|20)" db:"last_name"`
+	Sex       Sex    `json:"sex" valid:"required,in(F|M|O)" db:"sex"`
+	BirhDate  Date   `json:"birthDate" valid:"required,born" db:"birth_date"`
+	AvatarSrc string `json:"avatar" valid:"-" db:"avatar_src"`
 }
 
 type UserTransfer struct {
