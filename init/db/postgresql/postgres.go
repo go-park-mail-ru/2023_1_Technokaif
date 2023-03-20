@@ -16,6 +16,7 @@ var PostgresTables = struct {
 	Tracks        string
 	Artists       string
 	Albums        string
+	Listens       string
 	ArtistsAlbums string
 	ArtistsTracks string
 	LikedAlbums   string
@@ -26,6 +27,7 @@ var PostgresTables = struct {
 	Tracks:        "Tracks",
 	Artists:       "Artists",
 	Albums:        "Albums",
+	Listens:       "Listens",
 	ArtistsAlbums: "Artists_Albums",
 	ArtistsTracks: "Artists_Tracks",
 	LikedAlbums:   "Liked_albums",
