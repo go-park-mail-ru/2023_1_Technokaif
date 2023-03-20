@@ -1,4 +1,4 @@
-package artist_usecase
+package usecase
 
 import (
 	"fmt"
@@ -8,25 +8,26 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-type trackUsecase struct {
-	repo   track.TrackRepository
+// Usecase implements track.Usecase
+type Usecase struct {
+	repo   track.Repository
 	logger logger.Logger
 }
 
-func NewTrackUsecase(tr track.TrackRepository, l logger.Logger) track.TrackUsecase {
-	return &trackUsecase{repo: tr, logger: l}
+func NewUsecase(tr track.Repository, l logger.Logger) *Usecase {
+	return &Usecase{repo: tr, logger: l}
 }
 
-func (tu *trackUsecase) Create(track models.Track) error {
-	if err := tu.repo.Insert(track); err != nil {
+func (u *Usecase) Create(track models.Track) error {
+	if err := u.repo.Insert(track); err != nil {
 		return fmt.Errorf("(usecase) can't create track in repository: %w", err)
 	}
 
 	return nil
 }
 
-func (tu *trackUsecase) GetByID(trackID uint32) (models.Track, error) {
-	track, err := tu.repo.GetByID(trackID)
+func (u *Usecase) GetByID(trackID uint32) (models.Track, error) {
+	track, err := u.repo.GetByID(trackID)
 	if err != nil {
 		return models.Track{}, fmt.Errorf("(usecase) can't get track from repository: %w", err)
 	}
@@ -34,24 +35,24 @@ func (tu *trackUsecase) GetByID(trackID uint32) (models.Track, error) {
 	return track, nil
 }
 
-func (tu *trackUsecase) Change(track models.Track) error {
-	if err := tu.repo.Update(track); err != nil {
+func (u *Usecase) Change(track models.Track) error {
+	if err := u.repo.Update(track); err != nil {
 		return fmt.Errorf("(usecase) can't get track from repository: %w", err)
 	}
 
 	return nil
 }
 
-func (tu *trackUsecase) Delete(trackID uint32) error {
-	if err := tu.repo.Delete(trackID); err != nil {
+func (u *Usecase) Delete(trackID uint32) error {
+	if err := u.repo.Delete(trackID); err != nil {
 		return fmt.Errorf("(usecase) can't get track from repository: %w", err)
 	}
 
 	return nil
 }
 
-func (tu *trackUsecase) GetFeed() ([]models.Track, error) {
-	tracks, err := tu.repo.GetFeed()
+func (u *Usecase) GetFeed() ([]models.Track, error) {
+	tracks, err := u.repo.GetFeed()
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get tracks from repository: %w", err)
 	}
@@ -59,8 +60,8 @@ func (tu *trackUsecase) GetFeed() ([]models.Track, error) {
 	return tracks, nil
 }
 
-func (tu *trackUsecase) GetByAlbum(albumID uint32) ([]models.Track, error) {
-	tracks, err := tu.repo.GetByAlbum(albumID)
+func (u *Usecase) GetByAlbum(albumID uint32) ([]models.Track, error) {
+	tracks, err := u.repo.GetByAlbum(albumID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get tracks from repository: %w", err)
 	}
@@ -68,8 +69,8 @@ func (tu *trackUsecase) GetByAlbum(albumID uint32) ([]models.Track, error) {
 	return tracks, nil
 }
 
-func (tu *trackUsecase) GetByArtist(artistID uint32) ([]models.Track, error) {
-	tracks, err := tu.repo.GetByArtist(artistID)
+func (u *Usecase) GetByArtist(artistID uint32) ([]models.Track, error) {
+	tracks, err := u.repo.GetByArtist(artistID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get tracks from repository: %w", err)
 	}
@@ -77,8 +78,8 @@ func (tu *trackUsecase) GetByArtist(artistID uint32) ([]models.Track, error) {
 	return tracks, nil
 }
 
-func (tu *trackUsecase) GetLikedByUser(userID uint32) ([]models.Track, error) {
-	tracks, err := tu.repo.GetLikedByUser(userID)
+func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Track, error) {
+	tracks, err := u.repo.GetLikedByUser(userID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get tracks from repository: %w", err)
 	}

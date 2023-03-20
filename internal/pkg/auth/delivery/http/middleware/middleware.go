@@ -1,4 +1,4 @@
-package auth_middleware
+package middleware
 
 import (
 	"context"
@@ -9,13 +9,13 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-type AuthMiddleware struct {
-	authServices auth.AuthUsecase
+type Middleware struct {
+	authServices auth.Usecase
 	logger       logger.Logger
 }
 
-func NewAuthMiddleware(u auth.AuthUsecase, l logger.Logger) *AuthMiddleware {
-	return &AuthMiddleware{
+func NewMiddleware(u auth.Usecase, l logger.Logger) *Middleware {
+	return &Middleware{
 		authServices: u,
 		logger:       l,
 	}
@@ -24,7 +24,7 @@ func NewAuthMiddleware(u auth.AuthUsecase, l logger.Logger) *AuthMiddleware {
 type ContextKeyUserType struct{}
 
 // Authorization is HTTP middleware which sets a value on the request context
-func (m *AuthMiddleware) Authorization(next http.Handler) http.Handler {
+func (m *Middleware) Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		prefix := "Bearer"
 		authHeader := r.Header.Get("Authorization")

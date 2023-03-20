@@ -1,4 +1,4 @@
-package user_usecase
+package usecase
 
 import (
 	"fmt"
@@ -8,16 +8,17 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-type userUsecase struct {
-	repo   user.UserRepository
+// Usecase implements user.Usecase
+type Usecase struct {
+	repo   user.Repository
 	logger logger.Logger
 }
 
-func NewUserUsecase(r user.UserRepository, l logger.Logger) user.UserUsecase {
-	return &userUsecase{repo: r, logger: l}
+func NewUsecase(r user.Repository, l logger.Logger) *Usecase {
+	return &Usecase{repo: r, logger: l}
 }
 
-func (u *userUsecase) GetByID(userID uint32) (models.UserTransfer, error) {
+func (u *Usecase) GetByID(userID uint32) (models.UserTransfer, error) {
 	user, err := u.repo.GetByID(userID)
 	if err != nil {
 		return models.UserTransfer{}, fmt.Errorf("(usecase) can't get user by id : %w", err)

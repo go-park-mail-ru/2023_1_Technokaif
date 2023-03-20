@@ -1,4 +1,4 @@
-package user_delivery
+package http
 
 import (
 	"net/http"
@@ -7,19 +7,25 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-type UserHandler struct {
-	services user.UserUsecase
-	logger   logger.Logger
+type Handler struct {
+	userServices user.Usecase
+	logger       logger.Logger
 }
 
-func NewUserHandler(u user.UserUsecase, l logger.Logger) *UserHandler {
-	return &UserHandler{
-		services: u,
-		logger:   l,
+func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
+	return &Handler{
+		userServices: uu,
+		logger:       l,
 	}
 }
 
-func (h *UserHandler) GetById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
+	// userParam := chi.URLParam(r, "userID") // TODO const url param
+	// userID, err := strconv.Atoi(userParam)
+	// ...
+}
+
+func (h *Handler) GetBriefByID(w http.ResponseWriter, r *http.Request) {
 	// userParam := chi.URLParam(r, "userID") // TODO const url param
 	// userID, err := strconv.Atoi(userParam)
 	// ...

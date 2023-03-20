@@ -4,8 +4,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
-// AuthUsecase describes which methods have to be implemented by auth-service
-type AuthUsecase interface {
+// Usecase includes bussiness logics methods to work with authentication
+type Usecase interface {
 	// LoginUser finds user in repository and returns its access token
 	LoginUser(username, password string) (string, error)
 
@@ -28,8 +28,8 @@ type AuthUsecase interface {
 	IncreaseUserVersion(userID uint32) error
 }
 
-// AuthRepository includes DBMS-relatable methods for authentication
-type AuthRepository interface {
+// Repository includes DBMS-relatable methods to work with authentication
+type Repository interface {
 	// CreateUser inserts new user into DB and return it's id
 	// or error if it already exists
 	CreateUser(user models.User) (uint32, error)

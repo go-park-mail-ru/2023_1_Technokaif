@@ -2,8 +2,8 @@ package track
 
 import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
-// TrackUsecase includes bussiness logics methods to work with albums
-type TrackUsecase interface {
+// Usecase includes bussiness logics methods to work with tracks
+type Usecase interface {
 	Create(track models.Track) error
 	GetByID(trackID uint32) (models.Track, error)
 	Change(track models.Track) error
@@ -16,8 +16,8 @@ type TrackUsecase interface {
 	// IncrementListens(trackID uint32) error
 }
 
-// TrackRepository includes DBMS-relatable methods to work with tracks
-type TrackRepository interface {
+// Repository includes DBMS-relatable methods to work with tracks
+type Repository interface {
 	Insert(track models.Track) error
 	GetByID(trackID uint32) (models.Track, error)
 	Update(track models.Track) error

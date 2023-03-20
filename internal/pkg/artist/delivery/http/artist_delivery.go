@@ -1,4 +1,4 @@
-package artist_delivery
+package http
 
 import (
 	"encoding/json"
@@ -10,20 +10,20 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-type ArtistHandler struct {
-	artistServices artist.ArtistUsecase
+type Handler struct {
+	artistServices artist.Usecase
 	logger         logger.Logger
 }
 
-func NewArtistHandler(au artist.ArtistUsecase, logger logger.Logger) *ArtistHandler {
-	return &ArtistHandler{
+func NewHandler(au artist.Usecase, logger logger.Logger) *Handler {
+	return &Handler{
 		artistServices: au,
 		logger:         logger,
 	}
 }
 
 // swaggermock
-func (ah *ArtistHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var artist models.Artist
 
 	decoder := json.NewDecoder(r.Body)
@@ -32,8 +32,8 @@ func (ah *ArtistHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := ah.artistServices.Create(artist); err != nil {
-		ah.logger.Error(err.Error())
+	if err := h.artistServices.Create(artist); err != nil {
+		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "can't create artist", http.StatusInternalServerError)
 	}
 
@@ -41,27 +41,27 @@ func (ah *ArtistHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // swaggermock
-func (ah *ArtistHandler) Read(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
 // swaggermock
-func (ah *ArtistHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
 // swaggermock
-func (ah *ArtistHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
 // swaggermock
-func (ah *ArtistHandler) Tracks(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Tracks(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
 // swaggermock
-func (ah *ArtistHandler) Albums(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Albums(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
@@ -73,26 +73,26 @@ func (ah *ArtistHandler) Albums(w http.ResponseWriter, r *http.Request) {
 //	@Success		200		{object}	signUpResponse	"Show feed"
 //	@Failure		500		{object}	errorResponse	"Server error"
 //	@Router			/api/artist/feed [get]
-func (ah *ArtistHandler) Feed(w http.ResponseWriter, r *http.Request) {
-	artists, err := ah.artistServices.GetFeed()
+func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
+	artists, err := h.artistServices.GetFeed()
 	if err != nil {
-		ah.logger.Error(err.Error())
+		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError)
 		return
 	}
 
-	artistsTransfer := ah.artistTransferFromQuery(artists)
+	artistsTransfer := h.artistTransferFromQuery(artists)
 
 	w.Header().Set("Content-Type", "json/application; charset=utf-8")
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&artistsTransfer); err != nil {
-		ah.logger.Error(err.Error())
+		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (ah *ArtistHandler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
+func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
 	at := make([]models.ArtistTransfer, 0, len(artists))
 	for _, a := range artists {
 		at = append(at, models.ArtistTransfer{

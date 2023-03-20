@@ -1,4 +1,4 @@
-package track_delivery
+package http
 
 import (
 	"encoding/json"
@@ -12,14 +12,14 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-type TrackHandler struct {
-	trackServices  track.TrackUsecase
-	artistServices artist.ArtistUsecase
+type Handler struct {
+	trackServices  track.Usecase
+	artistServices artist.Usecase
 	logger         logger.Logger
 }
 
-func NewTrackHandler(tu track.TrackUsecase, au artist.ArtistUsecase, l logger.Logger) *TrackHandler {
-	return &TrackHandler{
+func NewHandler(tu track.Usecase, au artist.Usecase, l logger.Logger) *Handler {
+	return &Handler{
 		trackServices:  tu,
 		artistServices: au,
 		logger:         l,
@@ -27,22 +27,22 @@ func NewTrackHandler(tu track.TrackUsecase, au artist.ArtistUsecase, l logger.Lo
 }
 
 // swaggermock
-func (th *TrackHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
 // swaggermock
-func (th *TrackHandler) Read(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
 // swaggermock
-func (th *TrackHandler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
 // swaggermock
-func (th *TrackHandler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
@@ -54,17 +54,17 @@ func (th *TrackHandler) Delete(w http.ResponseWriter, r *http.Request) {
 //	@Success		200		{object}	signUpResponse	"Show feed"
 //	@Failure		500		{object}	errorResponse	"Server error"
 //	@Router			/api/track/feed [get]
-func (th *TrackHandler) Feed(w http.ResponseWriter, r *http.Request) {
-	tracks, err := th.trackServices.GetFeed()
+func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
+	tracks, err := h.trackServices.GetFeed()
 	if err != nil {
-		th.logger.Error(err.Error())
+		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting tracks", http.StatusInternalServerError)
 		return
 	}
 
-	tracksTransfer, err := th.trackTransferFromQuery(tracks)
+	tracksTransfer, err := h.trackTransferFromQuery(tracks)
 	if err != nil {
-		th.logger.Error(err.Error())
+		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting tracks", http.StatusInternalServerError)
 		return
 	}
@@ -72,13 +72,13 @@ func (th *TrackHandler) Feed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "json/application; charset=utf-8")
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&tracksTransfer); err != nil {
-		th.logger.Error(err.Error())
+		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
 		return
 	}
 }
 
-func (th *TrackHandler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
+func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
 	at := make([]models.ArtistTransfer, 0, len(artists))
 	for _, a := range artists {
 		at = append(at, models.ArtistTransfer{
@@ -91,10 +91,10 @@ func (th *TrackHandler) artistTransferFromQuery(artists []models.Artist) []model
 	return at
 }
 
-func (th *TrackHandler) trackTransferFromQuery(tracks []models.Track) ([]models.TrackTransfer, error) {
+func (h *Handler) trackTransferFromQuery(tracks []models.Track) ([]models.TrackTransfer, error) {
 	tt := make([]models.TrackTransfer, 0, len(tracks))
 	for _, t := range tracks {
-		artists, err := th.artistServices.GetByTrack(t.ID)
+		artists, err := h.artistServices.GetByTrack(t.ID)
 		if err != nil {
 			return nil, fmt.Errorf("(delivery) can't get track's (id #%d) artists: %w", t.ID, err)
 		}
@@ -102,7 +102,7 @@ func (th *TrackHandler) trackTransferFromQuery(tracks []models.Track) ([]models.
 		tt = append(tt, models.TrackTransfer{
 			ID:        t.ID,
 			Name:      t.Name,
-			Artists:   th.artistTransferFromQuery(artists),
+			Artists:   h.artistTransferFromQuery(artists),
 			CoverSrc:  t.CoverSrc,
 			RecordSrc: t.RecordSrc,
 		})

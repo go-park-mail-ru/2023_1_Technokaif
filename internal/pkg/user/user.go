@@ -2,11 +2,13 @@ package user
 
 import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
-type UserUsecase interface {
+// Usecase includes bussiness logics methods to work with users
+type Usecase interface {
 	GetByID(userID uint32) (models.UserTransfer, error)
 }
 
-type UserRepository interface {
+// Repository includes DBMS-relatable methods to work with users
+type Repository interface {
 	GetByID(userID uint32) (models.User, error)
 
 	// GetFriends returns all users, who have friendship entry with user with given ID

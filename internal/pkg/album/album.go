@@ -2,8 +2,8 @@ package album
 
 import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
-// AlbumUsecase includes bussiness logics methods to work with albums
-type AlbumUsecase interface {
+// Usecase includes bussiness logics methods to work with albums
+type Usecase interface {
 	// Create(album models.Album) error
 	GetByID(albumID uint32) (models.Album, error)
 	// Change(album models.Album) error
@@ -15,8 +15,8 @@ type AlbumUsecase interface {
 	// GetListens(albumID uint32) (uint32, error)
 }
 
-// AlbumRepository includes DBMS-relatable methods to work with albums
-type AlbumRepository interface {
+// Repository includes DBMS-relatable methods to work with albums
+type Repository interface {
 	Insert(album models.Album) error
 	GetByID(albumID uint32) (models.Album, error)
 	Update(album models.Album) error

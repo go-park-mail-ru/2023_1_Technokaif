@@ -1,4 +1,4 @@
-package album_repository
+package postgresql
 
 import (
 	"fmt"
@@ -7,34 +7,33 @@ import (
 
 	db "github.com/go-park-mail-ru/2023_1_Technokaif/init/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-// albumPostgres implements AlbumRepository
-type albumPostgres struct {
+// PostgreSQL implements album.Repository
+type PostgreSQL struct {
 	db     *sqlx.DB
 	logger logger.Logger
 }
 
-func NewAlbumPostgres(db *sqlx.DB, l logger.Logger) album.AlbumRepository {
-	return &albumPostgres{db: db, logger: l}
+func NewPostgreSQL(db *sqlx.DB, l logger.Logger) *PostgreSQL {
+	return &PostgreSQL{db: db, logger: l}
 }
 
-func (ap *albumPostgres) Insert(album models.Album) error {
+func (p *PostgreSQL) Insert(album models.Album) error {
 	query := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
 		VALUES ($1, $2, $3);`,
 		db.PostgresTables.Albums)
 
-	if _, err := ap.db.Exec(query, album.Name, album.Description, album.CoverSrc); err != nil {
+	if _, err := p.db.Exec(query, album.Name, album.Description, album.CoverSrc); err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
 	return nil
 }
 
-func (ap *albumPostgres) GetByID(albumID uint32) (models.Album, error) {
+func (p *PostgreSQL) GetByID(albumID uint32) (models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src 
 		FROM %s 
@@ -42,21 +41,21 @@ func (ap *albumPostgres) GetByID(albumID uint32) (models.Album, error) {
 		db.PostgresTables.Albums)
 
 	var albums models.Album
-	if err := ap.db.Get(&albums, query, albumID); err != nil {
+	if err := p.db.Get(&albums, query, albumID); err != nil {
 		return models.Album{}, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
 	return albums, nil
 }
 
-func (ap *albumPostgres) Update(album models.Album) error {
+func (p *PostgreSQL) Update(album models.Album) error {
 	query := fmt.Sprintf(
 		`UPDATE %s 
 		SET name = $1, description = $2, cover_src = $3 
 		WHERE id = $4;`,
 		db.PostgresTables.Albums)
 
-	if _, err := ap.db.Exec(query, album.Name, album.Description,
+	if _, err := p.db.Exec(query, album.Name, album.Description,
 		album.CoverSrc, album.ID); err != nil {
 
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
@@ -65,19 +64,19 @@ func (ap *albumPostgres) Update(album models.Album) error {
 	return nil
 }
 
-func (ap *albumPostgres) Delete(albumID uint32) error {
+func (p *PostgreSQL) Delete(albumID uint32) error {
 	query := fmt.Sprintf(
 		`DELETE FROM %s WHERE id = $1;`,
 		db.PostgresTables.Albums)
 
-	if _, err := ap.db.Exec(query, albumID); err != nil {
+	if _, err := p.db.Exec(query, albumID); err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
 	return nil
 }
 
-func (ap *albumPostgres) GetFeed() ([]models.Album, error) {
+func (p *PostgreSQL) GetFeed() ([]models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src  
 		FROM %s 
@@ -85,14 +84,14 @@ func (ap *albumPostgres) GetFeed() ([]models.Album, error) {
 		db.PostgresTables.Albums)
 
 	var albums []models.Album
-	if err := ap.db.Select(&albums, query); err != nil {
+	if err := p.db.Select(&albums, query); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
 	return albums, nil
 }
 
-func (ap *albumPostgres) GetByArtist(artistID uint32) ([]models.Album, error) {
+func (p *PostgreSQL) GetByArtist(artistID uint32) ([]models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT a.id, a.name, a.description, a.cover_src 
 		FROM %s a
@@ -101,14 +100,14 @@ func (ap *albumPostgres) GetByArtist(artistID uint32) ([]models.Album, error) {
 		db.PostgresTables.Albums, db.PostgresTables.ArtistsAlbums)
 
 	var albums []models.Album
-	if err := ap.db.Select(&albums, query, artistID); err != nil {
+	if err := p.db.Select(&albums, query, artistID); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
 	return albums, nil
 }
 
-func (ap *albumPostgres) GetByTrack(trackID uint32) (models.Album, error) {
+func (p *PostgreSQL) GetByTrack(trackID uint32) (models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT a.id, a.name, a.description, a.cover_src 
 		FROM %s a
@@ -117,14 +116,14 @@ func (ap *albumPostgres) GetByTrack(trackID uint32) (models.Album, error) {
 		db.PostgresTables.Albums, db.PostgresTables.Tracks)
 
 	var album models.Album
-	if err := ap.db.Select(&album, query, trackID); err != nil {
+	if err := p.db.Select(&album, query, trackID); err != nil {
 		return models.Album{}, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
 	return album, nil
 }
 
-func (ap *albumPostgres) GetLikedByUser(userID uint32) ([]models.Album, error) {
+func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT a.id, a.name, a.description, a.cover_src, 
 		FROM %s a 
@@ -133,7 +132,7 @@ func (ap *albumPostgres) GetLikedByUser(userID uint32) ([]models.Album, error) {
 		db.PostgresTables.Albums, db.PostgresTables.LikedAlbums)
 
 	var albums []models.Album
-	if err := ap.db.Select(&albums, query, userID); err != nil {
+	if err := p.db.Select(&albums, query, userID); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

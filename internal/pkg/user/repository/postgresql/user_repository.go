@@ -1,4 +1,4 @@
-package user_repository
+package postgresql
 
 import (
 	"database/sql"
@@ -8,21 +8,20 @@ import (
 
 	db "github.com/go-park-mail-ru/2023_1_Technokaif/init/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-// AuthPostgres implements Auth
-type userPostgres struct {
+// PostgreSQL implements user.Repository
+type PostgreSQL struct {
 	db     *sqlx.DB
 	logger logger.Logger
 }
 
-func NewUserPostgres(db *sqlx.DB, l logger.Logger) user.UserRepository {
-	return &userPostgres{db: db, logger: l}
+func NewPostgreSQL(db *sqlx.DB, l logger.Logger) *PostgreSQL {
+	return &PostgreSQL{db: db, logger: l}
 }
 
-func (u *userPostgres) GetByID(userID uint32) (models.User, error) {
+func (p *PostgreSQL) GetByID(userID uint32) (models.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, 
 				version, 
@@ -40,7 +39,7 @@ func (u *userPostgres) GetByID(userID uint32) (models.User, error) {
 		db.PostgresTables.Users)
 
 	var user models.User
-	err := u.db.Get(&user, query, userID)
+	err := p.db.Get(&user, query, userID)
 	if err == sql.ErrNoRows {
 		return models.User{}, fmt.Errorf("(repo) %v: %w", err, &models.NoSuchUserError{})
 	} else if err != nil {

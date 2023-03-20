@@ -2,8 +2,8 @@ package artist
 
 import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
-// ArtistUsecase includes bussiness logics methods to work with albums
-type ArtistUsecase interface {
+// Usecase includes bussiness logics methods to work with artists
+type Usecase interface {
 	Create(artist models.Artist) error
 	GetByID(artistID uint32) (models.Artist, error)
 	Change(artist models.Artist) error
@@ -15,8 +15,8 @@ type ArtistUsecase interface {
 	// GetListens(artistID uint32) (uint32, error)
 }
 
-// ArtistRepository includes DBMS-relatable methods to work with artists
-type ArtistRepository interface {
+// Repository includes DBMS-relatable methods to work with artists
+type Repository interface {
 	// Insert creates new entry of artist in DB with given model
 	Insert(artist models.Artist) error
 

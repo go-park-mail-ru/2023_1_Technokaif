@@ -1,4 +1,4 @@
-package auth_usecase
+package usecase
 
 import (
 	"crypto/rand"
@@ -20,8 +20,9 @@ var secret = os.Getenv("SECRET")
 
 const tokenTTL = 24 * time.Hour
 
-type authUsecase struct {
-	repo   auth.AuthRepository
+// Usecase implements auth.Usecase
+type Usecase struct {
+	repo   auth.Repository
 	logger logger.Logger
 }
 
@@ -31,28 +32,28 @@ type jwtClaims struct {
 	jwt.RegisteredClaims
 }
 
-func NewAuthUsecase(ra auth.AuthRepository, l logger.Logger) auth.AuthUsecase {
-	return &authUsecase{repo: ra, logger: l}
+func NewUsecase(ar auth.Repository, l logger.Logger) *Usecase {
+	return &Usecase{repo: ar, logger: l}
 }
 
-func (au *authUsecase) CreateUser(u models.User) (uint32, error) {
+func (u *Usecase) CreateUser(user models.User) (uint32, error) {
 	salt := make([]byte, 8)
 	rand.Read(salt)
-	u.Salt = fmt.Sprintf("%x", salt)
+	user.Salt = fmt.Sprintf("%x", salt)
 
-	u.Password = hashPassword(u.Password, salt)
+	user.Password = hashPassword(user.Password, salt)
 
-	userId, err := au.repo.CreateUser(u)
+	userId, err := u.repo.CreateUser(user)
 	return userId, errors.Wrap(err, "(Usecase) cannot create user")
 }
 
-func (au *authUsecase) LoginUser(username, password string) (string, error) {
-	user, err := au.GetUserByCreds(username, password)
+func (u *Usecase) LoginUser(username, password string) (string, error) {
+	user, err := u.GetUserByCreds(username, password)
 	if err != nil {
 		return "", errors.Wrap(err, "(Usecase) cannot find user")
 	}
 
-	token, err := au.GenerateAccessToken(user.ID, user.Version)
+	token, err := u.GenerateAccessToken(user.ID, user.Version)
 	if err != nil {
 		return "", errors.Wrap(err, "(Usecase) failed to generate token")
 	}
@@ -60,8 +61,8 @@ func (au *authUsecase) LoginUser(username, password string) (string, error) {
 	return token, nil
 }
 
-func (au *authUsecase) GetUserByCreds(username, password string) (*models.User, error) {
-	user, err := au.repo.GetUserByUsername(username)
+func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error) {
+	user, err := u.repo.GetUserByUsername(username)
 	if err != nil {
 		return nil, errors.Wrap(err, "(Usecase) cannot find user")
 	}
@@ -79,12 +80,12 @@ func (au *authUsecase) GetUserByCreds(username, password string) (*models.User, 
 	return user, nil
 }
 
-func (au *authUsecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
-	user, err := au.repo.GetUserByAuthData(userID, userVersion)
+func (u *Usecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
+	user, err := u.repo.GetUserByAuthData(userID, userVersion)
 	return user, errors.Wrap(err, "(Usecase) cannot find user by userId and userVersion")
 }
 
-func (au *authUsecase) GenerateAccessToken(userID, userVersion uint32) (string, error) {
+func (u *Usecase) GenerateAccessToken(userID, userVersion uint32) (string, error) {
 	claims := &jwtClaims{
 		userID,
 		userVersion,
@@ -102,7 +103,7 @@ func (au *authUsecase) GenerateAccessToken(userID, userVersion uint32) (string, 
 	return signedToken, nil
 }
 
-func (au *authUsecase) CheckAccessToken(acessToken string) (uint32, uint32, error) {
+func (u *Usecase) CheckAccessToken(acessToken string) (uint32, uint32, error) {
 	token, err := jwt.ParseWithClaims(acessToken, &jwtClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -127,8 +128,8 @@ func (au *authUsecase) CheckAccessToken(acessToken string) (uint32, uint32, erro
 	return claims.UserId, claims.UserVersion, nil
 }
 
-func (au *authUsecase) IncreaseUserVersion(userID uint32) error {
-	if err := au.repo.IncreaseUserVersion(userID); err != nil {
+func (u *Usecase) IncreaseUserVersion(userID uint32) error {
+	if err := u.repo.IncreaseUserVersion(userID); err != nil {
 		return errors.Wrap(err, "(Usecase) failed to update user version")
 	}
 
