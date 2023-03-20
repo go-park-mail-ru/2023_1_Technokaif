@@ -10,8 +10,8 @@ import (
 
 	"github.com/joho/godotenv" // load environment
 
-	app "github.com/go-park-mail-ru/2023_1_Technokaif/init/app"
-	initDB "github.com/go-park-mail-ru/2023_1_Technokaif/init/db"
+	initApp "github.com/go-park-mail-ru/2023_1_Technokaif/init/app"
+	initDB "github.com/go-park-mail-ru/2023_1_Technokaif/init/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/server"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
@@ -47,7 +47,7 @@ func main() {
 		return
 	}
 
-	router := app.Init(db, logger)
+	router := initApp.Init(db, logger)
 
 	srv := new(server.Server)
 	go func() {
