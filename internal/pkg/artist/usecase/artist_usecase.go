@@ -20,7 +20,7 @@ func NewUsecase(ar artist.Repository, l logger.Logger) *Usecase {
 
 func (u *Usecase) Create(artist models.Artist) error {
 	if err := u.repo.Insert(artist); err != nil {
-		return fmt.Errorf("(usecase) can't create new entry of artist: %w", err)
+		return fmt.Errorf("(usecase) can't insert artist into repository: %w", err)
 	}
 
 	return nil
@@ -37,7 +37,7 @@ func (u *Usecase) GetByID(artistID uint32) (models.Artist, error) {
 
 func (u *Usecase) Change(artist models.Artist) error {
 	if err := u.repo.Update(artist); err != nil {
-		return fmt.Errorf("(usecase) can't change entry of artist: %w", err)
+		return fmt.Errorf("(usecase) can't update artist in repository: %w", err)
 	}
 
 	return nil
@@ -45,7 +45,7 @@ func (u *Usecase) Change(artist models.Artist) error {
 
 func (u *Usecase) DeleteByID(artistID uint32) error {
 	if err := u.repo.DeleteByID(artistID); err != nil {
-		return fmt.Errorf("(usecase) can't delete entry of artist (id #%d): %w", artistID, err)
+		return fmt.Errorf("(usecase) can't delete artist from repository: %w", err)
 	}
 
 	return nil
@@ -54,7 +54,7 @@ func (u *Usecase) DeleteByID(artistID uint32) error {
 func (u *Usecase) GetFeed() ([]models.Artist, error) {
 	artists, err := u.repo.GetFeed()
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get artists from repository: %w", err)
+		return nil, fmt.Errorf("(usecase) can't get feed artists from repository: %w", err)
 	}
 
 	return artists, nil
@@ -63,7 +63,7 @@ func (u *Usecase) GetFeed() ([]models.Artist, error) {
 func (u *Usecase) GetByAlbum(albumID uint32) ([]models.Artist, error) {
 	artists, err := u.repo.GetByAlbum(albumID)
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get artists from repository: %w", err)
+		return nil, fmt.Errorf("(usecase) can't get feed artists from repository: %w", err)
 	}
 
 	return artists, nil

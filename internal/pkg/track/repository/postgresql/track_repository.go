@@ -66,7 +66,7 @@ func (p *PostgreSQL) Update(track models.Track) error {
 	return nil
 }
 
-func (p *PostgreSQL) Delete(trackID uint32) error {
+func (p *PostgreSQL) DeleteByID(trackID uint32) error {
 	query := fmt.Sprintf(
 		`DELETE FROM %s WHERE id = $1;`,
 		db.PostgresTables.Tracks)

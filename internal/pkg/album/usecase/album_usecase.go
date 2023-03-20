@@ -18,6 +18,14 @@ func NewUsecase(ar album.Repository, l logger.Logger) *Usecase {
 	return &Usecase{repo: ar, logger: l}
 }
 
+func (u *Usecase) Create(album models.Album) error {
+	if err := u.repo.Insert(album); err != nil {
+		return fmt.Errorf("(usecase) can't insert album into repository: %w", err)
+	}
+
+	return nil
+}
+
 func (u *Usecase) GetByID(albumID uint32) (models.Album, error) {
 	album, err := u.repo.GetByID(albumID)
 	if err != nil {
@@ -27,10 +35,26 @@ func (u *Usecase) GetByID(albumID uint32) (models.Album, error) {
 	return album, nil
 }
 
+func (u *Usecase) Change(albumID models.Album) error {
+	if err := u.repo.Update(albumID); err != nil {
+		return fmt.Errorf("(usecase) can't update album in repository: %w", err)
+	}
+
+	return nil
+}
+
+func (u *Usecase) DeleteByID(albumID uint32) error {
+	if err := u.repo.DeleteByID(albumID); err != nil {
+		return fmt.Errorf("(usecase) can't delete album from repository: %w", err)
+	}
+
+	return nil
+}
+
 func (u *Usecase) GetFeed() ([]models.Album, error) {
 	albums, err := u.repo.GetFeed()
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get albums from repository: %w", err)
+		return nil, fmt.Errorf("(usecase) can't get feed albums from repository: %w", err)
 	}
 
 	return albums, nil

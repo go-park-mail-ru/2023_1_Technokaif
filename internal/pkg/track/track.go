@@ -7,7 +7,7 @@ type Usecase interface {
 	Create(track models.Track) error
 	GetByID(trackID uint32) (models.Track, error)
 	Change(track models.Track) error
-	Delete(trackID uint32) error
+	DeleteByID(trackID uint32) error
 	GetFeed() ([]models.Track, error)
 	GetByAlbum(albumID uint32) ([]models.Track, error)
 	GetByArtist(artistID uint32) ([]models.Track, error)
@@ -21,7 +21,7 @@ type Repository interface {
 	Insert(track models.Track) error
 	GetByID(trackID uint32) (models.Track, error)
 	Update(track models.Track) error
-	Delete(trackID uint32) error
+	DeleteByID(trackID uint32) error
 	GetFeed() ([]models.Track, error)
 	GetByAlbum(albumID uint32) ([]models.Track, error)
 	GetByArtist(artistID uint32) ([]models.Track, error)

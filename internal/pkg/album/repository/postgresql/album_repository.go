@@ -64,7 +64,7 @@ func (p *PostgreSQL) Update(album models.Album) error {
 	return nil
 }
 
-func (p *PostgreSQL) Delete(albumID uint32) error {
+func (p *PostgreSQL) DeleteByID(albumID uint32) error {
 	query := fmt.Sprintf(
 		`DELETE FROM %s WHERE id = $1;`,
 		db.PostgresTables.Albums)

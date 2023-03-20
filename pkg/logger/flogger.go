@@ -10,7 +10,7 @@ import (
 )
 
 // Fluire + Logger = FLogger :)
-// Customized zap.Logger
+// Customized minimalistic zap.Logger
 type FLogger struct {
 	logger *zap.Logger
 }
