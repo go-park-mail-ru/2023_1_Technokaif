@@ -37,15 +37,14 @@ func InitRouter(
 
 		r.Route("/users", func(r chi.Router) {
 			r.Get("/{userID}", user.Read)
-			// TODO add endpoints
 		})
 
 		r.Route("/albums", func(r chi.Router) {
-			// r.Post("/", album.Create)
+			r.Post("/", album.Create)
 			r.Route("/{albumID}", func(r chi.Router) {
 				r.Get("/", album.Read)
 				// r.Put("/", album.Update)
-				// r.Delete("/", album.Delete)
+				r.Delete("/", album.Delete)
 
 				r.Get("/tracks", track.ReadByAlbum)
 			})
@@ -53,11 +52,11 @@ func InitRouter(
 		})
 
 		r.Route("/artists", func(r chi.Router) {
-			// r.Post("/", artist.Create)
+			r.Post("/", artist.Create)
 			r.Route("/{artistID}", func(r chi.Router) {
 				r.Get("/", artist.Read)
 				// r.Put("/", artist.Update)
-				// r.Delete("/", artist.Delete)
+				r.Delete("/", artist.Delete)
 
 				r.Get("/tracks", track.ReadByArtist)
 				r.Get("/albums", album.ReadByArtist)
@@ -70,7 +69,7 @@ func InitRouter(
 			r.Route("/{trackID}", func(r chi.Router) {
 				r.Get("/", track.Read)
 				// r.Put("/", track.Update)
-				// r.Delete("/", track.Delete)
+				r.Delete("/", track.Delete)
 			})
 			r.Get("/feed", track.Feed)
 		})

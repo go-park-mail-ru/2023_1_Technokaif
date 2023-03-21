@@ -54,8 +54,10 @@ func (p *PostgreSQL) GetByID(userID uint32) (*models.User, error) {
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time, &u.AvatarSrc)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return &models.User{}, fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
-	} else if err != nil {
+		return &models.User{},
+			fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
+	}
+	if err != nil {
 		return &models.User{}, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

@@ -27,17 +27,37 @@ func NewPostgreSQL(db *sqlx.DB, t album.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(album models.Album) error {
-	query := fmt.Sprintf(
-		`INSERT INTO %s (name, description, cover_src)
-		VALUES ($1, $2, $3);`,
-		p.tables.Albums())
-
-	if _, err := p.db.Exec(query, album.Name, album.Description, album.CoverSrc); err != nil {
-		return fmt.Errorf("(repo) failed to exec query: %w", err)
+func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (uint32, error) {
+	tx, err := p.db.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
 
-	return nil
+	insertAlbumQuery := fmt.Sprintf(
+		`INSERT INTO %s (name, description, cover_src)
+		VALUES ($1, $2, $3) RETURNING id;`,
+		p.tables.Albums())
+
+	var albumID uint32
+	row := tx.QueryRow(insertAlbumQuery, album.Name, album.Description, album.CoverSrc)
+	if err := row.Scan(&albumID); err != nil {
+		tx.Rollback()
+		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	insertAlbumArtistsQuery := fmt.Sprintf(
+		`INSERT INTO %s (artist_id, album_id)
+		VALUES ($1, $2);`,
+		p.tables.ArtistsAlbums())
+
+	for _, artistID := range artistsID {
+		if _, err := tx.Exec(insertAlbumArtistsQuery, artistID, albumID); err != nil {
+			tx.Rollback()
+			return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
+		}
+	}
+
+	return albumID, tx.Commit()
 }
 
 func (p *PostgreSQL) GetByID(albumID uint32) (*models.Album, error) {
@@ -51,8 +71,10 @@ func (p *PostgreSQL) GetByID(albumID uint32) (*models.Album, error) {
 
 	err := p.db.Get(&albums, query, albumID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("(repo) %w: %v", &models.NoSuchAlbumError{AlbumID: albumID}, err)
-	} else if err != nil {
+		return nil,
+			fmt.Errorf("(repo) %w: %v", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+	}
+	if err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -77,7 +99,9 @@ func (p *PostgreSQL) Update(album models.Album) error {
 
 func (p *PostgreSQL) DeleteByID(albumID uint32) error {
 	query := fmt.Sprintf(
-		`DELETE FROM %s WHERE id = $1;`,
+		`DELETE
+		FROM %s
+		WHERE id = $1;`,
 		p.tables.Albums())
 
 	if _, err := p.db.Exec(query, albumID); err != nil {

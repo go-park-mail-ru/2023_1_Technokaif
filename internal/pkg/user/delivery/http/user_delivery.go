@@ -49,7 +49,8 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such user", http.StatusBadRequest, h.logger)
 		return
-	} else if err != nil {
+	}
+	if err != nil {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting user", http.StatusInternalServerError, h.logger)
 		return

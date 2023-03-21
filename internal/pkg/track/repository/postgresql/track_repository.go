@@ -70,8 +70,10 @@ func (p *PostgreSQL) GetByID(trackID uint32) (*models.Track, error) {
 	var track models.Track
 	err := p.db.Get(&track, query, trackID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return &models.Track{}, fmt.Errorf("(repo) %w: %v", &models.NoSuchTrackError{TrackID: trackID}, err)
-	} else if err != nil {
+		return &models.Track{},
+			fmt.Errorf("(repo) %w: %v", &models.NoSuchTrackError{TrackID: trackID}, err)
+	}
+	if err != nil {
 		return &models.Track{}, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -96,7 +98,9 @@ func (p *PostgreSQL) Update(track models.Track) error {
 
 func (p *PostgreSQL) DeleteByID(trackID uint32) error {
 	query := fmt.Sprintf(
-		`DELETE FROM %s WHERE id = $1;`,
+		`DELETE
+		FROM %s
+		WHERE id = $1;`,
 		p.tables.Tracks())
 
 	if _, err := p.db.Exec(query, trackID); err != nil {

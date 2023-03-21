@@ -61,6 +61,10 @@ func (u *Usecase) Change(track models.Track) error {
 }
 
 func (u *Usecase) DeleteByID(trackID uint32) error {
+	if _, err := u.trackRepo.GetByID(trackID); err != nil {
+		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
+	}
+
 	if err := u.trackRepo.DeleteByID(trackID); err != nil {
 		return fmt.Errorf("(usecase) can't delete track from repository: %w", err)
 	}

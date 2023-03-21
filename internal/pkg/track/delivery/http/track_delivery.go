@@ -90,7 +90,8 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such track", http.StatusBadRequest, h.logger)
 		return
-	} else if err != nil {
+	}
+	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting track", http.StatusInternalServerError, h.logger)
 		return
@@ -111,9 +112,35 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
+type trackDeleteResponse struct {
+	Status string `json:"status"`
+}
+
 // swaggermock
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	// ...
+	trackID, err := commonHttp.GetTrackIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get track by id: %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	err = h.trackServices.DeleteByID(trackID)
+	var errNoSuchTrack *models.NoSuchTrackError
+	if errors.As(err, &errNoSuchTrack) {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "no such track", http.StatusBadRequest, h.logger)
+		return
+	}
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while deleting track", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	tdr := trackDeleteResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, tdr, h.logger)
 }
 
 // swaggermock
@@ -131,7 +158,8 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
 		return
-	} else if err != nil {
+	}
+	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting artist tracks", http.StatusInternalServerError, h.logger)
 		return
@@ -161,7 +189,8 @@ func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
 		return
-	} else if err != nil {
+	}
+	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting album tracks", http.StatusInternalServerError, h.logger)
 		return

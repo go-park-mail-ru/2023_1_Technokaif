@@ -63,7 +63,7 @@ CREATE TABLE Artists_Tracks
 
 CREATE TABLE Liked_albums
 (
-    user_id INT REFERENCES Users(id) ON DELETE CASCADE NOT NULL,
+    user_id   INT REFERENCES Users(id)   ON DELETE CASCADE NOT NULL,
     album_id  INT REFERENCES Albums(id)  ON DELETE CASCADE NOT NULL,
 
     PRIMARY KEY(user_id, album_id)
@@ -71,7 +71,7 @@ CREATE TABLE Liked_albums
 
 CREATE TABLE Liked_artists
 (
-    user_id INT REFERENCES Users(id) ON DELETE CASCADE NOT NULL,
+    user_id    INT REFERENCES Users(id)    ON DELETE CASCADE NOT NULL,
     artist_id  INT REFERENCES Artists(id)  ON DELETE CASCADE NOT NULL,
 
     PRIMARY KEY(user_id, artist_id)
@@ -79,7 +79,7 @@ CREATE TABLE Liked_artists
 
 CREATE TABLE Liked_tracks
 (
-    user_id INT REFERENCES Users(id) ON DELETE CASCADE NOT NULL,
+    user_id   INT REFERENCES Users(id)   ON DELETE CASCADE NOT NULL,
     track_id  INT REFERENCES Tracks(id)  ON DELETE CASCADE NOT NULL,
 
     PRIMARY KEY(user_id, track_id)

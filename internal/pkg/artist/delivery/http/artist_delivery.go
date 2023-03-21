@@ -23,22 +23,43 @@ func NewHandler(au artist.Usecase, logger logger.Logger) *Handler {
 	}
 }
 
+type artistCreateInput struct {
+	Name      string `json:"name"`
+	AvatarSrc string `json:"avatar"`
+}
+
+func (aci *artistCreateInput) ToArtist() models.Artist {
+	return models.Artist{
+		Name:      aci.Name,
+		AvatarSrc: aci.AvatarSrc,
+	}
+}
+
+type artistCreateResponse struct {
+	ID uint32 `json:"id"`
+}
+
 // swaggermock
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	var artist models.Artist
+	var aci artistCreateInput
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&artist); err != nil {
+	if err := decoder.Decode(&aci); err != nil {
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
 
-	if err := h.artistServices.Create(artist); err != nil {
+	artist := aci.ToArtist()
+
+	artistID, err := h.artistServices.Create(artist)
+	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "can't create artist", http.StatusInternalServerError, h.logger)
 	}
 
-	// ...
+	acr := artistCreateResponse{ID: artistID}
+
+	commonHttp.SuccessResponse(w, acr, h.logger)
 }
 
 // swaggermock
@@ -56,7 +77,8 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
 		return
-	} else if err != nil {
+	}
+	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting artist", http.StatusInternalServerError, h.logger)
 		return
@@ -72,9 +94,35 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
+type artistDeleteResponse struct {
+	Status string `json:"status"`
+}
+
 // swaggermock
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	// ...
+	artistID, err := commonHttp.GetArtistIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get artist by id : %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	err = h.artistServices.DeleteByID(artistID)
+	var errNoSuchArtist *models.NoSuchArtistError
+	if errors.As(err, &errNoSuchArtist) {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
+		return
+	}
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while deleting artist", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	adr := artistDeleteResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, adr, h.logger)
 }
 
 // @Summary		Artist Feed

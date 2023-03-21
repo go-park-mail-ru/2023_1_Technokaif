@@ -4,7 +4,7 @@ import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
 // Usecase includes bussiness logics methods to work with albums
 type Usecase interface {
-	Create(album models.Album) error
+	Create(album models.Album, artistsID []uint32) (uint32, error)
 	GetByID(albumID uint32) (*models.Album, error)
 	Change(album models.Album) error
 	DeleteByID(albumID uint32) error
@@ -17,7 +17,7 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with albums
 type Repository interface {
-	Insert(album models.Album) error
+	Insert(album models.Album, artistsID []uint32) (uint32, error)
 	GetByID(albumID uint32) (*models.Album, error)
 	Update(album models.Album) error
 	DeleteByID(albumID uint32) error

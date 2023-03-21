@@ -20,12 +20,19 @@ func NewUsecase(alr album.Repository, arr artist.Repository, l logger.Logger) *U
 	return &Usecase{albumRepo: alr, artistRepo: arr, logger: l}
 }
 
-func (u *Usecase) Create(album models.Album) error {
-	if err := u.albumRepo.Insert(album); err != nil {
-		return fmt.Errorf("(usecase) can't insert album into repository: %w", err)
+func (u *Usecase) Create(album models.Album, artistsID []uint32) (uint32, error) {
+	for _, artistID := range artistsID {
+		if _, err := u.artistRepo.GetByID(artistID); err != nil {
+			return 0, fmt.Errorf("(usecase) can't get artist with id #%d: %w", artistID, err)
+		}
 	}
 
-	return nil
+	albumID, err := u.albumRepo.Insert(album, artistsID)
+	if err != nil {
+		return 0, fmt.Errorf("(usecase) can't insert album into repository: %w", err)
+	}
+
+	return albumID, nil
 }
 
 func (u *Usecase) GetByID(albumID uint32) (*models.Album, error) {
@@ -46,6 +53,10 @@ func (u *Usecase) Change(albumID models.Album) error {
 }
 
 func (u *Usecase) DeleteByID(albumID uint32) error {
+	if _, err := u.albumRepo.GetByID(albumID); err != nil {
+		return fmt.Errorf("(usecase) can't find album in repository: %w", err)
+	}
+
 	if err := u.albumRepo.DeleteByID(albumID); err != nil {
 		return fmt.Errorf("(usecase) can't delete album from repository: %w", err)
 	}

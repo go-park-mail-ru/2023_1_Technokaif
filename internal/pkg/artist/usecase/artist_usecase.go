@@ -18,12 +18,13 @@ func NewUsecase(ar artist.Repository, l logger.Logger) *Usecase {
 	return &Usecase{repo: ar, logger: l}
 }
 
-func (u *Usecase) Create(artist models.Artist) error {
-	if err := u.repo.Insert(artist); err != nil {
-		return fmt.Errorf("(usecase) can't insert artist into repository: %w", err)
+func (u *Usecase) Create(artist models.Artist) (uint32, error) {
+	artistID, err := u.repo.Insert(artist)
+	if err != nil {
+		return 0, fmt.Errorf("(usecase) can't insert artist into repository: %w", err)
 	}
 
-	return nil
+	return artistID, nil
 }
 
 func (u *Usecase) GetByID(artistID uint32) (*models.Artist, error) {
@@ -44,6 +45,10 @@ func (u *Usecase) Change(artist models.Artist) error {
 }
 
 func (u *Usecase) DeleteByID(artistID uint32) error {
+	if _, err := u.repo.GetByID(artistID); err != nil {
+		return fmt.Errorf("(usecase) can't find artist in repository: %w", err)
+	}
+
 	if err := u.repo.DeleteByID(artistID); err != nil {
 		return fmt.Errorf("(usecase) can't delete artist from repository: %w", err)
 	}

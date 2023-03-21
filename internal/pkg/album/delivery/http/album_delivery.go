@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -26,9 +27,48 @@ func NewHandler(alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler
 	}
 }
 
+type albumCreateInput struct {
+	Name        string   `json:"name"`
+	ArtistsID   []uint32 `json:"artistsID"`
+	Description string   `json:"description"`
+	CoverSrc    string   `json:"cover"`
+}
+
+func (aci *albumCreateInput) ToAlbum() models.Album {
+	return models.Album{
+		Name:        aci.Name,
+		Description: aci.Description,
+		CoverSrc:    aci.CoverSrc,
+	}
+}
+
+type albumCreateResponse struct {
+	ID uint32 `json:"id"`
+}
+
 // swaggermock
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	// ...
+	var aci albumCreateInput
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&aci); err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	album := aci.ToAlbum()
+
+	trackID, err := h.albumServices.Create(album, aci.ArtistsID)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "can't create album", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	acr := albumCreateResponse{ID: trackID}
+
+	commonHttp.SuccessResponse(w, acr, h.logger)
 }
 
 // swaggermock
@@ -46,7 +86,8 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
 		return
-	} else if err != nil {
+	}
+	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting album", http.StatusInternalServerError, h.logger)
 		return
@@ -62,16 +103,74 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
+type albumChangeInput struct {
+	ID          uint32   `json:"id"`
+	Name        string   `json:"name"`
+	ArtistsID   []uint32 `json:"artistsID"`
+	Description string   `json:"description"`
+	CoverSrc    string   `json:"cover"`
+}
+
+func (aci *albumChangeInput) ToAlbum() models.Album {
+	return models.Album{
+		ID:          aci.ID,
+		Name:        aci.Name,
+		Description: aci.Description,
+		CoverSrc:    aci.CoverSrc,
+	}
+}
+
+type albumChangeResponse struct {
+	Message string `json:"status"`
+}
+
 // swaggermock
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+	var aci albumChangeInput
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&aci); err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	// album := aci.ToAlbum()
 	// ...
+}
+
+type albumDeleteResponse struct {
+	Status string `json:"status"`
 }
 
 // swaggermock
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	// ...
+	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get album by id : %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	err = h.albumServices.DeleteByID(albumID)
+	var errNoSuchAlbum *models.NoSuchAlbumError
+	if errors.As(err, &errNoSuchAlbum) {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
+		return
+	}
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while deleting album", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	adr := albumDeleteResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, adr, h.logger)
 }
 
+// swaggermock
 func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
@@ -86,7 +185,8 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
 		return
-	} else if err != nil {
+	}
+	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError, h.logger)
 		return
