@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"net/http"
+	"errors"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -32,7 +33,33 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // swaggermock
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
-	// ...
+	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get album by id : %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	album, err := h.albumServices.GetByID(albumID)
+	var errNoSuchAlbum *models.NoSuchAlbumError
+	if errors.As(err, &errNoSuchAlbum) {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
+		return
+	} else if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting album", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	resp, err := h.albumTransferFromEntry(*album)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting album", http.StatusInternalServerError, h.logger)
+		return
+	}
+	
+	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
 // swaggermock
@@ -43,6 +70,36 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 // swaggermock
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	// ...
+}
+
+func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
+	artistID, err := commonHttp.GetArtistIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get artist by id : %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	albums, err := h.albumServices.GetByArtist(artistID)
+	var errNoSuchArtist *models.NoSuchArtistError
+	if errors.As(err, &errNoSuchArtist) {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
+		return
+	} else if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	resp, err := h.albumTransferFromQuery(albums)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, resp, h.logger)	
 }
 
 //	@Summary		Album Feed
@@ -64,6 +121,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, albums, h.logger)
 }
 
+// Converts Artist to ArtistTransfer
 func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
 	at := make([]models.ArtistTransfer, len(artists))
 	for _, a := range artists {
@@ -77,22 +135,32 @@ func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.Arti
 	return at
 }
 
-func (h *Handler) albumTransferFromQuery(albums []models.Album) ([]models.AlbumTransfer, error) {
-	at := make([]models.AlbumTransfer, 0, len(albums))
-	for _, a := range albums {
-		artists, err := h.artistServices.GetByAlbum(a.ID)
-		if err != nil {
-			return nil, fmt.Errorf("(delivery) can't get albums's (id #%d) artists: %w", a.ID, err)
-		}
-
-		at = append(at, models.AlbumTransfer{
-			ID:          a.ID,
-			Name:        a.Name,
-			Artists:     h.artistTransferFromQuery(artists),
-			Description: a.Description,
-			CoverSrc:    a.CoverSrc,
-		})
+// Converts Album to AlbumTransfer
+func (h *Handler) albumTransferFromEntry(a models.Album) (models.AlbumTransfer, error) {
+	artists, err := h.artistServices.GetByAlbum(a.ID)
+	if err != nil {
+		return models.AlbumTransfer{}, fmt.Errorf("(delivery) can't get albums's (id #%d) artists: %w", a.ID, err)
 	}
 
-	return at, nil
+	return models.AlbumTransfer{
+		ID:          a.ID,
+		Name:        a.Name,
+		Artists:     h.artistTransferFromQuery(artists),
+		Description: a.Description,
+		CoverSrc:    a.CoverSrc,
+	}, nil
+}
+
+func (h *Handler) albumTransferFromQuery(albums []models.Album) ([]models.AlbumTransfer, error) {
+	albumTransfers := make([]models.AlbumTransfer, 0, len(albums))
+	for _, a := range albums {
+		albumTransfer, err := h.albumTransferFromEntry(a)
+		if err != nil {
+			return nil, err
+		}
+
+		albumTransfers = append(albumTransfers, albumTransfer)
+	}
+
+	return albumTransfers, nil
 }

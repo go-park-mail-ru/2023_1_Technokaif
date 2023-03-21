@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/db"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/router"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/init/router"
 
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
 	artistRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/repository/postgresql"
@@ -36,7 +36,7 @@ func Init(db *sqlx.DB, tables db.Tables, logger logger.Logger) *chi.Mux {
 	trackRepo := trackRepository.NewPostgreSQL(db, tables, logger)
 	userRepo := userRepository.NewPostgreSQL(db, tables, logger)
 
-	albumUsecase := albumUsecase.NewUsecase(albumRepo, logger)
+	albumUsecase := albumUsecase.NewUsecase(albumRepo, artistRepo, logger)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo, logger)
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo, logger)
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, logger)

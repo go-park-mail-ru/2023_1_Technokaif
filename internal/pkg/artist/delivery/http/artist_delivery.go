@@ -77,11 +77,6 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
-// swaggermock
-func (h *Handler) Albums(w http.ResponseWriter, r *http.Request) {
-	// ...
-}
-
 //	@Summary		Artist Feed
 //	@Tags			artist feed
 //	@Description	Feed albums for user
