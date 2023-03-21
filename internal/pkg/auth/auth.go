@@ -30,8 +30,12 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with authentication
 type Repository interface {
-
 	GetUserByAuthData(userID, userVersion uint32) (*models.User, error)
-
 	IncreaseUserVersion(userID uint32) error
+}
+
+// Tables includes methods which return needed tables
+// to work with auth on repository-layer
+type Tables interface {
+	Users() string
 }

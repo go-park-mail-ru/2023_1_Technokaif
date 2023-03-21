@@ -27,3 +27,9 @@ type Repository interface {
 	// GetLikedArtist(artistID uint32) ([]models.User, error)
 	// GetLikedTrack(trackID uint32) ([]models.User, error)
 }
+
+// Tables includes methods which return needed tables
+// to work with users on repository-layer
+type Tables interface {
+	Users() string
+}
