@@ -42,6 +42,10 @@ func GetArtistIDFromRequest(r *http.Request) (uint32, error) {
 	return convertID(chi.URLParam(r, artistIdUrlParam))
 }
 
+func GetAlbumIDFromRequest(r *http.Request) (uint32, error) {
+	return convertID(chi.URLParam(r, albumIdUrlParam))
+}
+
 func convertID(idUrl string) (uint32, error) {
 	id, err := strconv.Atoi(idUrl)
 

@@ -57,16 +57,12 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
 		return
 	} else if err != nil {
-		h.logger.Info(err.Error())
+		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting artist", http.StatusInternalServerError, h.logger)
 		return
 	}
 
-	resp := models.ArtistTransfer{
-		ID:        	artist.ID,
-		Name:		artist.Name,
-		AvatarSrc: artist.AvatarSrc,
-	}
+	resp := h.artistTransferFromEntry(*artist)
 
 	w.Header().Set("Content-Type", "json/application; charset=utf-8")
 	encoder := json.NewEncoder(w)
@@ -84,11 +80,6 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 // swaggermock
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	// ...
-}
-
-// swaggermock
-func (h *Handler) Tracks(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
@@ -124,14 +115,18 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Handler) artistTransferFromEntry(artist models.Artist) models.ArtistTransfer {
+	return models.ArtistTransfer{
+		ID:        	artist.ID,
+		Name:		artist.Name,
+		AvatarSrc: artist.AvatarSrc,
+	}
+}
+
 func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
 	at := make([]models.ArtistTransfer, 0, len(artists))
 	for _, a := range artists {
-		at = append(at, models.ArtistTransfer{
-			ID:        a.ID,
-			Name:      a.Name,
-			AvatarSrc: a.AvatarSrc,
-		})
+		at = append(at, h.artistTransferFromEntry(a))
 	}
 
 	return at

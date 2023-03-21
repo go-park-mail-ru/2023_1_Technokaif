@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -41,7 +43,11 @@ func (p *PostgreSQL) GetByID(albumID uint32) (models.Album, error) {
 		db.PostgresTables.Albums)
 
 	var albums models.Album
-	if err := p.db.Get(&albums, query, albumID); err != nil {
+
+	err := p.db.Get(&albums, query, albumID); 
+	if errors.Is(err, sql.ErrNoRows) {
+		return models.Album{}, fmt.Errorf("(repo) %w: %v", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+	} else if err != nil {
 		return models.Album{}, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
