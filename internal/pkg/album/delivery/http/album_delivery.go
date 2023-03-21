@@ -118,7 +118,14 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHttp.SuccessResponse(w, albums, h.logger)
+	resp, err := h.albumTransferFromQuery(albums)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
 // Converts Artist to ArtistTransfer
