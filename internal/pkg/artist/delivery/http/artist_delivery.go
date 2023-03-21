@@ -2,8 +2,8 @@ package http
 
 import (
 	"encoding/json"
-	"net/http"
 	"errors"
+	"net/http"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -62,15 +62,9 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := h.artistTransferFromEntry(*artist)
+	artistResponse := h.artistTransferFromEntry(*artist)
 
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&resp); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	commonHttp.SuccessResponse(w, artistResponse, h.logger)
 }
 
 // swaggermock
@@ -106,19 +100,13 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 
 	artistsTransfer := h.artistTransferFromQuery(artists)
 
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&artistsTransfer); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	commonHttp.SuccessResponse(w, artistsTransfer, h.logger)
 }
 
 func (h *Handler) artistTransferFromEntry(artist models.Artist) models.ArtistTransfer {
 	return models.ArtistTransfer{
-		ID:        	artist.ID,
-		Name:		artist.Name,
+		ID:        artist.ID,
+		Name:      artist.Name,
 		AvatarSrc: artist.AvatarSrc,
 	}
 }

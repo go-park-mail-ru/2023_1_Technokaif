@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -61,14 +60,8 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError, h.logger)
 		return
 	}
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
 
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&albums); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	commonHttp.SuccessResponse(w, albums, h.logger)
 }
 
 func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {

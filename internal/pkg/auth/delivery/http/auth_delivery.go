@@ -77,15 +77,9 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	h.logger.Infof("user created with id: %d", id)
 
-	// TODO maybe make wrapper for responses
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	response := signUpResponse{ID: id}
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&response); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	sur := signUpResponse{ID: id}
+
+	commonHttp.SuccessResponse(w, sur, h.logger)
 }
 
 type loginInput struct {
@@ -133,15 +127,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	h.logger.Infof("login with token: %s", token)
 
-	// TODO maybe make wrapper for responses
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	response := loginResponse{JWT: token}
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&response); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	lr := loginResponse{JWT: token}
+
+	commonHttp.SuccessResponse(w, lr, h.logger)
 }
 
 //	@Summary		Log Out
@@ -168,13 +156,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO maybe make wrapper for responses
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	response := logoutResponse{Status: "ok"}
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&response); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	lr := logoutResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, lr, h.logger)
 }

@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -20,6 +19,19 @@ func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
 	return &Handler{
 		userServices: uu,
 		logger:       l,
+	}
+}
+
+func userTransferFromUser(user models.User) models.UserTransfer {
+	return models.UserTransfer{
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Sex:       user.Sex,
+		BirhDate:  user.BirhDate,
+		AvatarSrc: user.AvatarSrc,
 	}
 }
 
@@ -43,23 +55,7 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := models.UserTransfer{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Sex:       user.Sex,
-		BirhDate:  user.BirhDate,
-		AvatarSrc: user.AvatarSrc,
-	}
+	ut := userTransferFromUser(*user)
 
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&resp); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	commonHttp.SuccessResponse(w, ut, h.logger)
 }
-

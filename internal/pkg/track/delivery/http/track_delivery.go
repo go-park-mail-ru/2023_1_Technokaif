@@ -15,7 +15,7 @@ import (
 
 type Handler struct {
 	trackServices  track.Usecase
-	artistServices artist.Usecase 
+	artistServices artist.Usecase
 	logger         logger.Logger
 }
 
@@ -96,20 +96,14 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.trackTransferFromEntry(*track)
+	tt, err := h.trackTransferFromEntry(*track)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting track", http.StatusInternalServerError, h.logger)
 		return
 	}
 
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&resp); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
 // swaggermock
@@ -143,20 +137,14 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.trackTransferFromQuery(tracks)
+	tt, err := h.trackTransferFromQuery(tracks)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting artist tracks", http.StatusInternalServerError, h.logger)
 		return
 	}
 
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&resp); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
 func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
@@ -179,20 +167,14 @@ func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.trackTransferFromQuery(tracks)
+	tt, err := h.trackTransferFromQuery(tracks)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting artist tracks", http.StatusInternalServerError, h.logger)
 		return
 	}
 
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&resp); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
 //	@Summary		Track Feed
@@ -211,20 +193,14 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tracksTransfers, err := h.trackTransferFromQuery(tracks)
+	tt, err := h.trackTransferFromQuery(tracks)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting tracks", http.StatusInternalServerError, h.logger)
 		return
 	}
 
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
-	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&tracksTransfers); err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
-		return
-	}
+	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
 // Converts Artist to ArtistTransfer
