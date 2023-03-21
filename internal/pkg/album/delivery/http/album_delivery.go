@@ -46,7 +46,16 @@ type albumCreateResponse struct {
 	ID uint32 `json:"id"`
 }
 
-// swaggermock
+// @Summary		Create Album
+// @Tags		Album
+// @Description	Create new album by sent object
+// @Accept      json
+// @Produce		json
+// @Param		album	body		albumCreateInput	true	"album info"
+// @Success		200		{object}	albumCreateResponse	        "Album created"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/albums/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var aci albumCreateInput
 
@@ -71,7 +80,14 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, acr, h.logger)
 }
 
-// swaggermock
+// @Summary		Get Album
+// @Tags		Album
+// @Description	Get album with chosen ID
+// @Produce		json
+// @Success		200		{object}	models.AlbumTransfer	    "Album got"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/albums/{albumID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
 	if err != nil {
@@ -143,7 +159,14 @@ type albumDeleteResponse struct {
 	Status string `json:"status"`
 }
 
-// swaggermock
+// @Summary		Delete Album
+// @Tags		Album
+// @Description	Delete album with chosen ID
+// @Produce		json
+// @Success		200		{object}	albumDeleteResponse	        "Album deleted"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/albums/{albumID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
 	if err != nil {
@@ -170,7 +193,14 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, adr, h.logger)
 }
 
-// swaggermock
+// @Summary		Albums of Artist
+// @Tags		Artist
+// @Description	All albums of artist with chosen ID
+// @Produce		json
+// @Success		200		{object}	[]models.AlbumTransfer	    "Show albums"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/artists/{artistID}/albums [get]
 func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
@@ -203,13 +233,12 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary		Album Feed
-// @Tags			album feed
-// @Description	Feed albums for user
-// @Accept			json
+// @Tags		Feed
+// @Description	Feed albums
 // @Produce		json
-// @Success		200		{object}	signUpResponse	"Show feed"
-// @Failure		500		{object}	errorResponse	"Server error"
-// @Router			/api/album/feed [get]
+// @Success		200		{object}	[]models.AlbumTransfer	 "Albums feed"
+// @Failure		500		{object}	errorResponse "Server error"
+// @Router		/api/albums/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	albums, err := h.albumServices.GetFeed()
 	if err != nil {
@@ -270,4 +299,9 @@ func (h *Handler) albumTransferFromQuery(albums []models.Album) ([]models.AlbumT
 	}
 
 	return albumTransfers, nil
+}
+
+// For swagger, but how to fix?
+type errorResponse struct {
+	Message string `json:"message"`
 }

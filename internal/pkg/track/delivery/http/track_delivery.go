@@ -50,7 +50,16 @@ type trackCreateResponse struct {
 	ID uint32 `json:"id"`
 }
 
-// swaggermock
+// @Summary		Create Track
+// @Tags		Track
+// @Description	Create new track by sent object
+// @Accept      json
+// @Produce		json
+// @Param		track	body		trackCreateInput	true	"Track info"
+// @Success		200		{object}	trackCreateResponse	        "Track created"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/tracks/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var tci trackCreateInput
 
@@ -75,7 +84,14 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tcr, h.logger)
 }
 
-// swaggermock
+// @Summary		Get Track
+// @Tags		Track
+// @Description	Get track with chosen ID
+// @Produce		json
+// @Success		200		{object}	models.TrackTransfer "Track got"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/tracks/{trackID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	userID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {
@@ -116,7 +132,14 @@ type trackDeleteResponse struct {
 	Status string `json:"status"`
 }
 
-// swaggermock
+// @Summary		Delete Track
+// @Tags		Track
+// @Description	Delete track with chosen ID
+// @Produce		json
+// @Success		200		{object}	trackDeleteResponse	        "Track deleted"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/tracks/{trackID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {
@@ -143,7 +166,14 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tdr, h.logger)
 }
 
-// swaggermock
+// @Summary		Tracks of Artist
+// @Tags		Artist
+// @Description	All tracks of artist with chosen ID
+// @Produce		json
+// @Success		200		{object}	[]models.TrackTransfer	    "Show tracks"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/artists/{artistID}/tracks [get]
 func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
@@ -175,6 +205,14 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
+// @Summary		Tracks of Album
+// @Tags		Album
+// @Description	All tracks of album with chosen ID
+// @Produce		json
+// @Success		200		{object}	[]models.TrackTransfer	    "Show tracks"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/albums/{albumID}/tracks [get]
 func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
 	if err != nil {
@@ -207,13 +245,12 @@ func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary		Track Feed
-// @Tags			track feed
-// @Description	Feed tracks for user
-// @Accept			json
+// @Tags		Feed
+// @Description	Feed tracks
 // @Produce		json
-// @Success		200		{object}	signUpResponse	"Show feed"
+// @Success		200		{object}	[]models.TrackTransfer	"Tracks feed"
 // @Failure		500		{object}	errorResponse	"Server error"
-// @Router			/api/track/feed [get]
+// @Router		/api/tracks/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	tracks, err := h.trackServices.GetFeed()
 	if err != nil {
@@ -276,4 +313,9 @@ func (h *Handler) trackTransferFromQuery(tracks []models.Track) ([]models.TrackT
 	}
 
 	return trackTransfers, nil
+}
+
+// For swagger, but how to fix?
+type errorResponse struct {
+	Message string `json:"message"`
 }

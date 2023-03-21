@@ -18,11 +18,11 @@ import (
 )
 
 //	@title			Fluire API
-//	@version		0.1.0
+//	@version		1.0.1
 //	@description	Server API for Fluire Streaming Service Application
 
 //	@host		localhost:4443
-//	@BasePath	/feed
+//	@BasePath	/api/albums/feed
 
 //	@securityDefinitions	AuthKey
 //	@in						header

@@ -4,14 +4,14 @@
         "description": "Server API for Fluire Streaming Service Application",
         "title": "Fluire API",
         "contact": {},
-        "version": "1.0"
+        "version": "1.0.1"
     },
     "host": "localhost:4443",
-    "basePath": "/feed",
+    "basePath": "/api/albums/feed",
     "paths": {
-        "/api/auth/login": {
+        "/api/albums/": {
             "post": {
-                "description": "login account",
+                "description": "Create new album by sent object",
                 "consumes": [
                     "application/json"
                 ],
@@ -19,7 +19,386 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Album"
+                ],
+                "summary": "Create Album",
+                "parameters": [
+                    {
+                        "description": "album info",
+                        "name": "album",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.albumCreateInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Album created",
+                        "schema": {
+                            "$ref": "#/definitions/http.albumCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/albums/feed": {
+            "get": {
+                "description": "Feed albums",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feed"
+                ],
+                "summary": "Album Feed",
+                "responses": {
+                    "200": {
+                        "description": "Albums feed",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AlbumTransfer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/albums/{albumID}/": {
+            "get": {
+                "description": "Get album with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Album"
+                ],
+                "summary": "Get Album",
+                "responses": {
+                    "200": {
+                        "description": "Album got",
+                        "schema": {
+                            "$ref": "#/definitions/models.AlbumTransfer"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete album with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Album"
+                ],
+                "summary": "Delete Album",
+                "responses": {
+                    "200": {
+                        "description": "Album deleted",
+                        "schema": {
+                            "$ref": "#/definitions/http.albumDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/albums/{albumID}/tracks": {
+            "get": {
+                "description": "All tracks of album with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Album"
+                ],
+                "summary": "Tracks of Album",
+                "responses": {
+                    "200": {
+                        "description": "Show tracks",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TrackTransfer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/artists/": {
+            "post": {
+                "description": "Create new artist by sent object",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Artist"
+                ],
+                "summary": "Create Artist",
+                "parameters": [
+                    {
+                        "description": "Track info",
+                        "name": "artist",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.artistCreateInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artist created",
+                        "schema": {
+                            "$ref": "#/definitions/http.artistCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/artists/feed": {
+            "get": {
+                "description": "Feed artists",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feed"
+                ],
+                "summary": "Artist Feed",
+                "responses": {
+                    "200": {
+                        "description": "Artists feed",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ArtistTransfer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/artists/{artistID}/": {
+            "get": {
+                "description": "Get artist with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Artist"
+                ],
+                "summary": "Get Artist",
+                "responses": {
+                    "200": {
+                        "description": "Artist got",
+                        "schema": {
+                            "$ref": "#/definitions/models.ArtistTransfer"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete artist with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Artist"
+                ],
+                "summary": "Delete Artist",
+                "responses": {
+                    "200": {
+                        "description": "Artist deleted",
+                        "schema": {
+                            "$ref": "#/definitions/http.artistDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/artists/{artistID}/albums": {
+            "get": {
+                "description": "All albums of artist with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Artist"
+                ],
+                "summary": "Albums of Artist",
+                "responses": {
+                    "200": {
+                        "description": "Show albums",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AlbumTransfer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/artists/{artistID}/tracks": {
+            "get": {
+                "description": "All tracks of artist with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Artist"
+                ],
+                "summary": "Tracks of Artist",
+                "responses": {
+                    "200": {
+                        "description": "Show tracks",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TrackTransfer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "description": "Login account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
                 ],
                 "summary": "Sign In",
                 "parameters": [
@@ -29,7 +408,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/delivery.loginInput"
+                            "$ref": "#/definitions/http.loginInput"
                         }
                     }
                 ],
@@ -37,19 +416,19 @@
                     "200": {
                         "description": "User created",
                         "schema": {
-                            "$ref": "#/definitions/delivery.loginResponse"
+                            "$ref": "#/definitions/http.loginResponse"
                         }
                     },
                     "400": {
                         "description": "Incorrect input",
                         "schema": {
-                            "$ref": "#/definitions/delivery.errorResponse"
+                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
                         }
                     },
                     "500": {
-                        "description": "Server DB error",
+                        "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/delivery.errorResponse"
+                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
                         }
                     }
                 }
@@ -57,7 +436,7 @@
         },
         "/api/auth/logout": {
             "get": {
-                "description": "logout account",
+                "description": "Logout account",
                 "consumes": [
                     "application/json"
                 ],
@@ -65,26 +444,26 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Log Out",
                 "responses": {
                     "200": {
                         "description": "User loged out",
                         "schema": {
-                            "$ref": "#/definitions/delivery.logoutResponse"
+                            "$ref": "#/definitions/http.logoutResponse"
                         }
                     },
                     "400": {
                         "description": "Logout fail",
                         "schema": {
-                            "$ref": "#/definitions/delivery.errorResponse"
+                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
                         }
                     },
                     "500": {
-                        "description": "Server DB error",
+                        "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/delivery.errorResponse"
+                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
                         }
                     }
                 }
@@ -92,7 +471,7 @@
         },
         "/api/auth/signup": {
             "post": {
-                "description": "create account",
+                "description": "Create account",
                 "consumes": [
                     "application/json"
                 ],
@@ -100,7 +479,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Sign Up",
                 "parameters": [
@@ -118,27 +497,27 @@
                     "200": {
                         "description": "User created",
                         "schema": {
-                            "$ref": "#/definitions/delivery.signUpResponse"
+                            "$ref": "#/definitions/http.signUpResponse"
                         }
                     },
                     "400": {
                         "description": "Incorrect input",
                         "schema": {
-                            "$ref": "#/definitions/delivery.errorResponse"
+                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
                         }
                     },
                     "500": {
-                        "description": "Server DB error",
+                        "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/delivery.errorResponse"
+                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
                         }
                     }
                 }
             }
         },
-        "/api/feed": {
-            "get": {
-                "description": "User's feed (Tracks, artists, albums)",
+        "/api/tracks/": {
+            "post": {
+                "description": "Create new track by sent object",
                 "consumes": [
                     "application/json"
                 ],
@@ -146,20 +525,128 @@
                     "application/json"
                 ],
                 "tags": [
-                    "feed"
+                    "Track"
                 ],
-                "summary": "Main Page",
+                "summary": "Create Track",
+                "parameters": [
+                    {
+                        "description": "Track info",
+                        "name": "track",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.trackCreateInput"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Show feed",
+                        "description": "Track created",
                         "schema": {
-                            "$ref": "#/definitions/delivery.FeedResponse"
+                            "$ref": "#/definitions/http.trackCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
                         }
                     },
                     "500": {
-                        "description": "Server DB error",
+                        "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/delivery.errorResponse"
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tracks/feed": {
+            "get": {
+                "description": "Feed tracks",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feed"
+                ],
+                "summary": "Track Feed",
+                "responses": {
+                    "200": {
+                        "description": "Tracks feed",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TrackTransfer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tracks/{trackID}/": {
+            "get": {
+                "description": "Get track with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Track"
+                ],
+                "summary": "Get Track",
+                "responses": {
+                    "200": {
+                        "description": "Track got",
+                        "schema": {
+                            "$ref": "#/definitions/models.TrackTransfer"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete track with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Track"
+                ],
+                "summary": "Delete Track",
+                "responses": {
+                    "200": {
+                        "description": "Track deleted",
+                        "schema": {
+                            "$ref": "#/definitions/http.trackDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
                         }
                     }
                 }
@@ -167,38 +654,70 @@
         }
     },
     "definitions": {
-        "delivery.FeedResponse": {
+        "http.albumCreateInput": {
             "type": "object",
             "properties": {
-                "albums": {
+                "artistsID": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.AlbumFeed"
+                        "type": "integer"
                     }
                 },
-                "artists": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ArtistFeed"
-                    }
+                "cover": {
+                    "type": "string"
                 },
-                "tracks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.TrackFeed"
-                    }
-                }
-            }
-        },
-        "delivery.errorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
         },
-        "delivery.loginInput": {
+        "http.albumCreateResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.albumDeleteResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.artistCreateInput": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.artistCreateResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.artistDeleteResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.loginInput": {
             "type": "object",
             "properties": {
                 "password": {
@@ -209,7 +728,7 @@
                 }
             }
         },
-        "delivery.loginResponse": {
+        "http.loginResponse": {
             "type": "object",
             "properties": {
                 "jwt": {
@@ -217,7 +736,7 @@
                 }
             }
         },
-        "delivery.logoutResponse": {
+        "http.logoutResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -225,7 +744,7 @@
                 }
             }
         },
-        "delivery.signUpResponse": {
+        "http.signUpResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -233,14 +752,88 @@
                 }
             }
         },
-        "models.AlbumFeed": {
+        "http.trackCreateInput": {
+            "type": "object",
+            "properties": {
+                "albumID": {
+                    "type": "integer"
+                },
+                "artistsID": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "cover": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "record": {
+                    "type": "string"
+                }
+            }
+        },
+        "http.trackCreateResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.trackDeleteResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_pkg_album_delivery_http.errorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_pkg_artist_delivery_http.errorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_pkg_auth_delivery_http.errorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_pkg_track_delivery_http.errorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AlbumTransfer": {
             "type": "object",
             "properties": {
                 "artists": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.ArtistFeed"
+                        "$ref": "#/definitions/models.ArtistTransfer"
                     }
+                },
+                "cover": {
+                    "type": "string"
                 },
                 "description": {
                     "type": "string"
@@ -253,9 +846,12 @@
                 }
             }
         },
-        "models.ArtistFeed": {
+        "models.ArtistTransfer": {
             "type": "object",
             "properties": {
+                "cover": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -285,19 +881,29 @@
                 "Other"
             ]
         },
-        "models.TrackFeed": {
+        "models.TrackTransfer": {
             "type": "object",
             "properties": {
+                "albumID": {
+                    "description": "TODO discuss",
+                    "type": "integer"
+                },
                 "artists": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.ArtistFeed"
+                        "$ref": "#/definitions/models.ArtistTransfer"
                     }
+                },
+                "cover": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "record": {
                     "type": "string"
                 }
             }
@@ -305,6 +911,9 @@
         "models.User": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "type": "string"
+                },
                 "birthDate": {
                     "$ref": "#/definitions/models.Date"
                 },

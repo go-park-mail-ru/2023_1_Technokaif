@@ -39,7 +39,16 @@ type artistCreateResponse struct {
 	ID uint32 `json:"id"`
 }
 
-// swaggermock
+// @Summary		Create Artist
+// @Tags		Artist
+// @Description	Create new artist by sent object
+// @Accept      json
+// @Produce		json
+// @Param		artist	body		artistCreateInput	true	"Track info"
+// @Success		200		{object}	artistCreateResponse "Artist created"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/artists/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var aci artistCreateInput
 
@@ -62,7 +71,14 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, acr, h.logger)
 }
 
-// swaggermock
+// @Summary		Get Artist
+// @Tags		Artist
+// @Description	Get artist with chosen ID
+// @Produce		json
+// @Success		200		{object}	models.ArtistTransfer	    "Artist got"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/artists/{artistID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
@@ -98,7 +114,14 @@ type artistDeleteResponse struct {
 	Status string `json:"status"`
 }
 
-// swaggermock
+// @Summary		Delete Artist
+// @Tags		Artist
+// @Description	Delete artist with chosen ID
+// @Produce		json
+// @Success		200		{object}	artistDeleteResponse "Artist deleted"
+// @Failure		400		{object}	errorResponse	"Client error"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/artists/{artistID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
@@ -126,13 +149,12 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary		Artist Feed
-// @Tags			artist feed
-// @Description	Feed albums for user
-// @Accept			json
+// @Tags		Feed
+// @Description	Feed artists
 // @Produce		json
-// @Success		200		{object}	signUpResponse	"Show feed"
+// @Success		200		{object}	[]models.ArtistTransfer	"Artists feed"
 // @Failure		500		{object}	errorResponse	"Server error"
-// @Router			/api/artist/feed [get]
+// @Router		/api/artists/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	artists, err := h.artistServices.GetFeed()
 	if err != nil {
@@ -161,4 +183,9 @@ func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.Arti
 	}
 
 	return at
+}
+
+// For swagger, but how to fix?
+type errorResponse struct {
+	Message string `json:"message"`
 }

@@ -38,15 +38,15 @@ type logoutResponse struct {
 }
 
 // @Summary		Sign Up
-// @Tags			auth
-// @Description	create account
-// @Accept			json
+// @Tags		Auth
+// @Description	Create account
+// @Accept		json
 // @Produce		json
-// @Param			user	body		models.User		true	"user info"
+// @Param		user	body		models.User		true	"user info"
 // @Success		200		{object}	signUpResponse	"User created"
 // @Failure		400		{object}	errorResponse	"Incorrect input"
-// @Failure		500		{object}	errorResponse	"Server DB error"
-// @Router			/api/auth/signup [post]
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router		/api/auth/signup [post]
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
@@ -93,15 +93,15 @@ func (li *loginInput) validate() error {
 }
 
 // @Summary		Sign In
-// @Tags			auth
-// @Description	login account
-// @Accept			json
+// @Tags		Auth
+// @Description	Login account
+// @Accept		json
 // @Produce		json
-// @Param			userInput	body		loginInput		true	"username and password"
+// @Param		userInput	body		loginInput		true	"username and password"
 // @Success		200			{object}	loginResponse	"User created"
 // @Failure		400			{object}	errorResponse	"Incorrect input"
-// @Failure		500			{object}	errorResponse	"Server DB error"
-// @Router			/api/auth/login [post]
+// @Failure		500			{object}	errorResponse	"Server error"
+// @Router		/api/auth/login [post]
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
 
@@ -133,14 +133,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary		Log Out
-// @Tags			auth
-// @Description	logout account
-// @Accept			json
+// @Tags		Auth
+// @Description	Logout account
+// @Accept		json
 // @Produce		json
 // @Success		200	{object}	logoutResponse	"User loged out"
 // @Failure		400	{object}	errorResponse	"Logout fail"
-// @Failure		500	{object}	errorResponse	"Server DB error"
-// @Router			/api/auth/logout [get]
+// @Failure		500	{object}	errorResponse	"Server error"
+// @Router		/api/auth/logout [get]
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
@@ -159,4 +159,9 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	lr := logoutResponse{Status: "ok"}
 
 	commonHttp.SuccessResponse(w, lr, h.logger)
+}
+
+// For swagger, but how to fix?
+type errorResponse struct {
+	Message string `json:"message"`
 }
