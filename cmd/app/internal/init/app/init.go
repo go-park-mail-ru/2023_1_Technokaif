@@ -39,7 +39,7 @@ func Init(db *sqlx.DB, tables db.Tables, logger logger.Logger) *chi.Mux {
 	albumUsecase := albumUsecase.NewUsecase(albumRepo, artistRepo, logger)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo, logger)
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo, logger)
-	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, logger)
+	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, logger)
 	userUsecase := userUsecase.NewUsecase(userRepo, logger)
 
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)

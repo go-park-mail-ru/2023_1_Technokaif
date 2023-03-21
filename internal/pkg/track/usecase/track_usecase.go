@@ -19,10 +19,11 @@ type Usecase struct {
 	logger     logger.Logger
 }
 
-func NewUsecase(tr track.Repository, ar artist.Repository, l logger.Logger) *Usecase {
+func NewUsecase(tr track.Repository, arr artist.Repository, alr album.Repository, l logger.Logger) *Usecase {
 	return &Usecase{
 		trackRepo:  tr,
-		artistRepo: ar,
+		artistRepo: arr,
+		albumRepo: alr,
 		logger:     l,
 	}
 }
