@@ -35,7 +35,7 @@ func (p *PostgreSQL) Insert(album models.Album) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetByID(albumID uint32) (models.Album, error) {
+func (p *PostgreSQL) GetByID(albumID uint32) (*models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src 
 		FROM %s 
@@ -46,12 +46,12 @@ func (p *PostgreSQL) GetByID(albumID uint32) (models.Album, error) {
 
 	err := p.db.Get(&albums, query, albumID); 
 	if errors.Is(err, sql.ErrNoRows) {
-		return models.Album{}, fmt.Errorf("(repo) %w: %v", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+		return nil, fmt.Errorf("(repo) %w: %v", &models.NoSuchAlbumError{AlbumID: albumID}, err)
 	} else if err != nil {
-		return models.Album{}, fmt.Errorf("(repo) failed to exec query: %w", err)
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
-	return albums, nil
+	return &albums, nil
 }
 
 func (p *PostgreSQL) Update(album models.Album) error {
@@ -113,7 +113,7 @@ func (p *PostgreSQL) GetByArtist(artistID uint32) ([]models.Album, error) {
 	return albums, nil
 }
 
-func (p *PostgreSQL) GetByTrack(trackID uint32) (models.Album, error) {
+func (p *PostgreSQL) GetByTrack(trackID uint32) (*models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT a.id, a.name, a.description, a.cover_src 
 		FROM %s a
@@ -123,10 +123,10 @@ func (p *PostgreSQL) GetByTrack(trackID uint32) (models.Album, error) {
 
 	var album models.Album
 	if err := p.db.Select(&album, query, trackID); err != nil {
-		return models.Album{}, fmt.Errorf("(repo) failed to exec query: %w", err)
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
-	return album, nil
+	return &album, nil
 }
 
 func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Album, error) {

@@ -87,7 +87,7 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	track, err := h.trackServices.GetByID(uint32(userID))
 	var errNoSuchTrack *models.NoSuchTrackError
 	if errors.As(err, &errNoSuchTrack) {
-		h.logger.Error(err.Error())
+		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such track", http.StatusBadRequest, h.logger)
 		return
 	} else if err != nil {

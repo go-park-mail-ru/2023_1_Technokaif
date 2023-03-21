@@ -34,7 +34,7 @@ func Init(db *sqlx.DB, logger logger.Logger) *chi.Mux {
 	trackRepo := trackRepository.NewPostgreSQL(db, logger)
 	userRepo := userRepository.NewPostgreSQL(db, logger)
 
-	albumUsecase := albumUsecase.NewUsecase(albumRepo, logger)
+	albumUsecase := albumUsecase.NewUsecase(albumRepo, artistRepo, logger)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo, logger)
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo, logger)
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, logger)

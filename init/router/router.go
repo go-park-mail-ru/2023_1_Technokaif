@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/go-chi/chi/v5"
-	// "github.com/go-chi/chi/v5/middleware"
+	// "github.com/go-chi/chi/v5/middleware"  // DEBUG
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
@@ -60,7 +60,7 @@ func InitRouter(
 				// r.Delete("/", artist.Delete)
 
 				r.Get("/tracks", track.ReadByArtist)
-				r.Get("/albums", track.ReadByAlbum)
+				r.Get("/albums", album.ReadByArtist)
 			})
 			r.Get("/feed", artist.Feed)
 		})
