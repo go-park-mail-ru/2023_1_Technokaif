@@ -10,8 +10,8 @@ import (
 
 	"github.com/joho/godotenv" // load environment
 
-	initApp "github.com/go-park-mail-ru/2023_1_Technokaif/init/app"
-	initDB "github.com/go-park-mail-ru/2023_1_Technokaif/init/db/postgresql"
+	initApp "github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/init/app"
+	initDB "github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/init/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/server"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
