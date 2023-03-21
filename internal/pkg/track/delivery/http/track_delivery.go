@@ -156,7 +156,7 @@ func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tracks, err := h.trackServices.GetByAlbum(albumID)
-	var errNoSuchAlbum *models.NoSuchArtistError
+	var errNoSuchAlbum *models.NoSuchAlbumError
 	if errors.As(err, &errNoSuchAlbum) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
