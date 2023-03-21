@@ -11,9 +11,9 @@ import (
 
 // Usecase implements album.Usecase
 type Usecase struct {
-	albumRepo   album.Repository
-	artistRepo	artist.Repository
-	logger logger.Logger
+	albumRepo  album.Repository
+	artistRepo artist.Repository
+	logger     logger.Logger
 }
 
 func NewUsecase(alr album.Repository, arr artist.Repository, l logger.Logger) *Usecase {

@@ -77,14 +77,14 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
-//	@Summary		Artist Feed
-//	@Tags			artist feed
-//	@Description	Feed albums for user
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}	signUpResponse	"Show feed"
-//	@Failure		500		{object}	errorResponse	"Server error"
-//	@Router			/api/artist/feed [get]
+// @Summary		Artist Feed
+// @Tags			artist feed
+// @Description	Feed albums for user
+// @Accept			json
+// @Produce		json
+// @Success		200		{object}	signUpResponse	"Show feed"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router			/api/artist/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	artists, err := h.artistServices.GetFeed()
 	if err != nil {

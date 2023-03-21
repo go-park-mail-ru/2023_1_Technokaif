@@ -3,10 +3,10 @@ package usecase
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"time"
-	"errors"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/argon2"
@@ -23,9 +23,9 @@ const tokenTTL = 24 * time.Hour
 
 // Usecase implements auth.Usecase
 type Usecase struct {
-	authRepo   auth.Repository
-	userRepo   user.Repository
-	logger logger.Logger
+	authRepo auth.Repository
+	userRepo user.Repository
+	logger   logger.Logger
 }
 
 type jwtClaims struct {
@@ -37,8 +37,8 @@ type jwtClaims struct {
 func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecase {
 	return &Usecase{
 		authRepo: ar,
-		userRepo: ur, 
-		logger: l}
+		userRepo: ur,
+		logger:   l}
 }
 
 func (u *Usecase) SignUpUser(user models.User) (uint32, error) {

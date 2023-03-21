@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
@@ -16,14 +16,14 @@ type Usecase struct {
 	artistRepo artist.Repository
 	albumRepo  album.Repository
 
-	logger     logger.Logger
+	logger logger.Logger
 }
 
 func NewUsecase(tr track.Repository, arr artist.Repository, alr album.Repository, l logger.Logger) *Usecase {
 	return &Usecase{
 		trackRepo:  tr,
 		artistRepo: arr,
-		albumRepo: alr,
+		albumRepo:  alr,
 		logger:     l,
 	}
 }

@@ -37,16 +37,16 @@ type logoutResponse struct {
 	Status string `json:"status"`
 }
 
-//	@Summary		Sign Up
-//	@Tags			auth
-//	@Description	create account
-//	@Accept			json
-//	@Produce		json
-//	@Param			user	body		models.User		true	"user info"
-//	@Success		200		{object}	signUpResponse	"User created"
-//	@Failure		400		{object}	errorResponse	"Incorrect input"
-//	@Failure		500		{object}	errorResponse	"Server DB error"
-//	@Router			/api/auth/signup [post]
+// @Summary		Sign Up
+// @Tags			auth
+// @Description	create account
+// @Accept			json
+// @Produce		json
+// @Param			user	body		models.User		true	"user info"
+// @Success		200		{object}	signUpResponse	"User created"
+// @Failure		400		{object}	errorResponse	"Incorrect input"
+// @Failure		500		{object}	errorResponse	"Server DB error"
+// @Router			/api/auth/signup [post]
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
@@ -92,16 +92,16 @@ func (li *loginInput) validate() error {
 	return err
 }
 
-//	@Summary		Sign In
-//	@Tags			auth
-//	@Description	login account
-//	@Accept			json
-//	@Produce		json
-//	@Param			userInput	body		loginInput		true	"username and password"
-//	@Success		200			{object}	loginResponse	"User created"
-//	@Failure		400			{object}	errorResponse	"Incorrect input"
-//	@Failure		500			{object}	errorResponse	"Server DB error"
-//	@Router			/api/auth/login [post]
+// @Summary		Sign In
+// @Tags			auth
+// @Description	login account
+// @Accept			json
+// @Produce		json
+// @Param			userInput	body		loginInput		true	"username and password"
+// @Success		200			{object}	loginResponse	"User created"
+// @Failure		400			{object}	errorResponse	"Incorrect input"
+// @Failure		500			{object}	errorResponse	"Server DB error"
+// @Router			/api/auth/login [post]
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
 
@@ -132,15 +132,15 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, lr, h.logger)
 }
 
-//	@Summary		Log Out
-//	@Tags			auth
-//	@Description	logout account
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	logoutResponse	"User loged out"
-//	@Failure		400	{object}	errorResponse	"Logout fail"
-//	@Failure		500	{object}	errorResponse	"Server DB error"
-//	@Router			/api/auth/logout [get]
+// @Summary		Log Out
+// @Tags			auth
+// @Description	logout account
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	logoutResponse	"User loged out"
+// @Failure		400	{object}	errorResponse	"Logout fail"
+// @Failure		500	{object}	errorResponse	"Server DB error"
+// @Router			/api/auth/logout [get]
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {

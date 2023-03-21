@@ -177,14 +177,14 @@ func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
-//	@Summary		Track Feed
-//	@Tags			track feed
-//	@Description	Feed tracks for user
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}	signUpResponse	"Show feed"
-//	@Failure		500		{object}	errorResponse	"Server error"
-//	@Router			/api/track/feed [get]
+// @Summary		Track Feed
+// @Tags			track feed
+// @Description	Feed tracks for user
+// @Accept			json
+// @Produce		json
+// @Success		200		{object}	signUpResponse	"Show feed"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router			/api/track/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	tracks, err := h.trackServices.GetFeed()
 	if err != nil {

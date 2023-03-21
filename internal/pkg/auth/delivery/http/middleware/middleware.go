@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"	
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type Middleware struct {

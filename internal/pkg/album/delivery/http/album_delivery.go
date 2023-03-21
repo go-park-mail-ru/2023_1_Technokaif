@@ -102,14 +102,14 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
-//	@Summary		Album Feed
-//	@Tags			album feed
-//	@Description	Feed albums for user
-//	@Accept			json
-//	@Produce		json
-//	@Success		200		{object}	signUpResponse	"Show feed"
-//	@Failure		500		{object}	errorResponse	"Server error"
-//	@Router			/api/album/feed [get]
+// @Summary		Album Feed
+// @Tags			album feed
+// @Description	Feed albums for user
+// @Accept			json
+// @Produce		json
+// @Success		200		{object}	signUpResponse	"Show feed"
+// @Failure		500		{object}	errorResponse	"Server error"
+// @Router			/api/album/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	albums, err := h.albumServices.GetFeed()
 	if err != nil {
