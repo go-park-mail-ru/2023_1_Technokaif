@@ -1,4 +1,4 @@
-package common_http
+package http
 
 import (
 	"errors"
@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	trackIdUrlParam = "trackID"
+	trackIdUrlParam  = "trackID"
 	artistIdUrlParam = "artistID"
-	albumIdUrlParam = "albumID"
-	userIdUrlParam = "userID"
+	albumIdUrlParam  = "albumID"
+	userIdUrlParam   = "userID"
 )
 
 // GetUserFromAuthorization returns error if authentication failed

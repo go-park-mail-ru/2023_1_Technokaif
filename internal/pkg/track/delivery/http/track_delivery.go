@@ -27,12 +27,52 @@ func NewHandler(tu track.Usecase, au artist.Usecase, l logger.Logger) *Handler {
 	}
 }
 
-
 // TODO ERRORS
+
+type trackCreateInput struct {
+	Name      string   `json:"name"`
+	AlbumID   uint32   `json:"albumID,omitempty"`
+	ArtistsID []uint32 `json:"artistsID"`
+	CoverSrc  string   `json:"cover"`
+	RecordSrc string   `json:"record"`
+}
+
+func (tci *trackCreateInput) ToTrack() models.Track {
+	return models.Track{
+		Name:      tci.Name,
+		AlbumID:   tci.AlbumID,
+		CoverSrc:  tci.CoverSrc,
+		RecordSrc: tci.RecordSrc,
+	}
+}
+
+type trackCreateResponse struct {
+	ID uint32 `json:"id"`
+}
 
 // swaggermock
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	// ...
+	var tci trackCreateInput
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&tci); err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	track := tci.ToTrack()
+
+	trackID, err := h.trackServices.Create(track, tci.ArtistsID)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "can't create track", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	tcr := trackCreateResponse{ID: trackID}
+
+	commonHttp.SuccessResponse(w, tcr, h.logger)
 }
 
 // swaggermock
@@ -114,7 +154,6 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 // Converts Artist to ArtistTransfer
 func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
 	at := make([]models.ArtistTransfer, 0, len(artists))
@@ -155,7 +194,7 @@ func (h *Handler) trackTransferFromQuery(tracks []models.Track) ([]models.TrackT
 			return nil, err
 		}
 
-		trackTransfers = append(trackTransfers,trackTransfer)
+		trackTransfers = append(trackTransfers, trackTransfer)
 	}
 
 	return trackTransfers, nil
