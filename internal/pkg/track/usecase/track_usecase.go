@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
@@ -13,6 +14,8 @@ import (
 type Usecase struct {
 	trackRepo  track.Repository
 	artistRepo artist.Repository
+	albumRepo  album.Repository
+
 	logger     logger.Logger
 }
 
@@ -27,7 +30,7 @@ func NewUsecase(tr track.Repository, ar artist.Repository, l logger.Logger) *Use
 func (u *Usecase) Create(track models.Track, artistsID []uint32) (uint32, error) {
 	for _, artistID := range artistsID {
 		if _, err := u.artistRepo.GetByID(artistID); err != nil {
-			return 0, fmt.Errorf("(usecase) no such artist with id #%d: %w", artistID, err)
+			return 0, fmt.Errorf("(usecase) can't get artist with id #%d: %w", artistID, err)
 		}
 	}
 
@@ -74,6 +77,11 @@ func (u *Usecase) GetFeed() ([]models.Track, error) {
 }
 
 func (u *Usecase) GetByAlbum(albumID uint32) ([]models.Track, error) {
+	_, err := u.albumRepo.GetByID(albumID)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get album with id #%d: %w", albumID, err)
+	}
+
 	tracks, err := u.trackRepo.GetByAlbum(albumID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get tracks from repository: %w", err)
@@ -83,6 +91,11 @@ func (u *Usecase) GetByAlbum(albumID uint32) ([]models.Track, error) {
 }
 
 func (u *Usecase) GetByArtist(artistID uint32) ([]models.Track, error) {
+	_, err := u.artistRepo.GetByID(artistID)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get artist with id #%d: %w", artistID, err)
+	}
+
 	tracks, err := u.trackRepo.GetByArtist(artistID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get tracks from repository: %w", err)

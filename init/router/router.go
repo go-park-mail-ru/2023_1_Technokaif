@@ -47,7 +47,7 @@ func InitRouter(
 				// r.Put("/", album.Update)
 				// r.Delete("/", album.Delete)
 
-				r.Get("/tracks", album.Tracks)
+				r.Get("/tracks", track.ReadByAlbum)
 			})
 			r.Get("/feed", album.Feed)
 		})
@@ -59,8 +59,8 @@ func InitRouter(
 				// r.Put("/", artist.Update)
 				// r.Delete("/", artist.Delete)
 
-				r.Get("/tracks", artist.Tracks)
-				r.Get("/albums", artist.Albums)
+				r.Get("/tracks", track.ReadByArtist)
+				r.Get("/albums", track.ReadByAlbum)
 			})
 			r.Get("/feed", artist.Feed)
 		})
