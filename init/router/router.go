@@ -2,10 +2,12 @@ package router
 
 import (
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/v5/middleware"
+	// "github.com/go-chi/chi/v5/middleware"
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http/middleware"
 	album "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/delivery/http"
 	artist "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/delivery/http"
 	auth "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http"
@@ -21,11 +23,13 @@ func InitRouter(
 	track *track.Handler,
 	auth *auth.Handler,
 	user *user.Handler,
-	authM *authM.Middleware) *chi.Mux {
+	authM *authM.Middleware,
+	loggger logger.Logger) *chi.Mux {
 
 	r := chi.NewRouter()
 	
-	r.Use(middleware.Logger)
+	// r.Use(middleware.Logger)  // DEBUG
+	r.Use(middleware.Logging(loggger))
 
 	r.Get("/swagger/*", swagger.WrapHandler)
 
@@ -33,6 +37,7 @@ func InitRouter(
 
 		r.Route("/users", func(r chi.Router) {
 			r.Get("/{userID}", user.Read)
+			// TODO add endpoints
 		})
 
 		r.Route("/albums", func(r chi.Router) {

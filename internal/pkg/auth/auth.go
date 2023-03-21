@@ -6,14 +6,14 @@ import (
 
 // Usecase includes bussiness logics methods to work with authentication
 type Usecase interface {
-	// LoginUser finds user in repository and returns its access token
-	LoginUser(username, password string) (string, error)
-
 	// CreateUser creates new user and returns it's id
-	CreateUser(user models.User) (uint32, error)
+	SignUpUser(user models.User) (uint32, error)
 
 	// GetUserID returns User if such User exists in repository
-	GetUserByCreds(username, password string) (*models.User, error)
+	GetUserByCreds(username, plainPassword string) (*models.User, error)
+
+	// LoginUser finds user in repository and returns its access token
+	LoginUser(username, plainPassword string) (string, error)
 
 	// GetUserByAuthData returns User if such User exists in repository
 	GetUserByAuthData(userID, userVersion uint32) (*models.User, error)
@@ -30,12 +30,6 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with authentication
 type Repository interface {
-	// CreateUser inserts new user into DB and return it's id
-	// or error if it already exists
-	CreateUser(user models.User) (uint32, error)
-
-	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
-	GetUserByUsername(username string) (*models.User, error)
 
 	GetUserByAuthData(userID, userVersion uint32) (*models.User, error)
 

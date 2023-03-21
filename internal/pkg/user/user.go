@@ -11,6 +11,13 @@ type Usecase interface {
 type Repository interface {
 	GetByID(userID uint32) (*models.User, error)
 
+	// CreateUser inserts new user into DB and return it's id
+	// or error if it already exists
+	CreateUser(user models.User) (uint32, error)
+
+	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
+	GetUserByUsername(username string) (*models.User, error)
+
 	// GetFriends returns all users, who have friendship entry with user with given ID
 	// GetFriends(userID uint32) ([]models.User, error)
 

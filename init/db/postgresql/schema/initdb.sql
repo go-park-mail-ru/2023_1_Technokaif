@@ -18,7 +18,7 @@ CREATE TABLE Artists
 (
     id         SERIAL      PRIMARY KEY,
     name       VARCHAR(30)             NOT NULL,
-    avatar_src TEXT                    NOT NULL,
+    avatar_src TEXT                    NOT NULL
 );
 
 CREATE TABLE Albums

@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
@@ -22,7 +23,8 @@ const tokenTTL = 24 * time.Hour
 
 // Usecase implements auth.Usecase
 type Usecase struct {
-	repo   auth.Repository
+	authRepo   auth.Repository
+	userRepo   user.Repository
 	logger logger.Logger
 }
 
@@ -32,37 +34,26 @@ type jwtClaims struct {
 	jwt.RegisteredClaims
 }
 
-func NewUsecase(ar auth.Repository, l logger.Logger) *Usecase {
-	return &Usecase{repo: ar, logger: l}
+func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecase {
+	return &Usecase{
+		authRepo: ar,
+		userRepo: ur, 
+		logger: l}
 }
 
-func (u *Usecase) CreateUser(user models.User) (uint32, error) {
+func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
 	salt := make([]byte, 8)
 	rand.Read(salt)
 	user.Salt = fmt.Sprintf("%x", salt)
 
 	user.Password = hashPassword(user.Password, salt)
 
-	userId, err := u.repo.CreateUser(user)
+	userId, err := u.userRepo.CreateUser(user)
 	return userId, errors.Wrap(err, "(Usecase) cannot create user")
 }
 
-func (u *Usecase) LoginUser(username, password string) (string, error) {
-	user, err := u.GetUserByCreds(username, password)
-	if err != nil {
-		return "", errors.Wrap(err, "(Usecase) cannot find user")
-	}
-
-	token, err := u.GenerateAccessToken(user.ID, user.Version)
-	if err != nil {
-		return "", errors.Wrap(err, "(Usecase) failed to generate token")
-	}
-
-	return token, nil
-}
-
 func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error) {
-	user, err := u.repo.GetUserByUsername(username)
+	user, err := u.userRepo.GetUserByUsername(username)
 	if err != nil {
 		return nil, errors.Wrap(err, "(Usecase) cannot find user")
 	}
@@ -80,8 +71,22 @@ func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error
 	return user, nil
 }
 
+func (u *Usecase) LoginUser(username, password string) (string, error) {
+	user, err := u.GetUserByCreds(username, password)
+	if err != nil {
+		return "", errors.Wrap(err, "(Usecase) cannot find user")
+	}
+
+	token, err := u.GenerateAccessToken(user.ID, user.Version)
+	if err != nil {
+		return "", errors.Wrap(err, "(Usecase) failed to generate token")
+	}
+
+	return token, nil
+}
+
 func (u *Usecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
-	user, err := u.repo.GetUserByAuthData(userID, userVersion)
+	user, err := u.authRepo.GetUserByAuthData(userID, userVersion)
 	return user, errors.Wrap(err, "(Usecase) cannot find user by userId and userVersion")
 }
 
@@ -129,7 +134,7 @@ func (u *Usecase) CheckAccessToken(acessToken string) (uint32, uint32, error) {
 }
 
 func (u *Usecase) IncreaseUserVersion(userID uint32) error {
-	if err := u.repo.IncreaseUserVersion(userID); err != nil {
+	if err := u.authRepo.IncreaseUserVersion(userID); err != nil {
 		return errors.Wrap(err, "(Usecase) failed to update user version")
 	}
 

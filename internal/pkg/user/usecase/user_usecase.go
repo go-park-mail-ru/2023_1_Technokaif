@@ -25,3 +25,4 @@ func (u *Usecase) GetByID(userID uint32) (*models.User, error) {
 	}
 	return user, nil
 }
+
