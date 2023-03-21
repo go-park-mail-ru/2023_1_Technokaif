@@ -22,19 +22,37 @@ func NewPostgreSQL(db *sqlx.DB, l logger.Logger) *PostgreSQL {
 	return &PostgreSQL{db: db, logger: l}
 }
 
-func (p *PostgreSQL) Insert(track models.Track) error {
-	query := fmt.Sprintf(
-		`INSERT INTO %s (name, album_id, cover_src, record_src) 
-		VALUES ($1, $2, $3, $4);`,
-		db.PostgresTables.Tracks)
-
-	if _, err := p.db.Exec(query, track.Name, track.AlbumID,
-		track.CoverSrc, track.RecordSrc); err != nil {
-
-		return fmt.Errorf("(repo) failed to exec query: %w", err)
+func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (uint32, error) {
+	tx, err := p.db.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
 
-	return nil
+	insertTrackQuery := fmt.Sprintf(
+		`INSERT INTO %s (name, album_id, cover_src, record_src) 
+		VALUES ($1, $2, $3, $4) RETURNING id;`,
+		db.PostgresTables.Tracks)
+
+	var trackID uint32
+	row := tx.QueryRow(insertTrackQuery, track.Name, track.AlbumID, track.CoverSrc, track.RecordSrc)
+	if err := row.Scan(&trackID); err != nil {
+		tx.Rollback()
+		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	insertTrackArtistsQuery := fmt.Sprintf(
+		`INSERT INTO %s (artist_id, track_id) 
+		VALUES ($1, $2);`,
+		db.PostgresTables.ArtistsTracks)
+
+	for _, artistID := range artistsID {
+		if _, err := tx.Exec(insertTrackArtistsQuery, artistID, trackID); err != nil {
+			tx.Rollback()
+			return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
+		}
+	}
+
+	return trackID, tx.Commit()
 }
 
 func (p *PostgreSQL) GetByID(trackID uint32) (*models.Track, error) {
@@ -88,7 +106,7 @@ func (p *PostgreSQL) GetFeed() ([]models.Track, error) {
 		`SELECT id, name, COALESCE(album_id, 0) as album_id, cover_src, record_src 
 		FROM %s 
 		LIMIT 100;`,
-		db.PostgresTables.Tracks)  // TODO album_id can be NULL
+		db.PostgresTables.Tracks) // TODO album_id can be NULL
 
 	var tracks []models.Track
 	if err := p.db.Select(&tracks, query); err != nil {

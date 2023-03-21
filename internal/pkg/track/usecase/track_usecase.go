@@ -15,6 +15,7 @@ type Usecase struct {
 	trackRepo  track.Repository
 	artistRepo artist.Repository
 	albumRepo  album.Repository
+
 	logger     logger.Logger
 }
 

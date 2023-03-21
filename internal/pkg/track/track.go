@@ -4,7 +4,7 @@ import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
 // Usecase includes bussiness logics methods to work with tracks
 type Usecase interface {
-	Create(track models.Track) error
+	Create(track models.Track, artistsID []uint32) (uint32, error)
 	GetByID(trackID uint32) (*models.Track, error)
 	Change(track models.Track) error
 	DeleteByID(trackID uint32) error
@@ -18,7 +18,7 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with tracks
 type Repository interface {
-	Insert(track models.Track) error
+	Insert(track models.Track, artistsID []uint32) (uint32, error)
 	GetByID(trackID uint32) (*models.Track, error)
 	Update(track models.Track) error
 	DeleteByID(trackID uint32) error

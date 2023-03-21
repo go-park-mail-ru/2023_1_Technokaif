@@ -46,7 +46,7 @@ CREATE TABLE Listens
 );
 
 CREATE TABLE Artists_Albums
-(   
+(
     artist_id INT REFERENCES Artists(id) ON DELETE CASCADE NOT NULL,
     album_id  INT REFERENCES Albums(id)  ON DELETE CASCADE NOT NULL,
 
