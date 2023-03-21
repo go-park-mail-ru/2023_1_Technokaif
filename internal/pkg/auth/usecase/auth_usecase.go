@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"errors"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/pkg/errors"
 	"golang.org/x/crypto/argon2"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -49,23 +49,26 @@ func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
 	user.Password = hashPassword(user.Password, salt)
 
 	userId, err := u.userRepo.CreateUser(user)
-	return userId, errors.Wrap(err, "(Usecase) cannot create user")
+	if err != nil {
+		return 0, fmt.Errorf("(usecase) cannot create user: %w", err)
+	}
+	return userId, nil
 }
 
 func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error) {
 	user, err := u.userRepo.GetUserByUsername(username)
 	if err != nil {
-		return nil, errors.Wrap(err, "(Usecase) cannot find user")
+		return nil, fmt.Errorf("(usecase) cannot find user: %w", err)
 	}
 
 	salt, err := hex.DecodeString(user.Salt)
 	if err != nil {
-		return nil, errors.Wrap(err, "(Usecase) invalid salt")
+		return nil, fmt.Errorf("(usecase) invalid salt: %w", err)
 	}
 
 	hashedPassword := hashPassword(password, salt)
 	if hashedPassword != user.Password {
-		return nil, errors.New("(Usecase) password hash doesn't match the real one")
+		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w", err)
 	}
 
 	return user, nil
@@ -74,12 +77,12 @@ func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error
 func (u *Usecase) LoginUser(username, password string) (string, error) {
 	user, err := u.GetUserByCreds(username, password)
 	if err != nil {
-		return "", errors.Wrap(err, "(Usecase) cannot find user")
+		return "", fmt.Errorf("(usecase) cannot find user: %w", err)
 	}
 
 	token, err := u.GenerateAccessToken(user.ID, user.Version)
 	if err != nil {
-		return "", errors.Wrap(err, "(Usecase) failed to generate token")
+		return "", fmt.Errorf("(usecase) failed to generate token: %w", err)
 	}
 
 	return token, nil
@@ -87,7 +90,7 @@ func (u *Usecase) LoginUser(username, password string) (string, error) {
 
 func (u *Usecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	user, err := u.authRepo.GetUserByAuthData(userID, userVersion)
-	return user, errors.Wrap(err, "(Usecase) cannot find user by userId and userVersion")
+	return user, fmt.Errorf("(usecase) cannot find user by userId and userVersion: %w", err)
 }
 
 func (u *Usecase) GenerateAccessToken(userID, userVersion uint32) (string, error) {
@@ -102,7 +105,7 @@ func (u *Usecase) GenerateAccessToken(userID, userVersion uint32) (string, error
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return "", errors.Wrap(err, "(Usecase) failed to sign token")
+		return "", fmt.Errorf("(usecase) failed to sign token: %w", err)
 	}
 
 	return signedToken, nil
@@ -112,22 +115,22 @@ func (u *Usecase) CheckAccessToken(acessToken string) (uint32, uint32, error) {
 	token, err := jwt.ParseWithClaims(acessToken, &jwtClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("(Usecase) invalid signing method")
+				return nil, errors.New("(usecase) invalid signing method")
 			}
 			return []byte(secret), nil
 		})
 	if err != nil {
-		return 0, 0, errors.Wrap(err, "(Usecase) invalid token")
+		return 0, 0, fmt.Errorf("(usecase) invalid token: %w", err)
 	}
 
 	claims, ok := token.Claims.(*jwtClaims)
 	if !ok {
-		return 0, 0, errors.New("(Usecase) token claims are not of type *tokenClaims")
+		return 0, 0, errors.New("(usecase) token claims are not of type *tokenClaims")
 	}
 
 	now := time.Now().UTC()
 	if claims.ExpiresAt.Time.Before(now) {
-		return 0, 0, errors.New("(Usecase) token is expired")
+		return 0, 0, errors.New("(usecase) token is expired")
 	}
 
 	return claims.UserId, claims.UserVersion, nil
@@ -135,7 +138,7 @@ func (u *Usecase) CheckAccessToken(acessToken string) (uint32, uint32, error) {
 
 func (u *Usecase) IncreaseUserVersion(userID uint32) error {
 	if err := u.authRepo.IncreaseUserVersion(userID); err != nil {
-		return errors.Wrap(err, "(Usecase) failed to update user version")
+		return fmt.Errorf("(usecase) failed to update user version: %w", err)
 	}
 
 	return nil
