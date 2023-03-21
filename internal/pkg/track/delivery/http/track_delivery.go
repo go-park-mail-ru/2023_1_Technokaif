@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -26,6 +27,9 @@ func NewHandler(tu track.Usecase, au artist.Usecase, l logger.Logger) *Handler {
 	}
 }
 
+
+// TODO ERRORS
+
 // swaggermock
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	// ...
@@ -33,7 +37,39 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // swaggermock
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
-	// ...
+	userID, err := commonHttp.GetTrackIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get track by id : %v", err.Error())
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	track, err := h.trackServices.GetByID(uint32(userID))
+	var errNoSuchTrack *models.NoSuchTrackError
+	if errors.As(err, &errNoSuchTrack) {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "no such track", http.StatusBadRequest, h.logger)
+		return
+	} else if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting track", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	resp, err := h.trackTransferFromEntry(*track)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting track", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	w.Header().Set("Content-Type", "json/application; charset=utf-8")
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(&resp); err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
+		return
+	}
 }
 
 // swaggermock
@@ -58,26 +94,28 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	tracks, err := h.trackServices.GetFeed()
 	if err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting tracks", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "error while getting tracks", http.StatusInternalServerError, h.logger)
 		return
 	}
 
-	tracksTransfer, err := h.trackTransferFromQuery(tracks)
+	tracksTransfers, err := h.trackTransferFromQuery(tracks)
 	if err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting tracks", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "error while getting tracks", http.StatusInternalServerError, h.logger)
 		return
 	}
 
 	w.Header().Set("Content-Type", "json/application; charset=utf-8")
 	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(&tracksTransfer); err != nil {
+	if err := encoder.Encode(&tracksTransfers); err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
 		return
 	}
 }
 
+
+// Converts Artist to ArtistTransfer
 func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
 	at := make([]models.ArtistTransfer, 0, len(artists))
 	for _, a := range artists {
@@ -91,22 +129,34 @@ func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.Arti
 	return at
 }
 
-func (h *Handler) trackTransferFromQuery(tracks []models.Track) ([]models.TrackTransfer, error) {
-	tt := make([]models.TrackTransfer, 0, len(tracks))
-	for _, t := range tracks {
-		artists, err := h.artistServices.GetByTrack(t.ID)
-		if err != nil {
-			return nil, fmt.Errorf("(delivery) can't get track's (id #%d) artists: %w", t.ID, err)
-		}
+// Converts Track to TrackTransfer
+func (h *Handler) trackTransferFromEntry(track models.Track) (models.TrackTransfer, error) {
 
-		tt = append(tt, models.TrackTransfer{
-			ID:        t.ID,
-			Name:      t.Name,
-			Artists:   h.artistTransferFromQuery(artists),
-			CoverSrc:  t.CoverSrc,
-			RecordSrc: t.RecordSrc,
-		})
+	artists, err := h.artistServices.GetByTrack(track.ID)
+	if err != nil {
+		return models.TrackTransfer{}, fmt.Errorf("(delivery) can't get track's (id #%d) artists: %w", track.ID, err)
 	}
 
-	return tt, nil
+	return models.TrackTransfer{
+		ID:        track.ID,
+		Name:      track.Name,
+		AlbumID:   track.AlbumID,
+		Artists:   h.artistTransferFromQuery(artists),
+		CoverSrc:  track.CoverSrc,
+		RecordSrc: track.RecordSrc,
+	}, nil
+}
+
+func (h *Handler) trackTransferFromQuery(tracks []models.Track) ([]models.TrackTransfer, error) {
+	trackTransfers := make([]models.TrackTransfer, 0, len(tracks))
+	for _, t := range tracks {
+		trackTransfer, err := h.trackTransferFromEntry(t)
+		if err != nil {
+			return nil, err
+		}
+
+		trackTransfers = append(trackTransfers,trackTransfer)
+	}
+
+	return trackTransfers, nil
 }

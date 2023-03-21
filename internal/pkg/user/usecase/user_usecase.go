@@ -18,19 +18,10 @@ func NewUsecase(r user.Repository, l logger.Logger) *Usecase {
 	return &Usecase{repo: r, logger: l}
 }
 
-func (u *Usecase) GetByID(userID uint32) (models.UserTransfer, error) {
+func (u *Usecase) GetByID(userID uint32) (*models.User, error) {
 	user, err := u.repo.GetByID(userID)
 	if err != nil {
-		return models.UserTransfer{}, fmt.Errorf("(usecase) can't get user by id : %w", err)
+		return &models.User{}, fmt.Errorf("(usecase) can't get user by id : %w", err)
 	}
-	return models.UserTransfer{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Sex:       user.Sex,
-		BirhDate:  user.BirhDate,
-		AvatarSrc: user.AvatarSrc,
-	}, nil
+	return user, nil
 }

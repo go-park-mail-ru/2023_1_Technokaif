@@ -5,7 +5,7 @@ import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 // Usecase includes bussiness logics methods to work with artists
 type Usecase interface {
 	Create(artist models.Artist) error
-	GetByID(artistID uint32) (models.Artist, error)
+	GetByID(artistID uint32) (*models.Artist, error)
 	Change(artist models.Artist) error
 	DeleteByID(artistID uint32) error
 	GetFeed() ([]models.Artist, error)
@@ -21,7 +21,7 @@ type Repository interface {
 	Insert(artist models.Artist) error
 
 	// GetByID returns one entry of artist in DB with given ID
-	GetByID(artistID uint32) (models.Artist, error)
+	GetByID(artistID uint32) (*models.Artist, error)
 
 	// Update replaces one entry of artist with given model's ID by given model
 	Update(artist models.Artist) error

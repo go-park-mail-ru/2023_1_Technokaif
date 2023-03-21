@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -33,7 +35,7 @@ func (p *PostgreSQL) Insert(artist models.Artist) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetByID(artistID uint32) (models.Artist, error) {
+func (p *PostgreSQL) GetByID(artistID uint32) (*models.Artist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, avatar_src 
 		FROM %s 
@@ -41,11 +43,15 @@ func (p *PostgreSQL) GetByID(artistID uint32) (models.Artist, error) {
 		db.PostgresTables.Artists)
 
 	var artist models.Artist
-	if err := p.db.Get(&artist, query, artistID); err != nil {
-		return models.Artist{}, fmt.Errorf("(repo) failed to exec query: %w", err)
+
+	err := p.db.Get(&artist, query, artistID);
+	if errors.Is(err, sql.ErrNoRows) {
+		return &models.Artist{}, fmt.Errorf("(repo) %w: %v", &models.NoSuchArtistError{ArtistID: artistID}, err)
+	} else if err != nil {
+		return &models.Artist{}, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
-	return artist, nil
+	return &artist, nil
 }
 
 func (p *PostgreSQL) Update(artist models.Artist) error {

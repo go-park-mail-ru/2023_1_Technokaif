@@ -26,10 +26,10 @@ func (u *Usecase) Create(artist models.Artist) error {
 	return nil
 }
 
-func (u *Usecase) GetByID(artistID uint32) (models.Artist, error) {
+func (u *Usecase) GetByID(artistID uint32) (*models.Artist, error) {
 	artist, err := u.repo.GetByID(artistID)
 	if err != nil {
-		return models.Artist{}, fmt.Errorf("(usecase) can't get artist from repository: %w", err)
+		return &models.Artist{}, fmt.Errorf("(usecase) can't get artist from repository: %w", err)
 	}
 
 	return artist, nil

@@ -18,7 +18,7 @@ CREATE TABLE Artists
 (
     id         SERIAL      PRIMARY KEY,
     name       VARCHAR(30)             NOT NULL,
-    avatar_src TEXT
+    avatar_src TEXT                    NOT NULL,
 );
 
 CREATE TABLE Albums
@@ -34,8 +34,8 @@ CREATE TABLE Tracks
     id         SERIAL      PRIMARY KEY,
     name       VARCHAR(40)                                          NOT NULL,
     album_id   INT         REFERENCES Albums(id)  ON DELETE CASCADE,
-    cover_src  TEXT,
-    record_src TEXT
+    cover_src  TEXT                                                 NOT NULL,
+    record_src TEXT                                                 NOT NULL
 );
 
 CREATE TABLE Listens
@@ -95,20 +95,20 @@ VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg'),
     ('Долгий путь домой', 'Грайм из Лондона', '/albums/longWayHome.png'),
     ('На Человека', 'Стильная музыка от русского Канье Уэста', '/albums/onHuman.jpg');
 
-INSERT INTO Tracks (name, album_id, cover_src)
-VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg'),
-    ('Признаки жизни', 2, '/tracks/longWayHome.png');
-INSERT INTO Tracks (name, cover_src)
-VALUES ('LAGG OUT', '/tracks/laggOut.jpeg'),
-    ('Город под подошвой', '/tracks/gorodPodPod.png');
+INSERT INTO Tracks (name, album_id, cover_src, record_src)
+VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg', '/tracks/gorgorod.wav'),
+       ('Признаки жизни', 2, '/tracks/longWayHome.png', '/tracks/longWayHome.mp3');
+INSERT INTO Tracks (name, cover_src, record_src)
+VALUES ('LAGG OUT', '/tracks/laggOut.jpeg', '/tracks/laggOut.wav'),
+       ('Город под подошвой', '/tracks/gorodPodPod.png', '/tracks/gorodPodPod.png');
 
 INSERT INTO Artists_Albums (artist_id, album_id)
 VALUES (1, 1),
-    (1, 2),
-    (2, 3);
+       (1, 2),
+       (2, 3);
 
 INSERT INTO Artists_Tracks (artist_id, track_id)
 VALUES (1, 1),
-    (1, 2),
-    (2, 3),
-    (1, 4);
+       (1, 2),
+       (2, 3),
+       (1, 4);

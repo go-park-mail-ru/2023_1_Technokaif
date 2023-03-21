@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5/middleware"
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
@@ -23,21 +24,23 @@ func InitRouter(
 	authM *authM.Middleware) *chi.Mux {
 
 	r := chi.NewRouter()
+	
+	r.Use(middleware.Logger)
 
 	r.Get("/swagger/*", swagger.WrapHandler)
 
 	r.Route("/api", func(r chi.Router) {
+
 		r.Route("/users", func(r chi.Router) {
-			r.Get("/{userID}", user.GetByID)
-			r.Get("/{userID}/brief", user.GetBriefByID)
+			r.Get("/{userID}", user.Read)
 		})
 
 		r.Route("/albums", func(r chi.Router) {
-			r.Post("/", album.Create)
+			// r.Post("/", album.Create)
 			r.Route("/{albumID}", func(r chi.Router) {
 				r.Get("/", album.Read)
-				r.Put("/", album.Update)
-				r.Delete("/", album.Delete)
+				// r.Put("/", album.Update)
+				// r.Delete("/", album.Delete)
 
 				r.Get("/tracks", album.Tracks)
 			})
@@ -45,11 +48,11 @@ func InitRouter(
 		})
 
 		r.Route("/artists", func(r chi.Router) {
-			r.Post("/", artist.Create)
+			// r.Post("/", artist.Create)
 			r.Route("/{artistID}", func(r chi.Router) {
 				r.Get("/", artist.Read)
-				r.Put("/", artist.Update)
-				r.Delete("/", artist.Delete)
+				// r.Put("/", artist.Update)
+				// r.Delete("/", artist.Delete)
 
 				r.Get("/tracks", artist.Tracks)
 				r.Get("/albums", artist.Albums)
@@ -58,11 +61,11 @@ func InitRouter(
 		})
 
 		r.Route("/tracks", func(r chi.Router) {
-			r.Post("/", track.Create)
+			// r.Post("/", track.Create)
 			r.Route("/{trackID}", func(r chi.Router) {
 				r.Get("/", track.Read)
-				r.Put("/", track.Update)
-				r.Delete("/", track.Delete)
+				// r.Put("/", track.Update)
+				// r.Delete("/", track.Delete)
 			})
 			r.Get("/feed", track.Feed)
 		})
@@ -72,6 +75,8 @@ func InitRouter(
 			r.Post("/signup", auth.SignUp)
 			r.With(authM.Authorization).Get("/logout", auth.Logout)
 		})
+
+		chi.NewRouteContext()
 	})
 
 	return r

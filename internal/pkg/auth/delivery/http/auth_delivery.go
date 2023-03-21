@@ -53,13 +53,13 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
 
 	if err := user.DeliveryValidate(); err != nil {
 		h.logger.Errorf("user validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
 
@@ -67,11 +67,11 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var errUserAlreadyExists *models.UserAlreadyExistsError
 	if errors.As(err, &errUserAlreadyExists) {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "user already exists", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "user already exists", http.StatusBadRequest, h.logger)
 		return
 	} else if err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, h.logger)
 		return
 	}
 
@@ -83,7 +83,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
 		return
 	}
 }
@@ -114,20 +114,20 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&userInput); err != nil {
 		h.logger.Errorf("incorrect json format: %s", err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
 
 	if err := userInput.validate(); err != nil {
 		h.logger.Errorf("user validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
 
 	token, err := h.services.LoginUser(userInput.Username, userInput.Password)
 	if err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't login user", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "can't login user", http.StatusBadRequest, h.logger)
 		return
 	}
 
@@ -139,7 +139,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
 		return
 	}
 }
@@ -154,17 +154,17 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 //	@Failure		500	{object}	errorResponse	"Server DB error"
 //	@Router			/api/auth/logout [get]
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromAuthorization(r)
+	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
 		h.logger.Errorf("failed to logout: %s", err.Error())
-		commonHttp.ErrorResponse(w, "invalid token", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "invalid token", http.StatusBadRequest, h.logger)
 		return
 	}
 	h.logger.Infof("userID for logout: %d", user.ID)
 
 	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
 		h.logger.Errorf("failed to logout: %s", err.Error())
-		commonHttp.ErrorResponse(w, "failed to log out", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "failed to log out", http.StatusBadRequest, h.logger)
 		return
 	}
 
@@ -174,7 +174,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&response); err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
 		return
 	}
 }

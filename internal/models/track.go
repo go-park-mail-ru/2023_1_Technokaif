@@ -11,6 +11,7 @@ type Track struct {
 type TrackTransfer struct {
 	ID        uint32           `json:"id"`
 	Name      string           `json:"name"`
+	AlbumID   uint32           `json:"albumID,omitempty"` // TODO discuss
 	Artists   []ArtistTransfer `json:"artists"`
 	CoverSrc  string           `json:"cover"`
 	RecordSrc string           `json:"record"`

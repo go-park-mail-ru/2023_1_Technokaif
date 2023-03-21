@@ -26,10 +26,10 @@ func (u *Usecase) Create(track models.Track) error {
 	return nil
 }
 
-func (u *Usecase) GetByID(trackID uint32) (models.Track, error) {
+func (u *Usecase) GetByID(trackID uint32) (*models.Track, error) {
 	track, err := u.repo.GetByID(trackID)
 	if err != nil {
-		return models.Track{}, fmt.Errorf("(usecase) can't get track from repository: %w", err)
+		return &models.Track{}, fmt.Errorf("(usecase) can't get track from repository: %w", err)
 	}
 
 	return track, nil

@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"net/http"
+	"errors"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -28,13 +29,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&artist); err != nil {
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest)
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
 
 	if err := h.artistServices.Create(artist); err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't create artist", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't create artist", http.StatusInternalServerError, h.logger)
 	}
 
 	// ...
@@ -42,7 +43,38 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // swaggermock
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
-	// ...
+	artistID, err := commonHttp.GetArtistIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get artist by id: %v", err.Error())
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	artist, err := h.artistServices.GetByID(artistID)
+	var errNoSuchArtist *models.NoSuchArtistError
+	if errors.As(err, &errNoSuchArtist) {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
+		return
+	} else if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting artist", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	resp := models.ArtistTransfer{
+		ID:        	artist.ID,
+		Name:		artist.Name,
+		AvatarSrc: artist.AvatarSrc,
+	}
+
+	w.Header().Set("Content-Type", "json/application; charset=utf-8")
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(&resp); err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
+		return
+	}
 }
 
 // swaggermock
@@ -77,7 +109,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	artists, err := h.artistServices.GetFeed()
 	if err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError, h.logger)
 		return
 	}
 
@@ -87,7 +119,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(&artistsTransfer); err != nil {
 		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError)
+		commonHttp.ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, h.logger)
 		return
 	}
 }

@@ -1,6 +1,8 @@
 package postgresql
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -35,7 +37,7 @@ func (p *PostgreSQL) Insert(track models.Track) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetByID(trackID uint32) (models.Track, error) {
+func (p *PostgreSQL) GetByID(trackID uint32) (*models.Track, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, album_id, cover_src, record_src 
 		FROM %s 
@@ -43,11 +45,14 @@ func (p *PostgreSQL) GetByID(trackID uint32) (models.Track, error) {
 		db.PostgresTables.Tracks)
 
 	var track models.Track
-	if err := p.db.Get(&track, query, trackID); err != nil {
-		return models.Track{}, fmt.Errorf("(repo) failed to exec query: %w", err)
+	err := p.db.Get(&track, query, trackID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return &models.Track{}, fmt.Errorf("(repo) %w: %v", &models.NoSuchTrackError{TrackID: trackID}, err)
+	} else if err != nil {
+		return &models.Track{}, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
-	return track, nil
+	return &track, nil
 }
 
 func (p *PostgreSQL) Update(track models.Track) error {
@@ -80,10 +85,10 @@ func (p *PostgreSQL) DeleteByID(trackID uint32) error {
 
 func (p *PostgreSQL) GetFeed() ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, album_id, cover_src, record_src 
+		`SELECT id, name, COALESCE(album_id, 0) as album_id, cover_src, record_src 
 		FROM %s 
 		LIMIT 100;`,
-		db.PostgresTables.Tracks)
+		db.PostgresTables.Tracks)  // TODO album_id can be NULL
 
 	var tracks []models.Track
 	if err := p.db.Select(&tracks, query); err != nil {

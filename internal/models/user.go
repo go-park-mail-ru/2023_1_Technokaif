@@ -25,7 +25,7 @@ type User struct {
 	Version   uint32 `json:"-" valid:"-" db:"version"`
 	Username  string `json:"username" valid:"required,runelength(4|20)" db:"username"`
 	Email     string `json:"email" valid:"required,email" db:"email"`
-	Password  string `json:"password" valid:"required,runelength(8|30),passwordcheck" db:"password"`
+	Password  string `json:"password" valid:"required,runelength(8|30),passwordcheck" db:"password_hash"`
 	Salt      string `json:"-" valid:"-" db:"salt"`
 	FirstName string `json:"firstName" valid:"required,runelength(2|20)" db:"first_name"`
 	LastName  string `json:"lastName" valid:"required,runelength(2|20)" db:"last_name"`
@@ -42,8 +42,10 @@ type UserTransfer struct {
 	LastName  string `json:"lastName"`
 	Sex       Sex    `json:"sex"`
 	BirhDate  Date   `json:"birthDate"`
-	AvatarSrc string `json:"avatar"`
+	AvatarSrc string `json:"avatar,omitempty"`
 }
+
+type ContextKeyUserType struct{}
 
 func (d *Date) UnmarshalJSON(b []byte) error {
 	s := strings.Trim(string(b), "\"")
