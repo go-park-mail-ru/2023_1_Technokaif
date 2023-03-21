@@ -90,7 +90,10 @@ func (u *Usecase) LoginUser(username, password string) (string, error) {
 
 func (u *Usecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	user, err := u.authRepo.GetUserByAuthData(userID, userVersion)
-	return user, fmt.Errorf("(usecase) cannot find user by userId and userVersion: %w", err)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) cannot find user by userId and userVersion: %w", err)
+	}
+	return user, nil
 }
 
 func (u *Usecase) GenerateAccessToken(userID, userVersion uint32) (string, error) {
