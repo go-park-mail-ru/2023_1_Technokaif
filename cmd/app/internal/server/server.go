@@ -23,14 +23,14 @@ type Server struct {
 	httpServer *http.Server
 }
 
-// RunConfig is server's config for host and port
-type RunConfig struct {
+// runConfig is server's config for host and port
+type runConfig struct {
 	ServerHost string
 	ServerPort string
 }
 
-func InitServerRunConfig() (RunConfig, error) {
-	cfg := RunConfig{
+func initServerRunConfig() (runConfig, error) {
+	cfg := runConfig{
 		ServerPort: os.Getenv("SERVER_PORT"),
 		ServerHost: os.Getenv("SERVER_HOST"),
 	}
@@ -38,7 +38,7 @@ func InitServerRunConfig() (RunConfig, error) {
 	if strings.TrimSpace(cfg.ServerPort) == "" ||
 		strings.TrimSpace(cfg.ServerHost) == "" {
 
-		return RunConfig{}, errors.New("invalid server run config")
+		return runConfig{}, errors.New("invalid server run config")
 	}
 
 	return cfg, nil
@@ -46,7 +46,7 @@ func InitServerRunConfig() (RunConfig, error) {
 
 // Run launches http Server on chosen port with given handler
 func (s *Server) Run(handler http.Handler, logger logger.Logger) error {
-	cfg, err := InitServerRunConfig()
+	cfg, err := initServerRunConfig()
 	if err != nil {
 		logger.Errorf("error while launching server: %v", err)
 		return fmt.Errorf("can't init server config: %w", err)

@@ -26,7 +26,7 @@ type PostgresConfig struct {
 }
 
 // InitConfig inits DB configuration from environment variables
-func InitPostgresConfig() (PostgresConfig, error) { // TODO CHECK FIELDS
+func initPostgresConfig() (PostgresConfig, error) { // TODO CHECK FIELDS
 	cfg := PostgresConfig{
 		DBHost:     os.Getenv("DB_HOST"),
 		DBPort:     os.Getenv("DB_PORT"),
@@ -52,7 +52,7 @@ func InitPostgresConfig() (PostgresConfig, error) { // TODO CHECK FIELDS
 // NewPostgresDB connects to chosen postgreSQL database
 // and returns interaction interface of the database
 func InitPostgresDB() (*sqlx.DB, *PostgreSQLTables, error) {
-	cfg, err := InitPostgresConfig()
+	cfg, err := initPostgresConfig()
 	if err != nil {
 		return nil, nil, fmt.Errorf("can't init postgresql: %w", err)
 	}

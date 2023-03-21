@@ -1,12 +1,12 @@
-package init
+package app
 
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 	"github.com/jmoiron/sqlx"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/init/db"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/init/router"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/db"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/router"
 
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
 	artistRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/repository/postgresql"
