@@ -29,3 +29,11 @@ type Repository interface {
 	// GetListens(trackID uint32) (uint64, error)
 	// IncrementListens(trackID uint32) error
 }
+
+// Tables includes methods which return needed tables
+// to work with tracks on repository-layer
+type Tables interface {
+	Tracks() string
+	ArtistsTracks() string
+	LikedTracks() string
+}

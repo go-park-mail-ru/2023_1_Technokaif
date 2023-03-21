@@ -2,31 +2,37 @@ package postgresql
 
 import (
 	"database/sql"
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 
-	db "github.com/go-park-mail-ru/2023_1_Technokaif/init/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 // PostgreSQL implements auth.Repository
 type PostgreSQL struct {
 	db     *sqlx.DB
+	tables auth.Tables
 	logger logger.Logger
 }
 
-func NewPostgreSQL(db *sqlx.DB, l logger.Logger) *PostgreSQL {
-	return &PostgreSQL{db: db, logger: l}
+func NewPostgreSQL(db *sqlx.DB, t auth.Tables, l logger.Logger) *PostgreSQL {
+	return &PostgreSQL{
+		db:     db,
+		tables: t,
+		logger: l,
+	}
 }
 
 func (p *PostgreSQL) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, version, username, email, password_hash, salt, 
 			first_name, last_name, sex, birth_date 
-		FROM %s WHERE id=$1 AND version=$2;`, db.PostgresTables.Users)
+		FROM %s WHERE id=$1 AND version=$2;`,
+		p.tables.Users())
 	row := p.db.QueryRow(query, userID, userVersion)
 
 	var u models.User
@@ -45,7 +51,7 @@ func (p *PostgreSQL) GetUserByAuthData(userID, userVersion uint32) (*models.User
 func (p *PostgreSQL) IncreaseUserVersion(userID uint32) error {
 	query := fmt.Sprintf(
 		`UPDATE %s SET version = version + 1 WHERE id=$1 RETURNING id;`,
-		db.PostgresTables.Users)
+		p.tables.Users())
 	row := p.db.QueryRow(query, userID)
 
 	err := row.Scan(&userID)

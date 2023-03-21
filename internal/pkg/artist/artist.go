@@ -47,3 +47,12 @@ type Repository interface {
 	// GetListens returns total listens of all track entries related with artist with given ID
 	// GetListens(artistID uint32) (uint64, error)
 }
+
+// Tables includes methods which return needed tables
+// to work with artists on repository-layer
+type Tables interface {
+	Artists() string
+	ArtistsAlbums() string
+	ArtistsTracks() string
+	LikedArtists() string
+}

@@ -6,6 +6,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 	"github.com/jmoiron/sqlx"
 
+	db "github.com/go-park-mail-ru/2023_1_Technokaif/init/db"
+
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
 	artistRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/repository/postgresql"
 	authRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/repository/postgresql"
@@ -27,12 +29,12 @@ import (
 	authMiddlware "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http/middleware"
 )
 
-func Init(db *sqlx.DB, logger logger.Logger) *chi.Mux {
-	albumRepo := albumRepository.NewPostgreSQL(db, logger)
-	artistRepo := artistRepository.NewPostgreSQL(db, logger)
-	authRepo := authRepository.NewPostgreSQL(db, logger)
-	trackRepo := trackRepository.NewPostgreSQL(db, logger)
-	userRepo := userRepository.NewPostgreSQL(db, logger)
+func Init(db *sqlx.DB, tables db.Tables, logger logger.Logger) *chi.Mux {
+	albumRepo := albumRepository.NewPostgreSQL(db, tables, logger)
+	artistRepo := artistRepository.NewPostgreSQL(db, tables, logger)
+	authRepo := authRepository.NewPostgreSQL(db, tables, logger)
+	trackRepo := trackRepository.NewPostgreSQL(db, tables, logger)
+	userRepo := userRepository.NewPostgreSQL(db, tables, logger)
 
 	albumUsecase := albumUsecase.NewUsecase(albumRepo, logger)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo, logger)
@@ -41,18 +43,20 @@ func Init(db *sqlx.DB, logger logger.Logger) *chi.Mux {
 	userUsecase := userUsecase.NewUsecase(userRepo, logger)
 
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)
-	ArtistHandler := artistDelivery.NewHandler(artistUsecase, logger)
+	artistHandler := artistDelivery.NewHandler(artistUsecase, logger)
 	authHandler := authDelivery.NewHandler(authUsecase, logger)
 	trackHandler := trackDelivery.NewHandler(trackUsecase, artistUsecase, logger)
 	userHandler := userDelivery.NewHandler(userUsecase, logger)
 
 	authMiddlware := authMiddlware.NewMiddleware(authUsecase, logger)
 
-	return router.InitRouter(albumHandler,
-		ArtistHandler,
+	return router.InitRouter(
+		albumHandler,
+		artistHandler,
 		trackHandler,
 		authHandler,
 		userHandler,
 		authMiddlware,
-		logger)
+		logger,
+	)
 }

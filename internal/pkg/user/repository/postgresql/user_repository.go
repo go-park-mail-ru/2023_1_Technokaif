@@ -9,19 +9,24 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 
-	dbInit "github.com/go-park-mail-ru/2023_1_Technokaif/init/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 // PostgreSQL implements user.Repository
 type PostgreSQL struct {
 	db     *sqlx.DB
+	tables user.Tables
 	logger logger.Logger
 }
 
-func NewPostgreSQL(db *sqlx.DB, l logger.Logger) *PostgreSQL {
-	return &PostgreSQL{db: db, logger: l}
+func NewPostgreSQL(db *sqlx.DB, t user.Tables, l logger.Logger) *PostgreSQL {
+	return &PostgreSQL{
+		db:     db,
+		tables: t,
+		logger: l,
+	}
 }
 
 const errorUserExists = "unique_violation"
@@ -41,9 +46,8 @@ func (p *PostgreSQL) GetByID(userID uint32) (*models.User, error) {
 				COALESCE(avatar_src, '')
 		FROM %s 
 		WHERE id = $1;`,
-		dbInit.PostgresTables.Users)
+		p.tables.Users())
 
-	
 	row := p.db.QueryRow(query, userID)
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
@@ -62,7 +66,8 @@ func (p *PostgreSQL) CreateUser(u models.User) (uint32, error) {
 	query := fmt.Sprintf(
 		`INSERT INTO %s 
 			(username, email, password_hash, salt, first_name, last_name, sex, birth_date) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`, dbInit.PostgresTables.Users)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`,
+		p.tables.Users())
 
 	row := p.db.QueryRow(query, u.Username, u.Email, u.Password, u.Salt,
 		u.FirstName, u.LastName, u.Sex, u.BirhDate.Format(time.RFC3339))
@@ -88,7 +93,8 @@ func (p *PostgreSQL) GetUserByUsername(username string) (*models.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, version, username, email, password_hash, salt, 
 			first_name, last_name, sex, birth_date 
-		FROM %s WHERE (username=$1 OR email=$1);`, dbInit.PostgresTables.Users)
+		FROM %s WHERE (username=$1 OR email=$1);`,
+		p.tables.Users())
 	row := p.db.QueryRow(query, username)
 
 	var u models.User

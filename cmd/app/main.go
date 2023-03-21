@@ -41,13 +41,13 @@ func main() {
 		return
 	}
 
-	db, err := initDB.InitPostgresDB()
+	db, tables, err := initDB.InitPostgresDB()
 	if err != nil {
 		logger.Errorf("error while connecting to database: %v", err)
 		return
 	}
 
-	router := initApp.Init(db, logger)
+	router := initApp.Init(db, tables, logger)
 
 	srv := new(server.Server)
 	go func() {
