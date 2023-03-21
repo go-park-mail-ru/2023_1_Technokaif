@@ -1,9 +1,9 @@
 package http
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"errors"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -58,7 +58,7 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponse(w, "error while getting album", http.StatusInternalServerError, h.logger)
 		return
 	}
-	
+
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
@@ -99,7 +99,7 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHttp.SuccessResponse(w, resp, h.logger)	
+	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
 //	@Summary		Album Feed
@@ -130,7 +130,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 
 // Converts Artist to ArtistTransfer
 func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
-	at := make([]models.ArtistTransfer, len(artists))
+	at := make([]models.ArtistTransfer, 0, len(artists))
 	for _, a := range artists {
 		at = append(at, models.ArtistTransfer{
 			ID:        a.ID,
