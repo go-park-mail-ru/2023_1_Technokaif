@@ -3,7 +3,6 @@ package http
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
@@ -27,25 +26,6 @@ func NewHandler(alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler
 	}
 }
 
-type albumCreateInput struct {
-	Name        string   `json:"name"`
-	ArtistsID   []uint32 `json:"artistsID"`
-	Description string   `json:"description"`
-	CoverSrc    string   `json:"cover"`
-}
-
-func (aci *albumCreateInput) ToAlbum() models.Album {
-	return models.Album{
-		Name:        aci.Name,
-		Description: aci.Description,
-		CoverSrc:    aci.CoverSrc,
-	}
-}
-
-type albumCreateResponse struct {
-	ID uint32 `json:"id"`
-}
-
 // @Summary		Create Album
 // @Tags		Album
 // @Description	Create new album by sent object
@@ -53,8 +33,8 @@ type albumCreateResponse struct {
 // @Produce		json
 // @Param		album	body		albumCreateInput	true	"album info"
 // @Success		200		{object}	albumCreateResponse	        "Album created"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	commonHttp.Error	"Client error"
+// @Failure		500		{object}	commonHttp.Error	"Server error"
 // @Router		/api/albums/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var aci albumCreateInput
@@ -85,8 +65,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Description	Get album with chosen ID
 // @Produce		json
 // @Success		200		{object}	models.AlbumTransfer	    "Album got"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	commonHttp.Error	"Client error"
+// @Failure		500		{object}	commonHttp.Error	"Server error"
 // @Router		/api/albums/{albumID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
@@ -109,7 +89,7 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.albumTransferFromEntry(*album)
+	resp, err := models.AlbumTransferFromEntry(*album, h.artistServices.GetByAlbum)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting album", http.StatusInternalServerError, h.logger)
@@ -119,29 +99,8 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
-type albumChangeInput struct {
-	ID          uint32   `json:"id"`
-	Name        string   `json:"name"`
-	ArtistsID   []uint32 `json:"artistsID"`
-	Description string   `json:"description"`
-	CoverSrc    string   `json:"cover"`
-}
-
-func (aci *albumChangeInput) ToAlbum() models.Album {
-	return models.Album{
-		ID:          aci.ID,
-		Name:        aci.Name,
-		Description: aci.Description,
-		CoverSrc:    aci.CoverSrc,
-	}
-}
-
-type albumChangeResponse struct {
-	Message string `json:"status"`
-}
-
 // swaggermock
-func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Change(w http.ResponseWriter, r *http.Request) {
 	var aci albumChangeInput
 
 	decoder := json.NewDecoder(r.Body)
@@ -155,17 +114,13 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
-type albumDeleteResponse struct {
-	Status string `json:"status"`
-}
-
 // @Summary		Delete Album
 // @Tags		Album
 // @Description	Delete album with chosen ID
 // @Produce		json
 // @Success		200		{object}	albumDeleteResponse	        "Album deleted"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	commonHttp.Error	"Client error"
+// @Failure		500		{object}	commonHttp.Error	"Server error"
 // @Router		/api/albums/{albumID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
@@ -198,8 +153,8 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Description	All albums of artist with chosen ID
 // @Produce		json
 // @Success		200		{object}	[]models.AlbumTransfer	    "Show albums"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	commonHttp.Error	"Client error"
+// @Failure		500		{object}	commonHttp.Error	"Server error"
 // @Router		/api/artists/{artistID}/albums [get]
 func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
@@ -222,7 +177,7 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.albumTransferFromQuery(albums)
+	resp, err := models.AlbumTransferFromQuery(albums, h.artistServices.GetByAlbum)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError, h.logger)
@@ -237,7 +192,7 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 // @Description	Feed albums
 // @Produce		json
 // @Success		200		{object}	[]models.AlbumTransfer	 "Albums feed"
-// @Failure		500		{object}	errorResponse "Server error"
+// @Failure		500		{object}	commonHttp.Error "Server error"
 // @Router		/api/albums/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	albums, err := h.albumServices.GetFeed()
@@ -247,7 +202,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.albumTransferFromQuery(albums)
+	resp, err := models.AlbumTransferFromQuery(albums, h.artistServices.GetByAlbum)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting albums", http.StatusInternalServerError, h.logger)
@@ -255,53 +210,4 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	commonHttp.SuccessResponse(w, resp, h.logger)
-}
-
-// Converts Artist to ArtistTransfer
-func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
-	at := make([]models.ArtistTransfer, 0, len(artists))
-	for _, a := range artists {
-		at = append(at, models.ArtistTransfer{
-			ID:        a.ID,
-			Name:      a.Name,
-			AvatarSrc: a.AvatarSrc,
-		})
-	}
-
-	return at
-}
-
-// Converts Album to AlbumTransfer
-func (h *Handler) albumTransferFromEntry(a models.Album) (models.AlbumTransfer, error) {
-	artists, err := h.artistServices.GetByAlbum(a.ID)
-	if err != nil {
-		return models.AlbumTransfer{}, fmt.Errorf("(delivery) can't get albums's (id #%d) artists: %w", a.ID, err)
-	}
-
-	return models.AlbumTransfer{
-		ID:          a.ID,
-		Name:        a.Name,
-		Artists:     h.artistTransferFromQuery(artists),
-		Description: a.Description,
-		CoverSrc:    a.CoverSrc,
-	}, nil
-}
-
-func (h *Handler) albumTransferFromQuery(albums []models.Album) ([]models.AlbumTransfer, error) {
-	albumTransfers := make([]models.AlbumTransfer, 0, len(albums))
-	for _, a := range albums {
-		albumTransfer, err := h.albumTransferFromEntry(a)
-		if err != nil {
-			return nil, err
-		}
-
-		albumTransfers = append(albumTransfers, albumTransfer)
-	}
-
-	return albumTransfers, nil
-}
-
-// For swagger, but how to fix?
-type errorResponse struct {
-	Message string `json:"message"`
 }

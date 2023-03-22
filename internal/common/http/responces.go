@@ -7,7 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-type errorResponse struct {
+type Error struct {
 	Message string `json:"message"`
 }
 
@@ -15,7 +15,7 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Lo
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 
-	error := errorResponse{Message: msg}
+	error := Error{Message: msg}
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(error); err != nil {
 		logger.Errorf("failed to marshal error message: %s", err.Error())
