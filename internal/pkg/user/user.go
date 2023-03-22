@@ -1,7 +1,7 @@
 package user
 
 import (
-	"mime/multipart"
+	"io"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -10,7 +10,8 @@ import (
 type Usecase interface {
 	GetByID(userID uint32) (*models.User, error)
 	ChangeInfo(user *models.User) error
-	UploadAvatar(user *models.User, fileHeader *multipart.FileHeader) error
+	UploadAvatar(user *models.User, file io.ReadSeeker, fileExtension string) error
+	UploadAvatarWrongFormatError() error
 }
 
 // Repository includes DBMS-relatable methods to work with users

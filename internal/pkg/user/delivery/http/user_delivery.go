@@ -3,6 +3,7 @@ package http
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -91,13 +92,26 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 
 	if err := r.ParseMultipartForm(maxAvatarMemory); err != nil {
 		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "invalid form data", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, "invalid avatar data", http.StatusBadRequest, h.logger)
 		return
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, maxAvatarMemory) 
+	avatarFile, avatarHeader, err := r.FormFile("avatar")
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "invalid avatar data", http.StatusBadRequest, h.logger)
+		return
+	}
+	defer avatarFile.Close()
 
-	form := r.MultipartForm
-
-	if err := h.userServices.UploadAvatar(user, form.File["avatar"][0]); err != nil {
+	fileNameParts :=  strings.Split(avatarHeader.Filename, ".")
+	extension := fileNameParts[len(fileNameParts) - 1]
+	err = h.userServices.UploadAvatar(user, avatarFile, extension)
+	if errors.Is(err, h.userServices.UploadAvatarWrongFormatError()) {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "invalid avatar data type", http.StatusBadRequest, h.logger)
+		return
+	} else if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "can't upload avatar", http.StatusInternalServerError, h.logger)
 		return

@@ -2,7 +2,6 @@ package router
 
 import (
 	"github.com/go-chi/chi/v5"
-	// "github.com/go-chi/chi/v5/middleware"  // DEBUG
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
@@ -27,8 +26,8 @@ func InitRouter(
 	loggger logger.Logger) *chi.Mux {
 
 	r := chi.NewRouter()
-
-	// r.Use(middleware.Logger)  // DEBUG
+	
+	r.Use(middleware.Panic(loggger))
 	r.Use(middleware.Logging(loggger))
 
 	r.Get("/swagger/*", swagger.WrapHandler)
