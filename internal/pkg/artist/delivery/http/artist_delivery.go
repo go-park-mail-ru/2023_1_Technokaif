@@ -23,22 +23,6 @@ func NewHandler(au artist.Usecase, logger logger.Logger) *Handler {
 	}
 }
 
-type artistCreateInput struct {
-	Name      string `json:"name"`
-	AvatarSrc string `json:"avatar"`
-}
-
-func (aci *artistCreateInput) ToArtist() models.Artist {
-	return models.Artist{
-		Name:      aci.Name,
-		AvatarSrc: aci.AvatarSrc,
-	}
-}
-
-type artistCreateResponse struct {
-	ID uint32 `json:"id"`
-}
-
 // @Summary		Create Artist
 // @Tags		Artist
 // @Description	Create new artist by sent object
@@ -46,8 +30,8 @@ type artistCreateResponse struct {
 // @Produce		json
 // @Param		artist	body		artistCreateInput	true	"Track info"
 // @Success		200		{object}	artistCreateResponse "Artist created"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var aci artistCreateInput
@@ -76,8 +60,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Description	Get artist with chosen ID
 // @Produce		json
 // @Success		200		{object}	models.ArtistTransfer	    "Artist got"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/{artistID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
@@ -100,7 +84,7 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistResponse := h.artistTransferFromEntry(*artist)
+	artistResponse := models.ArtistTransferFromEntry(*artist)
 
 	commonHttp.SuccessResponse(w, artistResponse, h.logger)
 }
@@ -110,17 +94,13 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
-type artistDeleteResponse struct {
-	Status string `json:"status"`
-}
-
 // @Summary		Delete Artist
 // @Tags		Artist
 // @Description	Delete artist with chosen ID
 // @Produce		json
 // @Success		200		{object}	artistDeleteResponse "Artist deleted"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/{artistID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
@@ -153,7 +133,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Description	Feed artists
 // @Produce		json
 // @Success		200		{object}	[]models.ArtistTransfer	"Artists feed"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	artists, err := h.artistServices.GetFeed()
@@ -163,29 +143,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistsTransfer := h.artistTransferFromQuery(artists)
+	artistsTransfer := models.ArtistTransferFromQuery(artists)
 
 	commonHttp.SuccessResponse(w, artistsTransfer, h.logger)
-}
-
-func (h *Handler) artistTransferFromEntry(artist models.Artist) models.ArtistTransfer {
-	return models.ArtistTransfer{
-		ID:        artist.ID,
-		Name:      artist.Name,
-		AvatarSrc: artist.AvatarSrc,
-	}
-}
-
-func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
-	at := make([]models.ArtistTransfer, 0, len(artists))
-	for _, a := range artists {
-		at = append(at, h.artistTransferFromEntry(a))
-	}
-
-	return at
-}
-
-// For swagger, but how to fix?
-type errorResponse struct {
-	Message string `json:"message"`
 }

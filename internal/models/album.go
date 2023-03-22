@@ -15,11 +15,11 @@ type AlbumTransfer struct {
 	CoverSrc    string           `json:"cover"`
 }
 
-type artistByAlbumGetter func(albumID uint32) ([]Artist, error)
+type artistsByAlbumGetter func(albumID uint32) ([]Artist, error)
 
-// Converts Album to AlbumTransfer
-func AlbumTransferFromEntry(a Album, artistGetter artistByAlbumGetter) (AlbumTransfer, error) {
-	artists, err := artistGetter(a.ID)
+// AlbumTransferFromEntry converts Album to AlbumTransfer
+func AlbumTransferFromEntry(a Album, artistsGetter artistsByAlbumGetter) (AlbumTransfer, error) {
+	artists, err := artistsGetter(a.ID)
 	if err != nil {
 		return AlbumTransfer{}, err
 	}
@@ -34,10 +34,10 @@ func AlbumTransferFromEntry(a Album, artistGetter artistByAlbumGetter) (AlbumTra
 }
 
 // Convert []Album to []AlbumTransfer
-func AlbumTransferFromQuery(albums []Album, artistGetter artistByAlbumGetter) ([]AlbumTransfer, error) {
+func AlbumTransferFromQuery(albums []Album, artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
 	albumTransfers := make([]AlbumTransfer, 0, len(albums))
 	for _, a := range albums {
-		at, err := AlbumTransferFromEntry(a, artistGetter)
+		at, err := AlbumTransferFromEntry(a, artistsGetter)
 		if err != nil {
 			return nil, err
 		}

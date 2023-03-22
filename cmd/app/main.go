@@ -17,16 +17,19 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-//	@title			Fluire API
-//	@version		1.0.1
-//	@description	Server API for Fluire Streaming Service Application
+// @title		Fluire API
+// @version		1.0.1
+// @description	Server API for Fluire Streaming Service Application
 
-//	@host		localhost:4443
-//	@BasePath	/api/albums/feed
+// @contact.name   Fluire API Support
+// @contact.email  yarik1448kuzmin@gmail.com
 
-//	@securityDefinitions	AuthKey
-//	@in						header
-//	@name					Authorization
+// @host		localhost:4443
+// @BasePath	/api/albums/feed
+
+// @securityDefinitions	AuthKey
+// @in					header
+// @name				Authorization
 
 func main() {
 	ctx := context.Background()

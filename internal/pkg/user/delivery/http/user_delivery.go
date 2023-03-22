@@ -22,19 +22,14 @@ func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
 	}
 }
 
-func userTransferFromUser(user models.User) models.UserTransfer {
-	return models.UserTransfer{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Sex:       user.Sex,
-		BirhDate:  user.BirthDate,
-		AvatarSrc: user.AvatarSrc,
-	}
-}
-
+// @Summary		Get User
+// @Tags		User
+// @Description	Get user with chosen ID
+// @Produce		json
+// @Success		200		{object}	models.UserTransfer "User got"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
+// @Router		/api/users/{userID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	userID, err := commonHttp.GetUserIDFromRequest(r)
 	if err != nil {
@@ -56,18 +51,23 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ut := userTransferFromUser(*user)
+	ut := models.UserTransferFromUser(*user)
 
 	commonHttp.SuccessResponse(w, ut, h.logger)
 }
 
-const maxAvatarMemory = 2 * (1 << 20)
-
-type userUploadAvatarResponse struct {
-	Status string `json:"status"`
-}
-
-// swaggermock
+// @Summary      Upload Avatar
+// @Tags         User
+// @Description  Update user avatar
+// @Accept       multipart/form-data
+// @Produce      application/json
+// @Param		 avatar formData file true "avatar file"
+// @Success      200    {object}  userUploadAvatarResponse "Avatar updated"
+// @Failure      400    {object}  http.Error  "Invalid form data"
+// @Failure      401    {object}  http.Error  "Unauthorized user"
+// @Failure      403    {object}  http.Error  "Forbidden user"
+// @Failure      500    {object}  http.Error  "Server error"
+// @Router       /api/users/{userID}/avatar [post]
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {

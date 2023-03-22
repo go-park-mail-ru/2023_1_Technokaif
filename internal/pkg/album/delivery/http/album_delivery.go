@@ -33,8 +33,8 @@ func NewHandler(alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler
 // @Produce		json
 // @Param		album	body		albumCreateInput	true	"album info"
 // @Success		200		{object}	albumCreateResponse	        "Album created"
-// @Failure		400		{object}	commonHttp.Error	"Client error"
-// @Failure		500		{object}	commonHttp.Error	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/albums/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var aci albumCreateInput
@@ -65,8 +65,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Description	Get album with chosen ID
 // @Produce		json
 // @Success		200		{object}	models.AlbumTransfer	    "Album got"
-// @Failure		400		{object}	commonHttp.Error	"Client error"
-// @Failure		500		{object}	commonHttp.Error	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/albums/{albumID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
@@ -119,8 +119,8 @@ func (h *Handler) Change(w http.ResponseWriter, r *http.Request) {
 // @Description	Delete album with chosen ID
 // @Produce		json
 // @Success		200		{object}	albumDeleteResponse	        "Album deleted"
-// @Failure		400		{object}	commonHttp.Error	"Client error"
-// @Failure		500		{object}	commonHttp.Error	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/albums/{albumID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
@@ -153,8 +153,8 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Description	All albums of artist with chosen ID
 // @Produce		json
 // @Success		200		{object}	[]models.AlbumTransfer	    "Show albums"
-// @Failure		400		{object}	commonHttp.Error	"Client error"
-// @Failure		500		{object}	commonHttp.Error	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/{artistID}/albums [get]
 func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
@@ -192,7 +192,7 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 // @Description	Feed albums
 // @Produce		json
 // @Success		200		{object}	[]models.AlbumTransfer	 "Albums feed"
-// @Failure		500		{object}	commonHttp.Error "Server error"
+// @Failure		500		{object}	http.Error "Server error"
 // @Router		/api/albums/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	albums, err := h.albumServices.GetFeed()

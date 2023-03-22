@@ -10,7 +10,10 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "Fluire API Support",
+            "email": "yarik1448kuzmin@gmail.com"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -50,13 +53,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -85,7 +88,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -111,13 +114,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -141,13 +144,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -176,13 +179,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -222,13 +225,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -257,7 +260,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -283,13 +286,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -313,13 +316,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_artist_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -348,13 +351,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_album_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -383,13 +386,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -429,13 +432,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Incorrect input",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -464,13 +467,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Logout fail",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -510,13 +513,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Incorrect input",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_auth_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -556,13 +559,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -591,7 +594,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -617,13 +620,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -647,13 +650,101 @@ const docTemplate = `{
                     "400": {
                         "description": "Client error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
                         "description": "Server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_pkg_track_delivery_http.errorResponse"
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{userID}/": {
+            "get": {
+                "description": "Get user with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User",
+                "responses": {
+                    "200": {
+                        "description": "User got",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserTransfer"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{userID}/avatar": {
+            "post": {
+                "description": "Update user avatar",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upload Avatar",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "avatar file",
+                        "name": "avatar",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar updated",
+                        "schema": {
+                            "$ref": "#/definitions/http.userUploadAvatarResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid form data",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
                         }
                     }
                 }
@@ -661,6 +752,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "http.Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "http.albumCreateInput": {
             "type": "object",
             "properties": {
@@ -798,34 +897,10 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_pkg_album_delivery_http.errorResponse": {
+        "http.userUploadAvatarResponse": {
             "type": "object",
             "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_pkg_artist_delivery_http.errorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_pkg_auth_delivery_http.errorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_pkg_track_delivery_http.errorResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
+                "status": {
                     "type": "string"
                 }
             }
@@ -892,7 +967,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "albumID": {
-                    "description": "TODO discuss",
                     "type": "integer"
                 },
                 "artists": {
@@ -934,6 +1008,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "sex": {
+                    "$ref": "#/definitions/models.Sex"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserTransfer": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "birthDate": {
+                    "$ref": "#/definitions/models.Date"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastName": {
                     "type": "string"
                 },
                 "sex": {

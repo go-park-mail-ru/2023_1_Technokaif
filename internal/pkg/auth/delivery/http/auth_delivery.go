@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	valid "github.com/asaskevich/govalidator"
 	"github.com/pkg/errors"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
@@ -25,18 +24,6 @@ func NewHandler(au auth.Usecase, l logger.Logger) *Handler {
 	}
 }
 
-type signUpResponse struct {
-	ID uint32 `json:"id"`
-}
-
-type loginResponse struct {
-	JWT string `json:"jwt"`
-}
-
-type logoutResponse struct {
-	Status string `json:"status"`
-}
-
 // @Summary		Sign Up
 // @Tags		Auth
 // @Description	Create account
@@ -44,8 +31,8 @@ type logoutResponse struct {
 // @Produce		json
 // @Param		user	body		models.User		true	"user info"
 // @Success		200		{object}	signUpResponse	"User created"
-// @Failure		400		{object}	errorResponse	"Incorrect input"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Incorrect input"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/auth/signup [post]
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
@@ -82,16 +69,6 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, sur, h.logger)
 }
 
-type loginInput struct {
-	Username string `json:"username" valid:"required"`
-	Password string `json:"password" valid:"required"`
-}
-
-func (li *loginInput) validate() error {
-	_, err := valid.ValidateStruct(li)
-	return err
-}
-
 // @Summary		Sign In
 // @Tags		Auth
 // @Description	Login account
@@ -99,8 +76,8 @@ func (li *loginInput) validate() error {
 // @Produce		json
 // @Param		userInput	body		loginInput		true	"username and password"
 // @Success		200			{object}	loginResponse	"User created"
-// @Failure		400			{object}	errorResponse	"Incorrect input"
-// @Failure		500			{object}	errorResponse	"Server error"
+// @Failure		400			{object}	http.Error	"Incorrect input"
+// @Failure		500			{object}	http.Error	"Server error"
 // @Router		/api/auth/login [post]
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
@@ -138,8 +115,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 // @Accept		json
 // @Produce		json
 // @Success		200	{object}	logoutResponse	"User loged out"
-// @Failure		400	{object}	errorResponse	"Logout fail"
-// @Failure		500	{object}	errorResponse	"Server error"
+// @Failure		400	{object}	http.Error	"Logout fail"
+// @Failure		500	{object}	http.Error	"Server error"
 // @Router		/api/auth/logout [get]
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
@@ -159,9 +136,4 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	lr := logoutResponse{Status: "ok"}
 
 	commonHttp.SuccessResponse(w, lr, h.logger)
-}
-
-// For swagger, but how to fix?
-type errorResponse struct {
-	Message string `json:"message"`
 }

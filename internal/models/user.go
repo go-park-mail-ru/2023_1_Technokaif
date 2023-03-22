@@ -60,3 +60,16 @@ func (u *User) DeliveryValidate() error {
 	_, err := valid.ValidateStruct(u)
 	return err
 }
+
+func UserTransferFromUser(user User) UserTransfer {
+	return UserTransfer{
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Sex:       user.Sex,
+		BirhDate:  user.BirthDate,
+		AvatarSrc: user.AvatarSrc,
+	}
+}

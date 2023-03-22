@@ -3,7 +3,6 @@ package http
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
@@ -27,29 +26,6 @@ func NewHandler(tu track.Usecase, au artist.Usecase, l logger.Logger) *Handler {
 	}
 }
 
-// TODO ERRORS
-
-type trackCreateInput struct {
-	Name      string   `json:"name"`
-	AlbumID   uint32   `json:"albumID,omitempty"`
-	ArtistsID []uint32 `json:"artistsID"`
-	CoverSrc  string   `json:"cover"`
-	RecordSrc string   `json:"record"`
-}
-
-func (tci *trackCreateInput) ToTrack() models.Track {
-	return models.Track{
-		Name:      tci.Name,
-		AlbumID:   tci.AlbumID,
-		CoverSrc:  tci.CoverSrc,
-		RecordSrc: tci.RecordSrc,
-	}
-}
-
-type trackCreateResponse struct {
-	ID uint32 `json:"id"`
-}
-
 // @Summary		Create Track
 // @Tags		Track
 // @Description	Create new track by sent object
@@ -57,8 +33,8 @@ type trackCreateResponse struct {
 // @Produce		json
 // @Param		track	body		trackCreateInput	true	"Track info"
 // @Success		200		{object}	trackCreateResponse	        "Track created"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/tracks/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var tci trackCreateInput
@@ -89,8 +65,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Description	Get track with chosen ID
 // @Produce		json
 // @Success		200		{object}	models.TrackTransfer "Track got"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/tracks/{trackID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	userID, err := commonHttp.GetTrackIDFromRequest(r)
@@ -113,7 +89,7 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := h.trackTransferFromEntry(*track)
+	tt, err := models.TrackTransferFromEntry(*track, h.artistServices.GetByTrack)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting track", http.StatusInternalServerError, h.logger)
@@ -128,17 +104,13 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	// ...
 }
 
-type trackDeleteResponse struct {
-	Status string `json:"status"`
-}
-
 // @Summary		Delete Track
 // @Tags		Track
 // @Description	Delete track with chosen ID
 // @Produce		json
 // @Success		200		{object}	trackDeleteResponse	        "Track deleted"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/tracks/{trackID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
@@ -171,8 +143,8 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Description	All tracks of artist with chosen ID
 // @Produce		json
 // @Success		200		{object}	[]models.TrackTransfer	    "Show tracks"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/{artistID}/tracks [get]
 func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
@@ -195,7 +167,7 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := h.trackTransferFromQuery(tracks)
+	tt, err := models.TrackTransferFromQuery(tracks, h.artistServices.GetByTrack)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting artist tracks", http.StatusInternalServerError, h.logger)
@@ -210,8 +182,8 @@ func (h *Handler) ReadByArtist(w http.ResponseWriter, r *http.Request) {
 // @Description	All tracks of album with chosen ID
 // @Produce		json
 // @Success		200		{object}	[]models.TrackTransfer	    "Show tracks"
-// @Failure		400		{object}	errorResponse	"Client error"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		400		{object}	http.Error	"Client error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/albums/{albumID}/tracks [get]
 func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
@@ -234,7 +206,7 @@ func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := h.trackTransferFromQuery(tracks)
+	tt, err := models.TrackTransferFromQuery(tracks, h.artistServices.GetByTrack)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting artist tracks", http.StatusInternalServerError, h.logger)
@@ -249,7 +221,7 @@ func (h *Handler) ReadByAlbum(w http.ResponseWriter, r *http.Request) {
 // @Description	Feed tracks
 // @Produce		json
 // @Success		200		{object}	[]models.TrackTransfer	"Tracks feed"
-// @Failure		500		{object}	errorResponse	"Server error"
+// @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/tracks/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	tracks, err := h.trackServices.GetFeed()
@@ -259,7 +231,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := h.trackTransferFromQuery(tracks)
+	tt, err := models.TrackTransferFromQuery(tracks, h.artistServices.GetByTrack)
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting tracks", http.StatusInternalServerError, h.logger)
@@ -267,55 +239,4 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	commonHttp.SuccessResponse(w, tt, h.logger)
-}
-
-// Converts Artist to ArtistTransfer
-func (h *Handler) artistTransferFromQuery(artists []models.Artist) []models.ArtistTransfer {
-	at := make([]models.ArtistTransfer, 0, len(artists))
-	for _, a := range artists {
-		at = append(at, models.ArtistTransfer{
-			ID:        a.ID,
-			Name:      a.Name,
-			AvatarSrc: a.AvatarSrc,
-		})
-	}
-
-	return at
-}
-
-// Converts Track to TrackTransfer
-func (h *Handler) trackTransferFromEntry(track models.Track) (models.TrackTransfer, error) {
-
-	artists, err := h.artistServices.GetByTrack(track.ID)
-	if err != nil {
-		return models.TrackTransfer{}, fmt.Errorf("(delivery) can't get track's (id #%d) artists: %w", track.ID, err)
-	}
-
-	return models.TrackTransfer{
-		ID:        track.ID,
-		Name:      track.Name,
-		AlbumID:   track.AlbumID,
-		Artists:   h.artistTransferFromQuery(artists),
-		CoverSrc:  track.CoverSrc,
-		RecordSrc: track.RecordSrc,
-	}, nil
-}
-
-func (h *Handler) trackTransferFromQuery(tracks []models.Track) ([]models.TrackTransfer, error) {
-	trackTransfers := make([]models.TrackTransfer, 0, len(tracks))
-	for _, t := range tracks {
-		trackTransfer, err := h.trackTransferFromEntry(t)
-		if err != nil {
-			return nil, err
-		}
-
-		trackTransfers = append(trackTransfers, trackTransfer)
-	}
-
-	return trackTransfers, nil
-}
-
-// For swagger, but how to fix?
-type errorResponse struct {
-	Message string `json:"message"`
 }
