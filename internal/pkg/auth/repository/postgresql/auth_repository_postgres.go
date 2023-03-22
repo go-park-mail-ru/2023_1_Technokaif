@@ -31,13 +31,14 @@ func (p *PostgreSQL) GetUserByAuthData(userID, userVersion uint32) (*models.User
 	query := fmt.Sprintf(
 		`SELECT id, version, username, email, password_hash, salt, 
 			first_name, last_name, sex, birth_date 
-		FROM %s WHERE id=$1 AND version=$2;`,
+		FROM %s
+		WHERE id = $1 AND version = $2;`,
 		p.tables.Users())
 	row := p.db.QueryRow(query, userID, userVersion)
 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
-		&u.FirstName, &u.LastName, &u.Sex, &u.BirhDate.Time)
+		&u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
@@ -50,7 +51,10 @@ func (p *PostgreSQL) GetUserByAuthData(userID, userVersion uint32) (*models.User
 
 func (p *PostgreSQL) IncreaseUserVersion(userID uint32) error {
 	query := fmt.Sprintf(
-		`UPDATE %s SET version = version + 1 WHERE id=$1 RETURNING id;`,
+		`UPDATE %s
+		SET version = version + 1
+		WHERE id = $1
+		RETURNING id;`,
 		p.tables.Users())
 	row := p.db.QueryRow(query, userID)
 

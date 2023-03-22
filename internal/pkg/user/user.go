@@ -1,10 +1,16 @@
 package user
 
-import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+import (
+	"mime/multipart"
+
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+)
 
 // Usecase includes bussiness logics methods to work with users
 type Usecase interface {
 	GetByID(userID uint32) (*models.User, error)
+	ChangeInfo(user *models.User) error
+	UploadAvatar(user *models.User, fileHeader *multipart.FileHeader) error
 }
 
 // Repository includes DBMS-relatable methods to work with users
@@ -14,6 +20,8 @@ type Repository interface {
 	// CreateUser inserts new user into DB and return it's id
 	// or error if it already exists
 	CreateUser(user models.User) (uint32, error)
+
+	UpdateInfo(user *models.User) error
 
 	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
 	GetUserByUsername(username string) (*models.User, error)

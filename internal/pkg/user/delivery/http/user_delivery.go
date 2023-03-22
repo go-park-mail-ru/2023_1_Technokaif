@@ -30,7 +30,7 @@ func userTransferFromUser(user models.User) models.UserTransfer {
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Sex:       user.Sex,
-		BirhDate:  user.BirhDate,
+		BirhDate:  user.BirthDate,
 		AvatarSrc: user.AvatarSrc,
 	}
 }
@@ -59,4 +59,51 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 	ut := userTransferFromUser(*user)
 
 	commonHttp.SuccessResponse(w, ut, h.logger)
+}
+
+const maxAvatarMemory = 2 * (1 << 20)
+
+type userUploadAvatarResponse struct {
+	Status string `json:"status"`
+}
+
+// swaggermock
+func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Infof("unathorized user: %v", err)
+		commonHttp.ErrorResponse(w, "invalid token", http.StatusUnauthorized, h.logger)
+		return
+	}
+
+	urlID, err := commonHttp.GetUserIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("can't get user ID from URL: %v", err)
+		commonHttp.ErrorResponse(w, "can't upload avatar", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	if urlID != user.ID {
+		h.logger.Infof("forbidden avatar upload: %v", err)
+		commonHttp.ErrorResponse(w, "invalid user", http.StatusForbidden, h.logger)
+		return
+	}
+
+	if err := r.ParseMultipartForm(maxAvatarMemory); err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "invalid form data", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	form := r.MultipartForm
+
+	if err := h.userServices.UploadAvatar(user, form.File["avatar"][0]); err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "can't upload avatar", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	uuar := userUploadAvatarResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, uuar, h.logger)
 }

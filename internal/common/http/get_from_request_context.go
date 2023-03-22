@@ -21,10 +21,10 @@ const (
 func GetUserFromRequest(r *http.Request) (*models.User, error) {
 	user, ok := r.Context().Value(models.ContextKeyUserType{}).(*models.User)
 	if !ok {
-		return nil, errors.New("(Middleware) no User in context")
+		return nil, errors.New("(middleware) no User in context")
 	}
 	if user == nil {
-		return nil, errors.New("(Middleware) nil User in context")
+		return nil, errors.New("(middleware) nil User in context")
 	}
 
 	return user, nil

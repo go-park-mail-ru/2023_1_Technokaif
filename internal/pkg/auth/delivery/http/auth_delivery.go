@@ -144,7 +144,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		h.logger.Errorf("failed to logout: %s", err.Error())
+		h.logger.Infof("failed to logout: %s", err.Error())
 		commonHttp.ErrorResponse(w, "invalid token", http.StatusBadRequest, h.logger)
 		return
 	}
@@ -152,7 +152,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
 		h.logger.Errorf("failed to logout: %s", err.Error())
-		commonHttp.ErrorResponse(w, "failed to log out", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, "failed to log out", http.StatusInternalServerError, h.logger)
 		return
 	}
 
