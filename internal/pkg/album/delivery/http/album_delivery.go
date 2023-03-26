@@ -46,6 +46,12 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := aci.validate(); err != nil {
+		h.logger.Infof("album create input validation failed: %s", err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
 	album := aci.ToAlbum()
 
 	trackID, err := h.albumServices.Create(album, aci.ArtistsID)
@@ -106,6 +112,12 @@ func (h *Handler) Change(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&aci); err != nil {
 		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	if err := aci.validate(); err != nil {
+		h.logger.Infof("album change input validation failed: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}

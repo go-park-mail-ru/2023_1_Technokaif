@@ -46,6 +46,12 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := tci.validate(); err != nil {
+		h.logger.Infof("track create input validation failed: %s", err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
 	track := tci.ToTrack()
 
 	trackID, err := h.trackServices.Create(track, tci.ArtistsID)

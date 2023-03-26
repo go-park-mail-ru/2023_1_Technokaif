@@ -5,6 +5,7 @@ import (
 	"time"
 
 	valid "github.com/asaskevich/govalidator"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 type Sex string
@@ -57,6 +58,14 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 }
 
 func (u *User) DeliveryValidate() error {
+	sanitizer := bluemonday.StrictPolicy()
+	u.Username = sanitizer.Sanitize(u.Username)
+	u.Email = sanitizer.Sanitize(u.Email)
+	u.Password = sanitizer.Sanitize(u.Password)
+	u.FirstName = sanitizer.Sanitize(u.FirstName)
+	u.LastName = sanitizer.Sanitize(u.LastName)
+	u.AvatarSrc = sanitizer.Sanitize(u.AvatarSrc)
+
 	_, err := valid.ValidateStruct(u)
 	return err
 }

@@ -39,13 +39,13 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
-		h.logger.Error(err.Error())
+		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
 
 	if err := user.DeliveryValidate(); err != nil {
-		h.logger.Errorf("user validation failed: %s", err.Error())
+		h.logger.Infof("user validation failed: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
@@ -53,7 +53,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	id, err := h.services.SignUpUser(user)
 	var errUserAlreadyExists *models.UserAlreadyExistsError
 	if errors.As(err, &errUserAlreadyExists) {
-		h.logger.Error(err.Error())
+		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "user already exists", http.StatusBadRequest, h.logger)
 		return
 	} else if err != nil {
@@ -90,7 +90,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := userInput.validate(); err != nil {
-		h.logger.Errorf("user validation failed: %s", err.Error())
+		h.logger.Infof("user validation failed: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}

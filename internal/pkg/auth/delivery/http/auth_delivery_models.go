@@ -1,6 +1,9 @@
 package http
 
-import valid "github.com/asaskevich/govalidator"
+import (
+	valid "github.com/asaskevich/govalidator"
+	"github.com/microcosm-cc/bluemonday"
+)
 
 // Signup
 type signUpResponse struct {
@@ -14,7 +17,12 @@ type loginInput struct {
 }
 
 func (li *loginInput) validate() error {
+	sanitizer := bluemonday.StrictPolicy()
+	li.Username = sanitizer.Sanitize(li.Username)
+	li.Password = sanitizer.Sanitize(li.Password)
+	
 	_, err := valid.ValidateStruct(li)
+
 	return err
 }
 

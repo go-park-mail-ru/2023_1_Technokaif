@@ -12,23 +12,24 @@ type Error struct {
 }
 
 func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Logger) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(code)
-
-	error := Error{Message: msg}
+	errorResp := Error{Message: msg}
 	encoder := json.NewEncoder(w)
-	if err := encoder.Encode(error); err != nil {
+	if err := encoder.Encode(errorResp); err != nil {
 		logger.Errorf("failed to marshal error message: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("can't encode error response into json, msg: " + msg))
 	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(code)
 }
 
 func SuccessResponse(w http.ResponseWriter, r any, logger logger.Logger) {
-	w.Header().Set("Content-Type", "json/application; charset=utf-8")
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(r); err != nil {
 		logger.Error(err.Error())
 		ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, logger)
 	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 }

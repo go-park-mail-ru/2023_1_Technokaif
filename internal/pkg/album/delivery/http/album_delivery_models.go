@@ -1,13 +1,29 @@
 package http
 
-import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+import (
+	valid "github.com/asaskevich/govalidator"
+	"github.com/microcosm-cc/bluemonday"
+
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+)
 
 // Create
 type albumCreateInput struct {
-	Name        string   `json:"name"`
-	ArtistsID   []uint32 `json:"artistsID"`
+	Name        string   `json:"name" 		valid:"required"`
+	ArtistsID   []uint32 `json:"artistsID" 	valid:"required"`
 	Description string   `json:"description"`
-	CoverSrc    string   `json:"cover"`
+	CoverSrc    string   `json:"cover" 		valid:"required"`
+}
+
+func (a *albumCreateInput) validate() error {
+	sanitizer := bluemonday.StrictPolicy()
+	a.Name = sanitizer.Sanitize(a.Name)
+	a.Description = sanitizer.Sanitize(a.Description)
+	a.CoverSrc = sanitizer.Sanitize(a.CoverSrc)
+	
+	_, err := valid.ValidateStruct(a)
+
+	return err
 }
 
 func (aci *albumCreateInput) ToAlbum() models.Album {
@@ -24,11 +40,22 @@ type albumCreateResponse struct {
 
 // Change
 type albumChangeInput struct {
-	ID          uint32   `json:"id"`
-	Name        string   `json:"name"`
-	ArtistsID   []uint32 `json:"artistsID"`
+	ID          uint32   `json:"id" 		valid:"required"`
+	Name        string   `json:"name" 		valid:"required"`
+	ArtistsID   []uint32 `json:"artistsID" 	valid:"required"`
 	Description string   `json:"description"`
-	CoverSrc    string   `json:"cover"`
+	CoverSrc    string   `json:"cover" 		valid:"required"`
+}
+
+func (a *albumChangeInput) validate() error {
+	sanitizer := bluemonday.StrictPolicy()
+	a.Name = sanitizer.Sanitize(a.Name)
+	a.Description = sanitizer.Sanitize(a.Description)
+	a.CoverSrc = sanitizer.Sanitize(a.CoverSrc)
+	
+	_, err := valid.ValidateStruct(a)
+
+	return err
 }
 
 func (aci *albumChangeInput) ToAlbum() models.Album {
