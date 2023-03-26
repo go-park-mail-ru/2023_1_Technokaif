@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/joho/godotenv" // load environment
 
@@ -32,7 +32,8 @@ import (
 // @name				Authorization
 
 func main() {
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	logger, err := logger.NewLogger()
 	if err != nil {
@@ -56,10 +57,16 @@ func main() {
 	var srv server.Server
 	go func() {
 		if err := srv.Run(router, logger); err != nil {
-			log.Fatalf("can't launch server: %v", err)
+			logger.Errorf("error while launching server: %v", err)
+			os.Exit(1)
 		}
 	}()
-	logger.Infof("server launched at %s:%s", os.Getenv("SERVER_HOST"), os.Getenv("SERVER_PORT"))
+	logger.Info("trying to launch server")
+	
+	timer := time.AfterFunc(2*time.Second, func() {
+		logger.Infof("server launched at %s:%s", os.Getenv("SERVER_HOST"), os.Getenv("SERVER_PORT"))
+	})
+	defer timer.Stop()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)

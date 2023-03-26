@@ -9,7 +9,7 @@ import (
 
 // Create
 type artistCreateInput struct {
-	Name      string `json:"name" 	valid:"required"`
+	Name      string `json:"name" valid:"required"`
 	AvatarSrc string `json:"avatar" valid:"required"`
 }
 

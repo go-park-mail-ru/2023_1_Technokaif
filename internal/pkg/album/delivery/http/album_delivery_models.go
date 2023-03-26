@@ -9,10 +9,10 @@ import (
 
 // Create
 type albumCreateInput struct {
-	Name        string   `json:"name" 		valid:"required"`
-	ArtistsID   []uint32 `json:"artistsID" 	valid:"required"`
+	Name        string   `json:"name" valid:"required"`
+	ArtistsID   []uint32 `json:"artistsID" valid:"required"`
 	Description string   `json:"description"`
-	CoverSrc    string   `json:"cover" 		valid:"required"`
+	CoverSrc    string   `json:"cover" valid:"required"`
 }
 
 func (a *albumCreateInput) validate() error {

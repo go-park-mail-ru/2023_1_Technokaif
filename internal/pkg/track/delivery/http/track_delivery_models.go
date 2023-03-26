@@ -9,11 +9,11 @@ import (
 
 // Create
 type trackCreateInput struct {
-	Name      string   `json:"name" 				valid:"required"`
+	Name      string   `json:"name" valid:"required"`
 	AlbumID   uint32   `json:"albumID,omitempty"`
-	ArtistsID []uint32 `json:"artistsID"			valid:"required"`
-	CoverSrc  string   `json:"cover"				valid:"required"`
-	RecordSrc string   `json:"record"				valid:"required"`
+	ArtistsID []uint32 `json:"artistsID" valid:"required"`
+	CoverSrc  string   `json:"cover" valid:"required"`
+	RecordSrc string   `json:"record" valid:"required"`
 }
 
 func (t *trackCreateInput) validate() error {
@@ -21,8 +21,7 @@ func (t *trackCreateInput) validate() error {
 	t.Name = sanitizer.Sanitize(t.Name)
 	t.CoverSrc = sanitizer.Sanitize(t.CoverSrc)
 	t.RecordSrc = sanitizer.Sanitize(t.RecordSrc)
-	
-	
+
 	_, err := valid.ValidateStruct(t)
 
 	return err
