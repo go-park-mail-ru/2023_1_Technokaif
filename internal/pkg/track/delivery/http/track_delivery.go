@@ -275,7 +275,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
-func (h *Handler) SetLike(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("get track by id : %v", err)
@@ -305,10 +305,50 @@ func (h *Handler) SetLike(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if notExists {
-		resp := trackSetLikeResponse{Status: "ok"}
+		resp := trackLikeResponse{Status: "ok"}
 		commonHttp.SuccessResponse(w, resp, h.logger)
 	} else {
-		resp := trackSetLikeResponse{Status: "exists"}
+		resp := trackLikeResponse{Status: "already liked"}
 		commonHttp.SuccessResponse(w, resp, h.logger)
 	}	
 }
+
+func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
+	trackID, err := commonHttp.GetTrackIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get track by id : %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
+
+	notExisted, err := h.trackServices.UnLike(trackID, user.ID)
+	if err != nil {
+		var errNoSuchTrack *models.NoSuchTrackError
+		if errors.As(err, &errNoSuchTrack) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no such track", http.StatusBadRequest, h.logger)
+			return
+		} else {
+			h.logger.Error(err.Error())
+			commonHttp.ErrorResponse(w, "error while removing like", http.StatusInternalServerError, h.logger)
+			return
+		}
+	}
+
+	if notExisted {
+		resp := trackLikeResponse{Status: "ok"}
+		commonHttp.SuccessResponse(w, resp, h.logger)
+	} else {
+		resp := trackLikeResponse{Status: "already disliked"}
+		commonHttp.SuccessResponse(w, resp, h.logger)
+	}	
+}
+
+

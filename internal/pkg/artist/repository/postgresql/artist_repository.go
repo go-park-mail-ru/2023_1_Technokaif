@@ -176,3 +176,25 @@ func (p *PostgreSQL) InsertLike(artistID, userID uint32) (bool, error) {
 	return true, nil
 }
 
+func (p *PostgreSQL) DeleteLike(artistID, userID uint32) (bool, error) {
+	query := fmt.Sprintf(
+		`DELETE
+		FROM %s
+		WHERE artist_id = $1 AND user_id = $2;`,
+		p.tables.LikedArtists())
+
+	resExec, err := p.db.Exec(query, artistID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+	deleted, err := resExec.RowsAffected()
+	if err != nil {
+		return false, fmt.Errorf("(repo) failed to check query result: %w", err)
+	}
+
+	if deleted == 0 {
+		return false, nil
+	} else {
+		return true, nil
+	}
+}

@@ -140,3 +140,16 @@ func (u *Usecase) SetLike(albumID, userID uint32) (bool, error) {
 	return iSinserted, nil
 }
 
+func (u *Usecase) UnLike(albumID, userID uint32) (bool, error) {
+	if _, err := u.albumRepo.GetByID(albumID); err != nil {
+		return false, fmt.Errorf("(usecase) can't get album: %w", err)
+	}
+
+	iSdeleted, err := u.albumRepo.DeleteLike(albumID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) failed to unset like: %w", err)
+	}
+
+	return iSdeleted, nil
+}
+
