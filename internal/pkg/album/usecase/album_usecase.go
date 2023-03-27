@@ -61,6 +61,10 @@ func (u *Usecase) Change(albumID models.Album) error {
 }
 
 func (u *Usecase) Delete(albumID uint32, userID uint32) error {
+	if _, err := u.albumRepo.GetByID(albumID); err != nil {
+		return fmt.Errorf("(usecase) can't find album in repository: %w", err)
+	}
+
 	userInArtists := false
 	artists, err := u.artistRepo.GetByAlbum(albumID)
 	if err != nil {
@@ -73,10 +77,6 @@ func (u *Usecase) Delete(albumID uint32, userID uint32) error {
 	}
 	if !userInArtists {
 		return fmt.Errorf("(usecase) album can't be deleted by user: %w", &models.ForbiddenUserError{})
-	}
-
-	if _, err := u.albumRepo.GetByID(albumID); err != nil {
-		return fmt.Errorf("(usecase) can't find album in repository: %w", err)
 	}
 
 	if err := u.albumRepo.DeleteByID(albumID); err != nil {

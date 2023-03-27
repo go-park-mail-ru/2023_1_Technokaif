@@ -69,6 +69,10 @@ func (u *Usecase) Change(track models.Track) error {
 }
 
 func (u *Usecase) Delete(trackID uint32, userID uint32) error {
+	if _, err := u.trackRepo.GetByID(trackID); err != nil {
+		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
+	}
+
 	userInArtists := false
 	artists, err := u.artistRepo.GetByAlbum(trackID)
 	if err != nil {
@@ -81,10 +85,6 @@ func (u *Usecase) Delete(trackID uint32, userID uint32) error {
 	}
 	if !userInArtists {
 		return fmt.Errorf("(usecase) track can't be deleted by user: %w", &models.ForbiddenUserError{})
-	}
-
-	if _, err := u.trackRepo.GetByID(trackID); err != nil {
-		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
 	}
 
 	if err := u.trackRepo.DeleteByID(trackID); err != nil {
