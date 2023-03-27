@@ -102,8 +102,7 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		h.logger.Info(err.Error())
 		commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
 		return
-	}
-	if err != nil {
+	} else if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while getting album", http.StatusInternalServerError, h.logger)
 		return

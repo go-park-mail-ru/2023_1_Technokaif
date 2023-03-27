@@ -7,18 +7,27 @@ import (
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type Handler struct {
-	userServices user.Usecase
-	logger       logger.Logger
+	userServices   user.Usecase
+	trackServices  track.Usecase
+	albumServices  album.Usecase
+	artistServices artist.Usecase
+	logger         logger.Logger
 }
 
-func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
+func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler {
 	return &Handler{
 		userServices: uu,
+		trackServices: tu,
+		albumServices: alu,
+		artistServices: aru,
 		logger:       l,
 	}
 }
@@ -29,26 +38,13 @@ func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
 // @Produce		json
 // @Success		200		{object}	models.UserTransfer "User got"
 // @Failure		400		{object}	http.Error	"Client error"
-// @Failure		500		{object}	http.Error	"Server error"
-// @Router		/api/users/{userID}/ [get]
+// @Failure     401    	{object}  	http.Error  "Unauthorized user"
+// @Failure     403    	{object}  	http.Error  "Forbidden user"
+// @Failure     500    	{object}  	http.Error  "Server error"
+// @Router	    /api/users/{userID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
-	userID, err := commonHttp.GetUserIDFromRequest(r)
+	user, err := h.checkUserAuthAndResponce(w, r)
 	if err != nil {
-		h.logger.Infof("get user by id: %v", err.Error())
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
-		return
-	}
-
-	user, err := h.userServices.GetByID(userID)
-	var errNoSuchUser *models.NoSuchUserError
-	if errors.As(err, &errNoSuchUser) {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "no such user", http.StatusBadRequest, h.logger)
-		return
-	}
-	if err != nil {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting user", http.StatusInternalServerError, h.logger)
 		return
 	}
 
@@ -70,23 +66,8 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  http.Error  "Server error"
 // @Router       /api/users/{userID}/avatar [post]
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := h.checkUserAuthAndResponce(w, r)
 	if err != nil {
-		h.logger.Infof("unathorized user: %v", err)
-		commonHttp.ErrorResponse(w, "invalid token", http.StatusUnauthorized, h.logger)
-		return
-	}
-
-	urlID, err := commonHttp.GetUserIDFromRequest(r)
-	if err != nil {
-		h.logger.Infof("can't get user ID from URL: %v", err)
-		commonHttp.ErrorResponse(w, "can't upload avatar", http.StatusInternalServerError, h.logger)
-		return
-	}
-
-	if urlID != user.ID {
-		h.logger.Infof("forbidden avatar upload: %v", err)
-		commonHttp.ErrorResponse(w, "invalid user", http.StatusForbidden, h.logger)
 		return
 	}
 
@@ -95,7 +76,7 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponse(w, "invalid avatar data", http.StatusBadRequest, h.logger)
 		return
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, maxAvatarMemory) 
+	r.Body = http.MaxBytesReader(w, r.Body, maxAvatarMemory)
 	avatarFile, avatarHeader, err := r.FormFile("avatar")
 	if err != nil {
 		h.logger.Info(err.Error())
@@ -104,8 +85,8 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer avatarFile.Close()
 
-	fileNameParts :=  strings.Split(avatarHeader.Filename, ".")
-	extension := fileNameParts[len(fileNameParts) - 1]
+	fileNameParts := strings.Split(avatarHeader.Filename, ".")
+	extension := fileNameParts[len(fileNameParts)-1]
 	err = h.userServices.UploadAvatar(user, avatarFile, extension)
 	if errors.Is(err, h.userServices.UploadAvatarWrongFormatError()) {
 		h.logger.Info(err.Error())
@@ -120,4 +101,95 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	uuar := userUploadAvatarResponse{Status: "ok"}
 
 	commonHttp.SuccessResponse(w, uuar, h.logger)
+}
+
+func (h *Handler) ReadFavouriteTracks(w http.ResponseWriter, r *http.Request) {
+	user, err := h.checkUserAuthAndResponce(w, r)
+	if err != nil {
+		return
+	}
+
+	favTracks, err := h.trackServices.GetLikedByUser(user.ID)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	tt, err := models.TrackTransferFromQuery(favTracks, h.artistServices.GetByTrack)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, tt, h.logger)
+}
+
+func (h *Handler) ReadFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
+	user, err := h.checkUserAuthAndResponce(w, r)
+	if err != nil {
+		return
+	}
+
+	favAlbums, err := h.albumServices.GetLikedByUser(user.ID)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	resp, err := models.AlbumTransferFromQuery(favAlbums, h.artistServices.GetByAlbum)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, resp, h.logger)
+}
+
+func (h *Handler) ReadFavouriteArtists(w http.ResponseWriter, r *http.Request) {
+	user, err := h.checkUserAuthAndResponce(w, r)
+	if err != nil {
+		return
+	}
+
+	favArtists, err := h.artistServices.GetLikedByUser(user.ID)
+	if err != nil {
+		h.logger.Error(err.Error())
+		commonHttp.ErrorResponse(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	artistsTransfer := models.ArtistTransferFromQuery(favArtists)
+
+	commonHttp.SuccessResponse(w, artistsTransfer, h.logger)
+}
+
+// help func
+func (h *Handler) checkUserAuthAndResponce(w http.ResponseWriter, r *http.Request) (*models.User, error) {
+	authFailedError := errors.New("user auth failed")
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Infof("unathorized user: %v", err)
+		commonHttp.ErrorResponse(w, "invalid token", http.StatusUnauthorized, h.logger)
+		return nil, authFailedError
+	}
+
+	urlID, err := commonHttp.GetUserIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("invalid url parameter: %v", err.Error())
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return nil, authFailedError
+	}
+
+	if urlID != user.ID {
+		h.logger.Infof("forbidden user with id #%d", urlID)
+		commonHttp.ErrorResponse(w, "invalid user", http.StatusForbidden, h.logger)
+		return nil, authFailedError
+	}
+
+	return user, nil
 }

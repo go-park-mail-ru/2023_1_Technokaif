@@ -4,7 +4,9 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"errors"
 
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
@@ -46,9 +48,14 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 		}
 
 		user, err := m.authServices.GetUserByAuthData(userId, userVersion)
-		if err != nil {
+		var errNoSuchUser *models.NoSuchUserError
+		if errors.As(err, &errNoSuchUser) {
 			m.logger.Infof("middleware: %s", err.Error())
 			next.ServeHTTP(w, r) // UserAuth data check failed
+			return
+		} else if err != nil {
+			m.logger.Errorf("middleware: %s", err.Error())
+			commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, m.logger)
 			return
 		}
 
