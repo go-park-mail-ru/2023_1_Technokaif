@@ -33,6 +33,11 @@ func (e *NoSuchArtistError) Error() string {
 }
 
 // AUTH ERRORS
+type ForbiddenUserError struct{}
+
+func (e *ForbiddenUserError) Error() string {
+	return "user has no rights"
+}
 
 type UserAlreadyExistsError struct{}
 

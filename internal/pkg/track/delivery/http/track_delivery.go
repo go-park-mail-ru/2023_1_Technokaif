@@ -37,6 +37,13 @@ func NewHandler(tu track.Usecase, au artist.Usecase, l logger.Logger) *Handler {
 // @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/tracks/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
+
 	var tci trackCreateInput
 
 	decoder := json.NewDecoder(r.Body)
@@ -54,8 +61,15 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	track := tci.ToTrack()
 
-	trackID, err := h.trackServices.Create(track, tci.ArtistsID)
+	trackID, err := h.trackServices.Create(track, tci.ArtistsID, user.ID)
+	var errForbiddenUser *models.ForbiddenUserError
 	if err != nil {
+		if errors.As(err, &errForbiddenUser) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no rights to create track", http.StatusForbidden, h.logger)
+			return
+		}
+
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "can't create track", http.StatusInternalServerError, h.logger)
 		return
@@ -119,6 +133,13 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/tracks/{trackID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
+
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("get track by id: %v", err)
@@ -126,14 +147,21 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.trackServices.DeleteByID(trackID)
+	err = h.trackServices.Delete(trackID, user.ID)
 	var errNoSuchTrack *models.NoSuchTrackError
-	if errors.As(err, &errNoSuchTrack) {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "no such track", http.StatusBadRequest, h.logger)
-		return
-	}
+	var errForbiddenUser *models.ForbiddenUserError
 	if err != nil {
+		if errors.As(err, &errForbiddenUser) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no rights to create track", http.StatusForbidden, h.logger)
+			return
+		}
+		if errors.As(err, &errNoSuchTrack) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no such track", http.StatusBadRequest, h.logger)
+			return
+		}
+
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while deleting track", http.StatusInternalServerError, h.logger)
 		return

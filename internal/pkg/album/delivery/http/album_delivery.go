@@ -37,6 +37,13 @@ func NewHandler(alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler
 // @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/albums/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
+
 	var aci albumCreateInput
 
 	decoder := json.NewDecoder(r.Body)
@@ -54,14 +61,21 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	album := aci.ToAlbum()
 
-	trackID, err := h.albumServices.Create(album, aci.ArtistsID)
+	albumID, err := h.albumServices.Create(album, aci.ArtistsID, user.ID)
+	var errForbiddenUser *models.ForbiddenUserError
 	if err != nil {
+		if errors.As(err, &errForbiddenUser) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no rights to crearte album", http.StatusForbidden, h.logger)
+			return
+		}
+
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "can't create album", http.StatusInternalServerError, h.logger)
 		return
 	}
 
-	acr := albumCreateResponse{ID: trackID}
+	acr := albumCreateResponse{ID: albumID}
 
 	commonHttp.SuccessResponse(w, acr, h.logger)
 }
@@ -135,6 +149,13 @@ func (h *Handler) Change(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/albums/{albumID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
+
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("get album by id : %v", err)
@@ -142,14 +163,21 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.albumServices.DeleteByID(albumID)
+	err = h.albumServices.Delete(albumID, user.ID)
 	var errNoSuchAlbum *models.NoSuchAlbumError
-	if errors.As(err, &errNoSuchAlbum) {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
-		return
-	}
+	var errForbiddenUser *models.ForbiddenUserError
 	if err != nil {
+		if errors.As(err, &errForbiddenUser) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no rights to delete album", http.StatusForbidden, h.logger)
+			return
+		}
+		if errors.As(err, &errNoSuchAlbum) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
+			return
+		}
+
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while deleting album", http.StatusInternalServerError, h.logger)
 		return

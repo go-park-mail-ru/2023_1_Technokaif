@@ -108,7 +108,7 @@ func (p *PostgreSQL) GetFeed() ([]models.Artist, error) {
 
 func (p *PostgreSQL) GetByAlbum(albumID uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT a.id, a.name, a.avatar_src 
+		`SELECT a.id, a.user_id, a.name, a.avatar_src 
 		FROM %s a 
 			INNER JOIN %s aa ON a.id = aa.artist_id 
 		WHERE aa.album_id = $1;`,
@@ -124,7 +124,7 @@ func (p *PostgreSQL) GetByAlbum(albumID uint32) ([]models.Artist, error) {
 
 func (p *PostgreSQL) GetByTrack(trackID uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT a.id, a.name, a.avatar_src 
+		`SELECT a.id, a.user_id, a.name, a.avatar_src 
 		FROM %s a 
 			INNER JOIN %s at ON a.id = at.artist_id 
 		WHERE at.track_id = $1;`,

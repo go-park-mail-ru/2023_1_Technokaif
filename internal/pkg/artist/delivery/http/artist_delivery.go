@@ -116,6 +116,13 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/{artistID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
+
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("get artist by id : %v", err)
@@ -123,14 +130,21 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.artistServices.DeleteByID(artistID)
+	err = h.artistServices.Delete(artistID, user.ID)
 	var errNoSuchArtist *models.NoSuchArtistError
-	if errors.As(err, &errNoSuchArtist) {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
-		return
-	}
+	var errForbiddenUser *models.ForbiddenUserError
 	if err != nil {
+		if errors.As(err, &errNoSuchArtist) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no such artist", http.StatusBadRequest, h.logger)
+			return
+		}
+		if errors.As(err, &errForbiddenUser) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no rights to delete artist", http.StatusForbidden, h.logger)
+			return
+		}
+
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "error while deleting artist", http.StatusInternalServerError, h.logger)
 		return

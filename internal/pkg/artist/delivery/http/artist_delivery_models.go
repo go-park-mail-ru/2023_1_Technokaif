@@ -10,7 +10,7 @@ import (
 // Create
 type artistCreateInput struct {
 	Name      string `json:"name" valid:"required"`
-	AvatarSrc string `json:"avatar" valid:"required"`
+	AvatarSrc string `json:"cover" valid:"required"`
 }
 
 func (a *artistCreateInput) validate() error {

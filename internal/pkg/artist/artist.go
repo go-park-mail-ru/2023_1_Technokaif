@@ -7,7 +7,7 @@ type Usecase interface {
 	Create(artist models.Artist) (uint32, error)
 	GetByID(artistID uint32) (*models.Artist, error)
 	Change(artist models.Artist) error
-	DeleteByID(artistID uint32) error
+	Delete(artistID uint32, userID uint32) error
 	GetFeed() ([]models.Artist, error)
 	GetByAlbum(albumID uint32) ([]models.Artist, error)
 	GetByTrack(trackID uint32) ([]models.Artist, error)

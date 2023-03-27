@@ -26,7 +26,7 @@ func InitRouter(
 	loggger logger.Logger) *chi.Mux {
 
 	r := chi.NewRouter()
-	
+
 	r.Use(middleware.Panic(loggger))
 	r.Use(middleware.Logging(loggger))
 
@@ -42,11 +42,11 @@ func InitRouter(
 		})
 
 		r.Route("/albums", func(r chi.Router) {
-			r.Post("/", album.Create)
+			r.With(authM.Authorization).Post("/", album.Create)
 			r.Route("/{albumID}", func(r chi.Router) {
 				r.Get("/", album.Read)
 				// r.Put("/", album.Update)
-				r.Delete("/", album.Delete)
+				r.With(authM.Authorization).Delete("/", album.Delete)
 
 				r.Get("/tracks", track.ReadByAlbum)
 			})
@@ -54,11 +54,11 @@ func InitRouter(
 		})
 
 		r.Route("/artists", func(r chi.Router) {
-			r.Post("/", artist.Create)
+			r.With(authM.Authorization).Post("/", artist.Create)
 			r.Route("/{artistID}", func(r chi.Router) {
 				r.Get("/", artist.Read)
 				// r.Put("/", artist.Update)
-				r.Delete("/", artist.Delete)
+				r.With(authM.Authorization).Delete("/", artist.Delete)
 
 				r.Get("/tracks", track.ReadByArtist)
 				r.Get("/albums", album.ReadByArtist)
@@ -67,11 +67,11 @@ func InitRouter(
 		})
 
 		r.Route("/tracks", func(r chi.Router) {
-			r.Post("/", track.Create)
+			r.With(authM.Authorization).Post("/", track.Create)
 			r.Route("/{trackID}", func(r chi.Router) {
 				r.Get("/", track.Read)
 				// r.Put("/", track.Update)
-				r.Delete("/", track.Delete)
+				r.With(authM.Authorization).Delete("/", track.Delete)
 			})
 			r.Get("/feed", track.Feed)
 		})

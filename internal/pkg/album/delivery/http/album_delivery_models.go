@@ -18,7 +18,9 @@ type albumCreateInput struct {
 func (a *albumCreateInput) validate() error {
 	sanitizer := bluemonday.StrictPolicy()
 	a.Name = sanitizer.Sanitize(a.Name)
-	*a.Description = sanitizer.Sanitize(*a.Description)
+	if a.Description != nil {
+		*a.Description = sanitizer.Sanitize(*a.Description)
+	}
 	a.CoverSrc = sanitizer.Sanitize(a.CoverSrc)
 
 	_, err := valid.ValidateStruct(a)

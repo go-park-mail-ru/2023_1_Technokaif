@@ -44,9 +44,18 @@ func (u *Usecase) Change(artist models.Artist) error {
 	return nil
 }
 
-func (u *Usecase) DeleteByID(artistID uint32) error {
-	if _, err := u.repo.GetByID(artistID); err != nil {
+func (u *Usecase) Delete(artistID uint32, userID uint32) error {
+	artist, err := u.repo.GetByID(artistID)
+	if err != nil {
 		return fmt.Errorf("(usecase) can't find artist in repository: %w", err)
+	}
+
+	if artist.UserID == nil {
+		return fmt.Errorf("(usecase) artist can't be deleted by user: %w", &models.ForbiddenUserError{})
+	}
+
+	if *artist.UserID != userID {
+		return fmt.Errorf("(usecase) artist can't be deleted by this user: %w", &models.ForbiddenUserError{})
 	}
 
 	if err := u.repo.DeleteByID(artistID); err != nil {

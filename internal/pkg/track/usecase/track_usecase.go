@@ -28,11 +28,19 @@ func NewUsecase(tr track.Repository, arr artist.Repository, alr album.Repository
 	}
 }
 
-func (u *Usecase) Create(track models.Track, artistsID []uint32) (uint32, error) {
+func (u *Usecase) Create(track models.Track, artistsID []uint32, userID uint32) (uint32, error) {
+	userInArtists := false
 	for _, artistID := range artistsID {
-		if _, err := u.artistRepo.GetByID(artistID); err != nil {
+		a, err := u.artistRepo.GetByID(artistID)
+		if err != nil {
 			return 0, fmt.Errorf("(usecase) can't get artist with id #%d: %w", artistID, err)
 		}
+		if a.UserID != nil && *a.UserID == userID {
+			userInArtists = true
+		}
+	}
+	if !userInArtists {
+		return 0, fmt.Errorf("(usecase) track can't be created by user: %w", &models.ForbiddenUserError{})
 	}
 
 	trackID, err := u.trackRepo.Insert(track, artistsID)
@@ -60,7 +68,21 @@ func (u *Usecase) Change(track models.Track) error {
 	return nil
 }
 
-func (u *Usecase) DeleteByID(trackID uint32) error {
+func (u *Usecase) Delete(trackID uint32, userID uint32) error {
+	userInArtists := false
+	artists, err := u.artistRepo.GetByAlbum(trackID)
+	if err != nil {
+		return fmt.Errorf("(usecase) can't get artists of track: %w", err)
+	}
+	for _, artist := range artists {
+		if artist.UserID != nil && *artist.UserID == userID {
+			userInArtists = true
+		}
+	}
+	if !userInArtists {
+		return fmt.Errorf("(usecase) track can't be deleted by user: %w", &models.ForbiddenUserError{})
+	}
+
 	if _, err := u.trackRepo.GetByID(trackID); err != nil {
 		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
 	}
