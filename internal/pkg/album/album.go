@@ -12,6 +12,7 @@ type Usecase interface {
 	GetByArtist(artistID uint32) ([]models.Album, error)
 	GetByTrack(trackID uint32) (*models.Album, error)
 	GetLikedByUser(userID uint32) ([]models.Album, error)
+	SetLike(albumID, userID uint32) (bool, error)
 	// GetListens(albumID uint32) (uint32, error)
 }
 
@@ -25,6 +26,7 @@ type Repository interface {
 	GetByArtist(artistID uint32) ([]models.Album, error)
 	GetByTrack(trackID uint32) (*models.Album, error)
 	GetLikedByUser(userID uint32) ([]models.Album, error)
+	InsertLike(albumID, userID uint32) (bool, error)
 	// GetListens(albumID uint32) (uint32, error)
 }
 

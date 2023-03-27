@@ -250,3 +250,41 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
+
+func (h *Handler) SetLike(w http.ResponseWriter, r *http.Request) {
+	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get album by id : %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
+
+	notExists, err := h.albumServices.SetLike(albumID, user.ID)
+	if err != nil {
+		var errNoSuchAlbum *models.NoSuchAlbumError
+		if errors.As(err, &errNoSuchAlbum) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no such album", http.StatusBadRequest, h.logger)
+			return
+		} else {
+			h.logger.Error(err.Error())
+			commonHttp.ErrorResponse(w, "error while setting like", http.StatusInternalServerError, h.logger)
+			return
+		}
+	}
+
+	if notExists {
+		resp := albumSetLikeResponse{Status: "ok"}
+		commonHttp.SuccessResponse(w, resp, h.logger)
+	} else {
+		resp := albumSetLikeResponse{Status: "exists"}
+		commonHttp.SuccessResponse(w, resp, h.logger)
+	}	
+}

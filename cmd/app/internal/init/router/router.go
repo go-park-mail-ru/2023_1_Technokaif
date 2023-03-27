@@ -55,6 +55,8 @@ func InitRouter(
 				// r.Put("/", album.Update)
 				r.With(authM.Authorization).Delete("/", album.Delete)
 
+				r.With(authM.Authorization).Post("/like", album.SetLike)
+
 				r.Get("/tracks", track.ReadByAlbum)
 			})
 			r.Get("/feed", album.Feed)
@@ -66,6 +68,8 @@ func InitRouter(
 				r.Get("/", artist.Read)
 				// r.Put("/", artist.Update)
 				r.With(authM.Authorization).Delete("/", artist.Delete)
+
+				r.With(authM.Authorization).Post("/like", artist.SetLike)
 
 				r.Get("/tracks", track.ReadByArtist)
 				r.Get("/albums", album.ReadByArtist)
@@ -79,6 +83,8 @@ func InitRouter(
 				r.Get("/", track.Read)
 				// r.Put("/", track.Update)
 				r.With(authM.Authorization).Delete("/", track.Delete)
+
+				r.With(authM.Authorization).Post("/like", track.SetLike)
 			})
 			r.Get("/feed", track.Feed)
 		})

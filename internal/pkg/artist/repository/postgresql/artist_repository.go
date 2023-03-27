@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
@@ -153,3 +154,25 @@ func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Artist, error) {
 
 	return artists, nil
 }
+
+const errorLikeExists = "unique_violation"
+
+func (p *PostgreSQL) InsertLike(artistID, userID uint32) (bool, error) {
+	insertLikeQuery := fmt.Sprintf(
+		`INSERT INTO %s (artist_id, user_id) 
+		VALUES ($1, $2)`,
+		p.tables.LikedArtists())
+
+	if _, err := p.db.Exec(insertLikeQuery, artistID, userID); err != nil {
+		if pqerr, ok := err.(*pq.Error); ok {
+			if pqerr.Code.Name() == errorLikeExists {
+				return false, nil
+			} 
+		} 
+
+		return false, fmt.Errorf("(repo) failed to insert: %w", err)
+	}
+
+	return true, nil
+}
+

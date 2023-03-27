@@ -139,3 +139,16 @@ func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Track, error) {
 
 	return tracks, nil
 }
+
+func (u *Usecase) SetLike(trackID, userID uint32) (bool, error) {
+	if _, err := u.trackRepo.GetByID(trackID); err != nil {
+		return false, fmt.Errorf("(usecase) can't get track: %w", err)
+	}
+
+	iSinserted, err := u.trackRepo.InsertLike(trackID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) failed to set like: %w", err)
+	}
+
+	return iSinserted, nil
+}

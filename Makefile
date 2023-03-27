@@ -1,6 +1,12 @@
 .PHONY: all
 
-all: run
+all: dbstop dbstart serverstart
 
-run:
+serverstart:
 	go run ./cmd/app/main.go
+
+dbstart:
+	doocker-compose up
+
+dbstop:
+	doocker-compose down

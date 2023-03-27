@@ -100,3 +100,16 @@ func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Artist, error) {
 
 	return artists, nil
 }
+
+func (u *Usecase) SetLike(artistID, userID uint32) (bool, error) {
+	if _, err := u.repo.GetByID(artistID); err != nil {
+		return false, fmt.Errorf("(usecase) can't get artist: %w", err)
+	}
+
+	iSinserted, err := u.repo.InsertLike(artistID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) failed to set like: %w", err)
+	}
+
+	return iSinserted, nil
+}

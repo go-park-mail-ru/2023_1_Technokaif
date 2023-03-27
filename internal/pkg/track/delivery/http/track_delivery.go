@@ -89,14 +89,14 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/tracks/{trackID}/ [get]
 func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
-	userID, err := commonHttp.GetTrackIDFromRequest(r)
+	trackID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("get track by id : %v", err)
 		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
 		return
 	}
 
-	track, err := h.trackServices.GetByID(uint32(userID))
+	track, err := h.trackServices.GetByID(uint32(trackID))
 	var errNoSuchTrack *models.NoSuchTrackError
 	if errors.As(err, &errNoSuchTrack) {
 		h.logger.Info(err.Error())
@@ -273,4 +273,42 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	commonHttp.SuccessResponse(w, tt, h.logger)
+}
+
+func (h *Handler) SetLike(w http.ResponseWriter, r *http.Request) {
+	trackID, err := commonHttp.GetTrackIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("get track by id : %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
+
+	notExists, err := h.trackServices.SetLike(trackID, user.ID)
+	if err != nil {
+		var errNoSuchTrack *models.NoSuchTrackError
+		if errors.As(err, &errNoSuchTrack) {
+			h.logger.Info(err.Error())
+			commonHttp.ErrorResponse(w, "no such track", http.StatusBadRequest, h.logger)
+			return
+		} else {
+			h.logger.Error(err.Error())
+			commonHttp.ErrorResponse(w, "error while setting like", http.StatusInternalServerError, h.logger)
+			return
+		}
+	}
+
+	if notExists {
+		resp := trackSetLikeResponse{Status: "ok"}
+		commonHttp.SuccessResponse(w, resp, h.logger)
+	} else {
+		resp := trackSetLikeResponse{Status: "exists"}
+		commonHttp.SuccessResponse(w, resp, h.logger)
+	}	
 }

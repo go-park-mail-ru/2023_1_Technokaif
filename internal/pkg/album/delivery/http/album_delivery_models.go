@@ -77,3 +77,8 @@ type albumChangeResponse struct {
 type albumDeleteResponse struct {
 	Status string `json:"status"`
 }
+
+// Likes
+type albumSetLikeResponse struct {
+	Status string `json:"status"`
+}
