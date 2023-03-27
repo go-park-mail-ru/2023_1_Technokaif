@@ -15,7 +15,7 @@ func Panic(logger logger.Logger) func(next http.Handler) http.Handler {
 				if err := recover(); err != nil {
 					logger.Errorf("PANIC: %s", err)
 					logger.Info("panic recovered")
-					commonHttp.ErrorResponse(w, "server panic", http.StatusInternalServerError, logger)
+					commonHttp.ErrorResponse(w, "server unknown error", http.StatusInternalServerError, logger)
 				}
 			}()
 

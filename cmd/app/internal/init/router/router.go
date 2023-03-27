@@ -36,8 +36,15 @@ func InitRouter(
 
 		r.Route("/users", func(r chi.Router) {
 			r.Route("/{userID}", func(r chi.Router) {
-				r.Get("/", user.Read)
+				r.With(authM.Authorization).Get("/", user.Read)
 				r.With(authM.Authorization).Post("/avatar", user.UploadAvatar)
+
+				r.Route("/favourite", func(r chi.Router) {
+					r.Use(authM.Authorization)
+					r.Get("/tracks", user.ReadFavouriteTracks)
+					r.Get("/albums", user.ReadFavouriteAlbums)
+					r.Get("/artists", user.ReadFavouriteArtists)
+				})
 			})
 		})
 

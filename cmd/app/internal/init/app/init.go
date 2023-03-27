@@ -46,7 +46,7 @@ func Init(db *sqlx.DB, tables db.Tables, logger logger.Logger) *chi.Mux {
 	artistHandler := artistDelivery.NewHandler(artistUsecase, logger)
 	authHandler := authDelivery.NewHandler(authUsecase, logger)
 	trackHandler := trackDelivery.NewHandler(trackUsecase, artistUsecase, logger)
-	userHandler := userDelivery.NewHandler(userUsecase, logger)
+	userHandler := userDelivery.NewHandler(userUsecase, trackUsecase, albumUsecase, artistUsecase, logger)
 
 	authMiddlware := authMiddlware.NewMiddleware(authUsecase, logger)
 

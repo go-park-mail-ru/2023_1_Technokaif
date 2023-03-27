@@ -140,7 +140,7 @@ func (p *PostgreSQL) GetByTrack(trackID uint32) ([]models.Artist, error) {
 
 func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT a.id, a.name, a.avatar_src, 
+		`SELECT a.id, a.name, a.avatar_src
 		FROM %s a 
 			INNER JOIN %s ua ON a.id = ua.artist_id 
 		WHERE ua.user_id = $1;`,
