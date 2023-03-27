@@ -13,18 +13,19 @@ type artistCreateInput struct {
 	AvatarSrc string `json:"avatar" valid:"required"`
 }
 
-func(a *artistCreateInput) validate() error {
+func (a *artistCreateInput) validate() error {
 	sanitizer := bluemonday.StrictPolicy()
 	a.Name = sanitizer.Sanitize(a.Name)
 	a.AvatarSrc = sanitizer.Sanitize(a.AvatarSrc)
-	
+
 	_, err := valid.ValidateStruct(a)
 
 	return err
 }
 
-func (aci *artistCreateInput) ToArtist() models.Artist {
+func (aci *artistCreateInput) ToArtist(userID *uint32) models.Artist {
 	return models.Artist{
+		UserID:    userID,
 		Name:      aci.Name,
 		AvatarSrc: aci.AvatarSrc,
 	}

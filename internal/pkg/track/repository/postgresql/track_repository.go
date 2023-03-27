@@ -34,12 +34,12 @@ func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (uint32, err
 	}
 
 	insertTrackQuery := fmt.Sprintf(
-		`INSERT INTO %s (name, album_id, cover_src, record_src) 
-		VALUES ($1, $2, $3, $4) RETURNING id;`,
+		`INSERT INTO %s (name, album_id, album_position, cover_src, record_src) 
+		VALUES ($1, $2, $3, $4, $5) RETURNING id;`,
 		p.tables.Tracks())
 
 	var trackID uint32
-	row := tx.QueryRow(insertTrackQuery, track.Name, track.AlbumID, track.CoverSrc, track.RecordSrc)
+	row := tx.QueryRow(insertTrackQuery, track.Name, track.AlbumID, track.AlbumPosition, track.CoverSrc, track.RecordSrc)
 	if err := row.Scan(&trackID); err != nil {
 		tx.Rollback()
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
@@ -62,7 +62,7 @@ func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (uint32, err
 
 func (p *PostgreSQL) GetByID(trackID uint32) (*models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, album_id, cover_src, record_src 
+		`SELECT id, name, album_id, cover_src, record_src, listens
 		FROM %s 
 		WHERE id = $1;`,
 		p.tables.Tracks())
@@ -83,12 +83,12 @@ func (p *PostgreSQL) GetByID(trackID uint32) (*models.Track, error) {
 func (p *PostgreSQL) Update(track models.Track) error {
 	query := fmt.Sprintf(
 		`UPDATE %s 
-		SET name = $1, album_id = $2, cover_src = $3, record_src = $4 
-		WHERE id = $5;`,
+		SET name = $1, album_id = $2, album_position = $3, cover_src = $4, record_src = $5, listens = $6
+		WHERE id = $7;`,
 		p.tables.Tracks())
 
-	if _, err := p.db.Exec(query, track.Name, track.AlbumID,
-		track.CoverSrc, track.RecordSrc, track.ID); err != nil {
+	if _, err := p.db.Exec(query, track.Name, track.AlbumID, track.AlbumPosition,
+		track.CoverSrc, track.RecordSrc, track.Listens, track.ID); err != nil {
 
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
@@ -112,7 +112,7 @@ func (p *PostgreSQL) DeleteByID(trackID uint32) error {
 
 func (p *PostgreSQL) GetFeed() ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, COALESCE(album_id, 0) as album_id, cover_src, record_src 
+		`SELECT id, name, album_id, cover_src, record_src, listens
 		FROM %s 
 		LIMIT 100;`,
 		p.tables.Tracks())
@@ -127,9 +127,10 @@ func (p *PostgreSQL) GetFeed() ([]models.Track, error) {
 
 func (p *PostgreSQL) GetByAlbum(albumID uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, album_id, cover_src, record_src 
+		`SELECT id, name, album_id, album_position, cover_src, record_src, listens
 		FROM %s
-		WHERE album_id = $1;`,
+		WHERE album_id = $1
+		ORDER BY album_position;`,
 		p.tables.Tracks())
 
 	var tracks []models.Track
@@ -142,8 +143,8 @@ func (p *PostgreSQL) GetByAlbum(albumID uint32) ([]models.Track, error) {
 
 func (p *PostgreSQL) GetByArtist(artistID uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src 
-		FROM %s t 
+		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens
+		FROM %s t
 			INNER JOIN %s at ON t.id = at.track_id 
 		WHERE at.artist_id = $1;`,
 		p.tables.Tracks(), p.tables.ArtistsTracks())
@@ -158,7 +159,7 @@ func (p *PostgreSQL) GetByArtist(artistID uint32) ([]models.Track, error) {
 
 func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT t.id, name, t.album_id, t.cover_src, t.record_src 
+		`SELECT t.id, name, t.album_id, t.cover_src, t.record_src, t.listens
 		FROM %s t 
 			INNER JOIN %s ut ON t.id = ut.track_id 
 		WHERE ut.user_id = $1;`,

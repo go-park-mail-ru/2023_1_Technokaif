@@ -1,6 +1,8 @@
 package http
 
 import (
+	"errors"
+
 	valid "github.com/asaskevich/govalidator"
 	"github.com/microcosm-cc/bluemonday"
 
@@ -9,11 +11,12 @@ import (
 
 // Create
 type trackCreateInput struct {
-	Name      string   `json:"name" valid:"required"`
-	AlbumID   uint32   `json:"albumID,omitempty"`
-	ArtistsID []uint32 `json:"artistsID" valid:"required"`
-	CoverSrc  string   `json:"cover" valid:"required"`
-	RecordSrc string   `json:"record" valid:"required"`
+	Name          string   `json:"name" valid:"required"`
+	AlbumID       *uint32  `json:"albumID"`
+	AlbumPosition *uint32  `json:"albumPosition"`
+	ArtistsID     []uint32 `json:"artistsID" valid:"required"`
+	CoverSrc      string   `json:"cover" valid:"required"`
+	RecordSrc     string   `json:"record" valid:"required"`
 }
 
 func (t *trackCreateInput) validate() error {
@@ -22,6 +25,10 @@ func (t *trackCreateInput) validate() error {
 	t.CoverSrc = sanitizer.Sanitize(t.CoverSrc)
 	t.RecordSrc = sanitizer.Sanitize(t.RecordSrc)
 
+	if (t.AlbumID == nil) != (t.AlbumPosition == nil) {
+		return errors.New("(delivery) albumID is nil while albumPosition isn't (or vice versa)")
+	}
+
 	_, err := valid.ValidateStruct(t)
 
 	return err
@@ -29,10 +36,11 @@ func (t *trackCreateInput) validate() error {
 
 func (tci *trackCreateInput) ToTrack() models.Track {
 	return models.Track{
-		Name:      tci.Name,
-		AlbumID:   tci.AlbumID,
-		CoverSrc:  tci.CoverSrc,
-		RecordSrc: tci.RecordSrc,
+		Name:          tci.Name,
+		AlbumID:       tci.AlbumID,
+		AlbumPosition: tci.AlbumPosition,
+		CoverSrc:      tci.CoverSrc,
+		RecordSrc:     tci.RecordSrc,
 	}
 }
 

@@ -17,8 +17,9 @@ CREATE TABLE Users
 CREATE TABLE Artists
 (
     id         SERIAL      PRIMARY KEY,
-    name       VARCHAR(30)             NOT NULL,
-    avatar_src TEXT                    NOT NULL
+    user_id    INT         REFERENCES Users(id) ON DELETE SET NULL,
+    name       VARCHAR(30)                                         NOT NULL,
+    avatar_src TEXT                                                NOT NULL
 );
 
 CREATE TABLE Albums
@@ -26,16 +27,20 @@ CREATE TABLE Albums
     id          SERIAL        PRIMARY KEY,
     name        VARCHAR(40)               NOT NULL,
     description VARCHAR(2000),
-    cover_src   TEXT
+    cover_src   TEXT                      NOT NULL
 );
 
 CREATE TABLE Tracks
 (
-    id         SERIAL      PRIMARY KEY,
-    name       VARCHAR(40)                                          NOT NULL,
-    album_id   INT         REFERENCES Albums(id)  ON DELETE CASCADE,
-    cover_src  TEXT                                                 NOT NULL,
-    record_src TEXT                                                 NOT NULL
+    id             SERIAL      PRIMARY KEY,
+    name           VARCHAR(40)                                          NOT NULL,
+    album_id       INT         REFERENCES Albums(id)  ON DELETE CASCADE,
+    album_position INT,
+    cover_src      TEXT                                                 NOT NULL,
+    record_src     TEXT                                                 NOT NULL,
+    listens        INT         DEFAULT 0                                NOT NULL,
+
+    UNIQUE(album_id, album_position)
 );
 
 CREATE TABLE Listens
@@ -95,9 +100,9 @@ VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg'),
     ('Долгий путь домой', 'Грайм из Лондона', '/albums/longWayHome.png'),
     ('На Человека', 'Стильная музыка от русского Канье Уэста', '/albums/onHuman.jpg');
 
-INSERT INTO Tracks (name, album_id, cover_src, record_src)
-VALUES ('Где нас нет', 1, '/tracks/gorgorod.jpg', '/tracks/gorgorod.wav'),
-       ('Признаки жизни', 2, '/tracks/longWayHome.png', '/tracks/longWayHome.mp3');
+INSERT INTO Tracks (name, album_id, album_position, cover_src, record_src)
+VALUES ('Где нас нет', 1, 1, '/tracks/gorgorod.jpg', '/tracks/gorgorod.wav'),
+       ('Признаки жизни', 2, 1, '/tracks/longWayHome.png', '/tracks/longWayHome.mp3');
 INSERT INTO Tracks (name, cover_src, record_src)
 VALUES ('LAGG OUT', '/tracks/laggOut.jpeg', '/tracks/laggOut.wav'),
        ('Город под подошвой', '/tracks/gorodPodPod.png', '/tracks/gorodPodPod.png');

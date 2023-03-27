@@ -29,12 +29,12 @@ func NewPostgreSQL(db *sqlx.DB, t artist.Tables, l logger.Logger) *PostgreSQL {
 
 func (p *PostgreSQL) Insert(artist models.Artist) (uint32, error) {
 	query := fmt.Sprintf(
-		`INSERT INTO %s (name, avatar_src) 
-		VALUES ($1, $2) RETURNING id;`,
+		`INSERT INTO %s (user_id, name, avatar_src) 
+		VALUES ($1, $2, $3) RETURNING id;`,
 		p.tables.Artists())
 
 	var artistID uint32
-	row := p.db.QueryRow(query, artist.Name, artist.AvatarSrc)
+	row := p.db.QueryRow(query, artist.UserID, artist.Name, artist.AvatarSrc)
 	if err := row.Scan(&artistID); err != nil {
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
@@ -44,7 +44,7 @@ func (p *PostgreSQL) Insert(artist models.Artist) (uint32, error) {
 
 func (p *PostgreSQL) GetByID(artistID uint32) (*models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, avatar_src 
+		`SELECT id, user_id, name, avatar_src 
 		FROM %s 
 		WHERE id = $1;`,
 		p.tables.Artists())

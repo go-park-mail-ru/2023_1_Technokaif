@@ -34,8 +34,14 @@ func NewHandler(au artist.Usecase, logger logger.Logger) *Handler {
 // @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	var aci artistCreateInput
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Info(err.Error())
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
+		return
+	}
 
+	var aci artistCreateInput
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&aci); err != nil {
 		h.logger.Info(err.Error())
@@ -49,7 +55,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artist := aci.ToArtist()
+	artist := aci.ToArtist(&user.ID)
 
 	artistID, err := h.artistServices.Create(artist)
 	if err != nil {
