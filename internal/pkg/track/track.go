@@ -2,6 +2,8 @@ package track
 
 import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
+//go:generate mockgen -source=track.go -destination=mocks/mock.go
+
 // Usecase includes bussiness logics methods to work with tracks
 type Usecase interface {
 	Create(track models.Track, artistsID []uint32, userID uint32) (uint32, error)

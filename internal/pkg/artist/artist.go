@@ -2,6 +2,8 @@ package artist
 
 import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
+//go:generate mockgen -source=artist.go -destination=mocks/mock.go
+
 // Usecase includes bussiness logics methods to work with artists
 type Usecase interface {
 	Create(artist models.Artist) (uint32, error)
@@ -43,7 +45,7 @@ type Repository interface {
 	GetLikedByUser(userID uint32) ([]models.Artist, error)
 
 	InsertLike(artistID, userID uint32) (bool, error)
-	
+
 	// GetLikes returns total likes related with artist with given ID
 	// GetLikes(artistID uint 32) (uint32, error)
 
