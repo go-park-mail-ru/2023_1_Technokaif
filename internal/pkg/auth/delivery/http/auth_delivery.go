@@ -39,26 +39,22 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := user.DeliveryValidate(); err != nil {
-		h.logger.Infof("user validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	id, err := h.services.SignUpUser(user)
 	var errUserAlreadyExists *models.UserAlreadyExistsError
 	if errors.As(err, &errUserAlreadyExists) {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "user already exists", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "user already exists", http.StatusBadRequest, h.logger, err)
 		return
 	} else if err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -97,8 +93,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.services.LoginUser(userInput.Username, userInput.Password)
 	if err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't login user", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't login user", http.StatusBadRequest, h.logger, err)
 		return
 	}
 
