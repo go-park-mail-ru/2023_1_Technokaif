@@ -36,14 +36,6 @@ func (u *Usecase) GetByID(artistID uint32) (*models.Artist, error) {
 	return artist, nil
 }
 
-func (u *Usecase) Change(artist models.Artist) error {
-	if err := u.repo.Update(artist); err != nil {
-		return fmt.Errorf("(usecase) can't update artist in repository: %w", err)
-	}
-
-	return nil
-}
-
 func (u *Usecase) Delete(artistID uint32, userID uint32) error {
 	artist, err := u.repo.GetByID(artistID)
 	if err != nil {

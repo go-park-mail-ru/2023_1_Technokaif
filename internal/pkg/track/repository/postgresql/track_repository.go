@@ -34,16 +34,16 @@ func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, e
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
 
-	defer func() { 
-		if err != nil { 
+	defer func() {
+		if err != nil {
 			if errRollback := tx.Rollback(); errRollback != nil {
 				err = fmt.Errorf("(repo) rollback error: %w; %w", errRollback, err)
 			}
-		} else { 
+		} else {
 			if errCommit := tx.Commit(); errCommit != nil {
 				err = fmt.Errorf("(repo) commit error: %w", errCommit)
 			}
-		} 
+		}
 	}()
 
 	insertTrackQuery := fmt.Sprintf(
@@ -89,22 +89,6 @@ func (p *PostgreSQL) GetByID(trackID uint32) (*models.Track, error) {
 	}
 
 	return &track, nil
-}
-
-func (p *PostgreSQL) Update(track models.Track) error {
-	query := fmt.Sprintf(
-		`UPDATE %s 
-		SET name = $1, album_id = $2, album_position = $3, cover_src = $4, record_src = $5, listens = $6
-		WHERE id = $7;`,
-		p.tables.Tracks())
-
-	if _, err := p.db.Exec(query, track.Name, track.AlbumID, track.AlbumPosition,
-		track.CoverSrc, track.RecordSrc, track.Listens, track.ID); err != nil {
-
-		return fmt.Errorf("(repo) failed to exec query: %w", err)
-	}
-
-	return nil
 }
 
 func (p *PostgreSQL) DeleteByID(trackID uint32) error {
@@ -196,14 +180,14 @@ func (p *PostgreSQL) InsertLike(trackID, userID uint32) (bool, error) {
 		if pqerr, ok := err.(*pq.Error); ok {
 			if pqerr.Code.Name() == errorLikeExists {
 				return false, nil
-			} 
-		} 
+			}
+		}
 
 		return false, fmt.Errorf("(repo) failed to insert: %w", err)
 	}
 
 	return true, nil
-} 
+}
 
 func (p *PostgreSQL) DeleteLike(trackID, userID uint32) (bool, error) {
 	query := fmt.Sprintf(

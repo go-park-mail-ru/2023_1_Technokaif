@@ -52,14 +52,6 @@ func (u *Usecase) GetByID(albumID uint32) (*models.Album, error) {
 	return album, nil
 }
 
-func (u *Usecase) Change(albumID models.Album) error {
-	if err := u.albumRepo.Update(albumID); err != nil {
-		return fmt.Errorf("(usecase) can't update album in repository: %w", err)
-	}
-
-	return nil
-}
-
 func (u *Usecase) Delete(albumID uint32, userID uint32) error {
 	if _, err := u.albumRepo.GetByID(albumID); err != nil {
 		return fmt.Errorf("(usecase) can't find album in repository: %w", err)

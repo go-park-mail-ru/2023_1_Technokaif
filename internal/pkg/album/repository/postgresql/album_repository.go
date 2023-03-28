@@ -34,16 +34,16 @@ func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (_ uint32, e
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
 
-	defer func() { 
-		if err != nil { 
+	defer func() {
+		if err != nil {
 			if errRollback := tx.Rollback(); errRollback != nil {
 				err = fmt.Errorf("(repo) rollback error: %w; %w", errRollback, err)
 			}
-		} else { 
+		} else {
 			if errCommit := tx.Commit(); errCommit != nil {
 				err = fmt.Errorf("(repo) commit error: %w", errCommit)
 			}
-		} 
+		}
 	}()
 
 	insertAlbumQuery := fmt.Sprintf(
@@ -90,22 +90,6 @@ func (p *PostgreSQL) GetByID(albumID uint32) (*models.Album, error) {
 	}
 
 	return &albums, nil
-}
-
-func (p *PostgreSQL) Update(album models.Album) error {
-	query := fmt.Sprintf(
-		`UPDATE %s 
-		SET name = $1, description = $2, cover_src = $3 
-		WHERE id = $4;`,
-		p.tables.Albums())
-
-	if _, err := p.db.Exec(query, album.Name, album.Description,
-		album.CoverSrc, album.ID); err != nil {
-
-		return fmt.Errorf("(repo) failed to exec query: %w", err)
-	}
-
-	return nil
 }
 
 func (p *PostgreSQL) DeleteByID(albumID uint32) error {
@@ -197,8 +181,8 @@ func (p *PostgreSQL) InsertLike(albumID, userID uint32) (bool, error) {
 		if pqerr, ok := err.(*pq.Error); ok {
 			if pqerr.Code.Name() == errorLikeExists {
 				return false, nil
-			} 
-		} 
+			}
+		}
 
 		return false, fmt.Errorf("(repo) failed to insert: %w", err)
 	}
@@ -228,4 +212,3 @@ func (p *PostgreSQL) DeleteLike(albumID, userID uint32) (bool, error) {
 		return true, nil
 	}
 }
-

@@ -64,20 +64,6 @@ func (p *PostgreSQL) GetByID(artistID uint32) (*models.Artist, error) {
 	return &artist, nil
 }
 
-func (p *PostgreSQL) Update(artist models.Artist) error {
-	query := fmt.Sprintf(
-		`UPDATE %s 
-		SET name = $1, avatar_src = $2 
-		WHERE id = $3;`,
-		p.tables.Artists())
-
-	if _, err := p.db.Exec(query, artist.Name, artist.AvatarSrc, artist.ID); err != nil {
-		return fmt.Errorf("(repo) failed to exec query: %w", err)
-	}
-
-	return nil
-}
-
 func (p *PostgreSQL) DeleteByID(artistID uint32) error {
 	query := fmt.Sprintf(
 		`DELETE
@@ -167,8 +153,8 @@ func (p *PostgreSQL) InsertLike(artistID, userID uint32) (bool, error) {
 		if pqerr, ok := err.(*pq.Error); ok {
 			if pqerr.Code.Name() == errorLikeExists {
 				return false, nil
-			} 
-		} 
+			}
+		}
 
 		return false, fmt.Errorf("(repo) failed to insert: %w", err)
 	}

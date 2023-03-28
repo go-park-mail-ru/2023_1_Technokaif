@@ -105,11 +105,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, artistResponse, h.logger)
 }
 
-// swaggermock
-func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	// ...
-}
-
 // @Summary		Delete Artist
 // @Tags		Artist
 // @Description	Delete artist with chosen ID

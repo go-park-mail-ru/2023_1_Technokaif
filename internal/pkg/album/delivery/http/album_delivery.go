@@ -31,12 +31,12 @@ func NewHandler(alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler
 // @Description	Create new album by sent object
 // @Accept      json
 // @Produce		json
-// @Param		album	body		albumCreateInput	true	"album info"
+// @Param		album	body		albumCreateInput	true	"Album info"
 // @Success		200		{object}	albumCreateResponse	        "Album created"
-// @Failure		400		{object}	http.Error	"Incorrect body"
-// @Failure		401		{object}	http.Error  "User unathorized"
-// @Failure		403		{object}	http.Error	"User hasn't rights"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Failure		400		{object}	http.Error					"Incorrect input"
+// @Failure		401		{object}	http.Error  				"User unathorized"
+// @Failure		403		{object}	http.Error					"User hasn't rights"
+// @Failure		500		{object}	http.Error					"Server error"
 // @Router		/api/albums/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
@@ -81,9 +81,10 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags		Album
 // @Description	Get album with chosen ID
 // @Produce		json
-// @Success		200		{object}	models.AlbumTransfer	    "Album got"
-// @Failure		400		{object}	http.Error	"Client error"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Success		200		{object}	models.AlbumTransfer	"Album got"
+// @Failure		400		{object}	http.Error				"Incorrect input"
+// @Failure		401		{object}	http.Error  			"User unathorized"
+// @Failure		500		{object}	http.Error				"Server error"
 // @Router		/api/albums/{albumID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
@@ -117,30 +118,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	commonHttp.SuccessResponse(w, resp, h.logger)
-}
-
-// swaggermock
-func (h *Handler) Change(w http.ResponseWriter, r *http.Request) {
-	var aci albumChangeInput
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&aci); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
-		return
-	}
-
-	if err := aci.validate(); err != nil {
-		h.logger.Infof("Changing album input validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
-		return
-	}
-
-	// album := aci.ToAlbum()
-	// ...
-
-	acr := albumChangeResponse{Status: "ok"}
-
-	commonHttp.SuccessResponse(w, acr, h.logger)
 }
 
 // @Summary		Delete Album

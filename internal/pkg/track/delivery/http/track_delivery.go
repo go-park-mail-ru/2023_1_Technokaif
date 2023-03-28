@@ -120,11 +120,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
-// swaggermock
-func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	// ...
-}
-
 // @Summary		Delete Track
 // @Tags		Track
 // @Description	Delete track with chosen ID
