@@ -25,6 +25,18 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Lo
 	w.Write(message)
 }
 
+func ErrorResponseWithErrLogging(w http.ResponseWriter, msg string, code int, logger logger.Logger, err error) {
+	if err != nil {
+		if code == http.StatusBadRequest {
+			logger.Info(err.Error())
+		} else {
+			logger.Error(err.Error())
+		}
+	}
+
+	ErrorResponse(w, msg, code, logger)
+}
+
 func SuccessResponse(w http.ResponseWriter, r any, logger logger.Logger) {
 	message, err := json.Marshal(r)
 	if err != nil {

@@ -51,10 +51,10 @@ func initPostgresConfig() (PostgresConfig, error) { // TODO CHECK FIELDS
 
 // NewPostgresDB connects to chosen postgreSQL database
 // and returns interaction interface of the database
-func InitPostgresDB() (*sqlx.DB, *PostgreSQLTables, error) {
+func InitPostgresDB() (*sqlx.DB, PostgreSQLTables, error) {
 	cfg, err := initPostgresConfig()
 	if err != nil {
-		return nil, nil, fmt.Errorf("can't init postgresql: %w", err)
+		return nil, PostgreSQLTables{}, fmt.Errorf("can't init postgresql: %w", err)
 	}
 
 	dbInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
@@ -62,7 +62,7 @@ func InitPostgresDB() (*sqlx.DB, *PostgreSQLTables, error) {
 
 	db, err := sqlx.Open("postgres", dbInfo)
 	if err != nil {
-		return nil, nil, err
+		return nil, PostgreSQLTables{}, err
 	}
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
@@ -72,52 +72,52 @@ func InitPostgresDB() (*sqlx.DB, *PostgreSQLTables, error) {
 		errClose := db.Close()
 		if errClose != nil {
 			// TODO: change %w and %s (double wrap only in go1.20+)
-			return nil, nil, fmt.Errorf("can't close postgresql (%w) after failed ping: %s", errClose, err.Error())
+			return nil, PostgreSQLTables{}, fmt.Errorf("can't close postgresql (%w) after failed ping: %s", errClose, err.Error())
 		}
-		return nil, nil, err
+		return nil, PostgreSQLTables{}, err
 	}
 
-	return db, &PostgreSQLTables{}, nil
+	return db, PostgreSQLTables{}, nil
 }
 
 type PostgreSQLTables struct{}
 
-func (pt *PostgreSQLTables) Users() string {
+func (pt PostgreSQLTables) Users() string {
 	return "Users"
 }
 
-func (pt *PostgreSQLTables) Tracks() string {
+func (pt PostgreSQLTables) Tracks() string {
 	return "Tracks"
 }
 
-func (pt *PostgreSQLTables) Artists() string {
+func (pt PostgreSQLTables) Artists() string {
 	return "Artists"
 }
 
-func (pt *PostgreSQLTables) Albums() string {
+func (pt PostgreSQLTables) Albums() string {
 	return "Albums"
 }
 
-func (pt *PostgreSQLTables) Listens() string {
+func (pt PostgreSQLTables) Listens() string {
 	return "Listens"
 }
 
-func (pt *PostgreSQLTables) ArtistsAlbums() string {
+func (pt PostgreSQLTables) ArtistsAlbums() string {
 	return "Artists_Albums"
 }
 
-func (pt *PostgreSQLTables) ArtistsTracks() string {
+func (pt PostgreSQLTables) ArtistsTracks() string {
 	return "Artists_Tracks"
 }
 
-func (pt *PostgreSQLTables) LikedAlbums() string {
+func (pt PostgreSQLTables) LikedAlbums() string {
 	return "Liked_albums"
 }
 
-func (pt *PostgreSQLTables) LikedArtists() string {
+func (pt PostgreSQLTables) LikedArtists() string {
 	return "Liked_artists"
 }
 
-func (pt *PostgreSQLTables) LikedTracks() string {
+func (pt PostgreSQLTables) LikedTracks() string {
 	return "Liked_tracks"
 }

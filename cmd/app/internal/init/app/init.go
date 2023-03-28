@@ -5,7 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 	"github.com/jmoiron/sqlx"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/db"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/init/router"
 
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
@@ -29,7 +29,7 @@ import (
 	authMiddlware "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http/middleware"
 )
 
-func Init(db *sqlx.DB, tables db.Tables, logger logger.Logger) *chi.Mux {
+func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger) *chi.Mux {
 	albumRepo := albumRepository.NewPostgreSQL(db, tables, logger)
 	artistRepo := artistRepository.NewPostgreSQL(db, tables, logger)
 	authRepo := authRepository.NewPostgreSQL(db, tables, logger)

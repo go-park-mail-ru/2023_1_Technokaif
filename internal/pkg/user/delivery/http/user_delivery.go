@@ -72,15 +72,13 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseMultipartForm(maxAvatarMemory); err != nil {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "invalid avatar data", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, maxAvatarMemory)
 	avatarFile, avatarHeader, err := r.FormFile("avatar")
 	if err != nil {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "invalid avatar data", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
 		return
 	}
 	defer avatarFile.Close()
@@ -89,12 +87,10 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	extension := fileNameParts[len(fileNameParts)-1]
 	err = h.userServices.UploadAvatar(user, avatarFile, extension)
 	if errors.Is(err, h.userServices.UploadAvatarWrongFormatError()) {
-		h.logger.Info(err.Error())
-		commonHttp.ErrorResponse(w, "invalid avatar data type", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data type", http.StatusBadRequest, h.logger, err)
 		return
 	} else if err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "can't upload avatar", http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't upload avatar", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -111,15 +107,13 @@ func (h *Handler) ReadFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 
 	favTracks, err := h.trackServices.GetLikedByUser(user.ID)
 	if err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	tt, err := models.TrackTransferFromQuery(favTracks, h.artistServices.GetByTrack)
 	if err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -134,15 +128,13 @@ func (h *Handler) ReadFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 
 	favAlbums, err := h.albumServices.GetLikedByUser(user.ID)
 	if err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	resp, err := models.AlbumTransferFromQuery(favAlbums, h.artistServices.GetByAlbum)
 	if err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -157,8 +149,7 @@ func (h *Handler) ReadFavouriteArtists(w http.ResponseWriter, r *http.Request) {
 
 	favArtists, err := h.artistServices.GetLikedByUser(user.ID)
 	if err != nil {
-		h.logger.Error(err.Error())
-		commonHttp.ErrorResponse(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 

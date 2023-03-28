@@ -113,3 +113,16 @@ func (u *Usecase) SetLike(artistID, userID uint32) (bool, error) {
 
 	return iSinserted, nil
 }
+
+func (u *Usecase) UnLike(artistID, userID uint32) (bool, error) {
+	if _, err := u.repo.GetByID(artistID); err != nil {
+		return false, fmt.Errorf("(usecase) can't get artist: %w", err)
+	}
+
+	iSdeleted, err := u.repo.DeleteLike(artistID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) failed to unset like: %w", err)
+	}
+
+	return iSdeleted, nil
+}
