@@ -25,25 +25,25 @@ type User struct {
 	ID        uint32 `json:"-" valid:"-" db:"id"`
 	Version   uint32 `json:"-" valid:"-" db:"version"`
 	Username  string `json:"username" valid:"required,runelength(4|20)" db:"username"`
-	Email     string `json:"email" valid:"required,email" db:"email"`
+	Email     string `json:"email" valid:"required,email,maxstringlength(255)" db:"email"`
 	Password  string `json:"password" valid:"required,runelength(8|30),passwordcheck" db:"password_hash"`
 	Salt      string `json:"-" valid:"-" db:"salt"`
 	FirstName string `json:"firstName" valid:"required,runelength(2|20)" db:"first_name"`
 	LastName  string `json:"lastName" valid:"required,runelength(2|20)" db:"last_name"`
 	Sex       Sex    `json:"sex" valid:"required,in(F|M|O)" db:"sex"`
 	BirthDate Date   `json:"birthDate" valid:"required,born" db:"birth_date"`
-	AvatarSrc string `json:"avatar" valid:"-" db:"avatar_src"`
+	AvatarSrc string `json:"-" valid:"-" db:"avatar_src"`
 }
 
 type UserTransfer struct {
-	ID        uint32 `json:"id"`
-	Username  string `json:"username"`
-	Email     string `json:"email"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Sex       Sex    `json:"sex"`
-	BirhDate  Date   `json:"birthDate"`
-	AvatarSrc string `json:"avatar,omitempty"`
+	ID        uint32  `json:"id"`
+	Username  string  `json:"username"`
+	Email     string  `json:"email"`
+	FirstName string  `json:"firstName"`
+	LastName  string  `json:"lastName"`
+	Sex       Sex     `json:"sex"`
+	BirhDate  Date    `json:"birthDate"`
+	AvatarSrc string  `json:"avatar,omitempty"`
 }
 
 type ContextKeyUserType struct{}

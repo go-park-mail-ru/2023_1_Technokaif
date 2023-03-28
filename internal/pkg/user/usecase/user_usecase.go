@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
-
-	"github.com/google/uuid"
+	"crypto/sha256"
 
 	common "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -56,26 +54,33 @@ func (u *Usecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtens
 	}
 
 	// Create standard filename
-	newFileName := "user" + strconv.Itoa(int(user.ID)) + "_" + uuid.NewString()
+	hasher := sha256.New()
+  	if _, err := io.Copy(hasher, file); err != nil {
+    	return fmt.Errorf("(usecase): can't write sent avatar to hasher: %w", err)
+  	}
+	newFileName := fmt.Sprintf("%x", hasher.Sum(nil))
 
-	filename := newFileName + "." + fileExtension
+	filenameWithExtencion := newFileName + "." + fileExtension
 
 	// Save path to avatar into user entry
-	path := dirForUserAvatars + "/" + filename
+	path := dirForUserAvatars + "/" + filenameWithExtencion
 	user.AvatarSrc = path
-
+	
 	err := os.MkdirAll(dirForUserAvatars, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("(usecase): can't create dir to save avatar: %w", err)
 	}
-	newFD, err := os.Create(path)
-	if err != nil {
-		return fmt.Errorf("(usecase): can't create file to save avatar: %w", err)
-	}
-	defer newFD.Close()
 
-	if _, err := io.Copy(newFD, file); err != nil {
-		return fmt.Errorf("(usecase): can't copy sent avatar: %w", err)
+	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {  // if this file doesn't exist
+		newFD, err := os.Create(path)
+		if err != nil {
+			return fmt.Errorf("(usecase): can't create file to save avatar: %w", err)
+		}
+		defer newFD.Close()
+
+		if _, err := io.Copy(newFD, file); err != nil {
+			return fmt.Errorf("(usecase): can't write sent avatar to file: %w", err)
+		}
 	}
 
 	return u.ChangeInfo(user)
