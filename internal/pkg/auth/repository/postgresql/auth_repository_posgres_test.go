@@ -7,13 +7,14 @@ import (
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"github.com/jmoiron/sqlx"
 	"github.com/golang/mock/gomock"
+	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
-	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
+	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
 )
 
 func defaultUser() (models.User, error) {
@@ -49,6 +50,8 @@ func userWithoutUsername() (models.User, error) {
 
 	return userWithoutUsername, nil
 }
+
+var pqInternalError = errors.New("postgres is dead")
 
 func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 	type mockBehavior func(userID, userVersion uint32, u *models.User)
@@ -110,6 +113,23 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 					WillReturnRows(row)
 			},
 			expectedUser: &u,
+		},
+		{
+			name: "No such user",
+			authData: authData{
+				userID:      1,
+				userVersion: 2,
+			},
+			mockBehavior: func(userID, userVersion uint32, u *models.User) {
+				tableName := "Users"
+				tablesMock.EXPECT().Users().Return(tableName)
+
+				sqlMock.ExpectQuery("SELECT (.+) FROM " + tableName).
+					WithArgs(userID, userVersion).
+					WillReturnError(sql.ErrNoRows)
+			},
+			expectError:   true,
+			expectedError: &models.NoSuchUserError{},
 		},
 		{
 			name: "No such user",
@@ -203,6 +223,20 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			},
 			expectError:   true,
 			expectedError: &models.NoSuchUserError{},
+		},
+		{
+			name:   "Internal postgres error",
+			userID: 1,
+			mockBehavior: func(userID uint32) {
+				tableName := "Users"
+				tablesMock.EXPECT().Users().Return(tableName)
+
+				sqlxMock.ExpectQuery("UPDATE " + tableName).
+					WithArgs(userID).
+					WillReturnError(pqInternalError)
+			},
+			expectError:   true,
+			expectedError: pqInternalError,
 		},
 	}
 
