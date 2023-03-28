@@ -58,6 +58,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	artistID, err := h.artistServices.Create(artist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't create artist", http.StatusInternalServerError, h.logger, err)
+		return
 	}
 
 	acr := artistCreateResponse{ID: artistID}
@@ -232,5 +233,5 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	} else {
 		resp := artistLikeResponse{Status: "already disliked"}
 		commonHttp.SuccessResponse(w, resp, h.logger)
-	}	
+	}
 }

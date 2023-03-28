@@ -2,11 +2,13 @@ package album
 
 import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
+//go:generate mockgen -source=album.go -destination=mocks/mock.go
+
 // Usecase includes bussiness logics methods to work with albums
 type Usecase interface {
 	Create(album models.Album, artistsID []uint32, userID uint32) (uint32, error)
 	GetByID(albumID uint32) (*models.Album, error)
-	Change(album models.Album) error
+	// Change(album models.Album) error
 	Delete(albumID uint32, userID uint32) error
 	GetFeed() ([]models.Album, error)
 	GetByArtist(artistID uint32) ([]models.Album, error)

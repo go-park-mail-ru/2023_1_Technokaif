@@ -6,6 +6,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+//go:generate mockgen -source=user.go -destination=mocks/mock.go
+
 // Usecase includes bussiness logics methods to work with users
 type Usecase interface {
 	GetByID(userID uint32) (*models.User, error)
