@@ -43,7 +43,7 @@ func (p *PostgreSQL) GetByID(userID uint32) (*models.User, error) {
 				last_name, 
 				sex, 
 				birth_date, 
-				COALESCE(avatar_src, '')
+				avatar_src
 		FROM %s 
 		WHERE id = $1;`,
 		p.tables.Users())

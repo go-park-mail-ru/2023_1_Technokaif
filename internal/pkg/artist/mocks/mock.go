@@ -34,20 +34,6 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// Change mocks base method.
-func (m *MockUsecase) Change(artist models.Artist) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Change", artist)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Change indicates an expected call of Change.
-func (mr *MockUsecaseMockRecorder) Change(artist interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Change", reflect.TypeOf((*MockUsecase)(nil).Change), artist)
-}
-
 // Create mocks base method.
 func (m *MockUsecase) Create(artist models.Artist) (uint32, error) {
 	m.ctrl.T.Helper()
@@ -167,6 +153,21 @@ func (mr *MockUsecaseMockRecorder) SetLike(artistID, userID interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLike", reflect.TypeOf((*MockUsecase)(nil).SetLike), artistID, userID)
 }
 
+// UnLike mocks base method.
+func (m *MockUsecase) UnLike(artistID, userID uint32) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UnLike", artistID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UnLike indicates an expected call of UnLike.
+func (mr *MockUsecaseMockRecorder) UnLike(artistID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnLike", reflect.TypeOf((*MockUsecase)(nil).UnLike), artistID, userID)
+}
+
 // MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
@@ -202,6 +203,21 @@ func (m *MockRepository) DeleteByID(artistID uint32) error {
 func (mr *MockRepositoryMockRecorder) DeleteByID(artistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockRepository)(nil).DeleteByID), artistID)
+}
+
+// DeleteLike mocks base method.
+func (m *MockRepository) DeleteLike(artistID, userID uint32) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteLike", artistID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteLike indicates an expected call of DeleteLike.
+func (mr *MockRepositoryMockRecorder) DeleteLike(artistID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLike", reflect.TypeOf((*MockRepository)(nil).DeleteLike), artistID, userID)
 }
 
 // GetByAlbum mocks base method.

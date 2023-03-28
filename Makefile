@@ -1,6 +1,9 @@
 .PHONY: all
 
-all: serverstart
+all: clear_media server_start
 
-serverstart:
+server_start:
 	go run ./cmd/app/main.go
+
+clear_media:
+	rm -r ./img

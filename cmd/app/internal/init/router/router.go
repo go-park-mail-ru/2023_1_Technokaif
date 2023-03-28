@@ -13,7 +13,16 @@ import (
 	track "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
 	user "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 )
+
+const (
+	userIdRoute = "/{" + commonHttp.UserIdUrlParam + "}"
+	albumIdRoute = "/{" + commonHttp.AlbumIdUrlParam + "}"
+	artistIdRoute = "/{" + commonHttp.ArtistIdUrlParam + "}"
+	trackIdRoute = "/{" + commonHttp.TrackIdUrlParam + "}"
+)
+
 
 // InitRouter describes all app's endpoints and their handlers
 func InitRouter(
@@ -24,9 +33,8 @@ func InitRouter(
 	user *user.Handler,
 	authM *authM.Middleware,
 	loggger logger.Logger) *chi.Mux {
-
+	
 	r := chi.NewRouter()
-
 	r.Use(middleware.Panic(loggger))
 	r.Use(middleware.Logging(loggger))
 
@@ -35,7 +43,7 @@ func InitRouter(
 	r.Route("/api", func(r chi.Router) {
 
 		r.Route("/users", func(r chi.Router) {
-			r.Route("/{userID}", func(r chi.Router) {
+			r.Route(userIdRoute, func(r chi.Router) {
 				r.With(authM.Authorization).Get("/", user.Read)
 				r.With(authM.Authorization).Post("/avatar", user.UploadAvatar)
 
@@ -50,7 +58,7 @@ func InitRouter(
 
 		r.Route("/albums", func(r chi.Router) {
 			r.With(authM.Authorization).Post("/", album.Create)
-			r.Route("/{albumID}", func(r chi.Router) {
+			r.Route(albumIdRoute, func(r chi.Router) {
 				r.Get("/", album.Read)
 				// r.Put("/", album.Update)
 				r.With(authM.Authorization).Delete("/", album.Delete)
@@ -65,7 +73,7 @@ func InitRouter(
 
 		r.Route("/artists", func(r chi.Router) {
 			r.With(authM.Authorization).Post("/", artist.Create)
-			r.Route("/{artistID}", func(r chi.Router) {
+			r.Route(artistIdRoute, func(r chi.Router) {
 				r.Get("/", artist.Read)
 				// r.Put("/", artist.Update)
 				r.With(authM.Authorization).Delete("/", artist.Delete)
@@ -81,7 +89,7 @@ func InitRouter(
 
 		r.Route("/tracks", func(r chi.Router) {
 			r.With(authM.Authorization).Post("/", track.Create)
-			r.Route("/{trackID}", func(r chi.Router) {
+			r.Route(trackIdRoute, func(r chi.Router) {
 				r.Get("/", track.Read)
 				// r.Put("/", track.Update)
 				r.With(authM.Authorization).Delete("/", track.Delete)

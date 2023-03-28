@@ -3,8 +3,8 @@ CREATE TABLE Users
 (
     id            SERIAL       PRIMARY KEY,
     version       INT                      NOT NULL DEFAULT 1,
-    username      VARCHAR(20)  UNIQUE      NOT NULL,
-    email         VARCHAR(30)  UNIQUE      NOT NULL,
+    username      VARCHAR(20)   UNIQUE     NOT NULL,
+    email         VARCHAR(255)  UNIQUE     NOT NULL,
     password_hash VARCHAR(256)             NOT NULL,
     salt          VARCHAR(64)              NOT NULL,
     first_name    VARCHAR(20)              NOT NULL,
