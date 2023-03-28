@@ -132,7 +132,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 			expectedError: &models.NoSuchUserError{},
 		},
 		{
-			name: "No such user",
+			name: "Internal postgres error",
 			authData: authData{
 				userID:      1,
 				userVersion: 2,
@@ -143,10 +143,10 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 
 				sqlMock.ExpectQuery("SELECT (.+) FROM " + tableName).
 					WithArgs(userID, userVersion).
-					WillReturnError(sql.ErrNoRows)
+					WillReturnError(pqInternalError)
 			},
 			expectError:   true,
-			expectedError: &models.NoSuchUserError{},
+			expectedError: pqInternalError,
 		},
 	}
 
