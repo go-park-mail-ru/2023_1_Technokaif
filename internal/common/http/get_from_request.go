@@ -49,10 +49,10 @@ func GetAlbumIDFromRequest(r *http.Request) (uint32, error) {
 func convertID(idUrl string) (uint32, error) {
 	id, err := strconv.Atoi(idUrl)
 
-	if id <= 0 {
+	if err != nil {
 		return 0, errors.New("invalid ID url param")
 	}
-	if err != nil {
+	if id <= 0 {
 		return 0, errors.New("invalid ID url param")
 	}
 

@@ -36,14 +36,14 @@ func InitRouter(
 
 		r.Route("/users", func(r chi.Router) {
 			r.Route("/{userID}", func(r chi.Router) {
-				r.With(authM.Authorization).Get("/", user.Read)
+				r.With(authM.Authorization).Get("/", user.Get)
 				r.With(authM.Authorization).Post("/avatar", user.UploadAvatar)
 
 				r.Route("/favourite", func(r chi.Router) {
 					r.Use(authM.Authorization)
-					r.Get("/tracks", user.ReadFavouriteTracks)
-					r.Get("/albums", user.ReadFavouriteAlbums)
-					r.Get("/artists", user.ReadFavouriteArtists)
+					r.Get("/tracks", user.GetFavouriteTracks)
+					r.Get("/albums", user.GetFavouriteAlbums)
+					r.Get("/artists", user.GetFavouriteArtists)
 				})
 			})
 		})
@@ -51,14 +51,14 @@ func InitRouter(
 		r.Route("/albums", func(r chi.Router) {
 			r.With(authM.Authorization).Post("/", album.Create)
 			r.Route("/{albumID}", func(r chi.Router) {
-				r.Get("/", album.Read)
+				r.Get("/", album.Get)
 				// r.Put("/", album.Update)
 				r.With(authM.Authorization).Delete("/", album.Delete)
 
 				r.With(authM.Authorization).Post("/like", album.Like)
 				r.With(authM.Authorization).Post("/unlike", album.UnLike)
 
-				r.Get("/tracks", track.ReadByAlbum)
+				r.Get("/tracks", track.GetByAlbum)
 			})
 			r.Get("/feed", album.Feed)
 		})
@@ -66,15 +66,15 @@ func InitRouter(
 		r.Route("/artists", func(r chi.Router) {
 			r.With(authM.Authorization).Post("/", artist.Create)
 			r.Route("/{artistID}", func(r chi.Router) {
-				r.Get("/", artist.Read)
+				r.Get("/", artist.Get)
 				// r.Put("/", artist.Update)
 				r.With(authM.Authorization).Delete("/", artist.Delete)
 
 				r.With(authM.Authorization).Post("/like", artist.Like)
 				r.With(authM.Authorization).Post("/unlike", artist.UnLike)
 
-				r.Get("/tracks", track.ReadByArtist)
-				r.Get("/albums", album.ReadByArtist)
+				r.Get("/tracks", track.GetByArtist)
+				r.Get("/albums", album.GetByArtist)
 			})
 			r.Get("/feed", artist.Feed)
 		})
@@ -82,7 +82,7 @@ func InitRouter(
 		r.Route("/tracks", func(r chi.Router) {
 			r.With(authM.Authorization).Post("/", track.Create)
 			r.Route("/{trackID}", func(r chi.Router) {
-				r.Get("/", track.Read)
+				r.Get("/", track.Get)
 				// r.Put("/", track.Update)
 				r.With(authM.Authorization).Delete("/", track.Delete)
 

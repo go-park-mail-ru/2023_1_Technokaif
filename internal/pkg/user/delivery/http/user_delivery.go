@@ -24,11 +24,11 @@ type Handler struct {
 
 func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler {
 	return &Handler{
-		userServices: uu,
-		trackServices: tu,
-		albumServices: alu,
+		userServices:   uu,
+		trackServices:  tu,
+		albumServices:  alu,
 		artistServices: aru,
-		logger:       l,
+		logger:         l,
 	}
 }
 
@@ -42,7 +42,7 @@ func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist
 // @Failure     403    	{object}  	http.Error  "Forbidden user"
 // @Failure     500    	{object}  	http.Error  "Server error"
 // @Router	    /api/users/{userID}/ [get]
-func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	user, err := h.checkUserAuthAndResponce(w, r)
 	if err != nil {
 		return
@@ -58,12 +58,12 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 // @Description  Update user avatar
 // @Accept       multipart/form-data
 // @Produce      application/json
-// @Param		 avatar formData file true "avatar file"
+// @Param		 avatar formData file true 				   "Avatar file"
 // @Success      200    {object}  userUploadAvatarResponse "Avatar updated"
-// @Failure      400    {object}  http.Error  "Invalid form data"
-// @Failure      401    {object}  http.Error  "Unauthorized user"
-// @Failure      403    {object}  http.Error  "Forbidden user"
-// @Failure      500    {object}  http.Error  "Server error"
+// @Failure      400    {object}  http.Error  			   "Invalid form data"
+// @Failure      401    {object}  http.Error  			   "User Unathorized"
+// @Failure      403    {object}  http.Error  			   "User hasn't rights"
+// @Failure      500    {object}  http.Error  			   "Server error"
 // @Router       /api/users/{userID}/avatar [post]
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	user, err := h.checkUserAuthAndResponce(w, r)
@@ -99,7 +99,8 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, uuar, h.logger)
 }
 
-func (h *Handler) ReadFavouriteTracks(w http.ResponseWriter, r *http.Request) {
+// swaggermock
+func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 	user, err := h.checkUserAuthAndResponce(w, r)
 	if err != nil {
 		return
@@ -120,7 +121,8 @@ func (h *Handler) ReadFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
-func (h *Handler) ReadFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
+// swaggermock
+func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 	user, err := h.checkUserAuthAndResponce(w, r)
 	if err != nil {
 		return
@@ -141,7 +143,8 @@ func (h *Handler) ReadFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
-func (h *Handler) ReadFavouriteArtists(w http.ResponseWriter, r *http.Request) {
+// swaggermock
+func (h *Handler) GetFavouriteArtists(w http.ResponseWriter, r *http.Request) {
 	user, err := h.checkUserAuthAndResponce(w, r)
 	if err != nil {
 		return
