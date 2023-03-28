@@ -41,16 +41,16 @@ func (u *Usecase) ChangeInfo(user *models.User) error {
 
 const dirForUserAvatars = "./img/user_avatars"
 
-var AvatarWrongFormatError = errors.New("wrong avatar file fromat")
+var ErrAvatarWrongFormat = errors.New("wrong avatar file fromat")
 
 func (u *Usecase) UploadAvatarWrongFormatError() error {
-	return AvatarWrongFormatError
+	return ErrAvatarWrongFormat
 }
 
 func (u *Usecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtension string) error {
 	// Check format
 	if fileType, err := common.CheckMimeType(file, "image/png", "image/jpeg"); err != nil {
-		return fmt.Errorf("(usecase) file format %s: %w", fileType, AvatarWrongFormatError)
+		return fmt.Errorf("(usecase) file format %s: %w", fileType, ErrAvatarWrongFormat)
 	}
 
 	// Create standard filename
