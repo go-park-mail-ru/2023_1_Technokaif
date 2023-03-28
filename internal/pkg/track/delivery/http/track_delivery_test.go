@@ -13,9 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
 	trackMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/mocks"
-
 	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
 )
 
@@ -74,6 +74,17 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 					"id": 1
 				}
 			`,
+		},
+		{
+			name:           "No User",
+			user:           nil,
+			mockBehaviour:  func(tu *trackMocks.MockUsecase) {},
+			expectedStatus: 401,
+			expectedResponse: `
+			{
+				"message": "unathorized"
+			}
+		`,
 		},
 		{
 			name: "Incorrect JSON",

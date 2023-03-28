@@ -61,6 +61,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Error(err.Error())
 		commonHttp.ErrorResponse(w, "can't create artist", http.StatusInternalServerError, h.logger)
+		return
 	}
 
 	acr := artistCreateResponse{ID: artistID}
@@ -210,5 +211,5 @@ func (h *Handler) SetLike(w http.ResponseWriter, r *http.Request) {
 	} else {
 		resp := artistSetLikeResponse{Status: "exists"}
 		commonHttp.SuccessResponse(w, resp, h.logger)
-	}	
+	}
 }
