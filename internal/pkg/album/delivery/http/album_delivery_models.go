@@ -70,7 +70,7 @@ func (aci *albumChangeInput) ToAlbum() models.Album {
 }
 
 type albumChangeResponse struct {
-	Message string `json:"status"`
+	Status string `json:"status"`
 }
 
 // Delete

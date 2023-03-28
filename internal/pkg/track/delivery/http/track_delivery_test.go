@@ -92,7 +92,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
 		{
-			name: "Incorrect body (no source)",
+			name: "Incorrect Body (no source)",
 			user: &correctUser,
 			requestBody: `{
 				"name": "Хит",
@@ -100,6 +100,19 @@ func TestTrackDeliveryCreate(t *testing.T) {
 				"cover": "/tracks/covers/hit.png"
 			}`,
 			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "incorrect input body"}`,
+		},
+		{
+			name: "Incorrect Body (albumID w/o albumPosition)",
+			user: &correctUser,
+			requestBody: `{
+				"name": "Хит",
+				"artistsID": [1],
+				"albumID": 1,
+				"cover": "/tracks/covers/gorgorod.png"
+			}`,
+			mockBehaviour:    func(au *trackMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
@@ -185,7 +198,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 		{
 			ID:        1,
 			Name:      "Oxxxymiron",
-			AvatarSrc: "/avatars/artists/oxxxymiron.png",
+			AvatarSrc: "/artists/avatars/oxxxymiron.png",
 		},
 	}
 
@@ -196,7 +209,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			{
 				"id": 1,
 				"name": "Oxxxymiron",
-				"cover": "/avatars/artists/oxxxymiron.png"
+				"cover": "/artists/avatars/oxxxymiron.png"
 			}
 		],
 		"cover": "/tracks/covers/hit.png",
@@ -225,7 +238,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 		},
 		{
 			name:             "Incorrect ID In Path",
-			trackIDPath:      "incorrect",
+			trackIDPath:      "-5",
 			mockBehaviour:    func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
@@ -414,6 +427,157 @@ func TestTrackDeliveryDelete(t *testing.T) {
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("DELETE", "/api/tracks/"+tc.trackIDPath+"/", nil)
 			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
+
+			// Test
+			assert.Equal(t, tc.expectedStatus, w.Code)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+		})
+	}
+}
+
+func TestTrackDeliveryFeed(t *testing.T) {
+	type mockBehaviour func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
+
+	expectedReturnTracks := []models.Track{
+		{
+			ID:        1,
+			Name:      "Накануне",
+			CoverSrc:  "/tracks/covers/nakanune.png",
+			RecordSrc: "/tracks/records/nakanune.wav",
+			Listens:   2700000,
+		},
+		{
+			ID:        2,
+			Name:      "LAGG OUT",
+			CoverSrc:  "/tracks/covers/laggout.png",
+			RecordSrc: "/tracks/records/laggout.wav",
+			Listens:   4500000,
+		},
+	}
+
+	expectedReturnArtists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "Oxxxymiron",
+			AvatarSrc: "/artists/avatars/oxxxymiron.png",
+		},
+		{
+			ID:        2,
+			Name:      "SALUKI",
+			AvatarSrc: "/artists/avatars/saluki.png",
+		},
+		{
+			ID:        3,
+			Name:      "ATL",
+			AvatarSrc: "/artists/avatars/atl.png",
+		},
+	}
+
+	correctResponse := `[
+		{
+			"id": 1,
+			"name": "Накануне",
+			"artists": [
+				{
+					"id": 1,
+					"name": "Oxxxymiron",
+					"cover": "/artists/avatars/oxxxymiron.png"
+				}
+			],
+			"cover": "/tracks/covers/nakanune.png",
+			"record": "/tracks/records/nakanune.wav",
+			"listens": 2700000
+		},
+		{
+			"id": 2,
+			"name": "LAGG OUT",
+			"artists": [
+				{
+					"id": 2,
+					"name": "SALUKI",
+					"cover": "/artists/avatars/saluki.png"
+				},
+				{
+					"id": 3,
+					"name": "ATL",
+					"cover": "/artists/avatars/atl.png"
+				}
+			],
+			"cover": "/tracks/covers/laggout.png",
+			"record": "/tracks/records/laggout.wav",
+			"listens": 4500000
+		}
+	]`
+
+	testTable := []struct {
+		name             string
+		mockBehaviour    mockBehaviour
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name: "Common",
+			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+				tu.EXPECT().GetFeed().Return(expectedReturnTracks, nil)
+				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(expectedReturnArtists[0:1], nil)
+				au.EXPECT().GetByTrack(expectedReturnTracks[1].ID).Return(expectedReturnArtists[1:3], nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: correctResponse,
+		},
+		{
+			name: "No Tracks",
+			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+				tu.EXPECT().GetFeed().Return([]models.Track{}, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `[]`,
+		},
+		{
+			name: "Tracks Issues",
+			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+				tu.EXPECT().GetFeed().Return(nil, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't get tracks"}`,
+		},
+		{
+			name: "Artists Issues",
+			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+				tu.EXPECT().GetFeed().Return(expectedReturnTracks, nil)
+				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(nil, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't get tracks"}`,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Init
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			tu := trackMocks.NewMockUsecase(c)
+			au := artistMocks.NewMockUsecase(c)
+			tc.mockBehaviour(tu, au)
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+			h := NewHandler(tu, au, l)
+
+			// Routing
+			r := chi.NewRouter()
+			r.Get("/api/tracks/feed", h.Feed)
+
+			// Request
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/api/tracks/feed", nil)
+			r.ServeHTTP(w, req)
 
 			// Test
 			assert.Equal(t, tc.expectedStatus, w.Code)

@@ -37,8 +37,8 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 	correctRequestBody := `{
 		"name": "Горгород",
 		"artistsID": [1],
-		"Description": "Антиутопия",
-		"cover": "/covers/albums/gorgorod.png"
+		"description": "Антиутопия",
+		"cover": "/albums/covers/gorgorod.png"
 	}`
 
 	correctArtistsID := []uint32{1}
@@ -47,7 +47,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 	expectedCallAlbum := models.Album{
 		Name:        "Горгород",
 		Description: &description,
-		CoverSrc:    "/covers/albums/gorgorod.png",
+		CoverSrc:    "/albums/covers/gorgorod.png",
 	}
 
 	testTable := []struct {
@@ -85,20 +85,20 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 			requestBody: `{
 				"name": ,
 				"artistsID": [1],
-				"Description": "Антиутопия",
-				"cover": "/covers/albums/gorgorod.png"
+				"description": "Антиутопия",
+				"cover": "/albums/covers/gorgorod.png"
 			}`,
 			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
 		{
-			name: "Incorrect body (no name)",
+			name: "Incorrect Body (no name)",
 			user: &correctUser,
 			requestBody: `{
 				"artistsID": [1],
-				"Description": "Антиутопия",
-				"cover": "/covers/albums/gorgorod.png"
+				"description": "Антиутопия",
+				"cover": "/albums/covers/gorgorod.png"
 			}`,
 			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   400,
@@ -179,14 +179,14 @@ func TestAlbumDeliveryGet(t *testing.T) {
 		ID:          correctAlbumID,
 		Name:        "Горгород",
 		Description: &description,
-		CoverSrc:    "/covers/albums/gorgorod.png",
+		CoverSrc:    "/albums/covers/gorgorod.png",
 	}
 
 	expectedReturnArtists := []models.Artist{
 		{
 			ID:        1,
 			Name:      "Oxxxymiron",
-			AvatarSrc: "/avatars/artists/oxxxymiron.png",
+			AvatarSrc: "/artists/avatars/oxxxymiron.png",
 		},
 	}
 
@@ -197,11 +197,11 @@ func TestAlbumDeliveryGet(t *testing.T) {
 			{
 				"id": 1,
 				"name": "Oxxxymiron",
-				"cover": "/avatars/artists/oxxxymiron.png"
+				"cover": "/artists/avatars/oxxxymiron.png"
 			}
 		],
 		"description": "Антиутопия",
-		"cover": "/covers/albums/gorgorod.png"
+		"cover": "/albums/covers/gorgorod.png"
 	}`
 
 	testTable := []struct {
@@ -414,6 +414,155 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("DELETE", "/api/albums/"+tc.albumIDPath+"/", nil)
 			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
+
+			// Test
+			assert.Equal(t, tc.expectedStatus, w.Code)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+		})
+	}
+}
+
+func TestAlbumDeliveryFeed(t *testing.T) {
+	type mockBehaviour func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
+
+	description1 := "Антиутопия"
+	description2 := "Крутой альбом от крутого дуета"
+	expectedReturnAlbums := []models.Album{
+		{
+			ID:          1,
+			Name:        "Горгород",
+			Description: &description1,
+			CoverSrc:    "/albums/covers/gorgorod.png",
+		},
+		{
+			ID:          2,
+			Name:        "Стыд или Слава",
+			Description: &description2,
+			CoverSrc:    "/albums/covers/shameorglory.png",
+		},
+	}
+
+	expectedReturnArtists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "Oxxxymiron",
+			AvatarSrc: "/artists/avatars/oxxxymiron.png",
+		},
+		{
+			ID:        2,
+			Name:      "SALUKI",
+			AvatarSrc: "/artists/avatars/saluki.png",
+		},
+		{
+			ID:        3,
+			Name:      "104",
+			AvatarSrc: "/artists/avatars/104.png",
+		},
+	}
+
+	correctResponse := `[
+		{
+			"id": 1,
+			"name": "Горгород",
+			"artists": [
+				{
+					"id": 1,
+					"name": "Oxxxymiron",
+					"cover": "/artists/avatars/oxxxymiron.png"
+				}
+			],
+			"description": "Антиутопия",
+			"cover": "/albums/covers/gorgorod.png"
+		},
+		{
+			"id": 2,
+			"name": "Стыд или Слава",
+			"artists": [
+				{
+					"id": 2,
+					"name": "SALUKI",
+					"cover": "/artists/avatars/saluki.png"
+				},
+				{
+					"id": 3,
+					"name": "104",
+					"cover": "/artists/avatars/104.png"
+				}
+			],
+			"description": "Крутой альбом от крутого дуета",
+			"cover": "/albums/covers/shameorglory.png"
+		}
+	]`
+
+	testTable := []struct {
+		name             string
+		mockBehaviour    mockBehaviour
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name: "Common",
+			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+				alu.EXPECT().GetFeed().Return(expectedReturnAlbums, nil)
+				aru.EXPECT().GetByAlbum(expectedReturnAlbums[0].ID).Return(expectedReturnArtists[0:1], nil)
+				aru.EXPECT().GetByAlbum(expectedReturnAlbums[1].ID).Return(expectedReturnArtists[1:3], nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: correctResponse,
+		},
+		{
+			name: "No Albums",
+			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+				alu.EXPECT().GetFeed().Return([]models.Album{}, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `[]`,
+		},
+		{
+			name: "Albums Issues",
+			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+				alu.EXPECT().GetFeed().Return(nil, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't get albums"}`,
+		},
+		{
+			name: "Artists Issues",
+			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+				alu.EXPECT().GetFeed().Return(expectedReturnAlbums, nil)
+				aru.EXPECT().GetByAlbum(expectedReturnAlbums[0].ID).Return(nil, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't get albums"}`,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Init
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			alu := albumMocks.NewMockUsecase(c)
+			aru := artistMocks.NewMockUsecase(c)
+			tc.mockBehaviour(alu, aru)
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+			h := NewHandler(alu, aru, l)
+
+			// Routing
+			r := chi.NewRouter()
+			r.Get("/api/albums/feed", h.Feed)
+
+			// Request
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/api/albums/feed", nil)
+			r.ServeHTTP(w, req)
 
 			// Test
 			assert.Equal(t, tc.expectedStatus, w.Code)

@@ -146,13 +146,13 @@ func TestArtistDeliveryGet(t *testing.T) {
 	expectedReturnArtist := models.Artist{
 		ID:        1,
 		Name:      "Oxxxymiron",
-		AvatarSrc: "/avatars/artists/oxxxymiron.png",
+		AvatarSrc: "/artists/avatars/oxxxymiron.png",
 	}
 
 	correctResponse := `{
 		"id": 1,
 		"name": "Oxxxymiron",
-		"cover": "/avatars/artists/oxxxymiron.png"
+		"cover": "/artists/avatars/oxxxymiron.png"
 	}`
 
 	testTable := []struct {
@@ -175,7 +175,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 		},
 		{
 			name:             "Incorrect ID In Path",
-			artistIDPath:     "incorrect",
+			artistIDPath:     "0",
 			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
@@ -351,6 +351,120 @@ func TestArtistDeliveryDelete(t *testing.T) {
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("DELETE", "/api/artists/"+tc.artistIDPath+"/", nil)
 			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
+
+			// Test
+			assert.Equal(t, tc.expectedStatus, w.Code)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+		})
+	}
+}
+
+func TestArtistDeliveryFeed(t *testing.T) {
+	type mockBehaviour func(au *artistMocks.MockUsecase)
+
+	expectedReturnArtists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "Oxxxymiron",
+			AvatarSrc: "/artists/avatars/oxxxymiron.png",
+		},
+		{
+			ID:        2,
+			Name:      "SALUKI",
+			AvatarSrc: "/artists/avatars/saluki.png",
+		},
+		{
+			ID:        3,
+			Name:      "ATL",
+			AvatarSrc: "/artists/avatars/atl.png",
+		},
+		{
+			ID:        4,
+			Name:      "104",
+			AvatarSrc: "/artists/avatars/104.png",
+		},
+	}
+
+	correctResponse := `[
+		{
+			"id": 1,
+			"name": "Oxxxymiron",
+			"cover": "/artists/avatars/oxxxymiron.png"
+		},
+		{
+			"id": 2,
+			"name": "SALUKI",
+			"cover": "/artists/avatars/saluki.png"
+		},
+		{
+			"id": 3,
+			"name": "ATL",
+			"cover": "/artists/avatars/atl.png"
+		},
+		{
+			"id": 4,
+			"name": "104",
+			"cover": "/artists/avatars/104.png"
+		}
+	]`
+
+	testTable := []struct {
+		name             string
+		mockBehaviour    mockBehaviour
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name: "Common",
+			mockBehaviour: func(au *artistMocks.MockUsecase) {
+				au.EXPECT().GetFeed().Return(expectedReturnArtists, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: correctResponse,
+		},
+		{
+			name: "No Artists",
+			mockBehaviour: func(au *artistMocks.MockUsecase) {
+				au.EXPECT().GetFeed().Return([]models.Artist{}, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `[]`,
+		},
+		{
+			name: "Server Error",
+			mockBehaviour: func(au *artistMocks.MockUsecase) {
+				au.EXPECT().GetFeed().Return(nil, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't get artists"}`,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Init
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			au := artistMocks.NewMockUsecase(c)
+			tc.mockBehaviour(au)
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+			h := NewHandler(au, l)
+
+			// Routing
+			r := chi.NewRouter()
+			r.Get("/api/artists/feed", h.Feed)
+
+			// Request
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/api/artists/feed", nil)
+			r.ServeHTTP(w, req)
 
 			// Test
 			assert.Equal(t, tc.expectedStatus, w.Code)

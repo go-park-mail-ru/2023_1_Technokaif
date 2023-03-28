@@ -135,6 +135,10 @@ func (h *Handler) Change(w http.ResponseWriter, r *http.Request) {
 
 	// album := aci.ToAlbum()
 	// ...
+
+	acr := albumChangeResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, acr, h.logger)
 }
 
 // @Summary		Delete Album
@@ -206,13 +210,13 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	resp, err := models.AlbumTransferFromQuery(albums, h.artistServices.GetByAlbum)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -229,13 +233,13 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	albums, err := h.albumServices.GetFeed()
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	resp, err := models.AlbumTransferFromQuery(albums, h.artistServices.GetByAlbum)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -264,7 +268,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
 			return
 		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "error while setting like", http.StatusInternalServerError, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, "can't set like", http.StatusInternalServerError, h.logger, err)
 			return
 		}
 	}
@@ -300,7 +304,7 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
 			return
 		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "error while removing like", http.StatusInternalServerError, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, "can't remove like", http.StatusInternalServerError, h.logger, err)
 			return
 		}
 	}

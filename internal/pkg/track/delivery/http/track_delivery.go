@@ -192,13 +192,13 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting artist tracks", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	tt, err := models.TrackTransferFromQuery(tracks, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting artist tracks", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -228,13 +228,13 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting album tracks", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	tt, err := models.TrackTransferFromQuery(tracks, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting artist tracks", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -251,13 +251,13 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	tracks, err := h.trackServices.GetFeed()
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting tracks", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	tt, err := models.TrackTransferFromQuery(tracks, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting tracks", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -286,7 +286,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such track", http.StatusBadRequest, h.logger, err)
 			return
 		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "error while setting like", http.StatusInternalServerError, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, "can't set like", http.StatusInternalServerError, h.logger, err)
 			return
 		}
 	}
@@ -322,7 +322,7 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such track", http.StatusBadRequest, h.logger, err)
 			return
 		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "error while removing like", http.StatusInternalServerError, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, "can't remove like", http.StatusInternalServerError, h.logger, err)
 			return
 		}
 	}
