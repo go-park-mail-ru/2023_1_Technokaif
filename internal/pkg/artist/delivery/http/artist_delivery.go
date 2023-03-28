@@ -29,8 +29,9 @@ func NewHandler(au artist.Usecase, logger logger.Logger) *Handler {
 // @Accept      json
 // @Produce		json
 // @Param		artist	body		artistCreateInput	true	"Track info"
-// @Success		200		{object}	artistCreateResponse "Artist created"
-// @Failure		400		{object}	http.Error	"Client error"
+// @Success		200		{object}	artistCreateResponse 		"Artist created"
+// @Failure		400		{object}	http.Error	"Incorrect body"
+// @Failure		401		{object}	http.Error  "User unathorized"
 // @Failure		500		{object}	http.Error	"Server error"
 // @Router		/api/artists/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +49,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := aci.validate(); err != nil {
-		h.logger.Infof("artist create input validation failed: %s", err.Error())
+		h.logger.Infof("Creating artist input validation failed: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
 	}
@@ -70,15 +71,20 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags		Artist
 // @Description	Get artist with chosen ID
 // @Produce		json
-// @Success		200		{object}	models.ArtistTransfer	    "Artist got"
-// @Failure		400		{object}	http.Error	"Client error"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Success		200		{object}	models.ArtistTransfer "Artist got"
+// @Failure		400		{object}	http.Error			  "Incorrect body"
+// @Failure		500		{object}	http.Error			  "Server error"
 // @Router		/api/artists/{artistID}/ [get]
-func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("get artist by id: %v", err.Error())
+		h.logger.Infof("Get artist by id: %v", err.Error())
 		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	if _, err := commonHttp.GetUserFromRequest(r); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
@@ -89,7 +95,7 @@ func (h *Handler) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting artist", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get artist", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -108,20 +114,22 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 // @Description	Delete artist with chosen ID
 // @Produce		json
 // @Success		200		{object}	artistDeleteResponse "Artist deleted"
-// @Failure		400		{object}	http.Error	"Client error"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Failure		400		{object}	http.Error			 "Incorrect body"
+// @Failure		401		{object}	http.Error  		 "User unathorized"
+// @Failure		403		{object}	http.Error			 "User hasn't rights"
+// @Failure		500		{object}	http.Error			 "Server error"
 // @Router		/api/artists/{artistID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
+	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		h.logger.Infof("Get artist by id: %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
 		return
 	}
 
-	artistID, err := commonHttp.GetArtistIDFromRequest(r)
+	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		h.logger.Infof("get artist by id : %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
@@ -138,7 +146,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "error while deleting artist", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't delete artist", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -152,12 +160,12 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Description	Feed artists
 // @Produce		json
 // @Success		200		{object}	[]models.ArtistTransfer	"Artists feed"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Failure		500		{object}	http.Error				"Server error"
 // @Router		/api/artists/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	artists, err := h.artistServices.GetFeed()
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get album", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -166,10 +174,11 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, artistsTransfer, h.logger)
 }
 
+// swaggermock
 func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("get artist by id : %v", err)
+		h.logger.Infof("Get artist by id: %v", err)
 		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
 		return
 	}
@@ -187,7 +196,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such artist", http.StatusBadRequest, h.logger, err)
 			return
 		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "error while setting like", http.StatusInternalServerError, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, "can't set like", http.StatusInternalServerError, h.logger, err)
 			return
 		}
 	}
@@ -198,20 +207,21 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	} else {
 		resp := artistLikeResponse{Status: "exists"}
 		commonHttp.SuccessResponse(w, resp, h.logger)
-	}	
+	}
 }
 
+// swaggermock
 func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
-	artistID, err := commonHttp.GetArtistIDFromRequest(r)
-	if err != nil {
-		h.logger.Infof("get artist by id : %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
-		return
-	}
-
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		return
+	}
+
+	artistID, err := commonHttp.GetArtistIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("Get artist by id: %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
 		return
 	}
 
@@ -222,7 +232,7 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such artist", http.StatusBadRequest, h.logger, err)
 			return
 		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "error while removing like", http.StatusInternalServerError, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, "can't remove like", http.StatusInternalServerError, h.logger, err)
 			return
 		}
 	}
