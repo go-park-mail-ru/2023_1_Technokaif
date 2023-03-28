@@ -32,6 +32,9 @@ var correctUser = models.User{
 	ID: 1,
 }
 
+var correctTrackID = uint32(1)
+var correctTrackIDPath = fmt.Sprint(correctTrackID)
+
 func TestTrackDeliveryCreate(t *testing.T) {
 	type mockBehaviour func(tu *trackMocks.MockUsecase)
 
@@ -183,9 +186,6 @@ func TestTrackDeliveryCreate(t *testing.T) {
 func TestTrackDeliveryGet(t *testing.T) {
 	type mockBehaviour func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
 
-	correctTrackID := uint32(1)
-	correctTrackIDPath := fmt.Sprint(correctTrackID)
-
 	expectedReturnTrack := models.Track{
 		ID:        correctTrackID,
 		Name:      "Хит",
@@ -320,9 +320,6 @@ func TestTrackDeliveryGet(t *testing.T) {
 
 func TestTrackDeliveryDelete(t *testing.T) {
 	type mockBehaviour func(au *trackMocks.MockUsecase)
-
-	correctTrackID := uint32(1)
-	correctTrackIDPath := fmt.Sprint(correctTrackID)
 
 	testTable := []struct {
 		name             string
@@ -578,6 +575,212 @@ func TestTrackDeliveryFeed(t *testing.T) {
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("GET", "/api/tracks/feed", nil)
 			r.ServeHTTP(w, req)
+
+			// Test
+			assert.Equal(t, tc.expectedStatus, w.Code)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+		})
+	}
+}
+
+func TestTrackDeliveryLike(t *testing.T) {
+	type mockBehaviour func(tu *trackMocks.MockUsecase)
+
+	testTable := []struct {
+		name             string
+		trackIDPath      string
+		user             *models.User
+		mockBehaviour    mockBehaviour
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:        "Common",
+			trackIDPath: correctTrackIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(true, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "ok"}`,
+		},
+		{
+			name:        "Already Liked (Anyway Success)",
+			trackIDPath: correctTrackIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "already liked"}`,
+		},
+		{
+			name:             "Incorrect ID In Path",
+			trackIDPath:      "0",
+			user:             &correctUser,
+			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "invalid url parameter"}`,
+		},
+		{
+			name:             "No User",
+			trackIDPath:      correctTrackIDPath,
+			user:             nil,
+			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			expectedStatus:   401,
+			expectedResponse: `{"message": "unathorized"}`,
+		},
+		{
+			name:        "No Album To Like",
+			trackIDPath: correctTrackIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, &models.NoSuchTrackError{})
+			},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "no such track"}`,
+		},
+		{
+			name:        "Server Error",
+			trackIDPath: correctTrackIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't set like"}`,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Init
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			tu := trackMocks.NewMockUsecase(c)
+			au := artistMocks.NewMockUsecase(c)
+			tc.mockBehaviour(tu)
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+			h := NewHandler(tu, au, l)
+
+			// Routing
+			r := chi.NewRouter()
+			r.Get("/api/tracks/{trackID}/like", h.Like)
+
+			// Request
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/api/tracks/"+tc.trackIDPath+"/like", nil)
+			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
+
+			// Test
+			assert.Equal(t, tc.expectedStatus, w.Code)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+		})
+	}
+}
+
+func TestTrackDeliveryUnLike(t *testing.T) {
+	type mockBehaviour func(tu *trackMocks.MockUsecase)
+
+	testTable := []struct {
+		name             string
+		trackIDPath      string
+		user             *models.User
+		mockBehaviour    mockBehaviour
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:        "Common",
+			trackIDPath: correctTrackIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(true, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "ok"}`,
+		},
+		{
+			name:        "Wasn't Liked (Anyway Success)",
+			trackIDPath: correctTrackIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "wasn't liked"}`,
+		},
+		{
+			name:             "Incorrect ID In Path",
+			trackIDPath:      "0",
+			user:             &correctUser,
+			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "invalid url parameter"}`,
+		},
+		{
+			name:             "No User",
+			trackIDPath:      correctTrackIDPath,
+			user:             nil,
+			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			expectedStatus:   401,
+			expectedResponse: `{"message": "unathorized"}`,
+		},
+		{
+			name:        "No Album To Unlike",
+			trackIDPath: correctTrackIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, &models.NoSuchTrackError{})
+			},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "no such track"}`,
+		},
+		{
+			name:        "Server Error",
+			trackIDPath: correctTrackIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't remove like"}`,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Init
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			tu := trackMocks.NewMockUsecase(c)
+			au := artistMocks.NewMockUsecase(c)
+			tc.mockBehaviour(tu)
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+			h := NewHandler(tu, au, l)
+
+			// Routing
+			r := chi.NewRouter()
+			r.Get("/api/tracks/{trackID}/like", h.UnLike)
+
+			// Request
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/api/tracks/"+tc.trackIDPath+"/like", nil)
+			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
 
 			// Test
 			assert.Equal(t, tc.expectedStatus, w.Code)

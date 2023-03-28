@@ -570,3 +570,215 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 		})
 	}
 }
+
+func TestAlbumDeliveryLike(t *testing.T) {
+	type mockBehaviour func(au *albumMocks.MockUsecase)
+
+	correctAlbumID := uint32(1)
+	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
+
+	testTable := []struct {
+		name             string
+		albumIDPath      string
+		user             *models.User
+		mockBehaviour    mockBehaviour
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:        "Common",
+			albumIDPath: correctAlbumIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(au *albumMocks.MockUsecase) {
+				au.EXPECT().SetLike(correctAlbumID, correctUser.ID).Return(true, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "ok"}`,
+		},
+		{
+			name:        "Already liked (Anyway Success)",
+			albumIDPath: correctAlbumIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(au *albumMocks.MockUsecase) {
+				au.EXPECT().SetLike(correctAlbumID, correctUser.ID).Return(false, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "already liked"}`,
+		},
+		{
+			name:             "Incorrect ID In Path",
+			albumIDPath:      "0",
+			user:             &correctUser,
+			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "invalid url parameter"}`,
+		},
+		{
+			name:             "No User",
+			albumIDPath:      correctAlbumIDPath,
+			user:             nil,
+			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			expectedStatus:   401,
+			expectedResponse: `{"message": "unathorized"}`,
+		},
+		{
+			name:        "No Album To Like",
+			albumIDPath: correctAlbumIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(au *albumMocks.MockUsecase) {
+				au.EXPECT().SetLike(correctAlbumID, correctUser.ID).Return(false, &models.NoSuchAlbumError{})
+			},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "no such album"}`,
+		},
+		{
+			name:        "Server Error",
+			albumIDPath: correctAlbumIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(au *albumMocks.MockUsecase) {
+				au.EXPECT().SetLike(correctAlbumID, correctUser.ID).Return(false, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't set like"}`,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Init
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			alu := albumMocks.NewMockUsecase(c)
+			aru := artistMocks.NewMockUsecase(c)
+			tc.mockBehaviour(alu)
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+			h := NewHandler(alu, aru, l)
+
+			// Routing
+			r := chi.NewRouter()
+			r.Get("/api/albums/{albumID}/like", h.Like)
+
+			// Request
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/api/albums/"+tc.albumIDPath+"/like", nil)
+			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
+
+			// Test
+			assert.Equal(t, tc.expectedStatus, w.Code)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+		})
+	}
+}
+
+func TestAlbumDeliveryUnLike(t *testing.T) {
+	type mockBehaviour func(au *albumMocks.MockUsecase)
+
+	correctAlbumID := uint32(1)
+	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
+
+	testTable := []struct {
+		name             string
+		albumIDPath      string
+		user             *models.User
+		mockBehaviour    mockBehaviour
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:        "Common",
+			albumIDPath: correctAlbumIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(au *albumMocks.MockUsecase) {
+				au.EXPECT().UnLike(correctAlbumID, correctUser.ID).Return(true, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "ok"}`,
+		},
+		{
+			name:        "Wasn't Liked (Anyway Success)",
+			albumIDPath: correctAlbumIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(au *albumMocks.MockUsecase) {
+				au.EXPECT().UnLike(correctAlbumID, correctUser.ID).Return(false, nil)
+			},
+			expectedStatus:   200,
+			expectedResponse: `{"status": "wasn't liked"}`,
+		},
+		{
+			name:             "Incorrect ID In Path",
+			albumIDPath:      "0",
+			user:             &correctUser,
+			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "invalid url parameter"}`,
+		},
+		{
+			name:             "No User",
+			albumIDPath:      correctAlbumIDPath,
+			user:             nil,
+			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			expectedStatus:   401,
+			expectedResponse: `{"message": "unathorized"}`,
+		},
+		{
+			name:        "No Album To Unlike",
+			albumIDPath: correctAlbumIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(au *albumMocks.MockUsecase) {
+				au.EXPECT().UnLike(correctAlbumID, correctUser.ID).Return(false, &models.NoSuchAlbumError{})
+			},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "no such album"}`,
+		},
+		{
+			name:        "Server Error",
+			albumIDPath: correctAlbumIDPath,
+			user:        &correctUser,
+			mockBehaviour: func(au *albumMocks.MockUsecase) {
+				au.EXPECT().UnLike(correctAlbumID, correctUser.ID).Return(false, errors.New(""))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "can't remove like"}`,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Init
+			c := gomock.NewController(t)
+			defer c.Finish()
+
+			alu := albumMocks.NewMockUsecase(c)
+			aru := artistMocks.NewMockUsecase(c)
+			tc.mockBehaviour(alu)
+
+			l := logMocks.NewMockLogger(c)
+			l.EXPECT().Error(gomock.Any()).AnyTimes()
+			l.EXPECT().Info(gomock.Any()).AnyTimes()
+			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+			h := NewHandler(alu, aru, l)
+
+			// Routing
+			r := chi.NewRouter()
+			r.Get("/api/albums/{albumID}/like", h.UnLike)
+
+			// Request
+			w := httptest.NewRecorder()
+			req := httptest.NewRequest("GET", "/api/albums/"+tc.albumIDPath+"/like", nil)
+			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
+
+			// Test
+			assert.Equal(t, tc.expectedStatus, w.Code)
+			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+		})
+	}
+}

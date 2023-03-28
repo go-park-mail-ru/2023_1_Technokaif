@@ -5,6 +5,7 @@ import (
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http/middleware"
 	album "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/delivery/http"
 	artist "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/delivery/http"
@@ -13,16 +14,14 @@ import (
 	track "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
 	user "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 )
 
 const (
-	userIdRoute = "/{" + commonHttp.UserIdUrlParam + "}"
-	albumIdRoute = "/{" + commonHttp.AlbumIdUrlParam + "}"
+	userIdRoute   = "/{" + commonHttp.UserIdUrlParam + "}"
+	albumIdRoute  = "/{" + commonHttp.AlbumIdUrlParam + "}"
 	artistIdRoute = "/{" + commonHttp.ArtistIdUrlParam + "}"
-	trackIdRoute = "/{" + commonHttp.TrackIdUrlParam + "}"
+	trackIdRoute  = "/{" + commonHttp.TrackIdUrlParam + "}"
 )
-
 
 // InitRouter describes all app's endpoints and their handlers
 func InitRouter(
@@ -33,7 +32,7 @@ func InitRouter(
 	user *user.Handler,
 	authM *authM.Middleware,
 	loggger logger.Logger) *chi.Mux {
-	
+
 	r := chi.NewRouter()
 	r.Use(middleware.Panic(loggger))
 	r.Use(middleware.Logging(loggger))

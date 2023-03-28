@@ -61,8 +61,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	album := aci.ToAlbum()
 
 	albumID, err := h.albumServices.Create(album, aci.ArtistsID, user.ID)
-	var errForbiddenUser *models.ForbiddenUserError
 	if err != nil {
+		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no rights to crearte album", http.StatusForbidden, h.logger, err)
 			return
@@ -99,11 +99,13 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	album, err := h.albumServices.GetByID(albumID)
-	var errNoSuchAlbum *models.NoSuchAlbumError
-	if errors.As(err, &errNoSuchAlbum) {
-		commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
-		return
-	} else if err != nil {
+	if err != nil {
+		var errNoSuchAlbum *models.NoSuchAlbumError
+		if errors.As(err, &errNoSuchAlbum) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get album", http.StatusInternalServerError, h.logger, err)
 		return
 	}
@@ -166,13 +168,14 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.albumServices.Delete(albumID, user.ID)
-	var errForbiddenUser *models.ForbiddenUserError
-	var errNoSuchAlbum *models.NoSuchAlbumError
 	if err != nil {
+		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no rights to delete album", http.StatusForbidden, h.logger, err)
 			return
 		}
+
+		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
 			return
@@ -204,12 +207,13 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	albums, err := h.albumServices.GetByArtist(artistID)
-	var errNoSuchArtist *models.NoSuchArtistError
-	if errors.As(err, &errNoSuchArtist) {
-		commonHttp.ErrorResponseWithErrLogging(w, "no such artist", http.StatusBadRequest, h.logger, err)
-		return
-	}
 	if err != nil {
+		var errNoSuchArtist *models.NoSuchArtistError
+		if errors.As(err, &errNoSuchArtist) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such artist", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
@@ -261,25 +265,23 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExists, err := h.albumServices.SetLike(albumID, user.ID)
+	notExisted, err := h.albumServices.SetLike(albumID, user.ID)
 	if err != nil {
 		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
 			return
-		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "can't set like", http.StatusInternalServerError, h.logger, err)
-			return
 		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't set like", http.StatusInternalServerError, h.logger, err)
+		return
 	}
 
-	if notExists {
-		resp := albumLikeResponse{Status: "ok"}
-		commonHttp.SuccessResponse(w, resp, h.logger)
-	} else {
-		resp := albumLikeResponse{Status: "exists"}
-		commonHttp.SuccessResponse(w, resp, h.logger)
+	alr := albumLikeResponse{Status: "ok"}
+	if !notExisted {
+		alr.Status = "already liked"
 	}
+	commonHttp.SuccessResponse(w, alr, h.logger)
 }
 
 // swaggermock
@@ -303,17 +305,15 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 		if errors.As(err, &errNoSuchAlbum) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
 			return
-		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "can't remove like", http.StatusInternalServerError, h.logger, err)
-			return
 		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't remove like", http.StatusInternalServerError, h.logger, err)
+		return
 	}
 
-	if notExisted {
-		resp := albumLikeResponse{Status: "ok"}
-		commonHttp.SuccessResponse(w, resp, h.logger)
-	} else {
-		resp := albumLikeResponse{Status: "already disliked"}
-		commonHttp.SuccessResponse(w, resp, h.logger)
+	alr := albumLikeResponse{Status: "ok"}
+	if !notExisted {
+		alr.Status = "wasn't liked"
 	}
+	commonHttp.SuccessResponse(w, alr, h.logger)
 }

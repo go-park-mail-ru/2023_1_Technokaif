@@ -152,4 +152,3 @@ func (u *Usecase) UnLike(albumID, userID uint32) (bool, error) {
 
 	return iSdeleted, nil
 }
-
