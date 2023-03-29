@@ -1,8 +1,37 @@
 package http
 
+import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+
 // UploadAvatar
 const maxAvatarMemory = 1 * (1 << 20)
 
 type userUploadAvatarResponse struct {
+	Status string `json:"status"`
+}
+
+// Update Info
+type userInfoInput struct {
+	ID        uint32      `json:"-" valid:"-"`
+	Email     string      `json:"email" valid:"required,email,maxstringlength(255)"`
+	FirstName string      `json:"firstName" valid:"required,runelength(2|20)"`
+	LastName  string      `json:"lastName" valid:"required,runelength(2|20)"`
+	Sex       models.Sex  `json:"sex" valid:"required,in(F|M|O)"`
+	BirthDate models.Date `json:"birthDate" valid:"required,born"`
+	AvatarSrc string      `json:"-" valid:"-"`
+}
+
+func (u *userInfoInput) ToUser() *models.User {
+	return &models.User{
+		ID:        u.ID,
+		Email:     u.Email,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Sex:       u.Sex,
+		BirthDate: u.BirthDate,
+		AvatarSrc: u.AvatarSrc,
+	}
+}
+
+type userChangeInfoResponse struct {
 	Status string `json:"status"`
 }

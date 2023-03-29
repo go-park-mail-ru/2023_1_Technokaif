@@ -46,8 +46,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var aci albumCreateInput
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&aci); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&aci); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
@@ -227,7 +226,15 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
-// swaggermock
+// @Summary		Set like
+// @Tags		Album
+// @Description	Set like by user to chosen album (add to favorite)
+// @Produce		json
+// @Success		200		{object}	albumLikeResponse	"Like set"
+// @Failure		400		{object}	http.Error			"Client error"
+// @Failure		401		{object}	http.Error  		"User unathorized"
+// @Failure		500		{object}	http.Error			"Server error"
+// @Router		/api/albums/{albumID}/like [post]
 func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
 	if err != nil {
@@ -261,7 +268,15 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, alr, h.logger)
 }
 
-// swaggermock
+// @Summary		Remove like
+// @Tags		Album
+// @Description	Remove like by user from chosen album (remove from favorite)
+// @Produce		json
+// @Success		200		{object}	albumLikeResponse	"Like removed"
+// @Failure		400		{object}	http.Error			"Client error"
+// @Failure		401		{object}	http.Error  		"User unathorized"
+// @Failure		500		{object}	http.Error			"Server error"
+// @Router		/api/albums/{albumID}/unlike [post]
 func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
 	if err != nil {

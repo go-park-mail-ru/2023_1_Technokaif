@@ -46,8 +46,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tci trackCreateInput
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&tci); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&tci); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
@@ -264,14 +263,15 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
-// @Summary		Track Feed
-// @Tags		Feed
-// @Description	Feed tracks
+// @Summary		Set like
+// @Tags		Track
+// @Description	Set like by user to chosen track (add to favorite)
 // @Produce		json
-// @Success		200		{object}	[]models.TrackTransfer "Tracks feed"
-// @failure 	400 	{object}  	http.Error			   "Incorrect input"
-// @Failure		500		{object}	http.Error			   "Server error"
-// @Router		/api/tracks/feed [get]
+// @Success		200		{object}	trackLikeResponse	"Like set"
+// @Failure		400		{object}	http.Error			"Client error"
+// @Failure		401		{object}	http.Error  		"User unathorized"
+// @Failure		500		{object}	http.Error			"Server error"
+// @Router		/api/tracks/{trackID}/like [post]
 func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {
@@ -305,7 +305,15 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tlr, h.logger)
 }
 
-// swaggermock
+// @Summary		Remove like
+// @Tags		Track
+// @Description	Remove like by user from chosen track (remove from favorite)
+// @Produce		json
+// @Success		200		{object}	trackLikeResponse	"Like removed"
+// @Failure		400		{object}	http.Error			"Client error"
+// @Failure		401		{object}	http.Error  		"User unathorized"
+// @Failure		500		{object}	http.Error			"Server error"
+// @Router		/api/tracks/{trackID}/unlike [post]
 func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {

@@ -26,12 +26,16 @@ func NewUsecase(r user.Repository, l logger.Logger) *Usecase {
 func (u *Usecase) GetByID(userID uint32) (*models.User, error) {
 	user, err := u.repo.GetByID(userID)
 	if err != nil {
-		return &models.User{}, fmt.Errorf("(usecase) can't get user by id : %w", err)
+		return &models.User{}, fmt.Errorf("(usecase) can't get user by id: %w", err)
 	}
 	return user, nil
 }
 
-func (u *Usecase) ChangeInfo(user *models.User) error {
+func (u *Usecase) UpdateInfo(user *models.User) error {
+	if _, err := u.repo.GetByID(user.ID); err != nil {
+		return err
+	}
+
 	if err := u.repo.UpdateInfo(user); err != nil {
 		return fmt.Errorf("(usecase) can't change user in repository: %w", err)
 	}
@@ -83,5 +87,5 @@ func (u *Usecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtens
 		}
 	}
 
-	return u.ChangeInfo(user)
+	return u.UpdateInfo(user)
 }

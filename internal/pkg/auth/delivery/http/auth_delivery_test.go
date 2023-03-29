@@ -12,10 +12,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
+	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
 )
 
 func TestDeliverySignUp(t *testing.T) {
@@ -29,7 +29,7 @@ func TestDeliverySignUp(t *testing.T) {
 	if err != nil {
 		t.Errorf("can't Parse birth date: %v", err)
 	}
-	birthDate := models.Date{birthTime}
+	birthDate := models.Date{Time: birthTime}
 
 	correctTestUser := models.User{
 		Username:  "yarik_tri",
@@ -37,7 +37,7 @@ func TestDeliverySignUp(t *testing.T) {
 		Email:     "yarik1448kuzmin@gmail.com",
 		FirstName: "Yaroslav",
 		LastName:  "Kuzmin",
-		BirthDate:  birthDate,
+		BirthDate: birthDate,
 		Sex:       models.Male,
 	}
 
@@ -243,10 +243,9 @@ func TestDeliveryLogin(t *testing.T) {
 	}
 }
 
-
-func TestDeliveryLogout(t *testing.T) { 
+func TestDeliveryLogout(t *testing.T) {
 	correctTestUser := &models.User{
-		ID: 1,
+		ID:      1,
 		Version: 1,
 	}
 	testWrapRequestWithUser := func(r *http.Request, user *models.User, doWrap bool) *http.Request {
@@ -265,7 +264,7 @@ func TestDeliveryLogout(t *testing.T) {
 		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
-		doWrap		 	 bool
+		doWrap           bool
 	}{
 		{
 			name: "Common",
@@ -275,7 +274,7 @@ func TestDeliveryLogout(t *testing.T) {
 			},
 			expectedStatus:   200,
 			expectedResponse: `{"status": "ok"}`,
-			doWrap: true,
+			doWrap:           true,
 		},
 		{
 			name:             "No user in request",
@@ -283,7 +282,7 @@ func TestDeliveryLogout(t *testing.T) {
 			mockBehavior:     func(a *authMocks.MockUsecase, user *models.User) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid token"}`,
-			doWrap:			  false,
+			doWrap:           false,
 		},
 		{
 			name:             "Nil user in request",
@@ -291,7 +290,7 @@ func TestDeliveryLogout(t *testing.T) {
 			mockBehavior:     func(a *authMocks.MockUsecase, user *models.User) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid token"}`,
-			doWrap: 		   true,
+			doWrap:           true,
 		},
 		{
 			name: "Failed to increase user version",
@@ -301,7 +300,7 @@ func TestDeliveryLogout(t *testing.T) {
 			},
 			expectedStatus:   500,
 			expectedResponse: `{"message": "failed to log out"}`,
-			doWrap:			  true,
+			doWrap:           true,
 		},
 	}
 

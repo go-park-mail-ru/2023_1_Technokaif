@@ -42,10 +42,12 @@ func (u *Usecase) Delete(artistID uint32, userID uint32) error {
 		return fmt.Errorf("(usecase) can't find artist in repository: %w", err)
 	}
 
+	// artist doesn't even have related user
 	if artist.UserID == nil {
 		return fmt.Errorf("(usecase) artist can't be deleted by user: %w", &models.ForbiddenUserError{})
 	}
 
+	// this user isn't related to artist
 	if *artist.UserID != userID {
 		return fmt.Errorf("(usecase) artist can't be deleted by this user: %w", &models.ForbiddenUserError{})
 	}

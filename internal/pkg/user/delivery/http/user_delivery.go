@@ -1,6 +1,7 @@
 package http
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -53,11 +54,50 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, ut, h.logger)
 }
 
+// @Summary      Update Info
+// @Tags         User
+// @Description  Update info about user
+// @Accept       json
+// @Produce      json
+// @Param		 user	body	  userInfoInput	true		"User info"
+// @Success      200    {object}  userUploadAvatarResponse 	"User info updated"
+// @Failure      400    {object}  http.Error  			   	"Invalid input"
+// @Failure      401    {object}  http.Error  			   	"User Unathorized"
+// @Failure      403    {object}  http.Error  			   	"User hasn't rights"
+// @Failure      500    {object}  http.Error  			   	"Server error"
+// @Router       /api/users/{userID}/update [post]
+func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
+	if _, err := h.checkUserAuthAndResponce(w, r); err != nil {
+		return
+	}
+
+	var user userInfoInput
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		return
+	}
+
+	if err := h.userServices.UpdateInfo(user.ToUser()); err != nil {
+		var errNoSuchUser *models.NoSuchUserError
+		if errors.As(err, &errNoSuchUser) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no user to update", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't change user info", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	uuir := userChangeInfoResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, uuir, h.logger)
+}
+
 // @Summary      Upload Avatar
 // @Tags         User
 // @Description  Update user avatar
 // @Accept       multipart/form-data
-// @Produce      application/json
+// @Produce      json
 // @Param		 avatar formData file true 				   "Avatar file"
 // @Success      200    {object}  userUploadAvatarResponse "Avatar updated"
 // @Failure      400    {object}  http.Error  			   "Invalid form data"

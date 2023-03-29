@@ -29,16 +29,14 @@ func NewHandler(au auth.Usecase, l logger.Logger) *Handler {
 // @Description	Create account
 // @Accept		json
 // @Produce		json
-// @Param		user	body		models.User		true	"user info"
-// @Success		200		{object}	signUpResponse	"User created"
-// @Failure		400		{object}	http.Error	"Incorrect input"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Param		user	body		models.User	true	"User info"
+// @Success		200		{object}	signUpResponse		"User created"
+// @Failure		400		{object}	http.Error			"Incorrect input"
+// @Failure		500		{object}	http.Error			"Server error"
 // @Router		/api/auth/signup [post]
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
@@ -49,11 +47,13 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := h.services.SignUpUser(user)
-	var errUserAlreadyExists *models.UserAlreadyExistsError
-	if errors.As(err, &errUserAlreadyExists) {
-		commonHttp.ErrorResponseWithErrLogging(w, "user already exists", http.StatusBadRequest, h.logger, err)
-		return
-	} else if err != nil {
+	if err != nil {
+		var errUserAlreadyExists *models.UserAlreadyExistsError
+		if errors.As(err, &errUserAlreadyExists) {
+			commonHttp.ErrorResponseWithErrLogging(w, "user already exists", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
 		commonHttp.ErrorResponseWithErrLogging(w, "server failed to sign up user", http.StatusInternalServerError, h.logger, err)
 		return
 	}
@@ -77,9 +77,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 // @Router		/api/auth/login [post]
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&userInput); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&userInput); err != nil {
 		h.logger.Infof("incorrect json format: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
@@ -97,10 +95,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		if errors.As(err, &errNoSuchUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, "can't login user", http.StatusBadRequest, h.logger, err)
 			return
-		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "server failed to login user", http.StatusInternalServerError, h.logger, err)
-			return
 		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to login user", http.StatusInternalServerError, h.logger, err)
+		return
 	}
 
 	h.logger.Infof("login with token: %s", token)
@@ -126,7 +124,6 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponse(w, "invalid token", http.StatusBadRequest, h.logger)
 		return
 	}
-	h.logger.Infof("userID for logout: %d", user.ID)
 
 	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
 		h.logger.Errorf("failed to logout: %s", err.Error())

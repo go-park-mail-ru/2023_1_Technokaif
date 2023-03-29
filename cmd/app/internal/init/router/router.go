@@ -44,9 +44,10 @@ func InitRouter(
 		r.Route("/users", func(r chi.Router) {
 			r.Route(userIdRoute, func(r chi.Router) {
 				r.With(authM.Authorization).Get("/", user.Get)
+				r.With(authM.Authorization).Post("/update", user.UpdateInfo)
 				r.With(authM.Authorization).Post("/avatar", user.UploadAvatar)
 
-				r.Route("/favourite", func(r chi.Router) {
+				r.Route("/favorite", func(r chi.Router) {
 					r.Use(authM.Authorization)
 					r.Get("/tracks", user.GetFavouriteTracks)
 					r.Get("/albums", user.GetFavouriteAlbums)
