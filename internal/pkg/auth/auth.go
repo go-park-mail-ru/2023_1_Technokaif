@@ -4,6 +4,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+//go:generate mockgen -source=auth.go -destination=mocks/mock.go
+
 // Usecase includes bussiness logics methods to work with authentication
 type Usecase interface {
 	// CreateUser creates new user and returns it's id

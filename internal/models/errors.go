@@ -3,6 +3,7 @@ package models
 import "fmt"
 
 // TRACK ERRORS
+
 type NoSuchTrackError struct {
 	TrackID uint32
 }
@@ -12,6 +13,7 @@ func (e *NoSuchTrackError) Error() string {
 }
 
 // ALBUM ERRORS
+
 type NoSuchAlbumError struct {
 	AlbumID uint32
 }
@@ -21,6 +23,7 @@ func (e *NoSuchAlbumError) Error() string {
 }
 
 // ARTIST ERRORS
+
 type NoSuchArtistError struct {
 	ArtistID uint32
 }
@@ -30,12 +33,19 @@ func (e *NoSuchArtistError) Error() string {
 }
 
 // AUTH ERRORS
+type ForbiddenUserError struct{}
+
+func (e *ForbiddenUserError) Error() string {
+	return "user has no rights"
+}
+
 type UserAlreadyExistsError struct{}
-type NoSuchUserError struct{}
 
 func (e *UserAlreadyExistsError) Error() string {
 	return "user already exists"
 }
+
+type NoSuchUserError struct{}
 
 func (e *NoSuchUserError) Error() string {
 	return "no such user"

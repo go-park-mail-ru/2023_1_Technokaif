@@ -20,11 +20,19 @@ func NewUsecase(alr album.Repository, arr artist.Repository, l logger.Logger) *U
 	return &Usecase{albumRepo: alr, artistRepo: arr, logger: l}
 }
 
-func (u *Usecase) Create(album models.Album, artistsID []uint32) (uint32, error) {
+func (u *Usecase) Create(album models.Album, artistsID []uint32, userID uint32) (uint32, error) {
+	userInArtists := false
 	for _, artistID := range artistsID {
-		if _, err := u.artistRepo.GetByID(artistID); err != nil {
+		a, err := u.artistRepo.GetByID(artistID)
+		if err != nil {
 			return 0, fmt.Errorf("(usecase) can't get artist with id #%d: %w", artistID, err)
 		}
+		if a.UserID != nil && *a.UserID == userID {
+			userInArtists = true
+		}
+	}
+	if !userInArtists {
+		return 0, fmt.Errorf("(usecase) album can't be created by user: %w", &models.ForbiddenUserError{})
 	}
 
 	albumID, err := u.albumRepo.Insert(album, artistsID)
@@ -52,9 +60,23 @@ func (u *Usecase) Change(albumID models.Album) error {
 	return nil
 }
 
-func (u *Usecase) DeleteByID(albumID uint32) error {
+func (u *Usecase) Delete(albumID uint32, userID uint32) error {
 	if _, err := u.albumRepo.GetByID(albumID); err != nil {
 		return fmt.Errorf("(usecase) can't find album in repository: %w", err)
+	}
+
+	userInArtists := false
+	artists, err := u.artistRepo.GetByAlbum(albumID)
+	if err != nil {
+		return fmt.Errorf("(usecase) can't get artists of album: %w", err)
+	}
+	for _, artist := range artists {
+		if artist.UserID != nil && *artist.UserID == userID {
+			userInArtists = true
+		}
+	}
+	if !userInArtists {
+		return fmt.Errorf("(usecase) album can't be deleted by user: %w", &models.ForbiddenUserError{})
 	}
 
 	if err := u.albumRepo.DeleteByID(albumID); err != nil {
@@ -104,3 +126,30 @@ func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Album, error) {
 
 	return albums, nil
 }
+
+func (u *Usecase) SetLike(albumID, userID uint32) (bool, error) {
+	if _, err := u.albumRepo.GetByID(albumID); err != nil {
+		return false, fmt.Errorf("(usecase) can't get album: %w", err)
+	}
+
+	iSinserted, err := u.albumRepo.InsertLike(albumID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) failed to set like: %w", err)
+	}
+
+	return iSinserted, nil
+}
+
+func (u *Usecase) UnLike(albumID, userID uint32) (bool, error) {
+	if _, err := u.albumRepo.GetByID(albumID); err != nil {
+		return false, fmt.Errorf("(usecase) can't get album: %w", err)
+	}
+
+	iSdeleted, err := u.albumRepo.DeleteLike(albumID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) failed to unset like: %w", err)
+	}
+
+	return iSdeleted, nil
+}
+

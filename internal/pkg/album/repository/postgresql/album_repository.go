@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
@@ -27,11 +28,23 @@ func NewPostgreSQL(db *sqlx.DB, t album.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (uint32, error) {
+func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (_ uint32, err error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
+
+	defer func() { 
+		if err != nil { 
+			if errRollback := tx.Rollback(); errRollback != nil {
+				err = fmt.Errorf("(repo) rollback error: %w; %w", errRollback, err)
+			}
+		} else { 
+			if errCommit := tx.Commit(); errCommit != nil {
+				err = fmt.Errorf("(repo) commit error: %w", errCommit)
+			}
+		} 
+	}()
 
 	insertAlbumQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
@@ -41,7 +54,6 @@ func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (uint32, err
 	var albumID uint32
 	row := tx.QueryRow(insertAlbumQuery, album.Name, album.Description, album.CoverSrc)
 	if err := row.Scan(&albumID); err != nil {
-		tx.Rollback()
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -52,12 +64,11 @@ func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (uint32, err
 
 	for _, artistID := range artistsID {
 		if _, err := tx.Exec(insertAlbumArtistsQuery, artistID, albumID); err != nil {
-			tx.Rollback()
 			return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 		}
 	}
 
-	return albumID, tx.Commit()
+	return albumID, nil
 }
 
 func (p *PostgreSQL) GetByID(albumID uint32) (*models.Album, error) {
@@ -160,9 +171,9 @@ func (p *PostgreSQL) GetByTrack(trackID uint32) (*models.Album, error) {
 
 func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Album, error) {
 	query := fmt.Sprintf(
-		`SELECT a.id, a.name, a.description, a.cover_src, 
+		`SELECT a.id, a.name, a.description, a.cover_src
 		FROM %s a 
-			INNER JOIN %s ua ON a.id = ua.artist_id 
+			INNER JOIN %s ua ON a.id = ua.album_id 
 		WHERE ua.user_id = $1;`,
 		p.tables.Albums(), p.tables.LikedAlbums())
 
@@ -173,3 +184,48 @@ func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Album, error) {
 
 	return albums, nil
 }
+
+const errorLikeExists = "unique_violation"
+
+func (p *PostgreSQL) InsertLike(albumID, userID uint32) (bool, error) {
+	insertLikeQuery := fmt.Sprintf(
+		`INSERT INTO %s (album_id, user_id) 
+		VALUES ($1, $2)`,
+		p.tables.LikedAlbums())
+
+	if _, err := p.db.Exec(insertLikeQuery, albumID, userID); err != nil {
+		if pqerr, ok := err.(*pq.Error); ok {
+			if pqerr.Code.Name() == errorLikeExists {
+				return false, nil
+			} 
+		} 
+
+		return false, fmt.Errorf("(repo) failed to insert: %w", err)
+	}
+
+	return true, nil
+}
+
+func (p *PostgreSQL) DeleteLike(albumID, userID uint32) (bool, error) {
+	query := fmt.Sprintf(
+		`DELETE
+		FROM %s
+		WHERE album_id = $1 AND user_id = $2;`,
+		p.tables.LikedAlbums())
+
+	resExec, err := p.db.Exec(query, albumID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+	deleted, err := resExec.RowsAffected()
+	if err != nil {
+		return false, fmt.Errorf("(repo) failed to check query result: %w", err)
+	}
+
+	if deleted == 0 {
+		return false, nil
+	} else {
+		return true, nil
+	}
+}
+

@@ -2,7 +2,6 @@ package router
 
 import (
 	"github.com/go-chi/chi/v5"
-	// "github.com/go-chi/chi/v5/middleware"  // DEBUG
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
@@ -14,7 +13,16 @@ import (
 	track "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
 	user "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 )
+
+const (
+	userIdRoute = "/{" + commonHttp.UserIdUrlParam + "}"
+	albumIdRoute = "/{" + commonHttp.AlbumIdUrlParam + "}"
+	artistIdRoute = "/{" + commonHttp.ArtistIdUrlParam + "}"
+	trackIdRoute = "/{" + commonHttp.TrackIdUrlParam + "}"
+)
+
 
 // InitRouter describes all app's endpoints and their handlers
 func InitRouter(
@@ -25,10 +33,9 @@ func InitRouter(
 	user *user.Handler,
 	authM *authM.Middleware,
 	loggger logger.Logger) *chi.Mux {
-
+	
 	r := chi.NewRouter()
-
-	// r.Use(middleware.Logger)  // DEBUG
+	r.Use(middleware.Panic(loggger))
 	r.Use(middleware.Logging(loggger))
 
 	r.Get("/swagger/*", swagger.WrapHandler)
@@ -36,40 +43,59 @@ func InitRouter(
 	r.Route("/api", func(r chi.Router) {
 
 		r.Route("/users", func(r chi.Router) {
-			r.Get("/{userID}", user.Read)
+			r.Route(userIdRoute, func(r chi.Router) {
+				r.With(authM.Authorization).Get("/", user.Get)
+				r.With(authM.Authorization).Post("/avatar", user.UploadAvatar)
+
+				r.Route("/favourite", func(r chi.Router) {
+					r.Use(authM.Authorization)
+					r.Get("/tracks", user.GetFavouriteTracks)
+					r.Get("/albums", user.GetFavouriteAlbums)
+					r.Get("/artists", user.GetFavouriteArtists)
+				})
+			})
 		})
 
 		r.Route("/albums", func(r chi.Router) {
-			r.Post("/", album.Create)
-			r.Route("/{albumID}", func(r chi.Router) {
-				r.Get("/", album.Read)
+			r.With(authM.Authorization).Post("/", album.Create)
+			r.Route(albumIdRoute, func(r chi.Router) {
+				r.Get("/", album.Get)
 				// r.Put("/", album.Update)
-				r.Delete("/", album.Delete)
+				r.With(authM.Authorization).Delete("/", album.Delete)
 
-				r.Get("/tracks", track.ReadByAlbum)
+				r.With(authM.Authorization).Post("/like", album.Like)
+				r.With(authM.Authorization).Post("/unlike", album.UnLike)
+
+				r.Get("/tracks", track.GetByAlbum)
 			})
 			r.Get("/feed", album.Feed)
 		})
 
 		r.Route("/artists", func(r chi.Router) {
-			r.Post("/", artist.Create)
-			r.Route("/{artistID}", func(r chi.Router) {
-				r.Get("/", artist.Read)
+			r.With(authM.Authorization).Post("/", artist.Create)
+			r.Route(artistIdRoute, func(r chi.Router) {
+				r.Get("/", artist.Get)
 				// r.Put("/", artist.Update)
-				r.Delete("/", artist.Delete)
+				r.With(authM.Authorization).Delete("/", artist.Delete)
 
-				r.Get("/tracks", track.ReadByArtist)
-				r.Get("/albums", album.ReadByArtist)
+				r.With(authM.Authorization).Post("/like", artist.Like)
+				r.With(authM.Authorization).Post("/unlike", artist.UnLike)
+
+				r.Get("/tracks", track.GetByArtist)
+				r.Get("/albums", album.GetByArtist)
 			})
 			r.Get("/feed", artist.Feed)
 		})
 
 		r.Route("/tracks", func(r chi.Router) {
-			r.Post("/", track.Create)
-			r.Route("/{trackID}", func(r chi.Router) {
-				r.Get("/", track.Read)
+			r.With(authM.Authorization).Post("/", track.Create)
+			r.Route(trackIdRoute, func(r chi.Router) {
+				r.Get("/", track.Get)
 				// r.Put("/", track.Update)
-				r.Delete("/", track.Delete)
+				r.With(authM.Authorization).Delete("/", track.Delete)
+
+				r.With(authM.Authorization).Post("/like", track.Like)
+				r.With(authM.Authorization).Post("/unlike", track.UnLike)
 			})
 			r.Get("/feed", track.Feed)
 		})

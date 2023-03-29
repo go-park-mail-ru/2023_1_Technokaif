@@ -60,8 +60,7 @@ func (s *Server) Run(handler http.Handler, logger logger.Logger) error {
 		WriteTimeout:   writeTimeout,
 	}
 
-	if err := s.httpServer.ListenAndServe(); err != nil {
-		logger.Errorf("error while launching server: %v", err)
+	if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}
 	return nil

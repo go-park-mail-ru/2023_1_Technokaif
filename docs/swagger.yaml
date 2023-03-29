@@ -1,5 +1,10 @@
 basePath: /api/albums/feed
 definitions:
+  http.Error:
+    properties:
+      message:
+        type: string
+    type: object
   http.albumCreateInput:
     properties:
       artistsID:
@@ -87,24 +92,9 @@ definitions:
       status:
         type: string
     type: object
-  internal_pkg_album_delivery_http.errorResponse:
+  http.userUploadAvatarResponse:
     properties:
-      message:
-        type: string
-    type: object
-  internal_pkg_artist_delivery_http.errorResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  internal_pkg_auth_delivery_http.errorResponse:
-    properties:
-      message:
-        type: string
-    type: object
-  internal_pkg_track_delivery_http.errorResponse:
-    properties:
-      message:
+      status:
         type: string
     type: object
   models.AlbumTransfer:
@@ -149,7 +139,6 @@ definitions:
   models.TrackTransfer:
     properties:
       albumID:
-        description: TODO discuss
         type: integer
       artists:
         items:
@@ -183,9 +172,30 @@ definitions:
       username:
         type: string
     type: object
+  models.UserTransfer:
+    properties:
+      avatar:
+        type: string
+      birthDate:
+        $ref: '#/definitions/models.Date'
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+      sex:
+        $ref: '#/definitions/models.Sex'
+      username:
+        type: string
+    type: object
 host: localhost:4443
 info:
-  contact: {}
+  contact:
+    email: yarik1448kuzmin@gmail.com
+    name: Fluire API Support
   description: Server API for Fluire Streaming Service Application
   title: Fluire API
   version: 1.0.1
@@ -212,11 +222,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Create Album
       tags:
       - Album
@@ -233,11 +243,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Delete Album
       tags:
       - Album
@@ -253,11 +263,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Get Album
       tags:
       - Album
@@ -276,11 +286,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Tracks of Album
       tags:
       - Album
@@ -299,7 +309,7 @@ paths:
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Album Feed
       tags:
       - Feed
@@ -325,11 +335,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_artist_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_artist_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Create Artist
       tags:
       - Artist
@@ -346,11 +356,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_artist_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_artist_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Delete Artist
       tags:
       - Artist
@@ -366,11 +376,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_artist_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_artist_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Get Artist
       tags:
       - Artist
@@ -389,11 +399,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_album_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Albums of Artist
       tags:
       - Artist
@@ -412,11 +422,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Tracks of Artist
       tags:
       - Artist
@@ -435,7 +445,7 @@ paths:
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_artist_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Artist Feed
       tags:
       - Feed
@@ -461,11 +471,11 @@ paths:
         "400":
           description: Incorrect input
           schema:
-            $ref: '#/definitions/internal_pkg_auth_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_auth_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Sign In
       tags:
       - Auth
@@ -484,11 +494,11 @@ paths:
         "400":
           description: Logout fail
           schema:
-            $ref: '#/definitions/internal_pkg_auth_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_auth_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Log Out
       tags:
       - Auth
@@ -514,11 +524,11 @@ paths:
         "400":
           description: Incorrect input
           schema:
-            $ref: '#/definitions/internal_pkg_auth_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_auth_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Sign Up
       tags:
       - Auth
@@ -544,11 +554,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Create Track
       tags:
       - Track
@@ -565,11 +575,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Delete Track
       tags:
       - Track
@@ -585,11 +595,11 @@ paths:
         "400":
           description: Client error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Get Track
       tags:
       - Track
@@ -608,8 +618,66 @@ paths:
         "500":
           description: Server error
           schema:
-            $ref: '#/definitions/internal_pkg_track_delivery_http.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Track Feed
       tags:
       - Feed
+  /api/users/{userID}/:
+    get:
+      description: Get user with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User got
+          schema:
+            $ref: '#/definitions/models.UserTransfer'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get User
+      tags:
+      - User
+  /api/users/{userID}/avatar:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Update user avatar
+      parameters:
+      - description: avatar file
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Avatar updated
+          schema:
+            $ref: '#/definitions/http.userUploadAvatarResponse'
+        "400":
+          description: Invalid form data
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: Forbidden user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Upload Avatar
+      tags:
+      - User
 swagger: "2.0"
