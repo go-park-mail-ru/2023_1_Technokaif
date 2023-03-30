@@ -104,6 +104,7 @@ func InitRouter(
 			r.Post("/login", auth.Login)
 			r.Post("/signup", auth.SignUp)
 			r.With(authM.Authorization).Get("/logout", auth.Logout)
+			r.With(authM.Authorization).Post("/changepass", auth.ChangePassword)
 		})
 
 		chi.NewRouteContext()

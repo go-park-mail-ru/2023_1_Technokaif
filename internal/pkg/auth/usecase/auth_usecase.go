@@ -42,8 +42,7 @@ func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecas
 }
 
 func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
-	salt := make([]byte, 8)
-	rand.Read(salt)
+	salt := generateRandomSalt()
 	user.Salt = fmt.Sprintf("%x", salt)
 
 	user.Password = hashPassword(user.Password, salt)
@@ -68,7 +67,7 @@ func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error
 
 	hashedPassword := hashPassword(password, salt)
 	if hashedPassword != user.Password {
-		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w", err)
+		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w", &models.IncorrectPasswordError{UserId: user.ID})
 	}
 
 	return user, nil
@@ -147,7 +146,23 @@ func (u *Usecase) IncreaseUserVersion(userID uint32) error {
 	return nil
 }
 
+func (u *Usecase) ChangePassword(userID uint32, password string) error {
+	salt := generateRandomSalt()
+	passHash := hashPassword(password, salt)
+	if err := u.authRepo.UpdatePassword(userID, passHash, fmt.Sprintf("%x", salt)); err != nil {
+		return fmt.Errorf("(usecase) failed to update password: %w", err)
+	}
+
+	return nil
+}
+
 func hashPassword(plainPassword string, salt []byte) string {
 	hashedPassword := argon2.IDKey([]byte(plainPassword), []byte(salt), 1, 64*1024, 4, 32)
 	return fmt.Sprintf("%x", hashedPassword)
+}
+
+func generateRandomSalt() []byte {
+	salt := make([]byte, 8)
+	rand.Read(salt)
+	return salt
 }

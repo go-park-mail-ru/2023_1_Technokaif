@@ -93,7 +93,19 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.services.LoginUser(userInput.Username, userInput.Password)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't login user", http.StatusBadRequest, h.logger, err)
+		var errNoSuchUser *models.NoSuchUserError
+		if errors.As(err, &errNoSuchUser) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such user", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		var errIncorrectPassword *models.IncorrectPasswordError
+		if errors.As(err, &errIncorrectPassword) {
+			commonHttp.ErrorResponseWithErrLogging(w, "incorrect password", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to login user", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -117,7 +129,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
 		h.logger.Infof("failed to logout: %s", err.Error())
-		commonHttp.ErrorResponse(w, "invalid token", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, "invalid token", http.StatusUnauthorized, h.logger)
 		return
 	}
 	h.logger.Infof("userID for logout: %d", user.ID)
@@ -131,4 +143,40 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	lr := logoutResponse{Status: "ok"}
 
 	commonHttp.SuccessResponse(w, lr, h.logger)
+}
+
+func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Infof("failed to change password: %s", err.Error())
+		commonHttp.ErrorResponse(w, "invalid token", http.StatusUnauthorized, h.logger)
+		return
+	}
+
+	var passwordsInput changePassInput
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&passwordsInput); err != nil {
+		h.logger.Infof("incorrect json format: %s", err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	if _, err := h.services.GetUserByCreds(user.Username, passwordsInput.OldPassword); err != nil {
+		var errIncorrectPassword *models.IncorrectPasswordError
+		if errors.As(err, &errIncorrectPassword) {
+			commonHttp.ErrorResponseWithErrLogging(w, "incorrect password", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to get user", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	if err := h.services.ChangePassword(user.ID, passwordsInput.NewPassword); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to change password", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	resp := changePassResponse{Status: "ok"}
+	commonHttp.SuccessResponse(w, resp, h.logger)
 }

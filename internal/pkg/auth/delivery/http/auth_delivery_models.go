@@ -34,3 +34,13 @@ type loginResponse struct {
 type logoutResponse struct {
 	Status string `json:"status"`
 }
+
+// ChangePassword
+type changePassInput struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+type changePassResponse struct {
+	Status string `json:"status"`
+}

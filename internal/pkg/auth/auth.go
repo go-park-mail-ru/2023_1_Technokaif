@@ -28,12 +28,15 @@ type Usecase interface {
 
 	// IncreaseUserVersion increases user's access token version
 	IncreaseUserVersion(userID uint32) error
+
+	ChangePassword(userID uint32, password string) error
 }
 
 // Repository includes DBMS-relatable methods to work with authentication
 type Repository interface {
 	GetUserByAuthData(userID, userVersion uint32) (*models.User, error)
 	IncreaseUserVersion(userID uint32) error
+	UpdatePassword(userID uint32, passwordHash, salt string) error
 }
 
 // Tables includes methods which return needed tables
