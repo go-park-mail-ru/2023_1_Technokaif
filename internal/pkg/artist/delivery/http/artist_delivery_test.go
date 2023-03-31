@@ -31,8 +31,26 @@ var correctUser = models.User{
 }
 
 func TestArtistDeliveryCreate(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Post("/api/artists/", h.Create)
+
+	// Test filling
 	correctRequestBody := `{
 		"name": "YARIK",
 		"cover": "/artists/covers/yarik.png"
@@ -106,24 +124,8 @@ func TestArtistDeliveryCreate(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(au)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Post("/api/artists/", h.Create)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -138,8 +140,26 @@ func TestArtistDeliveryCreate(t *testing.T) {
 }
 
 func TestArtistDeliveryGet(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/artists/{artistID}/", h.Get)
+
+	// Test filling
 	correctArtistID := uint32(1)
 	correctArtistIDPath := fmt.Sprint(correctArtistID)
 
@@ -212,24 +232,8 @@ func TestArtistDeliveryGet(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(au)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/artists/{artistID}/", h.Get)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -244,8 +248,26 @@ func TestArtistDeliveryGet(t *testing.T) {
 }
 
 func TestArtistDeliveryDelete(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Delete("/api/artists/{artistID}/", h.Delete)
+
+	// Test filing
 	correctArtistID := uint32(1)
 	correctArtistIDPath := fmt.Sprint(correctArtistID)
 
@@ -328,24 +350,8 @@ func TestArtistDeliveryDelete(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(au)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Delete("/api/artists/{artistID}/", h.Delete)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -360,8 +366,26 @@ func TestArtistDeliveryDelete(t *testing.T) {
 }
 
 func TestArtistDeliveryFeed(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/artists/feed", h.Feed)
+
+	// Test filling
 	expectedReturnArtists := []models.Artist{
 		{
 			ID:        1,
@@ -442,24 +466,8 @@ func TestArtistDeliveryFeed(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(au)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/artists/feed", h.Feed)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -474,8 +482,26 @@ func TestArtistDeliveryFeed(t *testing.T) {
 }
 
 func TestArtistDeliveryLike(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/artists/{artistID}/like", h.Like)
+
+	// Test filling
 	correctArtistID := uint32(1)
 	correctArtistIDPath := fmt.Sprint(correctArtistID)
 
@@ -547,24 +573,8 @@ func TestArtistDeliveryLike(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(au)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/artists/{artistID}/like", h.Like)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -579,8 +589,26 @@ func TestArtistDeliveryLike(t *testing.T) {
 }
 
 func TestArtistDeliveryUnLike(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/artists/{artistID}/like", h.UnLike)
+
+	// Test filling
 	correctArtistID := uint32(1)
 	correctArtistIDPath := fmt.Sprint(correctArtistID)
 
@@ -652,24 +680,8 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(au)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/artists/{artistID}/like", h.UnLike)
 
 			// Request
 			w := httptest.NewRecorder()

@@ -36,8 +36,27 @@ var correctTrackID = uint32(1)
 var correctTrackIDPath = fmt.Sprint(correctTrackID)
 
 func TestTrackDeliveryCreate(t *testing.T) {
+	// Init
 	type mockBehaviour func(tu *trackMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	tu := trackMocks.NewMockUsecase(c)
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(tu, au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Post("/api/tracks/", h.Create)
+
+	// Test filling
 	correctRequestBody := `{
 		"name": "Хит",
 		"artistsID": [1],
@@ -151,25 +170,8 @@ func TestTrackDeliveryCreate(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			tu := trackMocks.NewMockUsecase(c)
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(tu)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(tu, au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Post("/api/tracks/", h.Create)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -184,8 +186,27 @@ func TestTrackDeliveryCreate(t *testing.T) {
 }
 
 func TestTrackDeliveryGet(t *testing.T) {
+	// Init
 	type mockBehaviour func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	tu := trackMocks.NewMockUsecase(c)
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(tu, au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/tracks/{trackID}/", h.Get)
+
+	// Test filling
 	expectedReturnTrack := models.Track{
 		ID:        correctTrackID,
 		Name:      "Хит",
@@ -286,25 +307,8 @@ func TestTrackDeliveryGet(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			tu := trackMocks.NewMockUsecase(c)
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(tu, au)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(tu, au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/tracks/{trackID}/", h.Get)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -319,8 +323,27 @@ func TestTrackDeliveryGet(t *testing.T) {
 }
 
 func TestTrackDeliveryDelete(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *trackMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	tu := trackMocks.NewMockUsecase(c)
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(tu, au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Delete("/api/tracks/{trackID}/", h.Delete)
+
+	// Test filling
 	testTable := []struct {
 		name             string
 		trackIDPath      string
@@ -400,25 +423,8 @@ func TestTrackDeliveryDelete(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			tu := trackMocks.NewMockUsecase(c)
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(tu)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(tu, au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Delete("/api/tracks/{trackID}/", h.Delete)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -433,8 +439,27 @@ func TestTrackDeliveryDelete(t *testing.T) {
 }
 
 func TestTrackDeliveryFeed(t *testing.T) {
+	// Init
 	type mockBehaviour func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	tu := trackMocks.NewMockUsecase(c)
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(tu, au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/tracks/feed", h.Feed)
+
+	// Test filling
 	expectedReturnTracks := []models.Track{
 		{
 			ID:        1,
@@ -551,25 +576,8 @@ func TestTrackDeliveryFeed(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			tu := trackMocks.NewMockUsecase(c)
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(tu, au)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(tu, au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/tracks/feed", h.Feed)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -584,8 +592,27 @@ func TestTrackDeliveryFeed(t *testing.T) {
 }
 
 func TestTrackDeliveryLike(t *testing.T) {
+	// Init
 	type mockBehaviour func(tu *trackMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	tu := trackMocks.NewMockUsecase(c)
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(tu, au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/tracks/{trackID}/like", h.Like)
+
+	// Test filling
 	testTable := []struct {
 		name             string
 		trackIDPath      string
@@ -654,25 +681,8 @@ func TestTrackDeliveryLike(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			tu := trackMocks.NewMockUsecase(c)
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(tu)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(tu, au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/tracks/{trackID}/like", h.Like)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -687,8 +697,27 @@ func TestTrackDeliveryLike(t *testing.T) {
 }
 
 func TestTrackDeliveryUnLike(t *testing.T) {
+	// Init
 	type mockBehaviour func(tu *trackMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	tu := trackMocks.NewMockUsecase(c)
+	au := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(tu, au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/tracks/{trackID}/like", h.UnLike)
+
+	// Test filling
 	testTable := []struct {
 		name             string
 		trackIDPath      string
@@ -757,25 +786,8 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			tu := trackMocks.NewMockUsecase(c)
-			au := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(tu)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(tu, au, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/tracks/{trackID}/like", h.UnLike)
 
 			// Request
 			w := httptest.NewRecorder()

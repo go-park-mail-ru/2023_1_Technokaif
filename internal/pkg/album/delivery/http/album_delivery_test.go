@@ -32,8 +32,27 @@ var correctUser = models.User{
 }
 
 func TestAlbumDeliveryCreate(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *albumMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	alu := albumMocks.NewMockUsecase(c)
+	aru := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(alu, aru, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Post("/api/albums/", h.Create)
+
+	// Test filling
 	correctRequestBody := `{
 		"name": "Горгород",
 		"artistsID": [1],
@@ -136,25 +155,8 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			alu := albumMocks.NewMockUsecase(c)
-			aru := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(alu)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(alu, aru, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Post("/api/albums/", h.Create)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -169,8 +171,27 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 }
 
 func TestAlbumDeliveryGet(t *testing.T) {
+	// Init
 	type mockBehaviour func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
 
+	c := gomock.NewController(t)
+
+	alu := albumMocks.NewMockUsecase(c)
+	aru := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(alu, aru, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/albums/{albumID}/", h.Get)
+
+	// Test filling
 	correctAlbumID := uint32(1)
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
 
@@ -273,25 +294,8 @@ func TestAlbumDeliveryGet(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			alu := albumMocks.NewMockUsecase(c)
-			aru := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(alu, aru)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(alu, aru, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/albums/{albumID}/", h.Get)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -306,7 +310,25 @@ func TestAlbumDeliveryGet(t *testing.T) {
 }
 
 func TestAlbumDeliveryDelete(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *albumMocks.MockUsecase)
+
+	c := gomock.NewController(t)
+
+	alu := albumMocks.NewMockUsecase(c)
+	aru := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(alu, aru, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Delete("/api/albums/{albumID}/", h.Delete)
 
 	correctAlbumID := uint32(1)
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
@@ -390,25 +412,8 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			alu := albumMocks.NewMockUsecase(c)
-			aru := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(alu)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(alu, aru, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Delete("/api/albums/{albumID}/", h.Delete)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -423,21 +428,39 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 }
 
 func TestAlbumDeliveryFeed(t *testing.T) {
+	// Init
 	type mockBehaviour func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
 
-	description1 := "Антиутопия"
-	description2 := "Крутой альбом от крутого дуета"
+	c := gomock.NewController(t)
+
+	alu := albumMocks.NewMockUsecase(c)
+	aru := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(alu, aru, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/albums/feed", h.Feed)
+
+	descriptionID1 := "Антиутопия"
+	descriptionID2 := "Крутой альбом от крутого дуета"
 	expectedReturnAlbums := []models.Album{
 		{
 			ID:          1,
 			Name:        "Горгород",
-			Description: &description1,
+			Description: &descriptionID1,
 			CoverSrc:    "/albums/covers/gorgorod.png",
 		},
 		{
 			ID:          2,
 			Name:        "Стыд или Слава",
-			Description: &description2,
+			Description: &descriptionID2,
 			CoverSrc:    "/albums/covers/shameorglory.png",
 		},
 	}
@@ -539,25 +562,8 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			alu := albumMocks.NewMockUsecase(c)
-			aru := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(alu, aru)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(alu, aru, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/albums/feed", h.Feed)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -572,7 +578,25 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 }
 
 func TestAlbumDeliveryLike(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *albumMocks.MockUsecase)
+
+	c := gomock.NewController(t)
+
+	alu := albumMocks.NewMockUsecase(c)
+	aru := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(alu, aru, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/albums/{albumID}/like", h.Like)
 
 	correctAlbumID := uint32(1)
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
@@ -645,25 +669,8 @@ func TestAlbumDeliveryLike(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			alu := albumMocks.NewMockUsecase(c)
-			aru := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(alu)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(alu, aru, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/albums/{albumID}/like", h.Like)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -678,7 +685,25 @@ func TestAlbumDeliveryLike(t *testing.T) {
 }
 
 func TestAlbumDeliveryUnLike(t *testing.T) {
+	// Init
 	type mockBehaviour func(au *albumMocks.MockUsecase)
+
+	c := gomock.NewController(t)
+
+	alu := albumMocks.NewMockUsecase(c)
+	aru := artistMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(alu, aru, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/albums/{albumID}/like", h.UnLike)
 
 	correctAlbumID := uint32(1)
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
@@ -751,25 +776,8 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			alu := albumMocks.NewMockUsecase(c)
-			aru := artistMocks.NewMockUsecase(c)
+			// Call mock
 			tc.mockBehaviour(alu)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(alu, aru, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/api/albums/{albumID}/like", h.UnLike)
 
 			// Request
 			w := httptest.NewRecorder()

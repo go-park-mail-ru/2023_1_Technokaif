@@ -19,8 +19,26 @@ import (
 )
 
 func TestDeliverySignUp(t *testing.T) {
+	// Init
 	type mockBehavior func(a *authMocks.MockUsecase, u models.User)
 
+	c := gomock.NewController(t)
+
+	authMockUsecase := authMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(authMockUsecase, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Post("/signup", h.SignUp)
+
+	// Test filling
 	correctTestRequestBody := `{"username": "yarik_tri", "password": "Love1234",
 	"email": "yarik1448kuzmin@gmail.com", "firstName": "Yaroslav", "lastName": "Kuzmin",
 	"birthDate": "2003-08-23", "sex": "M"}`
@@ -107,25 +125,8 @@ func TestDeliverySignUp(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			authMockUsecase := authMocks.NewMockUsecase(c)
-
+			// Call mock
 			tc.mockBehavior(authMockUsecase, tc.userFromBody)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(authMockUsecase, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Post("/signup", h.SignUp)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -140,8 +141,26 @@ func TestDeliverySignUp(t *testing.T) {
 }
 
 func TestDeliveryLogin(t *testing.T) {
+	// Init
 	type mockBehavior func(a *authMocks.MockUsecase, l loginInput)
 
+	c := gomock.NewController(t)
+
+	authMockUsecase := authMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(authMockUsecase, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Post("/login", h.Login)
+
+	// Test filling
 	correctTestRequestBody := `{"username": "yarik_tri", "password": "Love1234"}`
 	correctTestLogin := loginInput{
 		Username: "yarik_tri",
@@ -212,25 +231,8 @@ func TestDeliveryLogin(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			authMockUsecase := authMocks.NewMockUsecase(c)
-
+			// Call mock
 			tc.mockBehavior(authMockUsecase, tc.loginFromBody)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(authMockUsecase, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Post("/login", h.Login)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -244,6 +246,26 @@ func TestDeliveryLogin(t *testing.T) {
 }
 
 func TestDeliveryLogout(t *testing.T) {
+	// Init
+	type mockBehavior func(a *authMocks.MockUsecase, user *models.User)
+
+	c := gomock.NewController(t)
+
+	authMockUsecase := authMocks.NewMockUsecase(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	h := NewHandler(authMockUsecase, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/logout", h.Logout)
+
+	// Test filling
 	correctTestUser := &models.User{
 		ID:      1,
 		Version: 1,
@@ -255,8 +277,6 @@ func TestDeliveryLogout(t *testing.T) {
 		ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
 		return r.WithContext(ctx)
 	}
-
-	type mockBehavior func(a *authMocks.MockUsecase, user *models.User)
 
 	testTable := []struct {
 		name             string
@@ -306,25 +326,8 @@ func TestDeliveryLogout(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Init
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			authMockUsecase := authMocks.NewMockUsecase(c)
-
+			// Call mock
 			tc.mockBehavior(authMockUsecase, tc.user)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			h := NewHandler(authMockUsecase, l)
-
-			// Routing
-			r := chi.NewRouter()
-			r.Get("/logout", h.Logout)
 
 			// Request
 			w := httptest.NewRecorder()

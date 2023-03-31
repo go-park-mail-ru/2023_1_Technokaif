@@ -22,7 +22,7 @@ func defaultUser() (models.User, error) {
 	if err != nil {
 		return models.User{}, fmt.Errorf("can't Parse birth date: %v", err)
 	}
-	birthDate := models.Date{birthTime}
+	birthDate := models.Date{Time: birthTime}
 
 	return models.User{
 		ID:        1,
@@ -39,22 +39,11 @@ func defaultUser() (models.User, error) {
 	}, nil
 }
 
-func userWithoutUsername() (models.User, error) {
-	defaultUser, err := defaultUser()
-	if err != nil {
-		return models.User{}, err
-	}
-
-	userWithoutUsername := defaultUser
-	userWithoutUsername.Username = ""
-
-	return userWithoutUsername, nil
-}
-
 var pqInternalError = errors.New("postgres is dead")
 
 func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 	type mockBehavior func(userID, userVersion uint32, u *models.User)
+
 	type authData struct {
 		userID      uint32
 		userVersion uint32
@@ -108,7 +97,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 					AddRow(u.ID, u.Version, u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirthDate.Time, u.AvatarSrc)
 
-				sqlMock.ExpectQuery("SELECT (.+) FROM " + tableName).
+				sqlMock.ExpectQuery("SELECT (.+) FROM "+tableName).
 					WithArgs(userID, userVersion).
 					WillReturnRows(row)
 			},
@@ -124,7 +113,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 				tableName := "Users"
 				tablesMock.EXPECT().Users().Return(tableName)
 
-				sqlMock.ExpectQuery("SELECT (.+) FROM " + tableName).
+				sqlMock.ExpectQuery("SELECT (.+) FROM "+tableName).
 					WithArgs(userID, userVersion).
 					WillReturnError(sql.ErrNoRows)
 			},
@@ -141,7 +130,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 				tableName := "Users"
 				tablesMock.EXPECT().Users().Return(tableName)
 
-				sqlMock.ExpectQuery("SELECT (.+) FROM " + tableName).
+				sqlMock.ExpectQuery("SELECT (.+) FROM "+tableName).
 					WithArgs(userID, userVersion).
 					WillReturnError(pqInternalError)
 			},
