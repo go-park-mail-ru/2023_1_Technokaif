@@ -37,7 +37,7 @@ var correctTrackIDPath = fmt.Sprint(correctTrackID)
 
 func TestTrackDeliveryCreate(t *testing.T) {
 	// Init
-	type mockBehaviour func(tu *trackMocks.MockUsecase)
+	type mockBehavior func(tu *trackMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -76,7 +76,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 		name             string
 		user             *models.User
 		requestBody      string
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -84,7 +84,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 			name:        "Common",
 			user:        &correctUser,
 			requestBody: correctRequestBody,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().Create(
 					expectedCallTrack,
 					correctArtistsID,
@@ -97,7 +97,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 		{
 			name:             "No User",
 			user:             nil,
-			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -109,7 +109,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 				"artistsID": [1],
 				"cover": "/tracks/covers/hit.png"
 			}`,
-			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
@@ -121,7 +121,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 				"artistsID": [1],
 				"cover": "/tracks/covers/hit.png"
 			}`,
-			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
@@ -134,7 +134,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 				"albumID": 1,
 				"cover": "/tracks/covers/gorgorod.png"
 			}`,
-			mockBehaviour:    func(au *trackMocks.MockUsecase) {},
+			mockBehavior:     func(au *trackMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
@@ -142,7 +142,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 			name:        "User Has No Rights",
 			user:        &correctUser,
 			requestBody: correctRequestBody,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().Create(
 					expectedCallTrack,
 					correctArtistsID,
@@ -156,7 +156,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 			name:        "Server Error",
 			user:        &correctUser,
 			requestBody: correctRequestBody,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().Create(
 					expectedCallTrack,
 					correctArtistsID,
@@ -171,7 +171,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(tu)
+			tc.mockBehavior(tu)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -187,7 +187,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 
 func TestTrackDeliveryGet(t *testing.T) {
 	// Init
-	type mockBehaviour func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
+	type mockBehavior func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -242,7 +242,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 		name             string
 		trackIDPath      string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -250,7 +250,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			name:        "Common",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetByID(correctTrackID).Return(&expectedReturnTrack, nil)
 				au.EXPECT().GetByTrack(correctTrackID).Return(expectedReturnArtists, nil)
 			},
@@ -260,7 +260,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 		{
 			name:             "Incorrect ID In Path",
 			trackIDPath:      "-5",
-			mockBehaviour:    func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -268,7 +268,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			name:             "No User",
 			trackIDPath:      correctTrackIDPath,
 			user:             nil,
-			mockBehaviour:    func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -276,7 +276,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			name:        "No Track To Get",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetByID(correctTrackID).Return(nil, &models.NoSuchTrackError{})
 			},
 			expectedStatus:   400,
@@ -286,7 +286,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			name:        "Tracks Issues",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetByID(correctTrackID).Return(nil, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -296,7 +296,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			name:        "Artists Issues",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetByID(correctTrackID).Return(&expectedReturnTrack, nil)
 				au.EXPECT().GetByTrack(correctTrackID).Return(nil, errors.New(""))
 			},
@@ -308,7 +308,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(tu, au)
+			tc.mockBehavior(tu, au)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -324,7 +324,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 
 func TestTrackDeliveryDelete(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *trackMocks.MockUsecase)
+	type mockBehavior func(au *trackMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -348,7 +348,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 		name             string
 		trackIDPath      string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -356,7 +356,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 			name:        "Common",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *trackMocks.MockUsecase) {
+			mockBehavior: func(au *trackMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctTrackID,
 					correctUser.ID,
@@ -368,7 +368,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 		{
 			name:             "Incorrect ID In Path",
 			trackIDPath:      "incorrect",
-			mockBehaviour:    func(au *trackMocks.MockUsecase) {},
+			mockBehavior:     func(au *trackMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -376,7 +376,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 			name:             "No User",
 			trackIDPath:      correctTrackIDPath,
 			user:             nil,
-			mockBehaviour:    func(au *trackMocks.MockUsecase) {},
+			mockBehavior:     func(au *trackMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -384,7 +384,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 			name:        "User Has No Rights",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *trackMocks.MockUsecase) {
+			mockBehavior: func(au *trackMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctTrackID,
 					correctUser.ID,
@@ -397,7 +397,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 			name:        "No Track To Delete",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *trackMocks.MockUsecase) {
+			mockBehavior: func(au *trackMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctTrackID,
 					correctUser.ID,
@@ -410,7 +410,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 			name:        "Server Error",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *trackMocks.MockUsecase) {
+			mockBehavior: func(au *trackMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctTrackID,
 					correctUser.ID,
@@ -424,7 +424,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(tu)
+			tc.mockBehavior(tu)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -440,7 +440,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 
 func TestTrackDeliveryFeed(t *testing.T) {
 	// Init
-	type mockBehaviour func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
+	type mockBehavior func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -533,13 +533,13 @@ func TestTrackDeliveryFeed(t *testing.T) {
 
 	testTable := []struct {
 		name             string
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
 		{
 			name: "Common",
-			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetFeed().Return(expectedReturnTracks, nil)
 				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(expectedReturnArtists[0:1], nil)
 				au.EXPECT().GetByTrack(expectedReturnTracks[1].ID).Return(expectedReturnArtists[1:3], nil)
@@ -549,7 +549,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 		},
 		{
 			name: "No Tracks",
-			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetFeed().Return([]models.Track{}, nil)
 			},
 			expectedStatus:   200,
@@ -557,7 +557,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 		},
 		{
 			name: "Tracks Issues",
-			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetFeed().Return(nil, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -565,7 +565,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 		},
 		{
 			name: "Artists Issues",
-			mockBehaviour: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetFeed().Return(expectedReturnTracks, nil)
 				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(nil, errors.New(""))
 			},
@@ -577,7 +577,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(tu, au)
+			tc.mockBehavior(tu, au)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -593,7 +593,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 
 func TestTrackDeliveryLike(t *testing.T) {
 	// Init
-	type mockBehaviour func(tu *trackMocks.MockUsecase)
+	type mockBehavior func(tu *trackMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -617,7 +617,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 		name             string
 		trackIDPath      string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -625,7 +625,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			name:        "Common",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   200,
@@ -635,7 +635,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			name:        "Already Liked (Anyway Success)",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   200,
@@ -645,7 +645,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			name:             "Incorrect ID In Path",
 			trackIDPath:      "0",
 			user:             &correctUser,
-			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -653,7 +653,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			name:             "No User",
 			trackIDPath:      correctTrackIDPath,
 			user:             nil,
-			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -661,7 +661,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			name:        "No Album To Like",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, &models.NoSuchTrackError{})
 			},
 			expectedStatus:   400,
@@ -671,7 +671,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			name:        "Server Error",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -682,7 +682,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(tu)
+			tc.mockBehavior(tu)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -698,7 +698,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 
 func TestTrackDeliveryUnLike(t *testing.T) {
 	// Init
-	type mockBehaviour func(tu *trackMocks.MockUsecase)
+	type mockBehavior func(tu *trackMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -722,7 +722,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 		name             string
 		trackIDPath      string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -730,7 +730,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			name:        "Common",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   200,
@@ -740,7 +740,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			name:        "Wasn't Liked (Anyway Success)",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   200,
@@ -750,7 +750,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			name:             "Incorrect ID In Path",
 			trackIDPath:      "0",
 			user:             &correctUser,
-			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -758,7 +758,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			name:             "No User",
 			trackIDPath:      correctTrackIDPath,
 			user:             nil,
-			mockBehaviour:    func(tu *trackMocks.MockUsecase) {},
+			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -766,7 +766,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			name:        "No Album To Unlike",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, &models.NoSuchTrackError{})
 			},
 			expectedStatus:   400,
@@ -776,7 +776,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			name:        "Server Error",
 			trackIDPath: correctTrackIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(tu *trackMocks.MockUsecase) {
+			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -787,7 +787,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(tu)
+			tc.mockBehavior(tu)
 
 			// Request
 			w := httptest.NewRecorder()

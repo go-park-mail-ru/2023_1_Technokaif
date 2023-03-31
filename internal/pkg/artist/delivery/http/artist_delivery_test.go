@@ -32,7 +32,7 @@ var correctUser = models.User{
 
 func TestArtistDeliveryCreate(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *artistMocks.MockUsecase)
+	type mockBehavior func(au *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -66,7 +66,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 		name             string
 		user             *models.User
 		requestBody      string
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -74,7 +74,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 			name:        "Common",
 			user:        &correctUser,
 			requestBody: correctRequestBody,
-			mockBehaviour: func(tu *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *artistMocks.MockUsecase) {
 				tu.EXPECT().Create(
 					expectedCallArtist,
 				).Return(uint32(1), nil)
@@ -85,7 +85,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 		{
 			name:             "No User",
 			user:             nil,
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -96,7 +96,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 				"name":
 				"cover": "/artists/covers/yarik.png"
 			}`,
-			mockBehaviour:    func(tu *artistMocks.MockUsecase) {},
+			mockBehavior:     func(tu *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
@@ -104,7 +104,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 			name:             "Incorrect body (no cover)",
 			user:             &correctUser,
 			requestBody:      `{"name": "YARIK"}`,
-			mockBehaviour:    func(tu *artistMocks.MockUsecase) {},
+			mockBehavior:     func(tu *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
@@ -112,7 +112,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 			name:        "Server Error",
 			user:        &correctUser,
 			requestBody: correctRequestBody,
-			mockBehaviour: func(tu *artistMocks.MockUsecase) {
+			mockBehavior: func(tu *artistMocks.MockUsecase) {
 				tu.EXPECT().Create(
 					expectedCallArtist,
 				).Return(uint32(0), errors.New(""))
@@ -125,7 +125,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(au)
+			tc.mockBehavior(au)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -141,7 +141,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 
 func TestArtistDeliveryGet(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *artistMocks.MockUsecase)
+	type mockBehavior func(au *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -179,7 +179,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 		name             string
 		artistIDPath     string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -187,7 +187,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 			name:         "Common",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetByID(correctArtistID).Return(&expectedReturnArtist, nil)
 			},
 			expectedStatus:   200,
@@ -196,7 +196,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 		{
 			name:             "Incorrect ID In Path",
 			artistIDPath:     "0",
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -204,7 +204,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 			name:             "No User",
 			artistIDPath:     correctArtistIDPath,
 			user:             nil,
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -212,7 +212,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 			name:         "No Artist To Get",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetByID(correctArtistID).Return(nil, &models.NoSuchArtistError{})
 			},
 			expectedStatus:   400,
@@ -222,7 +222,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 			name:         "Server Error",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetByID(correctArtistID).Return(nil, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -233,7 +233,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(au)
+			tc.mockBehavior(au)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -249,7 +249,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 
 func TestArtistDeliveryDelete(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *artistMocks.MockUsecase)
+	type mockBehavior func(au *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -275,7 +275,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 		name             string
 		artistIDPath     string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -283,7 +283,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 			name:         "Common",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctArtistID,
 					correctUser.ID,
@@ -295,7 +295,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 		{
 			name:             "Incorrect ID In Path",
 			artistIDPath:     "incorrect",
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -303,7 +303,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 			name:             "No User",
 			artistIDPath:     correctArtistIDPath,
 			user:             nil,
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -311,7 +311,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 			name:         "User Has No Rights",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctArtistID,
 					correctUser.ID,
@@ -324,7 +324,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 			name:         "No Artist To Delete",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctArtistID,
 					correctUser.ID,
@@ -337,7 +337,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 			name:         "Server Error",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctArtistID,
 					correctUser.ID,
@@ -351,7 +351,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(au)
+			tc.mockBehavior(au)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -367,7 +367,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 
 func TestArtistDeliveryFeed(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *artistMocks.MockUsecase)
+	type mockBehavior func(au *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -434,13 +434,13 @@ func TestArtistDeliveryFeed(t *testing.T) {
 
 	testTable := []struct {
 		name             string
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
 		{
 			name: "Common",
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetFeed().Return(expectedReturnArtists, nil)
 			},
 			expectedStatus:   200,
@@ -448,7 +448,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 		},
 		{
 			name: "No Artists",
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetFeed().Return([]models.Artist{}, nil)
 			},
 			expectedStatus:   200,
@@ -456,7 +456,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 		},
 		{
 			name: "Server Error",
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetFeed().Return(nil, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -467,7 +467,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(au)
+			tc.mockBehavior(au)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -483,7 +483,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 
 func TestArtistDeliveryLike(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *artistMocks.MockUsecase)
+	type mockBehavior func(au *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -509,7 +509,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 		name             string
 		artistIDPath     string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -517,7 +517,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			name:         "Common",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctArtistID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   200,
@@ -527,7 +527,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			name:         "Already liked (Anyway Success)",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctArtistID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   200,
@@ -537,7 +537,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			name:             "Incorrect ID In Path",
 			artistIDPath:     "0",
 			user:             &correctUser,
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -545,7 +545,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			name:             "No User",
 			artistIDPath:     correctArtistIDPath,
 			user:             nil,
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -553,7 +553,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			name:         "No Artist To Like",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctArtistID, correctUser.ID).Return(false, &models.NoSuchArtistError{})
 			},
 			expectedStatus:   400,
@@ -563,7 +563,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			name:         "Server Error",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctArtistID, correctUser.ID).Return(false, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -574,7 +574,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(au)
+			tc.mockBehavior(au)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -590,7 +590,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 
 func TestArtistDeliveryUnLike(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *artistMocks.MockUsecase)
+	type mockBehavior func(au *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -616,7 +616,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 		name             string
 		artistIDPath     string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -624,7 +624,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			name:         "Common",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctArtistID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   200,
@@ -634,7 +634,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			name:         "Wasn't Liked (Anyway Success)",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctArtistID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   200,
@@ -644,7 +644,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			name:             "Incorrect ID In Path",
 			artistIDPath:     "0",
 			user:             &correctUser,
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -652,7 +652,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			name:             "No User",
 			artistIDPath:     correctArtistIDPath,
 			user:             nil,
-			mockBehaviour:    func(au *artistMocks.MockUsecase) {},
+			mockBehavior:     func(au *artistMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -660,7 +660,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			name:         "No Artist To Unlike",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctArtistID, correctUser.ID).Return(false, &models.NoSuchArtistError{})
 			},
 			expectedStatus:   400,
@@ -670,7 +670,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			name:         "Server Error",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,
-			mockBehaviour: func(au *artistMocks.MockUsecase) {
+			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctArtistID, correctUser.ID).Return(false, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -681,7 +681,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(au)
+			tc.mockBehavior(au)
 
 			// Request
 			w := httptest.NewRecorder()

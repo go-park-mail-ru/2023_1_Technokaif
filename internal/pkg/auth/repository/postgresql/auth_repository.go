@@ -40,9 +40,11 @@ func (p *PostgreSQL) GetUserByAuthData(userID, userVersion uint32) (*models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
 		&u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time, &u.AvatarSrc)
 
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
-	} else if err != nil {
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
+		}
+
 		return nil, fmt.Errorf("(repo) failed to scan from query: %w", err)
 	}
 
@@ -60,9 +62,11 @@ func (p *PostgreSQL) IncreaseUserVersion(userID uint32) error {
 
 	err := row.Scan(&userID)
 
-	if errors.Is(err, sql.ErrNoRows) {
-		return fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
-	} else if err != nil {
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
+		}
+
 		return fmt.Errorf("(repo) failed to scan from query: %w", err)
 	}
 

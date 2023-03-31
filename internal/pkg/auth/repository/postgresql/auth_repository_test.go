@@ -17,6 +17,8 @@ import (
 	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
 )
 
+const usersTable = "Users"
+
 func defaultUser() (models.User, error) {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	if err != nil {
@@ -39,9 +41,10 @@ func defaultUser() (models.User, error) {
 	}, nil
 }
 
-var pqInternalError = errors.New("postgres is dead")
+var errPqInternal = errors.New("postgres is dead")
 
 func TestAuthPostgresGetUserByAuthData(t *testing.T) {
+	// Init
 	type mockBehavior func(userID, userVersion uint32, u *models.User)
 
 	type authData struct {
@@ -56,7 +59,6 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 	defer dbMock.Close()
 
 	c := gomock.NewController(t)
-	defer c.Finish()
 
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
@@ -88,8 +90,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 				userVersion: 1,
 			},
 			mockBehavior: func(userID, userVersion uint32, u *models.User) {
-				tableName := "Users"
-				tablesMock.EXPECT().Users().Return(tableName)
+				tablesMock.EXPECT().Users().Return(usersTable)
 
 				row := sqlmock.
 					NewRows([]string{"id", "version", "username", "email", "password_hash",
@@ -97,7 +98,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 					AddRow(u.ID, u.Version, u.Username, u.Email, u.Password, u.Salt,
 						u.FirstName, u.LastName, u.Sex, u.BirthDate.Time, u.AvatarSrc)
 
-				sqlMock.ExpectQuery("SELECT (.+) FROM "+tableName).
+				sqlMock.ExpectQuery("SELECT (.+) FROM "+usersTable).
 					WithArgs(userID, userVersion).
 					WillReturnRows(row)
 			},
@@ -110,10 +111,9 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 				userVersion: 2,
 			},
 			mockBehavior: func(userID, userVersion uint32, u *models.User) {
-				tableName := "Users"
-				tablesMock.EXPECT().Users().Return(tableName)
+				tablesMock.EXPECT().Users().Return(usersTable)
 
-				sqlMock.ExpectQuery("SELECT (.+) FROM "+tableName).
+				sqlMock.ExpectQuery("SELECT (.+) FROM "+usersTable).
 					WithArgs(userID, userVersion).
 					WillReturnError(sql.ErrNoRows)
 			},
@@ -127,23 +127,25 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 				userVersion: 2,
 			},
 			mockBehavior: func(userID, userVersion uint32, u *models.User) {
-				tableName := "Users"
-				tablesMock.EXPECT().Users().Return(tableName)
+				tablesMock.EXPECT().Users().Return(usersTable)
 
-				sqlMock.ExpectQuery("SELECT (.+) FROM "+tableName).
+				sqlMock.ExpectQuery("SELECT (.+) FROM "+usersTable).
 					WithArgs(userID, userVersion).
-					WillReturnError(pqInternalError)
+					WillReturnError(errPqInternal)
 			},
 			expectError:   true,
-			expectedError: pqInternalError,
+			expectedError: errPqInternal,
 		},
 	}
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
 			tc.mockBehavior(tc.authData.userID, tc.authData.userVersion, tc.expectedUser)
 
 			user, err := repo.GetUserByAuthData(tc.authData.userID, tc.authData.userVersion)
+
+			// Test
 			if tc.expectError {
 				assert.ErrorIs(t, err, tc.expectedError)
 			} else {
@@ -155,6 +157,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 }
 
 func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
+	// Init
 	type mockBehavior func(userID uint32)
 
 	dbMock, sqlxMock, err := sqlmock.New()
@@ -164,7 +167,6 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 	defer dbMock.Close()
 
 	c := gomock.NewController(t)
-	defer c.Finish()
 
 	l := logMocks.NewMockLogger(c)
 	l.EXPECT().Error(gomock.Any()).AnyTimes()
@@ -188,12 +190,11 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			name:   "Common",
 			userID: 1,
 			mockBehavior: func(userID uint32) {
-				tableName := "Users"
-				tablesMock.EXPECT().Users().Return(tableName)
+				tablesMock.EXPECT().Users().Return(usersTable)
 
 				row := sqlmock.NewRows([]string{"id"}).AddRow(userID)
 
-				sqlxMock.ExpectQuery("UPDATE " + tableName).
+				sqlxMock.ExpectQuery("UPDATE " + usersTable).
 					WithArgs(userID).
 					WillReturnRows(row)
 			},
@@ -203,10 +204,9 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			name:   "No such user",
 			userID: 1,
 			mockBehavior: func(userID uint32) {
-				tableName := "Users"
-				tablesMock.EXPECT().Users().Return(tableName)
+				tablesMock.EXPECT().Users().Return(usersTable)
 
-				sqlxMock.ExpectQuery("UPDATE " + tableName).
+				sqlxMock.ExpectQuery("UPDATE " + usersTable).
 					WithArgs(userID).
 					WillReturnError(sql.ErrNoRows)
 			},
@@ -217,22 +217,23 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			name:   "Internal postgres error",
 			userID: 1,
 			mockBehavior: func(userID uint32) {
-				tableName := "Users"
-				tablesMock.EXPECT().Users().Return(tableName)
+				tablesMock.EXPECT().Users().Return(usersTable)
 
-				sqlxMock.ExpectQuery("UPDATE " + tableName).
+				sqlxMock.ExpectQuery("UPDATE " + usersTable).
 					WithArgs(userID).
-					WillReturnError(pqInternalError)
+					WillReturnError(errPqInternal)
 			},
 			expectError:   true,
-			expectedError: pqInternalError,
+			expectedError: errPqInternal,
 		},
 	}
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
 			tc.mockBehavior(tc.userID)
 
+			// Test
 			err := repo.IncreaseUserVersion(tc.userID)
 			if tc.expectError {
 				assert.ErrorIs(t, err, tc.expectedError)

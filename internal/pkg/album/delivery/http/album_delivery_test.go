@@ -33,7 +33,7 @@ var correctUser = models.User{
 
 func TestAlbumDeliveryCreate(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *albumMocks.MockUsecase)
+	type mockBehavior func(au *albumMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -73,7 +73,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 		name             string
 		user             *models.User
 		requestBody      string
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -81,7 +81,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 			name:        "Common",
 			user:        &correctUser,
 			requestBody: correctRequestBody,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().Create(
 					expectedCallAlbum,
 					correctArtistsID,
@@ -94,7 +94,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 		{
 			name:             "No User",
 			user:             nil,
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -107,7 +107,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 				"description": "Антиутопия",
 				"cover": "/albums/covers/gorgorod.png"
 			}`,
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
@@ -119,7 +119,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 				"description": "Антиутопия",
 				"cover": "/albums/covers/gorgorod.png"
 			}`,
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
@@ -127,7 +127,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 			name:        "User Has No Rights",
 			user:        &correctUser,
 			requestBody: correctRequestBody,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().Create(
 					expectedCallAlbum,
 					correctArtistsID,
@@ -141,7 +141,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 			name:        "Server Error",
 			user:        &correctUser,
 			requestBody: correctRequestBody,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().Create(
 					expectedCallAlbum,
 					correctArtistsID,
@@ -156,7 +156,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(alu)
+			tc.mockBehavior(alu)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -172,7 +172,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 
 func TestAlbumDeliveryGet(t *testing.T) {
 	// Init
-	type mockBehaviour func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
+	type mockBehavior func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -229,7 +229,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 		name             string
 		albumIDPath      string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -237,7 +237,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 			name:        "Common",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+			mockBehavior: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
 				alu.EXPECT().GetByID(correctAlbumID).Return(&expectedReturnAlbum, nil)
 				aru.EXPECT().GetByAlbum(correctAlbumID).Return(expectedReturnArtists, nil)
 			},
@@ -247,7 +247,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 		{
 			name:             "Incorrect ID In Path",
 			albumIDPath:      "incorrect",
-			mockBehaviour:    func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {},
+			mockBehavior:     func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -255,7 +255,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 			name:             "No User",
 			albumIDPath:      correctAlbumIDPath,
 			user:             nil,
-			mockBehaviour:    func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {},
+			mockBehavior:     func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -263,7 +263,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 			name:        "No Album To Get",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+			mockBehavior: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
 				alu.EXPECT().GetByID(correctAlbumID).Return(nil, &models.NoSuchAlbumError{})
 			},
 			expectedStatus:   400,
@@ -273,7 +273,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 			name:        "Albums Issues",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+			mockBehavior: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
 				alu.EXPECT().GetByID(correctAlbumID).Return(nil, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -283,7 +283,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 			name:        "Artists Issues",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+			mockBehavior: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
 				alu.EXPECT().GetByID(correctAlbumID).Return(&expectedReturnAlbum, nil)
 				aru.EXPECT().GetByAlbum(correctAlbumID).Return(nil, errors.New(""))
 			},
@@ -295,7 +295,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(alu, aru)
+			tc.mockBehavior(alu, aru)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -311,7 +311,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 
 func TestAlbumDeliveryDelete(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *albumMocks.MockUsecase)
+	type mockBehavior func(au *albumMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -337,7 +337,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 		name             string
 		albumIDPath      string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -345,7 +345,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 			name:        "Common",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctAlbumID,
 					correctUser.ID,
@@ -357,7 +357,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 		{
 			name:             "Incorrect ID In Path",
 			albumIDPath:      "incorrect",
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -365,7 +365,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 			name:             "No User",
 			albumIDPath:      correctAlbumIDPath,
 			user:             nil,
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -373,7 +373,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 			name:        "User Has No Rights",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctAlbumID,
 					correctUser.ID,
@@ -386,7 +386,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 			name:        "No Album To Delete",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctAlbumID,
 					correctUser.ID,
@@ -399,7 +399,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 			name:        "Server Error",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().Delete(
 					correctAlbumID,
 					correctUser.ID,
@@ -413,7 +413,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(alu)
+			tc.mockBehavior(alu)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -429,7 +429,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 
 func TestAlbumDeliveryFeed(t *testing.T) {
 	// Init
-	type mockBehaviour func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
+	type mockBehavior func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -519,13 +519,13 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 
 	testTable := []struct {
 		name             string
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
 		{
 			name: "Common",
-			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+			mockBehavior: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
 				alu.EXPECT().GetFeed().Return(expectedReturnAlbums, nil)
 				aru.EXPECT().GetByAlbum(expectedReturnAlbums[0].ID).Return(expectedReturnArtists[0:1], nil)
 				aru.EXPECT().GetByAlbum(expectedReturnAlbums[1].ID).Return(expectedReturnArtists[1:3], nil)
@@ -535,7 +535,7 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 		},
 		{
 			name: "No Albums",
-			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+			mockBehavior: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
 				alu.EXPECT().GetFeed().Return([]models.Album{}, nil)
 			},
 			expectedStatus:   200,
@@ -543,7 +543,7 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 		},
 		{
 			name: "Albums Issues",
-			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+			mockBehavior: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
 				alu.EXPECT().GetFeed().Return(nil, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -551,7 +551,7 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 		},
 		{
 			name: "Artists Issues",
-			mockBehaviour: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
+			mockBehavior: func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {
 				alu.EXPECT().GetFeed().Return(expectedReturnAlbums, nil)
 				aru.EXPECT().GetByAlbum(expectedReturnAlbums[0].ID).Return(nil, errors.New(""))
 			},
@@ -563,7 +563,7 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(alu, aru)
+			tc.mockBehavior(alu, aru)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -579,7 +579,7 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 
 func TestAlbumDeliveryLike(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *albumMocks.MockUsecase)
+	type mockBehavior func(au *albumMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -605,7 +605,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 		name             string
 		albumIDPath      string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -613,7 +613,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 			name:        "Common",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctAlbumID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   200,
@@ -623,7 +623,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 			name:        "Already liked (Anyway Success)",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctAlbumID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   200,
@@ -633,7 +633,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 			name:             "Incorrect ID In Path",
 			albumIDPath:      "0",
 			user:             &correctUser,
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -641,7 +641,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 			name:             "No User",
 			albumIDPath:      correctAlbumIDPath,
 			user:             nil,
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -649,7 +649,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 			name:        "No Album To Like",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctAlbumID, correctUser.ID).Return(false, &models.NoSuchAlbumError{})
 			},
 			expectedStatus:   400,
@@ -659,7 +659,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 			name:        "Server Error",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctAlbumID, correctUser.ID).Return(false, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -670,7 +670,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(alu)
+			tc.mockBehavior(alu)
 
 			// Request
 			w := httptest.NewRecorder()
@@ -686,7 +686,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 
 func TestAlbumDeliveryUnLike(t *testing.T) {
 	// Init
-	type mockBehaviour func(au *albumMocks.MockUsecase)
+	type mockBehavior func(au *albumMocks.MockUsecase)
 
 	c := gomock.NewController(t)
 
@@ -712,7 +712,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 		name             string
 		albumIDPath      string
 		user             *models.User
-		mockBehaviour    mockBehaviour
+		mockBehavior     mockBehavior
 		expectedStatus   int
 		expectedResponse string
 	}{
@@ -720,7 +720,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 			name:        "Common",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctAlbumID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   200,
@@ -730,7 +730,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 			name:        "Wasn't Liked (Anyway Success)",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctAlbumID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   200,
@@ -740,7 +740,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 			name:             "Incorrect ID In Path",
 			albumIDPath:      "0",
 			user:             &correctUser,
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
@@ -748,7 +748,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 			name:             "No User",
 			albumIDPath:      correctAlbumIDPath,
 			user:             nil,
-			mockBehaviour:    func(au *albumMocks.MockUsecase) {},
+			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   401,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
@@ -756,7 +756,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 			name:        "No Album To Unlike",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctAlbumID, correctUser.ID).Return(false, &models.NoSuchAlbumError{})
 			},
 			expectedStatus:   400,
@@ -766,7 +766,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 			name:        "Server Error",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,
-			mockBehaviour: func(au *albumMocks.MockUsecase) {
+			mockBehavior: func(au *albumMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctAlbumID, correctUser.ID).Return(false, errors.New(""))
 			},
 			expectedStatus:   500,
@@ -777,7 +777,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehaviour(alu)
+			tc.mockBehavior(alu)
 
 			// Request
 			w := httptest.NewRecorder()

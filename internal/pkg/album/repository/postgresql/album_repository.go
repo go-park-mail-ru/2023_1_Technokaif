@@ -28,23 +28,11 @@ func NewPostgreSQL(db *sqlx.DB, t album.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (_ uint32, err error) {
+func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (uint32, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-
-	defer func() {
-		if err != nil {
-			if errRollback := tx.Rollback(); errRollback != nil {
-				err = fmt.Errorf("(repo) rollback error: %w; %w", errRollback, err)
-			}
-		} else {
-			if errCommit := tx.Commit(); errCommit != nil {
-				err = fmt.Errorf("(repo) commit error: %w", errCommit)
-			}
-		}
-	}()
 
 	insertAlbumQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
@@ -54,6 +42,7 @@ func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (_ uint32, e
 	var albumID uint32
 	row := tx.QueryRow(insertAlbumQuery, album.Name, album.Description, album.CoverSrc)
 	if err := row.Scan(&albumID); err != nil {
+		tx.Rollback()
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -64,9 +53,12 @@ func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (_ uint32, e
 
 	for _, artistID := range artistsID {
 		if _, err := tx.Exec(insertAlbumArtistsQuery, artistID, albumID); err != nil {
+			tx.Rollback()
 			return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 		}
 	}
+
+	tx.Commit()
 
 	return albumID, nil
 }
@@ -81,11 +73,12 @@ func (p *PostgreSQL) GetByID(albumID uint32) (*models.Album, error) {
 	var albums models.Album
 
 	err := p.db.Get(&albums, query, albumID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil,
-			fmt.Errorf("(repo) %w: %v", &models.NoSuchAlbumError{AlbumID: albumID}, err)
-	}
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil,
+				fmt.Errorf("(repo) %w: %v", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+		}
+
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -100,6 +93,10 @@ func (p *PostgreSQL) DeleteByID(albumID uint32) error {
 		p.tables.Albums())
 
 	if _, err := p.db.Exec(query, albumID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("(repo) %w: %v", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+		}
+
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -208,7 +205,6 @@ func (p *PostgreSQL) DeleteLike(albumID, userID uint32) (bool, error) {
 
 	if deleted == 0 {
 		return false, nil
-	} else {
-		return true, nil
 	}
+	return true, nil
 }

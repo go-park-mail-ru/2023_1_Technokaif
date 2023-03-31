@@ -9,24 +9,38 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
 )
 
-func TestUsecaseAuthCreateUser(t *testing.T) {  // Cringe
+func TestUsecaseAuthCreateUser(t *testing.T) {
+	// Init
 	type mockBehavior func(r *userMocks.MockRepository, u models.User)
 	type result struct {
 		Id  uint32
 		Err error
 	}
 
+	c := gomock.NewController(t)
+
+	authMocksRepo := authMocks.NewMockRepository(c)
+	userMocksRepo := userMocks.NewMockRepository(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	u := NewUsecase(authMocksRepo, userMocksRepo, l)
+
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	if err != nil {
 		t.Errorf("can't Parse birth date: %v", err)
 	}
-	birthDate := models.Date{birthTime}
+	birthDate := models.Date{Time: birthTime}
 
 	testTable := []struct {
 		name         string
@@ -58,22 +72,7 @@ func TestUsecaseAuthCreateUser(t *testing.T) {  // Cringe
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			authMocksRepo := authMocks.NewMockRepository(c)
-			userMocksRepo := userMocks.NewMockRepository(c)
-
 			tc.mockBehavior(userMocksRepo, tc.user)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			u := NewUsecase(authMocksRepo, userMocksRepo, l)
-
 			id, err := u.SignUpUser(tc.user)
 
 			assert.Equal(t, tc.expected.Id, id)
@@ -83,25 +82,22 @@ func TestUsecaseAuthCreateUser(t *testing.T) {  // Cringe
 }
 
 func TestUsecaseAuthGenerateAndCheckToken(t *testing.T) {
-
 	const iterations = 100
+
+	c := gomock.NewController(t)
+
+	authMocksRepo := authMocks.NewMockRepository(c)
+	userMocksRepo := userMocks.NewMockRepository(c)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	u := NewUsecase(authMocksRepo, userMocksRepo, l)
 
 	for i := 0; i < iterations; i++ {
 		t.Run(fmt.Sprintf("Success Token test %d", i), func(t *testing.T) {
-			c := gomock.NewController(t)
-			defer c.Finish()
-
-			authMocksRepo := authMocks.NewMockRepository(c)
-			userMocksRepo := userMocks.NewMockRepository(c)
-
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
-			u := NewUsecase(authMocksRepo, userMocksRepo, l)
-
 			expectedUserID := uint32(mathRand.Intn(10000))
 			expectedUserVersion := uint32(mathRand.Intn(10000))
 
