@@ -43,7 +43,7 @@ func TestAlbumRepositoryInsert(t *testing.T) {
 
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
-	defaultAlbumtoIsert := models.Album{
+	defaultAlbumToIsert := models.Album{
 		Name:     "Горгород",
 		CoverSrc: "/albums/covers/gorgorod.png",
 	}
@@ -61,7 +61,7 @@ func TestAlbumRepositoryInsert(t *testing.T) {
 	}{
 		{
 			name:      "Common",
-			album:     defaultAlbumtoIsert,
+			album:     defaultAlbumToIsert,
 			artistsID: defaultArtistsIDToInsert,
 			mockBehavior: func(a models.Album, artistsID []uint32, id uint32) {
 				tablesMock.EXPECT().Albums().Return(albumTable)
@@ -86,7 +86,7 @@ func TestAlbumRepositoryInsert(t *testing.T) {
 		},
 		{
 			name:      "Insert Artists to Album Issue",
-			album:     defaultAlbumtoIsert,
+			album:     defaultAlbumToIsert,
 			artistsID: defaultArtistsIDToInsert,
 			mockBehavior: func(a models.Album, artistsID []uint32, id uint32) {
 				tablesMock.EXPECT().Albums().Return(albumTable)
@@ -111,7 +111,7 @@ func TestAlbumRepositoryInsert(t *testing.T) {
 		},
 		{
 			name:      "Insert Album Issue",
-			album:     defaultAlbumtoIsert,
+			album:     defaultAlbumToIsert,
 			artistsID: defaultArtistsIDToInsert,
 			mockBehavior: func(a models.Album, artistsID []uint32, id uint32) {
 				tablesMock.EXPECT().Albums().Return(albumTable)
@@ -140,7 +140,95 @@ func TestAlbumRepositoryInsert(t *testing.T) {
 			if tc.expectError {
 				assert.ErrorIs(t, err, tc.expectedError)
 			} else {
-				assert.Equal(t, id, tc.expectedID)
+				assert.Equal(t, tc.expectedID, id)
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestAlbumRepositoryGetByID(t *testing.T) {
+	// Init
+	type mockBehavior func(albumID uint32, a models.Album)
+
+	dbMock, sqlxMock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	defer dbMock.Close()
+
+	c := gomock.NewController(t)
+
+	l := logMocks.NewMockLogger(c)
+	l.EXPECT().Error(gomock.Any()).AnyTimes()
+	l.EXPECT().Info(gomock.Any()).AnyTimes()
+	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+
+	tablesMock := albumMocks.NewMockTables(c)
+
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+
+	// Test filling
+	defaultAlbumToGetID := uint32(1)
+
+	description := "Антиутопия"
+	defaultAlbum := models.Album{
+		ID:          defaultAlbumToGetID,
+		Name:        "Горгород",
+		Description: &description,
+		CoverSrc:    "/albums/covers/gorgorod.png",
+	}
+
+	testTable := []struct {
+		name          string
+		albumToGetID  uint32
+		mockBehavior  mockBehavior
+		expectedAlbum *models.Album
+		expectError   bool
+		expectedError error
+	}{
+		{
+			name:         "Common",
+			albumToGetID: defaultAlbumToGetID,
+			mockBehavior: func(albumID uint32, a models.Album) {
+				tablesMock.EXPECT().Albums().Return(albumTable)
+
+				row := sqlxMock.NewRows([]string{"id", "name", "description", "cover_src"}).
+					AddRow(a.ID, a.Name, a.Description, a.CoverSrc)
+				sqlxMock.ExpectQuery("SELECT (.+) FROM " + albumTable).
+					WithArgs(albumID).
+					WillReturnRows(row)
+			},
+			expectedAlbum: &defaultAlbum,
+		},
+		// {
+		// 	name:         "Internal PostgreSQL Error",
+		// 	albumToGetID: defaultAlbumToGetID,
+		// 	mockBehavior: func(albumID uint32, a models.Album) {
+		// 		tablesMock.EXPECT().Albums().Return(albumTable)
+
+		// 		sqlxMock.ExpectQuery("SELECT (.+) FROM " + albumTable).
+		// 			WithArgs(albumID).
+		// 			WillReturnError(errPqInternal)
+		// 	},
+		// 	expectError:   true,
+		// 	expectedError: errPqInternal,
+		// },
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(tc.albumToGetID, *tc.expectedAlbum)
+
+			a, err := repo.GetByID(tc.albumToGetID)
+
+			// Test
+			if tc.expectError {
+				assert.ErrorIs(t, err, tc.expectedError)
+			} else {
+				assert.Equal(t, tc.expectedAlbum, a)
 				assert.NoError(t, err)
 			}
 		})

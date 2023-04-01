@@ -28,23 +28,11 @@ func NewPostgreSQL(db *sqlx.DB, t track.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, err error) {
+func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (uint32, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-
-	defer func() {
-		if err != nil {
-			if errRollback := tx.Rollback(); errRollback != nil {
-				err = fmt.Errorf("(repo) rollback error: %w; %w", errRollback, err)
-			}
-		} else {
-			if errCommit := tx.Commit(); errCommit != nil {
-				err = fmt.Errorf("(repo) commit error: %w", errCommit)
-			}
-		}
-	}()
 
 	insertTrackQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, album_id, album_position, cover_src, record_src) 
@@ -54,6 +42,7 @@ func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, e
 	var trackID uint32
 	row := tx.QueryRow(insertTrackQuery, track.Name, track.AlbumID, track.AlbumPosition, track.CoverSrc, track.RecordSrc)
 	if err := row.Scan(&trackID); err != nil {
+		tx.Rollback()
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -64,9 +53,12 @@ func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, e
 
 	for _, artistID := range artistsID {
 		if _, err := tx.Exec(insertTrackArtistsQuery, artistID, trackID); err != nil {
+			tx.Rollback()
 			return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 		}
 	}
+
+	tx.Commit()
 
 	return trackID, nil
 }
@@ -99,6 +91,10 @@ func (p *PostgreSQL) DeleteByID(trackID uint32) error {
 		p.tables.Tracks())
 
 	if _, err := p.db.Exec(query, trackID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("(repo) %w: %v", &models.NoSuchTrackError{TrackID: trackID}, err)
+		}
+
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
