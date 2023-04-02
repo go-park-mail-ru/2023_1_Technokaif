@@ -57,7 +57,7 @@ func (u *Usecase) GenerateAccessToken(userID, userVersion uint32) (string, error
 }
 
 func (u *Usecase) CheckAccessToken(acessToken string) (uint32, uint32, error) {
-	token, err := checkToken(acessToken, tokenSecret)
+	token, err := checkToken(acessToken, tokenSecret, &jwtAccessClaims{})
 	if err != nil {
 		return 0, 0, fmt.Errorf("(usecase) invalid access token: %w", err)
 	}
@@ -93,7 +93,7 @@ func (u *Usecase) GenerateCSRFToken(userID uint32) (string, error) {
 }
 
 func (u *Usecase) CheckCSRFToken(acessToken string) (uint32, error) {
-	token, err := checkToken(acessToken, tokenSecret)
+	token, err := checkToken(acessToken, tokenSecret, &jwtCSRFClaims{})
 	if err != nil {
 		return 0, fmt.Errorf("(usecase) invalid CSRF token")
 	}
@@ -121,8 +121,8 @@ func signToken(claims jwt.Claims, secret string) (string, error) {
 	return signedToken, nil
 }
 
-func checkToken(tokenStr string, secret string) (*jwt.Token, error) {
-	token, err := jwt.ParseWithClaims(tokenStr, &jwtAccessClaims{},
+func checkToken(tokenStr string, secret string, claims jwt.Claims) (*jwt.Token, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, claims,
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("invalid token signing method")

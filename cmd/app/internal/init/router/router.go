@@ -111,7 +111,7 @@ func InitRouter(
 			r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/changepass", auth.ChangePassword)
 		})
 
-		r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Get("/csrf", csrf.GetCSRF)
+		r.With(authM.Authorization).Get("/csrf", csrf.GetCSRF)
 	})
 
 	return r
