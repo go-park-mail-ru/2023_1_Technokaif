@@ -232,17 +232,17 @@ func (h *Handler) GetFavouriteArtists(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) checkUserAuthAndResponce(w http.ResponseWriter, r *http.Request) (*models.User, error) {
 	authFailedError := errors.New("user auth failed")
 
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil {
-		h.logger.Infof("unathorized user: %v", err)
-		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
-		return nil, authFailedError
-	}
-
 	urlID, err := commonHttp.GetUserIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("invalid url parameter: %v", err.Error())
 		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return nil, authFailedError
+	}
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Infof("unathorized user: %v", err)
+		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
 		return nil, authFailedError
 	}
 

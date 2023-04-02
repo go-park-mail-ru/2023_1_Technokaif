@@ -60,7 +60,6 @@ func InitRouter(
 			r.With(authM.Authorization).Post("/", album.Create)
 			r.Route(albumIdRoute, func(r chi.Router) {
 				r.Get("/", album.Get)
-				// r.Put("/", album.Update)
 				r.With(authM.Authorization).Delete("/", album.Delete)
 
 				r.With(authM.Authorization).Post("/like", album.Like)
@@ -75,7 +74,6 @@ func InitRouter(
 			r.With(authM.Authorization).Post("/", artist.Create)
 			r.Route(artistIdRoute, func(r chi.Router) {
 				r.Get("/", artist.Get)
-				// r.Put("/", artist.Update)
 				r.With(authM.Authorization).Delete("/", artist.Delete)
 
 				r.With(authM.Authorization).Post("/like", artist.Like)
@@ -91,7 +89,6 @@ func InitRouter(
 			r.With(authM.Authorization).Post("/", track.Create)
 			r.Route(trackIdRoute, func(r chi.Router) {
 				r.Get("/", track.Get)
-				// r.Put("/", track.Update)
 				r.With(authM.Authorization).Delete("/", track.Delete)
 
 				r.With(authM.Authorization).Post("/like", track.Like)
@@ -105,8 +102,6 @@ func InitRouter(
 			r.Post("/signup", auth.SignUp)
 			r.With(authM.Authorization).Get("/logout", auth.Logout)
 		})
-
-		chi.NewRouteContext()
 	})
 
 	return r

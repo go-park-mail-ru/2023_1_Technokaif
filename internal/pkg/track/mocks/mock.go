@@ -325,20 +325,6 @@ func (mr *MockRepositoryMockRecorder) InsertLike(trackID, userID interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertLike", reflect.TypeOf((*MockRepository)(nil).InsertLike), trackID, userID)
 }
 
-// Update mocks base method.
-func (m *MockRepository) Update(track models.Track) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", track)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Update indicates an expected call of Update.
-func (mr *MockRepositoryMockRecorder) Update(track interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), track)
-}
-
 // MockTables is a mock of Tables interface.
 type MockTables struct {
 	ctrl     *gomock.Controller

@@ -35,20 +35,6 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// ChangeInfo mocks base method.
-func (m *MockUsecase) ChangeInfo(user *models.User) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChangeInfo", user)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ChangeInfo indicates an expected call of ChangeInfo.
-func (mr *MockUsecaseMockRecorder) ChangeInfo(user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangeInfo", reflect.TypeOf((*MockUsecase)(nil).ChangeInfo), user)
-}
-
 // GetByID mocks base method.
 func (m *MockUsecase) GetByID(userID uint32) (*models.User, error) {
 	m.ctrl.T.Helper()
@@ -62,6 +48,20 @@ func (m *MockUsecase) GetByID(userID uint32) (*models.User, error) {
 func (mr *MockUsecaseMockRecorder) GetByID(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), userID)
+}
+
+// UpdateInfo mocks base method.
+func (m *MockUsecase) UpdateInfo(user *models.User) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateInfo", user)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateInfo indicates an expected call of UpdateInfo.
+func (mr *MockUsecaseMockRecorder) UpdateInfo(user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateInfo", reflect.TypeOf((*MockUsecase)(nil).UpdateInfo), user)
 }
 
 // UploadAvatar mocks base method.

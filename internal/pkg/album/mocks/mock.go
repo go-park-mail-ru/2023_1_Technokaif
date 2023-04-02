@@ -34,20 +34,6 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// Change mocks base method.
-func (m *MockUsecase) Change(album models.Album) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Change", album)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Change indicates an expected call of Change.
-func (mr *MockUsecaseMockRecorder) Change(album interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Change", reflect.TypeOf((*MockUsecase)(nil).Change), album)
-}
-
 // Create mocks base method.
 func (m *MockUsecase) Create(album models.Album, artistsID []uint32, userID uint32) (uint32, error) {
 	m.ctrl.T.Helper()
@@ -337,20 +323,6 @@ func (m *MockRepository) InsertLike(albumID, userID uint32) (bool, error) {
 func (mr *MockRepositoryMockRecorder) InsertLike(albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertLike", reflect.TypeOf((*MockRepository)(nil).InsertLike), albumID, userID)
-}
-
-// Update mocks base method.
-func (m *MockRepository) Update(album models.Album) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", album)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Update indicates an expected call of Update.
-func (mr *MockRepositoryMockRecorder) Update(album interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), album)
 }
 
 // MockTables is a mock of Tables interface.
