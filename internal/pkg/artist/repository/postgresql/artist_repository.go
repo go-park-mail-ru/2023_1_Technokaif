@@ -53,11 +53,11 @@ func (p *PostgreSQL) GetByID(artistID uint32) (*models.Artist, error) {
 	var artist models.Artist
 
 	err := p.db.Get(&artist, query, artistID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return &models.Artist{},
-			fmt.Errorf("(repo) %w: %v", &models.NoSuchArtistError{ArtistID: artistID}, err)
-	}
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &models.Artist{},
+				fmt.Errorf("(repo) %w: %w", &models.NoSuchArtistError{ArtistID: artistID}, err)
+		}
 		return &models.Artist{}, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -71,8 +71,13 @@ func (p *PostgreSQL) DeleteByID(artistID uint32) error {
 		WHERE id = $1;`,
 		p.tables.Artists())
 
-	if _, err := p.db.Exec(query, artistID); err != nil {
+	resExec, err := p.db.Exec(query, artistID)
+	if err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+	deleted, _ := resExec.RowsAffected() // postgres 100% supports rowsAffected, so no error
+	if deleted == 0 {
+		return fmt.Errorf("(repo): %w", &models.NoSuchArtistError{ArtistID: artistID})
 	}
 
 	return nil
@@ -103,6 +108,10 @@ func (p *PostgreSQL) GetByAlbum(albumID uint32) ([]models.Artist, error) {
 
 	var artists []models.Artist
 	if err := p.db.Select(&artists, query, albumID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+		}
+
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -119,6 +128,10 @@ func (p *PostgreSQL) GetByTrack(trackID uint32) ([]models.Artist, error) {
 
 	var artists []models.Artist
 	if err := p.db.Select(&artists, query, trackID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchTrackError{TrackID: trackID}, err)
+		}
+
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -135,6 +148,10 @@ func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Artist, error) {
 
 	var artists []models.Artist
 	if err := p.db.Select(&artists, query, userID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchUserError{UserID: userID}, err)
+		}
+
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -150,6 +167,10 @@ func (p *PostgreSQL) InsertLike(artistID, userID uint32) (bool, error) {
 		p.tables.LikedArtists())
 
 	if _, err := p.db.Exec(insertLikeQuery, artistID, userID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, fmt.Errorf("(repo) %w: %w", &models.NoSuchArtistError{ArtistID: artistID}, err)
+		}
+
 		if pqerr, ok := err.(*pq.Error); ok {
 			if pqerr.Code.Name() == errorLikeExists {
 				return false, nil

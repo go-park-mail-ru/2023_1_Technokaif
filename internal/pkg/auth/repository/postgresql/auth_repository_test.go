@@ -118,7 +118,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 					WillReturnError(sql.ErrNoRows)
 			},
 			expectError:   true,
-			expectedError: &models.NoSuchUserError{},
+			expectedError: &models.NoSuchUserError{UserID: 1},
 		},
 		{
 			name: "Internal postgres error",
@@ -147,7 +147,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 
 			// Test
 			if tc.expectError {
-				assert.ErrorIs(t, err, tc.expectedError)
+				assert.ErrorContains(t, err, tc.expectedError.Error())
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tc.expectedUser, user)
@@ -211,7 +211,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 					WillReturnError(sql.ErrNoRows)
 			},
 			expectError:   true,
-			expectedError: &models.NoSuchUserError{},
+			expectedError: &models.NoSuchUserError{UserID: 1},
 		},
 		{
 			name:   "Internal postgres error",
@@ -236,7 +236,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			// Test
 			err := repo.IncreaseUserVersion(tc.userID)
 			if tc.expectError {
-				assert.ErrorIs(t, err, tc.expectedError)
+				assert.ErrorContains(t, err, tc.expectedError.Error())
 			} else {
 				assert.NoError(t, err)
 			}
