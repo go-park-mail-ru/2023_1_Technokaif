@@ -19,14 +19,17 @@ import (
 	authUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/usecase"
 	trackUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/usecase"
 	userUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/usecase"
+	tokenUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/usecase"
 
 	albumDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/delivery/http"
 	artistDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/delivery/http"
 	authDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http"
 	trackDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
 	userDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
+	csrfDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http"
 
 	authMiddlware "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http/middleware"
+	csrfMiddlware "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http/middleware"
 )
 
 func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger) *chi.Mux {
@@ -41,14 +44,17 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo, logger)
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, logger)
 	userUsecase := userUsecase.NewUsecase(userRepo, logger)
+	tokenUsecase := tokenUsecase.NewUsecase(logger)
 
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)
 	artistHandler := artistDelivery.NewHandler(artistUsecase, logger)
-	authHandler := authDelivery.NewHandler(authUsecase, logger)
+	authHandler := authDelivery.NewHandler(authUsecase, tokenUsecase, logger)
 	trackHandler := trackDelivery.NewHandler(trackUsecase, artistUsecase, logger)
 	userHandler := userDelivery.NewHandler(userUsecase, trackUsecase, albumUsecase, artistUsecase, logger)
+	csrfHandler := csrfDelivery.NewHandler(tokenUsecase, logger)
 
-	authMiddlware := authMiddlware.NewMiddleware(authUsecase, logger)
+	authMiddlware := authMiddlware.NewMiddleware(authUsecase, tokenUsecase, logger)
+	csrfMiddlware := csrfMiddlware.NewMiddleware(tokenUsecase, logger)
 
 	return router.InitRouter(
 		albumHandler,
@@ -57,6 +63,8 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 		authHandler,
 		userHandler,
 		authMiddlware,
+		csrfHandler,
+		csrfMiddlware,
 		logger,
 	)
 }
