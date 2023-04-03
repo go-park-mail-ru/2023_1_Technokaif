@@ -27,7 +27,7 @@ func (li *loginInput) validate() error {
 }
 
 type loginResponse struct {
-	JWT string `json:"jwt"`
+	UserID uint32 `json:"id"`
 }
 
 // Logout

@@ -4,9 +4,11 @@ import (
 	"net/http"
 )
 
+const AcessTokenCookieName = "X-ACCESS-Token"
+
 func SetAcessTokenCookie(w http.ResponseWriter, token string) {
 	cookie := http.Cookie{
-		Name:     "X-ACCESS-Token",
+		Name:     AcessTokenCookieName,
 		Value:    token,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,

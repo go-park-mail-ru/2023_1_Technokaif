@@ -2,9 +2,8 @@ package middleware
 
 import (
 	"context"
-	"net/http"
-	"strings"
 	"errors"
+	"net/http"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -14,36 +13,37 @@ import (
 )
 
 type Middleware struct {
-	authServices 	auth.Usecase
-	tokenServices	token.Usecase
-	logger       	logger.Logger
+	authServices  auth.Usecase
+	tokenServices token.Usecase
+	logger        logger.Logger
 }
 
 func NewMiddleware(u auth.Usecase, t token.Usecase, l logger.Logger) *Middleware {
 	return &Middleware{
-		authServices: 	u,
-		tokenServices: 	t,
-		logger:       	l,
+		authServices:  u,
+		tokenServices: t,
+		logger:        l,
 	}
 }
 
 // Authorization is HTTP middleware which sets a value on the request context
 func (m *Middleware) Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		prefix := "Bearer"
-		authHeader := r.Header.Get("Authorization")
-		reqToken := strings.TrimPrefix(authHeader, prefix)
-		reqToken = strings.ReplaceAll(reqToken, " ", "")
 
-		m.logger.Info("auth token : " + reqToken)
+		tokenCookie, err := r.Cookie(commonHttp.AcessTokenCookieName)
+		if err != nil {
+			if errors.Is(err, http.ErrNoCookie) {
+				m.logger.Infof("middleware: %s", err.Error())
+				next.ServeHTTP(w, r) // no cookies
+				return
+			}
 
-		if authHeader == "" || reqToken == authHeader || reqToken == "" {
-			m.logger.Info("middleware: missing token")
-			next.ServeHTTP(w, r) // missing token
+			m.logger.Errorf("middleware: %s", err.Error())
+			commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, m.logger) // server error
 			return
 		}
 
-		userId, userVersion, err := m.tokenServices.CheckAccessToken(reqToken)
+		userId, userVersion, err := m.tokenServices.CheckAccessToken(tokenCookie.Value)
 		if err != nil {
 			m.logger.Infof("middleware: %s", err.Error())
 			next.ServeHTTP(w, r) // token check failed
@@ -55,12 +55,12 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			var errNoSuchUser *models.NoSuchUserError
 			if errors.As(err, &errNoSuchUser) {
 				m.logger.Infof("middleware: %s", err.Error())
-				next.ServeHTTP(w, r) // UserAuth data check failed
+				next.ServeHTTP(w, r) // data check failed
 				return
 			}
 
 			m.logger.Errorf("middleware: %s", err.Error())
-			commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, m.logger)
+			commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, m.logger) // server error
 			return
 		}
 
