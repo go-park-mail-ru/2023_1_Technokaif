@@ -3,12 +3,8 @@ package usecase
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
 	"fmt"
-	"os"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/argon2"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -17,21 +13,11 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-var secret = os.Getenv("SECRET")
-
-const tokenTTL = 24 * time.Hour
-
 // Usecase implements auth.Usecase
 type Usecase struct {
 	authRepo auth.Repository
 	userRepo user.Repository
 	logger   logger.Logger
-}
-
-type jwtClaims struct {
-	UserId      uint32 `json:"id"`
-	UserVersion uint32 `json:"user_version"`
-	jwt.RegisteredClaims
 }
 
 func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecase {
@@ -42,8 +28,7 @@ func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecas
 }
 
 func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
-	salt := make([]byte, 8)
-	rand.Read(salt)
+	salt := generateRandomSalt()
 	user.Salt = fmt.Sprintf("%x", salt)
 
 	user.Password = hashPassword(user.Password, salt)
@@ -68,24 +53,10 @@ func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error
 
 	hashedPassword := hashPassword(password, salt)
 	if hashedPassword != user.Password {
-		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w", err)
+		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w", &models.IncorrectPasswordError{UserId: user.ID})
 	}
 
 	return user, nil
-}
-
-func (u *Usecase) LoginUser(username, password string) (string, error) {
-	user, err := u.GetUserByCreds(username, password)
-	if err != nil {
-		return "", fmt.Errorf("(usecase) cannot find user: %w", err)
-	}
-
-	token, err := u.GenerateAccessToken(user.ID, user.Version)
-	if err != nil {
-		return "", fmt.Errorf("(usecase) failed to generate token: %w", err)
-	}
-
-	return token, nil
 }
 
 func (u *Usecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
@@ -96,49 +67,6 @@ func (u *Usecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, e
 	return user, nil
 }
 
-func (u *Usecase) GenerateAccessToken(userID, userVersion uint32) (string, error) {
-	claims := &jwtClaims{
-		userID,
-		userVersion,
-		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(tokenTTL)),
-			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte(secret))
-	if err != nil {
-		return "", fmt.Errorf("(usecase) failed to sign token: %w", err)
-	}
-
-	return signedToken, nil
-}
-
-func (u *Usecase) CheckAccessToken(acessToken string) (uint32, uint32, error) {
-	token, err := jwt.ParseWithClaims(acessToken, &jwtClaims{},
-		func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("(usecase) invalid signing method")
-			}
-			return []byte(secret), nil
-		})
-	if err != nil {
-		return 0, 0, fmt.Errorf("(usecase) invalid token: %w", err)
-	}
-
-	claims, ok := token.Claims.(*jwtClaims)
-	if !ok {
-		return 0, 0, errors.New("(usecase) token claims are not of type *tokenClaims")
-	}
-
-	now := time.Now().UTC()
-	if claims.ExpiresAt.Time.Before(now) {
-		return 0, 0, errors.New("(usecase) token is expired")
-	}
-
-	return claims.UserId, claims.UserVersion, nil
-}
-
 func (u *Usecase) IncreaseUserVersion(userID uint32) error {
 	if err := u.authRepo.IncreaseUserVersion(userID); err != nil {
 		return fmt.Errorf("(usecase) failed to update user version: %w", err)
@@ -147,7 +75,23 @@ func (u *Usecase) IncreaseUserVersion(userID uint32) error {
 	return nil
 }
 
+func (u *Usecase) ChangePassword(userID uint32, password string) error {
+	salt := generateRandomSalt()
+	passHash := hashPassword(password, salt)
+	if err := u.authRepo.UpdatePassword(userID, passHash, fmt.Sprintf("%x", salt)); err != nil {
+		return fmt.Errorf("(usecase) failed to update password: %w", err)
+	}
+
+	return nil
+}
+
 func hashPassword(plainPassword string, salt []byte) string {
 	hashedPassword := argon2.IDKey([]byte(plainPassword), []byte(salt), 1, 64*1024, 4, 32)
 	return fmt.Sprintf("%x", hashedPassword)
+}
+
+func generateRandomSalt() []byte {
+	salt := make([]byte, 8)
+	rand.Read(salt)
+	return salt
 }
