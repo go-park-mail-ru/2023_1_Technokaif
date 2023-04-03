@@ -23,6 +23,10 @@ func NewMiddleware(t token.Usecase, l logger.Logger) *Middleware {
 func (m *Middleware) CheckCSRFToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, err := commonHttp.GetUserFromRequest(r)
+		if err != nil {
+			commonHttp.ErrorResponseWithErrLogging(w, "invalid acess token", http.StatusBadRequest, m.logger, err)
+			return
+		}
 
 		csrfToken := r.Header.Get("X-CSRF-Token")
 
