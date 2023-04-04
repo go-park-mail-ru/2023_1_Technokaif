@@ -65,6 +65,7 @@ func getCorrectUserInfo() *models.User {
 		LastName:  "Kuzmin",
 		Sex:       models.Male,
 		BirthDate: birthDate,
+		AvatarSrc: "/users/avatars/yarik_tri.png",
 	}
 }
 
@@ -101,7 +102,7 @@ func TestUserDeliveryGet(t *testing.T) {
 		"lastName": "Kuzmin",
 		"sex": "M",
 		"birthDate": "2003-08-23T00:00:00Z",
-		"avatar": "/users/avatars/yarik_tri.png"
+		"avatarSrc": "/users/avatars/yarik_tri.png"
 	}`
 
 	testTable := []struct {
@@ -187,7 +188,8 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 		"firstName": "Yaroslav",
 		"lastName": "Kuzmin",
 		"sex": "M",
-		"birthDate": "2003-08-23"
+		"birthDate": "2003-08-23",
+		"avatarSrc": "/users/avatars/yarik_tri.png"
 	}`
 
 	testTable := []struct {

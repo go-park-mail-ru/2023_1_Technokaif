@@ -17,6 +17,7 @@ type userInfoInput struct {
 	LastName  string      `json:"lastName" valid:"required,runelength(2|20)"`
 	Sex       models.Sex  `json:"sex" valid:"required,in(F|M|O)"`
 	BirthDate models.Date `json:"birthDate" valid:"required,born"`
+	AvatarSrc string      `json:"avatarSrc" valid:"-"`
 }
 
 func (u *userInfoInput) ToUser() *models.User {
@@ -27,6 +28,7 @@ func (u *userInfoInput) ToUser() *models.User {
 		LastName:  u.LastName,
 		Sex:       u.Sex,
 		BirthDate: u.BirthDate,
+		AvatarSrc: u.AvatarSrc,
 	}
 }
 

@@ -32,18 +32,18 @@ type User struct {
 	LastName  string `json:"lastName" valid:"required,runelength(2|20)" db:"last_name"`
 	Sex       Sex    `json:"sex" valid:"required,in(F|M|O)" db:"sex"`
 	BirthDate Date   `json:"birthDate" valid:"required,born" db:"birth_date"`
-	AvatarSrc string `json:"-" valid:"-" db:"avatar_src"`
+	AvatarSrc string `json:"avatarSrc" valid:"-" db:"avatar_src"`
 }
 
 type UserTransfer struct {
-	ID        uint32  `json:"id"`
-	Username  string  `json:"username"`
-	Email     string  `json:"email"`
-	FirstName string  `json:"firstName"`
-	LastName  string  `json:"lastName"`
-	Sex       Sex     `json:"sex"`
-	BirhDate  Date    `json:"birthDate"`
-	AvatarSrc string  `json:"avatar,omitempty"`
+	ID        uint32 `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Sex       Sex    `json:"sex"`
+	BirhDate  Date   `json:"birthDate"`
+	AvatarSrc string `json:"avatarSrc,omitempty"`
 }
 
 type ContextKeyUserType struct{}
