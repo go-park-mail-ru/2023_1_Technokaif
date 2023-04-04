@@ -102,7 +102,7 @@ VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg'),
 
 INSERT INTO Tracks (name, album_id, album_position, cover_src, record_src)
 VALUES ('Где нас нет', 1, 1, '/tracks/gorgorod.jpg', '/tracks/gorgorod.wav'),
-       ('Признаки жизни', 2, 1, '/tracks/longWayHome.png', '/tracks/longWayHome.mp3');
+       ('Признаки жизни', 2, 1, '/tracks/longWayHome.png', '/tracks/instasamka-za-dengi-da-mp3.mp3');
 INSERT INTO Tracks (name, cover_src, record_src)
 VALUES ('LAGG OUT', '/tracks/laggOut.jpeg', '/tracks/laggOut.wav'),
        ('Город под подошвой', '/tracks/gorodPodPod.png', '/tracks/gorodPodPod.mp3');

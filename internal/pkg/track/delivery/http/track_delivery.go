@@ -358,5 +358,5 @@ func (h *Handler) GetRecord(w http.ResponseWriter, r *http.Request) {
 	}
 
 	
-	http.ServeFile(w, r, track.RecordSrc)
+	http.ServeFile(w, r, "." + track.RecordSrc)
 }
