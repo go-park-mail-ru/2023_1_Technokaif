@@ -93,11 +93,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := commonHttp.GetUserFromRequest(r); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
-		return
-	}
-
 	track, err := h.trackServices.GetByID(uint32(trackID))
 	var errNoSuchTrack *models.NoSuchTrackError
 	if errors.As(err, &errNoSuchTrack) {
@@ -334,4 +329,34 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 		resp := trackLikeResponse{Status: "already disliked"}
 		commonHttp.SuccessResponse(w, resp, h.logger)
 	}
+}
+
+// swaggermock
+func (h *Handler) GetRecord(w http.ResponseWriter, r *http.Request) {
+	trackID, err := commonHttp.GetTrackIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("Get track by id: %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	if _, err := commonHttp.GetUserFromRequest(r); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		return
+	}
+
+	track, err := h.trackServices.GetByID(uint32(trackID))
+	if err != nil {
+		var errNoSuchTrack *models.NoSuchTrackError
+		if errors.As(err, &errNoSuchTrack) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such track", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get track", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	
+	http.ServeFile(w, r, track.RecordSrc)
 }

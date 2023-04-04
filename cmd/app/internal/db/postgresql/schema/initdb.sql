@@ -105,7 +105,7 @@ VALUES ('Где нас нет', 1, 1, '/tracks/gorgorod.jpg', '/tracks/gorgorod.
        ('Признаки жизни', 2, 1, '/tracks/longWayHome.png', '/tracks/longWayHome.mp3');
 INSERT INTO Tracks (name, cover_src, record_src)
 VALUES ('LAGG OUT', '/tracks/laggOut.jpeg', '/tracks/laggOut.wav'),
-       ('Город под подошвой', '/tracks/gorodPodPod.png', '/tracks/gorodPodPod.png');
+       ('Город под подошвой', '/tracks/gorodPodPod.png', '/tracks/gorodPodPod.mp3');
 
 INSERT INTO Artists_Albums (artist_id, album_id)
 VALUES (1, 1),

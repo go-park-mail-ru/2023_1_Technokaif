@@ -93,11 +93,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := commonHttp.GetUserFromRequest(r); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
-		return
-	}
-
 	album, err := h.albumServices.GetByID(albumID)
 	var errNoSuchAlbum *models.NoSuchAlbumError
 	if errors.As(err, &errNoSuchAlbum) {

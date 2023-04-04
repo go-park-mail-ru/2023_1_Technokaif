@@ -17,7 +17,7 @@ type TrackTransfer struct {
 	AlbumPosition *uint32          `json:"albumPosition,omitempty"`
 	Artists       []ArtistTransfer `json:"artists"`
 	CoverSrc      string           `json:"cover"`
-	RecordSrc     string           `json:"record"`
+	// RecordSrc     string           `json:"record"`
 	Listens       uint32           `json:"listens"`
 }
 
@@ -38,7 +38,7 @@ func TrackTransferFromEntry(t Track, artistsGetter artistsByTrackGetter) (TrackT
 		AlbumPosition: t.AlbumPosition,
 		Artists:       ArtistTransferFromQuery(artists),
 		CoverSrc:      t.CoverSrc,
-		RecordSrc:     t.RecordSrc,
+		// RecordSrc:     t.RecordSrc,
 		Listens:       t.Listens,
 	}, nil
 }

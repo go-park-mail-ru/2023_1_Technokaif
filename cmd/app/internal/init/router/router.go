@@ -5,26 +5,25 @@ import (
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http/middleware"
 	album "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/delivery/http"
 	artist "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/delivery/http"
 	auth "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http"
 	authM "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http/middleware"
-	track "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
-	user "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 	csrf "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http"
 	csrfM "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http/middleware"
+	track "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
+	user "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 )
 
 const (
-	userIdRoute = "/{" + commonHttp.UserIdUrlParam + "}"
-	albumIdRoute = "/{" + commonHttp.AlbumIdUrlParam + "}"
+	userIdRoute   = "/{" + commonHttp.UserIdUrlParam + "}"
+	albumIdRoute  = "/{" + commonHttp.AlbumIdUrlParam + "}"
 	artistIdRoute = "/{" + commonHttp.ArtistIdUrlParam + "}"
-	trackIdRoute = "/{" + commonHttp.TrackIdUrlParam + "}"
+	trackIdRoute  = "/{" + commonHttp.TrackIdUrlParam + "}"
 )
-
 
 // InitRouter describes all app's endpoints and their handlers
 func InitRouter(
@@ -37,7 +36,7 @@ func InitRouter(
 	csrf *csrf.Handler,
 	csrfM *csrfM.Middleware,
 	loggger logger.Logger) *chi.Mux {
-	
+
 	r := chi.NewRouter()
 	r.Use(middleware.Panic(loggger))
 	r.Use(middleware.Logging(loggger))
@@ -95,6 +94,8 @@ func InitRouter(
 			r.With(authM.Authorization).Post("/", track.Create)
 			r.Route(trackIdRoute, func(r chi.Router) {
 				r.Get("/", track.Get)
+				r.With(authM.Authorization).Get("/record", track.GetRecord)
+
 				// r.Put("/", track.Update)
 				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Delete("/", track.Delete)
 
