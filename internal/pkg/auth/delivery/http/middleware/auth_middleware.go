@@ -60,7 +60,7 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			}
 
 			m.logger.Errorf("middleware: %s", err.Error())
-			commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, m.logger) // server error
+			commonHttp.ErrorResponse(w, "server failed to check authorization", http.StatusInternalServerError, m.logger)
 			return
 		}
 

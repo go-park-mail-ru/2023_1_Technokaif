@@ -11,7 +11,7 @@ import (
 // Usecase includes bussiness logics methods to work with users
 type Usecase interface {
 	GetByID(userID uint32) (*models.User, error)
-	ChangeInfo(user *models.User) error
+	UpdateInfo(user *models.User) error
 	UploadAvatar(user *models.User, file io.ReadSeeker, fileExtension string) error
 	UploadAvatarWrongFormatError() error
 }
@@ -29,9 +29,9 @@ type Repository interface {
 	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
 	GetUserByUsername(username string) (*models.User, error)
 
+	// TODO:
 	// GetFriends returns all users, who have friendship entry with user with given ID
 	// GetFriends(userID uint32) ([]models.User, error)
-
 	// GetListenedAlbum(albumID uint32) ([]models.User, error)
 	// GetListenedTrack(trackID uint32) ([]models.User, error)
 	// GetLikedAlbum(albumID uint32) ([]models.User, error)

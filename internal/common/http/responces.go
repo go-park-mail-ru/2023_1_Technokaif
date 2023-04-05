@@ -18,6 +18,7 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Lo
 		logger.Errorf("failed to marshal error message: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("can't encode error response into json, msg: " + msg))
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -25,9 +26,11 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Lo
 	w.Write(message)
 }
 
+const minErrorToLogCode = 500
+
 func ErrorResponseWithErrLogging(w http.ResponseWriter, msg string, code int, logger logger.Logger, err error) {
 	if err != nil {
-		if code == http.StatusBadRequest {
+		if code < minErrorToLogCode {
 			logger.Info(err.Error())
 		} else {
 			logger.Error(err.Error())
@@ -42,6 +45,7 @@ func SuccessResponse(w http.ResponseWriter, r any, logger logger.Logger) {
 	if err != nil {
 		logger.Error(err.Error())
 		ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, logger)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

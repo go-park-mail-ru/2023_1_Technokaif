@@ -20,7 +20,7 @@ type loginInput struct {
 func (li *loginInput) validate() error {
 	li.Username = html.EscapeString(li.Username)
 	li.Password = html.EscapeString(li.Password)
-	
+
 	_, err := valid.ValidateStruct(li)
 
 	return err

@@ -20,6 +20,7 @@ func NewHandler(tu token.Usecase, l logger.Logger) *Handler {
 	}
 }
 
+// swaggermock
 func (h *Handler) GetCSRF(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
