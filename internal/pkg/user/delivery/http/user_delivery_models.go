@@ -17,18 +17,17 @@ type userInfoInput struct {
 	LastName  string      `json:"lastName" valid:"required,runelength(2|20)"`
 	Sex       models.Sex  `json:"sex" valid:"required,in(F|M|O)"`
 	BirthDate models.Date `json:"birthDate" valid:"required,born"`
-	AvatarSrc string      `json:"avatarSrc" valid:"-"`
 }
 
-func (u *userInfoInput) ToUser() *models.User {
+func (ui *userInfoInput) ToUser(user *models.User) *models.User {
 	return &models.User{
-		ID:        u.ID,
-		Email:     u.Email,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Sex:       u.Sex,
-		BirthDate: u.BirthDate,
-		AvatarSrc: u.AvatarSrc,
+		ID:        ui.ID,
+		Email:     ui.Email,
+		FirstName: ui.FirstName,
+		LastName:  ui.LastName,
+		Sex:       ui.Sex,
+		BirthDate: ui.BirthDate,
+		AvatarSrc: user.AvatarSrc,
 	}
 }
 

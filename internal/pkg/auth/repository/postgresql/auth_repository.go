@@ -72,3 +72,24 @@ func (p *PostgreSQL) IncreaseUserVersion(userID uint32) error {
 
 	return nil
 }
+
+func (p *PostgreSQL) UpdatePassword(userID uint32, passwordHash, salt string) error {
+	query := fmt.Sprintf(
+		`UPDATE %s
+		SET password_hash = $1,
+			salt = $2
+		WHERE id = $3
+		RETURNING id;`,
+		p.tables.Users())
+	row := p.db.QueryRow(query, passwordHash, salt, userID)
+
+	if err := row.Scan(&userID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
+		}
+
+		return fmt.Errorf("(repo) failed to scan from query: %w", err)
+	}
+
+	return nil
+}

@@ -67,17 +67,18 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  http.Error  			   	"Server error"
 // @Router       /api/users/{userID}/update [post]
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
-	if _, err := h.checkUserAuthAndResponce(w, r); err != nil {
+	user, err := h.checkUserAuthAndResponce(w, r)
+	if err != nil {
 		return
 	}
 
-	var user userInfoInput
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	var userInfo userInfoInput
+	if err := json.NewDecoder(r.Body).Decode(&userInfo); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	if err := h.userServices.UpdateInfo(user.ToUser()); err != nil {
+	if err := h.userServices.UpdateInfo(userInfo.ToUser(user)); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no user to update", http.StatusBadRequest, h.logger, err)

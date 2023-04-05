@@ -2,25 +2,27 @@ package http
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
-
-	"github.com/pkg/errors"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type Handler struct {
-	services auth.Usecase
-	logger   logger.Logger
+	authServices  auth.Usecase
+	tokenServices token.Usecase
+	logger        logger.Logger
 }
 
-func NewHandler(au auth.Usecase, l logger.Logger) *Handler {
+func NewHandler(au auth.Usecase, tu token.Usecase, l logger.Logger) *Handler {
 	return &Handler{
-		services: au,
-		logger:   l,
+		authServices:  au,
+		tokenServices: tu,
+		logger:        l,
 	}
 }
 
@@ -46,7 +48,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.services.SignUpUser(user)
+	id, err := h.authServices.SignUpUser(user)
 	if err != nil {
 		var errUserAlreadyExists *models.UserAlreadyExistsError
 		if errors.As(err, &errUserAlreadyExists) {
@@ -89,11 +91,17 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.services.LoginUser(userInput.Username, userInput.Password)
+	user, err := h.authServices.GetUserByCreds(userInput.Username, userInput.Password)
 	if err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "can't login user", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, "no such user", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		var errIncorrectPassword *models.IncorrectPasswordError
+		if errors.As(err, &errIncorrectPassword) {
+			commonHttp.ErrorResponseWithErrLogging(w, "incorrect password", http.StatusBadRequest, h.logger, err)
 			return
 		}
 
@@ -101,10 +109,17 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	token, err := h.tokenServices.GenerateAccessToken(user.ID, user.Version)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to login user", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
 	h.logger.Infof("login with token: %s", token)
 
-	lr := loginResponse{JWT: token}
+	lr := loginResponse{UserID: user.ID}
 
+	commonHttp.SetAcessTokenCookie(w, token)
 	commonHttp.SuccessResponse(w, lr, h.logger)
 }
 
@@ -121,11 +136,11 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
 		h.logger.Infof("failed to logout: %s", err.Error())
-		commonHttp.ErrorResponse(w, "invalid token", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, "invalid token", http.StatusUnauthorized, h.logger)
 		return
 	}
 
-	if err = h.services.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
+	if err = h.authServices.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
 		h.logger.Errorf("failed to logout: %s", err.Error())
 		commonHttp.ErrorResponse(w, "failed to log out", http.StatusInternalServerError, h.logger)
 		return
@@ -133,5 +148,57 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	lr := logoutResponse{Status: "ok"}
 
+	commonHttp.SetAcessTokenCookie(w, "")
 	commonHttp.SuccessResponse(w, lr, h.logger)
+}
+
+func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		h.logger.Infof("failed to change password: %s", err.Error())
+		commonHttp.ErrorResponse(w, "invalid token", http.StatusUnauthorized, h.logger)
+		return
+	}
+
+	var passwordsInput changePassInput
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&passwordsInput); err != nil {
+		h.logger.Infof("incorrect json format: %s", err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	if _, err := h.authServices.GetUserByCreds(user.Username, passwordsInput.OldPassword); err != nil {
+		var errIncorrectPassword *models.IncorrectPasswordError
+		if errors.As(err, &errIncorrectPassword) {
+			commonHttp.ErrorResponseWithErrLogging(w, "incorrect password", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to get user", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	if err := h.authServices.ChangePassword(user.ID, passwordsInput.NewPassword); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to change password", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	resp := changePassResponse{Status: "ok"}
+
+	commonHttp.SetAcessTokenCookie(w, "")
+	commonHttp.SuccessResponse(w, resp, h.logger)
+}
+
+func (h *Handler) IsAuthenticated(w http.ResponseWriter, r *http.Request) {
+	user, _ := commonHttp.GetUserFromRequest(r)
+
+	resp := isAuthenticatedResponse{}
+	if user == nil {
+		resp.Authenticated = true
+	} else {
+		resp.Authenticated = false
+	}
+
+	commonHttp.SuccessResponse(w, resp, h.logger)
 }

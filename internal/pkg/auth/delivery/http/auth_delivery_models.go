@@ -1,8 +1,9 @@
 package http
 
 import (
+	"html"
+
 	valid "github.com/asaskevich/govalidator"
-	"github.com/microcosm-cc/bluemonday"
 )
 
 // Signup
@@ -17,20 +18,33 @@ type loginInput struct {
 }
 
 func (li *loginInput) validate() error {
-	sanitizer := bluemonday.StrictPolicy()
-	li.Username = sanitizer.Sanitize(li.Username)
-	li.Password = sanitizer.Sanitize(li.Password)
-	
+	li.Username = html.EscapeString(li.Username)
+	li.Password = html.EscapeString(li.Password)
+
 	_, err := valid.ValidateStruct(li)
 
 	return err
 }
 
 type loginResponse struct {
-	JWT string `json:"jwt"`
+	UserID uint32 `json:"id"`
 }
 
 // Logout
 type logoutResponse struct {
 	Status string `json:"status"`
+}
+
+// ChangePassword
+type changePassInput struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+type changePassResponse struct {
+	Status string `json:"status"`
+}
+
+type isAuthenticatedResponse struct {
+	Authenticated bool `json:"auth"`
 }

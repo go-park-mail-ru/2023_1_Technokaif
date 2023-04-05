@@ -34,35 +34,18 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
-// CheckAccessToken mocks base method.
-func (m *MockUsecase) CheckAccessToken(accessToken string) (uint32, uint32, error) {
+// ChangePassword mocks base method.
+func (m *MockUsecase) ChangePassword(userID uint32, password string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckAccessToken", accessToken)
-	ret0, _ := ret[0].(uint32)
-	ret1, _ := ret[1].(uint32)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret := m.ctrl.Call(m, "ChangePassword", userID, password)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// CheckAccessToken indicates an expected call of CheckAccessToken.
-func (mr *MockUsecaseMockRecorder) CheckAccessToken(accessToken interface{}) *gomock.Call {
+// ChangePassword indicates an expected call of ChangePassword.
+func (mr *MockUsecaseMockRecorder) ChangePassword(userID, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckAccessToken", reflect.TypeOf((*MockUsecase)(nil).CheckAccessToken), accessToken)
-}
-
-// GenerateAccessToken mocks base method.
-func (m *MockUsecase) GenerateAccessToken(userID, userVersion uint32) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateAccessToken", userID, userVersion)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GenerateAccessToken indicates an expected call of GenerateAccessToken.
-func (mr *MockUsecaseMockRecorder) GenerateAccessToken(userID, userVersion interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateAccessToken", reflect.TypeOf((*MockUsecase)(nil).GenerateAccessToken), userID, userVersion)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockUsecase)(nil).ChangePassword), userID, password)
 }
 
 // GetUserByAuthData mocks base method.
@@ -107,21 +90,6 @@ func (m *MockUsecase) IncreaseUserVersion(userID uint32) error {
 func (mr *MockUsecaseMockRecorder) IncreaseUserVersion(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncreaseUserVersion", reflect.TypeOf((*MockUsecase)(nil).IncreaseUserVersion), userID)
-}
-
-// LoginUser mocks base method.
-func (m *MockUsecase) LoginUser(username, plainPassword string) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoginUser", username, plainPassword)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// LoginUser indicates an expected call of LoginUser.
-func (mr *MockUsecaseMockRecorder) LoginUser(username, plainPassword interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoginUser", reflect.TypeOf((*MockUsecase)(nil).LoginUser), username, plainPassword)
 }
 
 // SignUpUser mocks base method.
@@ -189,6 +157,20 @@ func (m *MockRepository) IncreaseUserVersion(userID uint32) error {
 func (mr *MockRepositoryMockRecorder) IncreaseUserVersion(userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncreaseUserVersion", reflect.TypeOf((*MockRepository)(nil).IncreaseUserVersion), userID)
+}
+
+// UpdatePassword mocks base method.
+func (m *MockRepository) UpdatePassword(userID uint32, passwordHash, salt string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdatePassword", userID, passwordHash, salt)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdatePassword indicates an expected call of UpdatePassword.
+func (mr *MockRepositoryMockRecorder) UpdatePassword(userID, passwordHash, salt interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePassword", reflect.TypeOf((*MockRepository)(nil).UpdatePassword), userID, passwordHash, salt)
 }
 
 // MockTables is a mock of Tables interface.
