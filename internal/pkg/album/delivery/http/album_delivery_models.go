@@ -1,8 +1,9 @@
 package http
 
 import (
+	"html"
+
 	valid "github.com/asaskevich/govalidator"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -16,12 +17,11 @@ type albumCreateInput struct {
 }
 
 func (a *albumCreateInput) validate() error {
-	sanitizer := bluemonday.StrictPolicy()
-	a.Name = sanitizer.Sanitize(a.Name)
+	a.Name = html.EscapeString(a.Name)
 	if a.Description != nil {
-		*a.Description = sanitizer.Sanitize(*a.Description)
+		*a.Description = html.EscapeString(*a.Description)
 	}
-	a.CoverSrc = sanitizer.Sanitize(a.CoverSrc)
+	a.CoverSrc = html.EscapeString(a.CoverSrc)
 
 	_, err := valid.ValidateStruct(a)
 
@@ -50,10 +50,9 @@ type albumChangeInput struct {
 }
 
 func (a *albumChangeInput) validate() error {
-	sanitizer := bluemonday.StrictPolicy()
-	a.Name = sanitizer.Sanitize(a.Name)
-	a.Description = sanitizer.Sanitize(a.Description)
-	a.CoverSrc = sanitizer.Sanitize(a.CoverSrc)
+	a.Name = html.EscapeString(a.Name)
+	a.Description = html.EscapeString(a.Description)
+	a.CoverSrc = html.EscapeString(a.CoverSrc)
 
 	_, err := valid.ValidateStruct(a)
 

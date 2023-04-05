@@ -1,8 +1,9 @@
 package http
 
 import (
+	"html"
+
 	valid "github.com/asaskevich/govalidator"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -14,9 +15,8 @@ type artistCreateInput struct {
 }
 
 func (a *artistCreateInput) validate() error {
-	sanitizer := bluemonday.StrictPolicy()
-	a.Name = sanitizer.Sanitize(a.Name)
-	a.AvatarSrc = sanitizer.Sanitize(a.AvatarSrc)
+	a.Name = html.EscapeString(a.Name)
+	a.AvatarSrc = html.EscapeString(a.AvatarSrc)
 
 	_, err := valid.ValidateStruct(a)
 

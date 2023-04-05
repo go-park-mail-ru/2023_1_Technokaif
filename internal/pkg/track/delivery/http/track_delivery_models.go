@@ -2,9 +2,9 @@ package http
 
 import (
 	"errors"
+	"html"
 
 	valid "github.com/asaskevich/govalidator"
-	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -18,8 +18,7 @@ type trackCreateInput struct {
 }
 
 func (t *trackCreateInput) validate() error {
-	sanitizer := bluemonday.StrictPolicy()
-	t.Name = sanitizer.Sanitize(t.Name)
+	t.Name = html.EscapeString(t.Name)
 
 	if (t.AlbumID == nil) != (t.AlbumPosition == nil) {
 		return errors.New("(delivery) albumID is nil while albumPosition isn't (or vice versa)")
