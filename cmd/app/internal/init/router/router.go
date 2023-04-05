@@ -108,6 +108,7 @@ func InitRouter(
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/login", auth.Login)
 			r.Post("/signup", auth.SignUp)
+			r.With(authM.Authorization).Get("/check", auth.IsAuthenticated)
 			r.With(authM.Authorization).Get("/logout", auth.Logout)
 			r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/changepass", auth.ChangePassword)
 		})

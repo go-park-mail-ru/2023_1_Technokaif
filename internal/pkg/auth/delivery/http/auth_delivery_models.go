@@ -44,3 +44,7 @@ type changePassInput struct {
 type changePassResponse struct {
 	Status string `json:"status"`
 }
+
+type isAuthenticatedResponse struct {
+	Authenticated bool `json:"auth"`
+}

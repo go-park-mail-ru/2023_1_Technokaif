@@ -192,3 +192,16 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SetAcessTokenCookie(w, "")
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
+
+func (h *Handler) IsAuthenticated(w http.ResponseWriter, r *http.Request) {
+	user, _ := commonHttp.GetUserFromRequest(r)
+
+	resp := isAuthenticatedResponse{}
+	if user == nil {
+		resp.Authenticated = true
+	} else {
+		resp.Authenticated = false
+	}
+
+	commonHttp.SuccessResponse(w, resp, h.logger)	
+}
