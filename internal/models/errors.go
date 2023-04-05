@@ -45,10 +45,12 @@ func (e *UserAlreadyExistsError) Error() string {
 	return "user already exists"
 }
 
-type NoSuchUserError struct{}
+type NoSuchUserError struct {
+	UserID uint32
+}
 
 func (e *NoSuchUserError) Error() string {
-	return "no such user"
+	return fmt.Sprintf("user #%d doesn't exist", e.UserID)
 }
 
 type IncorrectPasswordError struct{

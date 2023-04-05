@@ -60,14 +60,6 @@ func (u *Usecase) GetByID(trackID uint32) (*models.Track, error) {
 	return track, nil
 }
 
-func (u *Usecase) Change(track models.Track) error {
-	if err := u.trackRepo.Update(track); err != nil {
-		return fmt.Errorf("(usecase) can't get update track in repository: %w", err)
-	}
-
-	return nil
-}
-
 func (u *Usecase) Delete(trackID uint32, userID uint32) error {
 	if _, err := u.trackRepo.GetByID(trackID); err != nil {
 		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
@@ -164,4 +156,13 @@ func (u *Usecase) UnLike(trackID, userID uint32) (bool, error) {
 	}
 
 	return iSdeleted, nil
+}
+
+func (u *Usecase) IsLiked(trackID, userID uint32) (bool, error) {
+	isLiked, err := u.trackRepo.IsLiked(trackID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) can't check in repository if track is liked: %w", err)
+	}
+
+	return isLiked, nil
 }

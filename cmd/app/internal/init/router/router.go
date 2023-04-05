@@ -5,26 +5,25 @@ import (
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http/middleware"
 	album "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/delivery/http"
 	artist "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/delivery/http"
 	auth "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http"
 	authM "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http/middleware"
-	track "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
-	user "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 	csrf "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http"
 	csrfM "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http/middleware"
+	track "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
+	user "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 )
 
 const (
-	userIdRoute = "/{" + commonHttp.UserIdUrlParam + "}"
-	albumIdRoute = "/{" + commonHttp.AlbumIdUrlParam + "}"
+	userIdRoute   = "/{" + commonHttp.UserIdUrlParam + "}"
+	albumIdRoute  = "/{" + commonHttp.AlbumIdUrlParam + "}"
 	artistIdRoute = "/{" + commonHttp.ArtistIdUrlParam + "}"
-	trackIdRoute = "/{" + commonHttp.TrackIdUrlParam + "}"
+	trackIdRoute  = "/{" + commonHttp.TrackIdUrlParam + "}"
 )
-
 
 // InitRouter describes all app's endpoints and their handlers
 func InitRouter(
@@ -37,7 +36,7 @@ func InitRouter(
 	csrf *csrf.Handler,
 	csrfM *csrfM.Middleware,
 	loggger logger.Logger) *chi.Mux {
-	
+
 	r := chi.NewRouter()
 	r.Use(middleware.Panic(loggger))
 	r.Use(middleware.Logging(loggger))
@@ -49,10 +48,10 @@ func InitRouter(
 		r.Route("/users", func(r chi.Router) {
 			r.Route(userIdRoute, func(r chi.Router) {
 				r.With(authM.Authorization).Get("/", user.Get)
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/avatar", user.UploadAvatar)
+				r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/update", user.UpdateInfo)
+				r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/avatar", user.UploadAvatar)
 
-				r.Route("/favourite", func(r chi.Router) {
-					r.Use(authM.Authorization)
+				r.With(authM.Authorization).Route("/favorite", func(r chi.Router) {
 					r.Get("/tracks", user.GetFavouriteTracks)
 					r.Get("/albums", user.GetFavouriteAlbums)
 					r.Get("/artists", user.GetFavouriteArtists)
@@ -64,13 +63,13 @@ func InitRouter(
 			r.With(authM.Authorization).Post("/", album.Create)
 			r.Route(albumIdRoute, func(r chi.Router) {
 				r.Get("/", album.Get)
-				// r.Put("/", album.Update)
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Delete("/", album.Delete)
 
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/like", album.Like)
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/unlike", album.UnLike)
+				r.With(authM.Authorization, csrfM.CheckCSRFToken).Delete("/", album.Delete)
 
-				r.Get("/tracks", track.GetByAlbum)
+				r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/like", album.Like)
+				r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/unlike", album.UnLike)
+
+				r.With(authM.Authorization).Get("/tracks", track.GetByAlbum)
 			})
 			r.Get("/feed", album.Feed)
 		})
@@ -79,27 +78,28 @@ func InitRouter(
 			r.With(authM.Authorization).Post("/", artist.Create)
 			r.Route(artistIdRoute, func(r chi.Router) {
 				r.Get("/", artist.Get)
-				// r.Put("/", artist.Update)
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Delete("/", artist.Delete)
 
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/like", artist.Like)
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/unlike", artist.UnLike)
+				r.With(authM.Authorization, csrfM.CheckCSRFToken).Delete("/", artist.Delete)
 
-				r.Get("/tracks", track.GetByArtist)
+				r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/like", artist.Like)
+				r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/unlike", artist.UnLike)
+
+				r.With(authM.Authorization).Get("/tracks", track.GetByArtist)
 				r.Get("/albums", album.GetByArtist)
 			})
 			r.Get("/feed", artist.Feed)
 		})
 
-		r.Route("/tracks", func(r chi.Router) {
-			r.With(authM.Authorization).Post("/", track.Create)
+		r.With(authM.Authorization).Route("/tracks", func(r chi.Router) {
+			r.Post("/", track.Create)
 			r.Route(trackIdRoute, func(r chi.Router) {
 				r.Get("/", track.Get)
-				// r.Put("/", track.Update)
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Delete("/", track.Delete)
+				r.Get("/record", track.GetRecord)
 
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/like", track.Like)
-				r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/unlike", track.UnLike)
+				r.With(csrfM.CheckCSRFToken).Delete("/", track.Delete)
+
+				r.With(csrfM.CheckCSRFToken).Post("/like", track.Like)
+				r.With(csrfM.CheckCSRFToken).Post("/unlike", track.UnLike)
 			})
 			r.Get("/feed", track.Feed)
 		})
@@ -107,8 +107,9 @@ func InitRouter(
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/login", auth.Login)
 			r.Post("/signup", auth.SignUp)
+			r.With(authM.Authorization).Get("/check", auth.IsAuthenticated)
 			r.With(authM.Authorization).Get("/logout", auth.Logout)
-			r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/changepass", auth.ChangePassword)
+			r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/changepass", auth.ChangePassword)
 		})
 
 		r.With(authM.Authorization).Get("/csrf", csrf.GetCSRF)

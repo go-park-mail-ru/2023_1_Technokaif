@@ -12,7 +12,7 @@ import (
 )
 
 type Usecase struct {
-	logger   logger.Logger
+	logger logger.Logger
 }
 
 func NewUsecase(l logger.Logger) *Usecase {
@@ -21,11 +21,9 @@ func NewUsecase(l logger.Logger) *Usecase {
 
 var tokenSecret = os.Getenv("SECRET")
 
+const csrfTokenTTL = 30 * time.Minute
 const accessTokenTTL = 24 * time.Hour
-
-const csrfTokenTTL = 5 * time.Minute
-
-const jwtParsingMaxTime = 3 * time.Second 
+const jwtParsingMaxTime = 3 * time.Second
 
 type jwtAccessClaims struct {
 	UserId      uint32 `json:"id"`
@@ -34,7 +32,7 @@ type jwtAccessClaims struct {
 }
 
 type jwtCSRFClaims struct {
-	UserId      uint32 `json:"id"`
+	UserId uint32 `json:"id"`
 	jwt.RegisteredClaims
 }
 

@@ -31,12 +31,12 @@ func NewHandler(alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler
 // @Description	Create new album by sent object
 // @Accept      json
 // @Produce		json
-// @Param		album	body		albumCreateInput	true	"album info"
+// @Param		album	body		albumCreateInput	true	"Album info"
 // @Success		200		{object}	albumCreateResponse	        "Album created"
-// @Failure		400		{object}	http.Error	"Incorrect body"
-// @Failure		401		{object}	http.Error  "User unathorized"
-// @Failure		403		{object}	http.Error	"User hasn't rights"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Failure		400		{object}	http.Error					"Incorrect input"
+// @Failure		401		{object}	http.Error  				"User unathorized"
+// @Failure		403		{object}	http.Error					"User hasn't rights"
+// @Failure		500		{object}	http.Error					"Server error"
 // @Router		/api/albums/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
@@ -46,8 +46,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var aci albumCreateInput
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&aci); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&aci); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
@@ -61,8 +60,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	album := aci.ToAlbum()
 
 	albumID, err := h.albumServices.Create(album, aci.ArtistsID, user.ID)
-	var errForbiddenUser *models.ForbiddenUserError
 	if err != nil {
+		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no rights to crearte album", http.StatusForbidden, h.logger, err)
 			return
@@ -81,9 +80,10 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags		Album
 // @Description	Get album with chosen ID
 // @Produce		json
-// @Success		200		{object}	models.AlbumTransfer	    "Album got"
-// @Failure		400		{object}	http.Error	"Client error"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Success		200		{object}	models.AlbumTransfer	"Album got"
+// @Failure		400		{object}	http.Error				"Incorrect input"
+// @Failure		401		{object}	http.Error  			"User unathorized"
+// @Failure		500		{object}	http.Error				"Server error"
 // @Router		/api/albums/{albumID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
@@ -93,17 +93,14 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := commonHttp.GetUserFromRequest(r); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
-		return
-	}
-
 	album, err := h.albumServices.GetByID(albumID)
-	var errNoSuchAlbum *models.NoSuchAlbumError
-	if errors.As(err, &errNoSuchAlbum) {
-		commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
-		return
-	} else if err != nil {
+	if err != nil {
+		var errNoSuchAlbum *models.NoSuchAlbumError
+		if errors.As(err, &errNoSuchAlbum) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get album", http.StatusInternalServerError, h.logger, err)
 		return
 	}
@@ -115,26 +112,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	commonHttp.SuccessResponse(w, resp, h.logger)
-}
-
-// swaggermock
-func (h *Handler) Change(w http.ResponseWriter, r *http.Request) {
-	var aci albumChangeInput
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&aci); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
-		return
-	}
-
-	if err := aci.validate(); err != nil {
-		h.logger.Infof("Changing album input validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
-		return
-	}
-
-	// album := aci.ToAlbum()
-	// ...
 }
 
 // @Summary		Delete Album
@@ -162,13 +139,14 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.albumServices.Delete(albumID, user.ID)
-	var errForbiddenUser *models.ForbiddenUserError
-	var errNoSuchAlbum *models.NoSuchAlbumError
 	if err != nil {
+		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no rights to delete album", http.StatusForbidden, h.logger, err)
 			return
 		}
+
+		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
 			return
@@ -200,19 +178,20 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	albums, err := h.albumServices.GetByArtist(artistID)
-	var errNoSuchArtist *models.NoSuchArtistError
-	if errors.As(err, &errNoSuchArtist) {
-		commonHttp.ErrorResponseWithErrLogging(w, "no such artist", http.StatusBadRequest, h.logger, err)
-		return
-	}
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		var errNoSuchArtist *models.NoSuchArtistError
+		if errors.As(err, &errNoSuchArtist) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such artist", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	resp, err := models.AlbumTransferFromQuery(albums, h.artistServices.GetByAlbum)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -229,20 +208,28 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	albums, err := h.albumServices.GetFeed()
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	resp, err := models.AlbumTransferFromQuery(albums, h.artistServices.GetByAlbum)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
-// swaggermock
+// @Summary		Set like
+// @Tags		Album
+// @Description	Set like by user to chosen album (add to favorite)
+// @Produce		json
+// @Success		200		{object}	albumLikeResponse	"Like set"
+// @Failure		400		{object}	http.Error			"Client error"
+// @Failure		401		{object}	http.Error  		"User unathorized"
+// @Failure		500		{object}	http.Error			"Server error"
+// @Router		/api/albums/{albumID}/like [post]
 func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
 	if err != nil {
@@ -257,28 +244,34 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExists, err := h.albumServices.SetLike(albumID, user.ID)
+	notExisted, err := h.albumServices.SetLike(albumID, user.ID)
 	if err != nil {
 		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
 			return
-		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "error while setting like", http.StatusInternalServerError, h.logger, err)
-			return
 		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't set like", http.StatusInternalServerError, h.logger, err)
+		return
 	}
 
-	if notExists {
-		resp := albumLikeResponse{Status: "ok"}
-		commonHttp.SuccessResponse(w, resp, h.logger)
-	} else {
-		resp := albumLikeResponse{Status: "exists"}
-		commonHttp.SuccessResponse(w, resp, h.logger)
+	alr := albumLikeResponse{Status: "ok"}
+	if !notExisted {
+		alr.Status = "already liked"
 	}
+	commonHttp.SuccessResponse(w, alr, h.logger)
 }
 
-// swaggermock
+// @Summary		Remove like
+// @Tags		Album
+// @Description	Remove like by user from chosen album (remove from favorite)
+// @Produce		json
+// @Success		200		{object}	albumLikeResponse	"Like removed"
+// @Failure		400		{object}	http.Error			"Client error"
+// @Failure		401		{object}	http.Error  		"User unathorized"
+// @Failure		500		{object}	http.Error			"Server error"
+// @Router		/api/albums/{albumID}/unlike [post]
 func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
 	if err != nil {
@@ -299,17 +292,15 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 		if errors.As(err, &errNoSuchAlbum) {
 			commonHttp.ErrorResponseWithErrLogging(w, "no such album", http.StatusBadRequest, h.logger, err)
 			return
-		} else {
-			commonHttp.ErrorResponseWithErrLogging(w, "error while removing like", http.StatusInternalServerError, h.logger, err)
-			return
 		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't remove like", http.StatusInternalServerError, h.logger, err)
+		return
 	}
 
-	if notExisted {
-		resp := albumLikeResponse{Status: "ok"}
-		commonHttp.SuccessResponse(w, resp, h.logger)
-	} else {
-		resp := albumLikeResponse{Status: "already disliked"}
-		commonHttp.SuccessResponse(w, resp, h.logger)
+	alr := albumLikeResponse{Status: "ok"}
+	if !notExisted {
+		alr.Status = "wasn't liked"
 	}
+	commonHttp.SuccessResponse(w, alr, h.logger)
 }

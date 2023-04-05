@@ -2,8 +2,8 @@ package http
 
 import (
 	"encoding/json"
-	"net/http"
 	"errors"
+	"net/http"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -13,16 +13,16 @@ import (
 )
 
 type Handler struct {
-	authServices 	auth.Usecase
-	tokenServices 	token.Usecase
-	logger   		logger.Logger
+	authServices  auth.Usecase
+	tokenServices token.Usecase
+	logger        logger.Logger
 }
 
 func NewHandler(au auth.Usecase, tu token.Usecase, l logger.Logger) *Handler {
 	return &Handler{
-		authServices: 	au,
-		tokenServices: 	tu,
-		logger:   		l,
+		authServices:  au,
+		tokenServices: tu,
+		logger:        l,
 	}
 }
 
@@ -31,16 +31,14 @@ func NewHandler(au auth.Usecase, tu token.Usecase, l logger.Logger) *Handler {
 // @Description	Create account
 // @Accept		json
 // @Produce		json
-// @Param		user	body		models.User		true	"user info"
-// @Success		200		{object}	signUpResponse	"User created"
-// @Failure		400		{object}	http.Error	"Incorrect input"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Param		user	body		models.User	true	"User info"
+// @Success		200		{object}	signUpResponse		"User created"
+// @Failure		400		{object}	http.Error			"Incorrect input"
+// @Failure		500		{object}	http.Error			"Server error"
 // @Router		/api/auth/signup [post]
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
@@ -51,12 +49,14 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := h.authServices.SignUpUser(user)
-	var errUserAlreadyExists *models.UserAlreadyExistsError
-	if errors.As(err, &errUserAlreadyExists) {
-		commonHttp.ErrorResponseWithErrLogging(w, "user already exists", http.StatusBadRequest, h.logger, err)
-		return
-	} else if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
+	if err != nil {
+		var errUserAlreadyExists *models.UserAlreadyExistsError
+		if errors.As(err, &errUserAlreadyExists) {
+			commonHttp.ErrorResponseWithErrLogging(w, "user already exists", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to sign up user", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -79,9 +79,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 // @Router		/api/auth/login [post]
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&userInput); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&userInput); err != nil {
 		h.logger.Infof("incorrect json format: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return
@@ -141,7 +139,6 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponse(w, "invalid token", http.StatusUnauthorized, h.logger)
 		return
 	}
-	h.logger.Infof("userID for logout: %d", user.ID)
 
 	if err = h.authServices.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
 		h.logger.Errorf("failed to logout: %s", err.Error())
@@ -190,5 +187,18 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	resp := changePassResponse{Status: "ok"}
 
 	commonHttp.SetAcessTokenCookie(w, "")
+	commonHttp.SuccessResponse(w, resp, h.logger)
+}
+
+func (h *Handler) IsAuthenticated(w http.ResponseWriter, r *http.Request) {
+	user, _ := commonHttp.GetUserFromRequest(r)
+
+	resp := isAuthenticatedResponse{}
+	if user == nil {
+		resp.Authenticated = true
+	} else {
+		resp.Authenticated = false
+	}
+
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }

@@ -3,9 +3,9 @@ package models
 import (
 	"strings"
 	"time"
+	"html"
 
 	valid "github.com/asaskevich/govalidator"
-	"github.com/microcosm-cc/bluemonday"
 )
 
 type Sex string
@@ -32,18 +32,18 @@ type User struct {
 	LastName  string `json:"lastName" valid:"required,runelength(2|20)" db:"last_name"`
 	Sex       Sex    `json:"sex" valid:"required,in(F|M|O)" db:"sex"`
 	BirthDate Date   `json:"birthDate" valid:"required,born" db:"birth_date"`
-	AvatarSrc string `json:"-" valid:"-" db:"avatar_src"`
+	AvatarSrc string `json:"avatarSrc" valid:"-" db:"avatar_src"`
 }
 
 type UserTransfer struct {
-	ID        uint32  `json:"id"`
-	Username  string  `json:"username"`
-	Email     string  `json:"email"`
-	FirstName string  `json:"firstName"`
-	LastName  string  `json:"lastName"`
-	Sex       Sex     `json:"sex"`
-	BirhDate  Date    `json:"birthDate"`
-	AvatarSrc string  `json:"avatar,omitempty"`
+	ID        uint32 `json:"id"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Sex       Sex    `json:"sex"`
+	BirhDate  Date   `json:"birthDate"`
+	AvatarSrc string `json:"avatarSrc,omitempty"`
 }
 
 type ContextKeyUserType struct{}
@@ -58,13 +58,11 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 }
 
 func (u *User) DeliveryValidate() error {
-	sanitizer := bluemonday.StrictPolicy()
-	u.Username = sanitizer.Sanitize(u.Username)
-	u.Email = sanitizer.Sanitize(u.Email)
-	u.Password = sanitizer.Sanitize(u.Password)
-	u.FirstName = sanitizer.Sanitize(u.FirstName)
-	u.LastName = sanitizer.Sanitize(u.LastName)
-	u.AvatarSrc = sanitizer.Sanitize(u.AvatarSrc)
+	u.Username = html.EscapeString(u.Username)
+	u.Email = html.EscapeString(u.Email)
+	u.Password = html.EscapeString(u.Password)
+	u.FirstName = html.EscapeString(u.FirstName)
+	u.LastName = html.EscapeString(u.LastName)
 
 	_, err := valid.ValidateStruct(u)
 	return err
