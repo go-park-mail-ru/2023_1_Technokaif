@@ -161,7 +161,7 @@ func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(favTracks, h.artistServices.GetByTrack)
+	tt, err := models.TrackTransferFromQuery(favTracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger, err)
 		return

@@ -235,7 +235,8 @@ func TestTrackDeliveryGet(t *testing.T) {
 		],
 		"cover": "/tracks/covers/hit.png",
 		"record": "/tracks/records/hit.wav",
-		"listens": 99999999
+		"listens": 99999999,
+		"isLiked": false
 	}`
 
 	testTable := []struct {

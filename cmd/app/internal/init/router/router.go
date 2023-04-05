@@ -46,8 +46,7 @@ func InitRouter(
 				r.With(authM.Authorization).Get("/", user.Get)
 				r.With(authM.Authorization).Post("/avatar", user.UploadAvatar)
 
-				r.Route("/favourite", func(r chi.Router) {
-					r.Use(authM.Authorization)
+				r.With(authM.Authorization).Route("/favourite", func(r chi.Router) {
 					r.Get("/tracks", user.GetFavouriteTracks)
 					r.Get("/albums", user.GetFavouriteAlbums)
 					r.Get("/artists", user.GetFavouriteArtists)
@@ -59,13 +58,12 @@ func InitRouter(
 			r.With(authM.Authorization).Post("/", album.Create)
 			r.Route(albumIdRoute, func(r chi.Router) {
 				r.Get("/", album.Get)
-				// r.Put("/", album.Update)
 				r.With(authM.Authorization).Delete("/", album.Delete)
 
 				r.With(authM.Authorization).Post("/like", album.Like)
 				r.With(authM.Authorization).Post("/unlike", album.UnLike)
 
-				r.Get("/tracks", track.GetByAlbum)
+				r.With(authM.Authorization).Get("/tracks", track.GetByAlbum)
 			})
 			r.Get("/feed", album.Feed)
 		})
@@ -74,27 +72,25 @@ func InitRouter(
 			r.With(authM.Authorization).Post("/", artist.Create)
 			r.Route(artistIdRoute, func(r chi.Router) {
 				r.Get("/", artist.Get)
-				// r.Put("/", artist.Update)
 				r.With(authM.Authorization).Delete("/", artist.Delete)
 
 				r.With(authM.Authorization).Post("/like", artist.Like)
 				r.With(authM.Authorization).Post("/unlike", artist.UnLike)
 
-				r.Get("/tracks", track.GetByArtist)
+				r.With(authM.Authorization).Get("/tracks", track.GetByArtist)
 				r.Get("/albums", album.GetByArtist)
 			})
 			r.Get("/feed", artist.Feed)
 		})
 
-		r.Route("/tracks", func(r chi.Router) {
-			r.With(authM.Authorization).Post("/", track.Create)
+		r.With(authM.Authorization).Route("/tracks", func(r chi.Router) {
+			r.Post("/", track.Create)
 			r.Route(trackIdRoute, func(r chi.Router) {
 				r.Get("/", track.Get)
-				// r.Put("/", track.Update)
-				r.With(authM.Authorization).Delete("/", track.Delete)
+				r.Delete("/", track.Delete)
 
-				r.With(authM.Authorization).Post("/like", track.Like)
-				r.With(authM.Authorization).Post("/unlike", track.UnLike)
+				r.Post("/like", track.Like)
+				r.Post("/unlike", track.UnLike)
 			})
 			r.Get("/feed", track.Feed)
 		})
@@ -103,10 +99,8 @@ func InitRouter(
 			r.Post("/login", auth.Login)
 			r.Post("/signup", auth.SignUp)
 			r.With(authM.Authorization).Get("/logout", auth.Logout)
-			// r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Post("/changepass", auth.ChangePassword)
 		})
 
-		// r.With(authM.Authorization).With(csrfM.CheckCSRFToken).Get("/csrf", csrf.GetCSRF)
 	})
 
 	return r

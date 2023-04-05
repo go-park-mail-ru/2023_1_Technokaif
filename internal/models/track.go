@@ -19,16 +19,25 @@ type TrackTransfer struct {
 	CoverSrc      string           `json:"cover"`
 	RecordSrc     string           `json:"record"`
 	Listens       uint32           `json:"listens"`
+	IsLiked       bool             `json:"isLiked"`
 }
 
 type artistsByTrackGetter func(trackID uint32) ([]Artist, error)
+type likeChecker func(trackID, userID uint32) (bool, error)
 
 // TrackTransferFromEntry converts Track to TrackTransfer
-func TrackTransferFromEntry(t Track, artistsGetter artistsByTrackGetter) (TrackTransfer, error) {
-
-	artists, err := artistsGetter(t.ID)
+func TrackTransferFromEntry(t Track, user *User, lc likeChecker, ag artistsByTrackGetter) (TrackTransfer, error) {
+	artists, err := ag(t.ID)
 	if err != nil {
 		return TrackTransfer{}, err
+	}
+
+	var isLiked = false
+	if user != nil {
+		isLiked, err = lc(t.ID, user.ID)
+		if err != nil {
+			return TrackTransfer{}, err
+		}
 	}
 
 	return TrackTransfer{
@@ -40,14 +49,15 @@ func TrackTransferFromEntry(t Track, artistsGetter artistsByTrackGetter) (TrackT
 		CoverSrc:      t.CoverSrc,
 		RecordSrc:     t.RecordSrc,
 		Listens:       t.Listens,
+		IsLiked:       isLiked,
 	}, nil
 }
 
 // TrackTransferFromQuery converts []Track to []TrackTransfer
-func TrackTransferFromQuery(tracks []Track, artistsGetter artistsByTrackGetter) ([]TrackTransfer, error) {
+func TrackTransferFromQuery(tracks []Track, user *User, lc likeChecker, ag artistsByTrackGetter) ([]TrackTransfer, error) {
 	trackTransfers := make([]TrackTransfer, 0, len(tracks))
 	for _, t := range tracks {
-		trackTransfer, err := TrackTransferFromEntry(t, artistsGetter)
+		trackTransfer, err := TrackTransferFromEntry(t, user, lc, ag)
 		if err != nil {
 			return nil, err
 		}

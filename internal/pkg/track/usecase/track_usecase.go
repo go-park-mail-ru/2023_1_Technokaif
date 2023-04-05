@@ -157,3 +157,12 @@ func (u *Usecase) UnLike(trackID, userID uint32) (bool, error) {
 
 	return iSdeleted, nil
 }
+
+func (u *Usecase) IsLiked(trackID, userID uint32) (bool, error) {
+	isLiked, err := u.trackRepo.IsLiked(trackID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) can't check in repository if track is liked: %w", err)
+	}
+
+	return isLiked, nil
+}

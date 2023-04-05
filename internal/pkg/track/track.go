@@ -15,6 +15,7 @@ type Usecase interface {
 	GetLikedByUser(userID uint32) ([]models.Track, error)
 	SetLike(trackID, userID uint32) (bool, error)
 	UnLike(trackID, userID uint32) (bool, error)
+	IsLiked(trackID, userID uint32) (bool, error)
 	// GetListens(trackID uint32) (uint64, error)
 	// IncrementListens(trackID uint32) error
 }
@@ -30,6 +31,7 @@ type Repository interface {
 	GetLikedByUser(userID uint32) ([]models.Track, error)
 	InsertLike(trackID, userID uint32) (bool, error)
 	DeleteLike(trackID, userID uint32) (bool, error)
+	IsLiked(trackID, userID uint32) (bool, error)
 	// GetListens(trackID uint32) (uint64, error)
 	// IncrementListens(trackID uint32) error
 }
