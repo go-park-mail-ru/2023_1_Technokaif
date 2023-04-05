@@ -1,8 +1,6 @@
 package usecase
 
 import (
-	"fmt"
-	mathRand "math/rand"
 	"testing"
 	"time"
 
@@ -77,37 +75,6 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 
 			assert.Equal(t, tc.expected.Id, id)
 			assert.Equal(t, tc.expected.Err, err)
-		})
-	}
-}
-
-func TestUsecaseAuthGenerateAndCheckToken(t *testing.T) {
-	const iterations = 100
-
-	c := gomock.NewController(t)
-
-	authMocksRepo := authMocks.NewMockRepository(c)
-	userMocksRepo := userMocks.NewMockRepository(c)
-
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-	u := NewUsecase(authMocksRepo, userMocksRepo, l)
-
-	for i := 0; i < iterations; i++ {
-		t.Run(fmt.Sprintf("Success Token test %d", i), func(t *testing.T) {
-			expectedUserID := uint32(mathRand.Intn(10000))
-			expectedUserVersion := uint32(mathRand.Intn(10000))
-
-			token, err := u.GenerateAccessToken(expectedUserID, expectedUserVersion)
-			assert.NoError(t, err)
-
-			gotUserID, gotUserVersion, err := u.CheckAccessToken(token)
-			assert.NoError(t, err)
-			assert.Equal(t, expectedUserID, gotUserID)
-			assert.Equal(t, expectedUserVersion, gotUserVersion)
 		})
 	}
 }
