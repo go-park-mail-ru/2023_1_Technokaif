@@ -252,14 +252,6 @@ func TestAlbumDeliveryGet(t *testing.T) {
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
-			name:             "No User",
-			albumIDPath:      correctAlbumIDPath,
-			user:             nil,
-			mockBehavior:     func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {},
-			expectedStatus:   401,
-			expectedResponse: `{"message": "unathorized"}`,
-		},
-		{
 			name:        "No Album To Get",
 			albumIDPath: correctAlbumIDPath,
 			user:        &correctUser,

@@ -93,6 +93,12 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		return
+	}
+
 	track, err := h.trackServices.GetByID(trackID)
 	if err != nil {
 		var errNoSuchTrack *models.NoSuchTrackError
@@ -104,8 +110,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get track", http.StatusInternalServerError, h.logger, err)
 		return
 	}
-
-	user, _ := commonHttp.GetUserFromRequest(r)
 
 	tt, err := models.TrackTransferFromEntry(*track, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {

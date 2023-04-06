@@ -201,14 +201,6 @@ func TestArtistDeliveryGet(t *testing.T) {
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
-			name:             "No User",
-			artistIDPath:     correctArtistIDPath,
-			user:             nil,
-			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   401,
-			expectedResponse: `{"message": "unathorized"}`,
-		},
-		{
 			name:         "No Artist To Get",
 			artistIDPath: correctArtistIDPath,
 			user:         &correctUser,

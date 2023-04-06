@@ -15,6 +15,7 @@ type trackCreateInput struct {
 	AlbumID       *uint32  `json:"albumID"`
 	AlbumPosition *uint32  `json:"albumPosition"`
 	ArtistsID     []uint32 `json:"artistsID" valid:"required"`
+	RecordSrc     string   `json:"record" valid:"required"`
 }
 
 func (t *trackCreateInput) validate() error {
@@ -34,6 +35,7 @@ func (tci *trackCreateInput) ToTrack() models.Track {
 		Name:          tci.Name,
 		AlbumID:       tci.AlbumID,
 		AlbumPosition: tci.AlbumPosition,
+		RecordSrc:     tci.RecordSrc,
 	}
 }
 

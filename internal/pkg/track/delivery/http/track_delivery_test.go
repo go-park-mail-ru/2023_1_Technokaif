@@ -60,7 +60,6 @@ func TestTrackDeliveryCreate(t *testing.T) {
 	correctRequestBody := `{
 		"name": "Хит",
 		"artistsID": [1],
-		"cover": "/tracks/covers/hit.png",
 		"record": "/tracks/records/hit.wav"
 	}`
 
@@ -68,7 +67,6 @@ func TestTrackDeliveryCreate(t *testing.T) {
 
 	expectedCallTrack := models.Track{
 		Name:      "Хит",
-		CoverSrc:  "/tracks/covers/hit.png",
 		RecordSrc: "/tracks/records/hit.wav",
 	}
 
@@ -208,11 +206,10 @@ func TestTrackDeliveryGet(t *testing.T) {
 
 	// Test filling
 	expectedReturnTrack := models.Track{
-		ID:        correctTrackID,
-		Name:      "Хит",
-		CoverSrc:  "/tracks/covers/hit.png",
-		RecordSrc: "/tracks/records/hit.wav",
-		Listens:   99999999,
+		ID:       correctTrackID,
+		Name:     "Хит",
+		CoverSrc: "/tracks/covers/hit.png",
+		Listens:  99999999,
 	}
 
 	expectedReturnArtists := []models.Artist{
@@ -234,7 +231,6 @@ func TestTrackDeliveryGet(t *testing.T) {
 			}
 		],
 		"cover": "/tracks/covers/hit.png",
-		"record": "/tracks/records/hit.wav",
 		"listens": 99999999,
 		"isLiked": false
 	}`
@@ -253,6 +249,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			user:        &correctUser,
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetByID(correctTrackID).Return(&expectedReturnTrack, nil)
+				tu.EXPECT().IsLiked(correctTrackID, correctUser.ID).Return(false, nil)
 				au.EXPECT().GetByTrack(correctTrackID).Return(expectedReturnArtists, nil)
 			},
 			expectedStatus:   200,
@@ -463,18 +460,16 @@ func TestTrackDeliveryFeed(t *testing.T) {
 	// Test filling
 	expectedReturnTracks := []models.Track{
 		{
-			ID:        1,
-			Name:      "Накануне",
-			CoverSrc:  "/tracks/covers/nakanune.png",
-			RecordSrc: "/tracks/records/nakanune.wav",
-			Listens:   2700000,
+			ID:       1,
+			Name:     "Накануне",
+			CoverSrc: "/tracks/covers/nakanune.png",
+			Listens:  2700000,
 		},
 		{
-			ID:        2,
-			Name:      "LAGG OUT",
-			CoverSrc:  "/tracks/covers/laggout.png",
-			RecordSrc: "/tracks/records/laggout.wav",
-			Listens:   4500000,
+			ID:       2,
+			Name:     "LAGG OUT",
+			CoverSrc: "/tracks/covers/laggout.png",
+			Listens:  4500000,
 		},
 	}
 
@@ -508,8 +503,8 @@ func TestTrackDeliveryFeed(t *testing.T) {
 				}
 			],
 			"cover": "/tracks/covers/nakanune.png",
-			"record": "/tracks/records/nakanune.wav",
-			"listens": 2700000
+			"listens": 2700000,
+			"isLiked": false
 		},
 		{
 			"id": 2,
@@ -527,8 +522,8 @@ func TestTrackDeliveryFeed(t *testing.T) {
 				}
 			],
 			"cover": "/tracks/covers/laggout.png",
-			"record": "/tracks/records/laggout.wav",
-			"listens": 4500000
+			"listens": 4500000,
+			"isLiked": false
 		}
 	]`
 
