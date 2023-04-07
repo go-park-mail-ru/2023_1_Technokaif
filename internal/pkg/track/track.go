@@ -16,8 +16,6 @@ type Usecase interface {
 	SetLike(trackID, userID uint32) (bool, error)
 	UnLike(trackID, userID uint32) (bool, error)
 	IsLiked(trackID, userID uint32) (bool, error)
-	// GetListens(trackID uint32) (uint64, error)
-	// IncrementListens(trackID uint32) error
 }
 
 // Repository includes DBMS-relatable methods to work with tracks
@@ -32,8 +30,6 @@ type Repository interface {
 	InsertLike(trackID, userID uint32) (bool, error)
 	DeleteLike(trackID, userID uint32) (bool, error)
 	IsLiked(trackID, userID uint32) (bool, error)
-	// GetListens(trackID uint32) (uint64, error)
-	// IncrementListens(trackID uint32) error
 }
 
 // Tables includes methods which return needed tables

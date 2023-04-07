@@ -4,6 +4,7 @@ import (
 	"html"
 
 	valid "github.com/asaskevich/govalidator"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
 // Signup
@@ -47,4 +48,15 @@ type changePassResponse struct {
 
 type isAuthenticatedResponse struct {
 	Authenticated bool `json:"auth"`
+}
+
+func UserAuthDeliveryValidate(user *models.User) error {
+	user.Username = html.EscapeString(user.Username)
+	user.Email = html.EscapeString(user.Email)
+	user.Password = html.EscapeString(user.Password)
+	user.FirstName = html.EscapeString(user.FirstName)
+	user.LastName = html.EscapeString(user.LastName)
+
+	_, err := valid.ValidateStruct(user)
+	return err
 }

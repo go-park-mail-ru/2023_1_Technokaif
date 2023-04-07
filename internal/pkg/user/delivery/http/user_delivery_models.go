@@ -3,7 +3,8 @@ package http
 import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
 // UploadAvatar
-const maxAvatarMemory = 1 * (1 << 20)
+const maxAvatarMemory = 1 << 20
+const avatarForm = "avatar"
 
 type userUploadAvatarResponse struct {
 	Status string `json:"status"`

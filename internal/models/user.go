@@ -3,9 +3,6 @@ package models
 import (
 	"strings"
 	"time"
-	"html"
-
-	valid "github.com/asaskevich/govalidator"
 )
 
 type Sex string
@@ -54,17 +51,6 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 	var err error
 	d.Time, err = time.Parse("2006-01-02", s) // RFC 3339
 
-	return err
-}
-
-func (u *User) DeliveryValidate() error {
-	u.Username = html.EscapeString(u.Username)
-	u.Email = html.EscapeString(u.Email)
-	u.Password = html.EscapeString(u.Password)
-	u.FirstName = html.EscapeString(u.FirstName)
-	u.LastName = html.EscapeString(u.LastName)
-
-	_, err := valid.ValidateStruct(u)
 	return err
 }
 

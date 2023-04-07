@@ -117,7 +117,7 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, maxAvatarMemory)
-	avatarFile, avatarHeader, err := r.FormFile("avatar")
+	avatarFile, avatarHeader, err := r.FormFile(avatarForm)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
 		return

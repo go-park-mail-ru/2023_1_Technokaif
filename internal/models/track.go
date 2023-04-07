@@ -17,7 +17,6 @@ type TrackTransfer struct {
 	AlbumPosition *uint32          `json:"albumPosition,omitempty"`
 	Artists       []ArtistTransfer `json:"artists"`
 	CoverSrc      string           `json:"cover"`
-	// RecordSrc     string           `json:"record"`
 	Listens       uint32           `json:"listens"`
 	IsLiked       bool             `json:"isLiked"`
 }
@@ -47,7 +46,6 @@ func TrackTransferFromEntry(t Track, user *User, lc likeChecker, ag artistsByTra
 		AlbumPosition: t.AlbumPosition,
 		Artists:       ArtistTransferFromQuery(artists),
 		CoverSrc:      t.CoverSrc,
-		// RecordSrc:     t.RecordSrc,
 		Listens:       t.Listens,
 		IsLiked:       isLiked,
 	}, nil
