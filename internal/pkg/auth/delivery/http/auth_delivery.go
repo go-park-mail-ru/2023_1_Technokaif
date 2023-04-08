@@ -204,3 +204,12 @@ func (h *Handler) IsAuthenticated(w http.ResponseWriter, r *http.Request) {
 
 	commonHttp.SuccessResponse(w, iar, h.logger)
 }
+
+func (h *Handler) Auth(w http.ResponseWriter, r *http.Request) {
+	if _, err := commonHttp.GetUserFromRequest(r); err != nil {
+		commonHttp.ErrorResponse(w, "forbidden", http.StatusForbidden, h.logger)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, isAuthenticatedResponse{Authenticated: true}, h.logger)
+}
