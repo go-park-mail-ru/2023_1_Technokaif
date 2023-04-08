@@ -193,12 +193,10 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) IsAuthenticated(w http.ResponseWriter, r *http.Request) {
 	iar := isAuthenticatedResponse{}
 
-	user, err := commonHttp.GetUserFromRequest(r)
+	_, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
 		iar.Authenticated = false
-	}
-
-	if user != nil {
+	} else {
 		iar.Authenticated = true
 	}
 
