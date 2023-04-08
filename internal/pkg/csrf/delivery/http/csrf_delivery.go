@@ -33,6 +33,7 @@ func (h *Handler) GetCSRF(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Errorf("failed to get CSRF: %s", err.Error())
 		commonHttp.ErrorResponse(w, "failed to get CSRF-token", http.StatusInternalServerError, h.logger)
+		return
 	}
 
 	resp := getCSRFResponce{CSRF: token}
