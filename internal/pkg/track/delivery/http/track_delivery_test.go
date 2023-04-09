@@ -206,10 +206,11 @@ func TestTrackDeliveryGet(t *testing.T) {
 
 	// Test filling
 	expectedReturnTrack := models.Track{
-		ID:       correctTrackID,
-		Name:     "Хит",
-		CoverSrc: "/tracks/covers/hit.png",
-		Listens:  99999999,
+		ID:        correctTrackID,
+		Name:      "Хит",
+		CoverSrc:  "/tracks/covers/hit.png",
+		Listens:   99999999,
+		RecordSrc: "/tracks/records/hit.wav",
 	}
 
 	expectedReturnArtists := []models.Artist{
@@ -232,7 +233,8 @@ func TestTrackDeliveryGet(t *testing.T) {
 		],
 		"cover": "/tracks/covers/hit.png",
 		"listens": 99999999,
-		"isLiked": false
+		"isLiked": false,
+		"recordSrc": "/tracks/records/hit.wav"
 	}`
 
 	testTable := []struct {
@@ -261,14 +263,6 @@ func TestTrackDeliveryGet(t *testing.T) {
 			mockBehavior:     func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "invalid url parameter"}`,
-		},
-		{
-			name:             "No User",
-			trackIDPath:      correctTrackIDPath,
-			user:             nil,
-			mockBehavior:     func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
-			expectedStatus:   401,
-			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
 			name:        "No Track To Get",
@@ -460,16 +454,18 @@ func TestTrackDeliveryFeed(t *testing.T) {
 	// Test filling
 	expectedReturnTracks := []models.Track{
 		{
-			ID:       1,
-			Name:     "Накануне",
-			CoverSrc: "/tracks/covers/nakanune.png",
-			Listens:  2700000,
+			ID:        1,
+			Name:      "Накануне",
+			CoverSrc:  "/tracks/covers/1.png",
+			Listens:   2700000,
+			RecordSrc: "/tracks/records/1.wav",
 		},
 		{
-			ID:       2,
-			Name:     "LAGG OUT",
-			CoverSrc: "/tracks/covers/laggout.png",
-			Listens:  4500000,
+			ID:        2,
+			Name:      "LAGG OUT",
+			CoverSrc:  "/tracks/covers/2.png",
+			Listens:   4500000,
+			RecordSrc: "/tracks/records/2.wav",
 		},
 	}
 
@@ -477,17 +473,17 @@ func TestTrackDeliveryFeed(t *testing.T) {
 		{
 			ID:        1,
 			Name:      "Oxxxymiron",
-			AvatarSrc: "/artists/avatars/oxxxymiron.png",
+			AvatarSrc: "/artists/avatars/1.png",
 		},
 		{
 			ID:        2,
 			Name:      "SALUKI",
-			AvatarSrc: "/artists/avatars/saluki.png",
+			AvatarSrc: "/artists/avatars/2.png",
 		},
 		{
 			ID:        3,
 			Name:      "ATL",
-			AvatarSrc: "/artists/avatars/atl.png",
+			AvatarSrc: "/artists/avatars/3.png",
 		},
 	}
 
@@ -499,12 +495,13 @@ func TestTrackDeliveryFeed(t *testing.T) {
 				{
 					"id": 1,
 					"name": "Oxxxymiron",
-					"cover": "/artists/avatars/oxxxymiron.png"
+					"cover": "/artists/avatars/1.png"
 				}
 			],
-			"cover": "/tracks/covers/nakanune.png",
+			"cover": "/tracks/covers/1.png",
 			"listens": 2700000,
-			"isLiked": false
+			"isLiked": false,
+			"recordSrc": "/tracks/records/1.wav"
 		},
 		{
 			"id": 2,
@@ -513,17 +510,18 @@ func TestTrackDeliveryFeed(t *testing.T) {
 				{
 					"id": 2,
 					"name": "SALUKI",
-					"cover": "/artists/avatars/saluki.png"
+					"cover": "/artists/avatars/2.png"
 				},
 				{
 					"id": 3,
 					"name": "ATL",
-					"cover": "/artists/avatars/atl.png"
+					"cover": "/artists/avatars/3.png"
 				}
 			],
-			"cover": "/tracks/covers/laggout.png",
+			"cover": "/tracks/covers/2.png",
 			"listens": 4500000,
-			"isLiked": false
+			"isLiked": false,
+			"recordSrc": "/tracks/records/2.wav"
 		}
 	]`
 
