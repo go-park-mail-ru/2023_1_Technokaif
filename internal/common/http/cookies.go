@@ -12,7 +12,7 @@ func SetAcessTokenCookie(w http.ResponseWriter, token string) {
 		Value:    token,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
-		Path:     "/api",
+		Path:     "/",
 	}
 	http.SetCookie(w, &cookie)
 }
