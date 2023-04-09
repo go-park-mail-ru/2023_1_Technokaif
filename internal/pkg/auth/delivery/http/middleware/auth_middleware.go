@@ -42,6 +42,11 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, m.logger) // server error
 			return
 		}
+		if tokenCookie.Value == "" {
+			m.logger.Infof("middleware: %s", "empty cookies")
+			next.ServeHTTP(w, r) // empty cookies
+			return
+		}
 
 		userId, userVersion, err := m.tokenServices.CheckAccessToken(tokenCookie.Value)
 		if err != nil {
