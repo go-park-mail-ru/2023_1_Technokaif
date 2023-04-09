@@ -133,9 +133,9 @@ VALUES ('Не с начала', 1, 1, '/tracks/gorgorod.jpg', '/records/1.mp3'),
 INSERT INTO Tracks (name, cover_src, record_src)
 VALUES ('LAGG OUT', '/tracks/laggOut.jpeg', '/records/27.mp3'),
        ('Город под подошвой', '/tracks/gorodPodPod.png', '/records/28.mp3'),
-       ('За деньги да', '/tracks/zadengida.png', 'records/29.mp3'),
-       ('Mommy', '/tracks/mommy.png', 'records/30.mp3'),
-       ('Juicy', '/tracks/juicy.png', 'records/31.mp3');
+       ('За деньги да', '/tracks/zadengida.png', '/records/29.mp3'),
+       ('Mommy', '/tracks/mommy.png', '/records/30.mp3'),
+       ('Juicy', '/tracks/juicy.png', '/records/31.mp3');
 
 INSERT INTO Artists_Albums (artist_id, album_id)
 VALUES (1, 1),
@@ -146,4 +146,3 @@ VALUES (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (
         (1, 11), (2, 12), (2, 13), (2, 14), (2, 15), (2, 16), (2, 17), (2, 18), (2, 19), (2, 20),
         (2, 21), (4, 21), (2, 22), (4, 22), (2, 23), (2, 24), (2, 25), (2, 26), (2, 27), (1, 28), (3, 29), (3, 30),
         (3, 31);
-        
