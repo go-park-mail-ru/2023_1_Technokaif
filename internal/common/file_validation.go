@@ -7,13 +7,13 @@ import (
 )
 
 func CheckMimeType(file io.ReadSeeker, correctTypes ...string) (string, error) {
+	if _, err := file.Seek(0, 0); err != nil {
+		return "", err
+	}
+	
 	fileHeader := make([]byte, 512)
 
 	if _, err := file.Read(fileHeader); err != nil {
-		return "", err
-	}
-
-	if _, err := file.Seek(0, 0); err != nil {
 		return "", err
 	}
 

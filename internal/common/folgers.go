@@ -1,46 +1,43 @@
 package common
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"os"
-)
 
-var (
-	mediaPath    = ""
-	avatarFolder = ""
-	recordsFolder = ""
+	"github.com/joho/godotenv"
 )
 
 func MediaPath() string {
-	return mediaPath
+	return os.Getenv("MEDIA_PATH")
 }
 
 func AvatarFolder() string {
-	return avatarFolder
+	return os.Getenv("AVATARS_FOLDER")
 }
 
 func RecordsFolder() string {
-	return recordsFolder
+	return os.Getenv("RECORDS_FOLDER")
 }
 
 func InitPaths() error {
-	mediaPath = os.Getenv("MEDIA_PATH")
+	mediaPath := MediaPath()
+	avatarsFolder := AvatarFolder()
+	recordsFolder := RecordsFolder()
+
 	if mediaPath == "" {
 		return errors.New("MEDIA_PATH isn't set")
 	}
 
-	avatarFolder = os.Getenv("AVATARS_FOLDER")
-	if avatarFolder == "" {
+	if avatarsFolder == "" {
 		return errors.New("AVATARS_FOLDER isn't set")
 	}
 
-	recordsFolder = os.Getenv("RECORDS_FOLDER")
 	if recordsFolder == "" {
 		return errors.New("RECORDS_FOLDER isn't set")
 	}
 
-	var dirForUserAvatars = mediaPath + avatarFolder
+	var dirForUserAvatars = mediaPath + avatarsFolder
 	if err := os.MkdirAll(dirForUserAvatars, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir to save avatars: %w", err)
 	}
@@ -51,4 +48,8 @@ func InitPaths() error {
 	}
 
 	return nil
+}
+
+func init() {
+	godotenv.Load()
 }

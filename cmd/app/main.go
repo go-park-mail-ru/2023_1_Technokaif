@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -39,11 +40,6 @@ func main() {
 	logger, err := logger.NewLogger()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "logger can not be defined: %v\n", err)
-		return
-	}
-
-	if err = godotenv.Load(); err != nil {
-		logger.Errorf("error while loading environment: %v", err)
 		return
 	}
 
@@ -86,5 +82,11 @@ func main() {
 
 	if err := db.Close(); err != nil {
 		logger.Errorf("error while closing DB connection: %v", err)
+	}
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("error while loading environment: %v", err)
 	}
 }
