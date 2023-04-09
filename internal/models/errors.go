@@ -53,10 +53,16 @@ func (e *NoSuchUserError) Error() string {
 	return fmt.Sprintf("user #%d doesn't exist", e.UserID)
 }
 
-type IncorrectPasswordError struct{
+type IncorrectPasswordError struct {
 	UserId uint32
 }
 
 func (e *IncorrectPasswordError) Error() string {
 	return fmt.Sprintf("incorrect password for user #%d", e.UserId)
+}
+
+type UnathorizedError struct{}
+
+func (e *UnathorizedError) Error() string {
+	return "unathorized"
 }

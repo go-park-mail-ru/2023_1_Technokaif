@@ -3,7 +3,6 @@ module github.com/go-park-mail-ru/2023_1_Technokaif
 go 1.20
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
@@ -11,7 +10,6 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.7
-	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/http-swagger v1.3.3
 	github.com/swaggo/swag v1.8.10
@@ -28,6 +26,7 @@ require (
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	go.uber.org/atomic v1.7.0 // indirect

@@ -12,16 +12,17 @@ type Error struct {
 }
 
 func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Logger) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
 	errorResp := Error{Message: msg}
 	message, err := json.Marshal(errorResp)
 	if err != nil {
 		logger.Errorf("failed to marshal error message: %s", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("can't encode error response into json, msg: " + msg))
+		w.Write([]byte(`{"message": "can't encode error response into json, msg: ` + msg + `"}`))
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
 	w.Write(message)
 }

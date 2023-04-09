@@ -43,7 +43,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := user.DeliveryValidate(); err != nil {
+	if err := userAuthDeliveryValidate(&user); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
@@ -168,6 +168,11 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := passwordsInput.validate(); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		return
+	}
+
 	if _, err := h.authServices.GetUserByCreds(user.Username, passwordsInput.OldPassword); err != nil {
 		var errIncorrectPassword *models.IncorrectPasswordError
 		if errors.As(err, &errIncorrectPassword) {
@@ -184,21 +189,42 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = h.authServices.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
+		h.logger.Errorf("failed to increase version while changing pass: %s", err.Error())
+		commonHttp.ErrorResponse(w, "server failed to change password", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	token, err := h.tokenServices.GenerateAccessToken(user.ID, user.Version + 1)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to generate new token", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
 	resp := changePassResponse{Status: "ok"}
 
-	commonHttp.SetAcessTokenCookie(w, "")
+	commonHttp.SetAcessTokenCookie(w, token)
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
 func (h *Handler) IsAuthenticated(w http.ResponseWriter, r *http.Request) {
-	user, _ := commonHttp.GetUserFromRequest(r)
+	iar := isAuthenticatedResponse{}
 
-	resp := isAuthenticatedResponse{}
-	if user == nil {
-		resp.Authenticated = true
+	_, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		iar.Authenticated = false
 	} else {
-		resp.Authenticated = false
+		iar.Authenticated = true
 	}
 
-	commonHttp.SuccessResponse(w, resp, h.logger)
+	commonHttp.SuccessResponse(w, iar, h.logger)
+}
+
+func (h *Handler) Auth(w http.ResponseWriter, r *http.Request) {
+	if _, err := commonHttp.GetUserFromRequest(r); err != nil {
+		commonHttp.ErrorResponse(w, "forbidden", http.StatusForbidden, h.logger)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, isAuthenticatedResponse{Authenticated: true}, h.logger)
 }

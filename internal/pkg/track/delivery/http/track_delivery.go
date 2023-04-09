@@ -93,12 +93,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
-		return
-	}
-
 	track, err := h.trackServices.GetByID(trackID)
 	if err != nil {
 		var errNoSuchTrack *models.NoSuchTrackError
@@ -108,6 +102,12 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		}
 
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get track", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -195,7 +195,11 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, _ := commonHttp.GetUserFromRequest(r)
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
+		return
+	}
 
 	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
@@ -234,7 +238,11 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, _ := commonHttp.GetUserFromRequest(r)
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
+		return
+	}
 
 	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
@@ -259,7 +267,11 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, _ := commonHttp.GetUserFromRequest(r)
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
+		return
+	}
 
 	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
@@ -354,6 +366,8 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tlr, h.logger)
 }
 
+const mediaFolder = "/home/ubuntu/media"
+
 // swaggermock
 func (h *Handler) GetRecord(w http.ResponseWriter, r *http.Request) {
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
@@ -380,5 +394,5 @@ func (h *Handler) GetRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, "."+track.RecordSrc)
+	http.ServeFile(w, r, mediaFolder + track.RecordSrc)
 }

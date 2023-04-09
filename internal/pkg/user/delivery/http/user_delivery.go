@@ -78,6 +78,11 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := userInfo.validate(); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		return
+	}
+
 	if err := h.userServices.UpdateInfo(userInfo.ToUser(user)); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
@@ -116,8 +121,9 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
 		return
 	}
+
 	r.Body = http.MaxBytesReader(w, r.Body, maxAvatarMemory)
-	avatarFile, avatarHeader, err := r.FormFile("avatar")
+	avatarFile, avatarHeader, err := r.FormFile(avatarForm)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
 		return
@@ -127,10 +133,12 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	fileNameParts := strings.Split(avatarHeader.Filename, ".")
 	extension := fileNameParts[len(fileNameParts)-1]
 	err = h.userServices.UploadAvatar(user, avatarFile, extension)
-	if errors.Is(err, h.userServices.UploadAvatarWrongFormatError()) {
-		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data type", http.StatusBadRequest, h.logger, err)
-		return
-	} else if err != nil {
+	if err != nil {
+		if errors.Is(err, h.userServices.UploadAvatarWrongFormatError()) {
+			commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data type", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
 		commonHttp.ErrorResponseWithErrLogging(w, "can't upload avatar", http.StatusInternalServerError, h.logger, err)
 		return
 	}

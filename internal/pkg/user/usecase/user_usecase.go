@@ -70,12 +70,11 @@ func (u *Usecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtens
 	path := dirForUserAvatars + "/" + filenameWithExtencion
 	user.AvatarSrc = path
 
-	err := os.MkdirAll(dirForUserAvatars, os.ModePerm)
-	if err != nil {
+	if err := os.MkdirAll(dirForUserAvatars, os.ModePerm); err != nil {
 		return fmt.Errorf("(usecase): can't create dir to save avatar: %w", err)
 	}
 
-	if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) { // if this file doesn't exist
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		newFD, err := os.Create(path)
 		if err != nil {
 			return fmt.Errorf("(usecase): can't create file to save avatar: %w", err)

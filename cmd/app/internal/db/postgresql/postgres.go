@@ -71,8 +71,8 @@ func InitPostgresDB() (*sqlx.DB, PostgreSQLTables, error) {
 	if err != nil {
 		errClose := db.Close()
 		if errClose != nil {
-			// TODO: change %w and %s (double wrap only in go1.20+)
-			return nil, PostgreSQLTables{}, fmt.Errorf("can't close postgresql (%w) after failed ping: %s", errClose, err.Error())
+			return nil, PostgreSQLTables{},
+				fmt.Errorf("can't close postgresql (%w) after failed ping: %w", errClose, err)
 		}
 		return nil, PostgreSQLTables{}, err
 	}
