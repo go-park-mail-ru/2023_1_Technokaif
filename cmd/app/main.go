@@ -13,6 +13,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/init/app"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/server"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/common"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
@@ -43,6 +44,11 @@ func main() {
 
 	if err = godotenv.Load(); err != nil {
 		logger.Errorf("error while loading environment: %v", err)
+		return
+	}
+
+	if err := common.InitPaths(); err != nil {
+		logger.Errorf("can't init paths: %v", err)
 		return
 	}
 
