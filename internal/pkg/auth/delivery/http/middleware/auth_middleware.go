@@ -30,7 +30,7 @@ func NewMiddleware(u auth.Usecase, t token.Usecase, l logger.Logger) *Middleware
 func (m *Middleware) Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		tokenCookie, err := r.Cookie(commonHttp.AcessTokenCookieName)
+		token, err := commonHttp.GetAcessTokenFromCookie(r)
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
 				m.logger.Infof("middleware: %s", err.Error())
@@ -42,16 +42,16 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			commonHttp.ErrorResponse(w, "server error", http.StatusInternalServerError, m.logger) // server error
 			return
 		}
-		if tokenCookie.Value == "" {
+		if token == "" {
 			m.logger.Infof("middleware: %s", "empty cookies")
 			next.ServeHTTP(w, r) // empty cookies
 			return
 		}
 
-		userId, userVersion, err := m.tokenServices.CheckAccessToken(tokenCookie.Value)
+		userId, userVersion, err := m.tokenServices.CheckAccessToken(token)
 		if err != nil {
 			m.logger.Infof("middleware: %s", err.Error())
-			next.ServeHTTP(w, r) // token check failed
+			commonHttp.ErrorResponse(w, "token check failed", http.StatusBadRequest, m.logger) // token check failed
 			return
 		}
 
@@ -60,7 +60,7 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			var errNoSuchUser *models.NoSuchUserError
 			if errors.As(err, &errNoSuchUser) {
 				m.logger.Infof("middleware: %s", err.Error())
-				next.ServeHTTP(w, r) // data check failed
+				commonHttp.ErrorResponse(w, "auth data check failed", http.StatusBadRequest, m.logger) // auth data check failed
 				return
 			}
 
