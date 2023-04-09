@@ -30,14 +30,14 @@ func InitPaths() error {
 		return errors.New("MEDIA_PATH isn't set")
 	}
 
-	avatarFolder = os.Getenv("AVATAR_FOLDER")
+	avatarFolder = os.Getenv("AVATARS_FOLDER")
 	if avatarFolder == "" {
-		return errors.New("AVATAR_FOLDER isn't set")
+		return errors.New("AVATARS_FOLDER isn't set")
 	}
 
-	recordsFolder = os.Getenv("TRACK_FOLDER")
+	recordsFolder = os.Getenv("RECORDS_FOLDER")
 	if recordsFolder == "" {
-		return errors.New("TRACK_FOLDER isn't set")
+		return errors.New("RECORDS_FOLDER isn't set")
 	}
 
 	var dirForUserAvatars = mediaPath + avatarFolder
