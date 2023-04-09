@@ -78,6 +78,11 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := userInfo.validate(); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		return
+	}
+
 	if err := h.userServices.UpdateInfo(userInfo.ToUser(user)); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
