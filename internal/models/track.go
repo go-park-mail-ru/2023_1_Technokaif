@@ -19,6 +19,7 @@ type TrackTransfer struct {
 	CoverSrc      string           `json:"cover"`
 	Listens       uint32           `json:"listens"`
 	IsLiked       bool             `json:"isLiked"`
+	RecordSrc     string  		   `json:"recordSrc"`
 }
 
 type artistsByTrackGetter func(trackID uint32) ([]Artist, error)
@@ -48,6 +49,7 @@ func TrackTransferFromEntry(t Track, user *User, lc likeChecker, ag artistsByTra
 		CoverSrc:      t.CoverSrc,
 		Listens:       t.Listens,
 		IsLiked:       isLiked,
+		RecordSrc:     t.RecordSrc,	
 	}, nil
 }
 

@@ -115,6 +115,8 @@ func InitRouter(
 		})
 
 		r.Route("/auth", func(r chi.Router) {
+			r.With(authM.Authorization).Get("/", auth.Auth)
+
 			r.Post("/login", auth.Login)
 			r.Post("/signup", auth.SignUp)
 

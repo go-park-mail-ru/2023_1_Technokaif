@@ -366,6 +366,8 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tlr, h.logger)
 }
 
+const mediaFolder = "/home/ubuntu/media"
+
 // swaggermock
 func (h *Handler) GetRecord(w http.ResponseWriter, r *http.Request) {
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
@@ -392,5 +394,5 @@ func (h *Handler) GetRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, "."+track.RecordSrc)
+	http.ServeFile(w, r, mediaFolder + track.RecordSrc)
 }
