@@ -103,7 +103,6 @@ func InitRouter(
 			r.Post("/", track.Create)
 			r.Route(trackIdRoute, func(r chi.Router) {
 				r.Get("/", track.Get)
-				r.Get("/record", track.GetRecord)
 
 				r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {
 					r.Delete("/", track.Delete)
