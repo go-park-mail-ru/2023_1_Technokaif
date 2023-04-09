@@ -43,7 +43,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := UserAuthDeliveryValidate(&user); err != nil {
+	if err := userAuthDeliveryValidate(&user); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
@@ -165,6 +165,11 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&passwordsInput); err != nil {
 		h.logger.Infof("incorrect json format: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	if err := passwordsInput.validate(); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}
 

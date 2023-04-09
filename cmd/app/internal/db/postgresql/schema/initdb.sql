@@ -102,6 +102,7 @@ VALUES ('Горгород', 'Антиутопия', '/albums/gorgorod.jpg'),
 
 INSERT INTO Tracks (name, album_id, album_position, cover_src, record_src)
 VALUES ('Где нас нет', 1, 1, '/tracks/gorgorod.jpg', '/records/dzhusi.mp3'),
+       ('Накануне', 1, 2, '/tracks/gorgorod.jpg', '/records/mommy.mp3'),
        ('Признаки жизни', 2, 1, '/tracks/longWayHome.png', '/records/mommy.mp3');
 INSERT INTO Tracks (name, cover_src, record_src)
 VALUES ('LAGG OUT', '/tracks/laggOut.jpeg', '/records/dzhusi.mp3'),
