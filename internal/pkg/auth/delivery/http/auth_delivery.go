@@ -189,9 +189,21 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = h.authServices.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
+		h.logger.Errorf("failed to increase version while changing pass: %s", err.Error())
+		commonHttp.ErrorResponse(w, "server failed to change password", http.StatusInternalServerError, h.logger)
+		return
+	}
+
+	token, err := h.tokenServices.GenerateAccessToken(user.ID, user.Version + 1)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server failed to generate new token", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
 	resp := changePassResponse{Status: "ok"}
 
-	commonHttp.SetAcessTokenCookie(w, "")
+	commonHttp.SetAcessTokenCookie(w, token)
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
