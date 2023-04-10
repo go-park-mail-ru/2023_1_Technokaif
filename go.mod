@@ -3,6 +3,7 @@ module github.com/go-park-mail-ru/2023_1_Technokaif
 go 1.20
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1

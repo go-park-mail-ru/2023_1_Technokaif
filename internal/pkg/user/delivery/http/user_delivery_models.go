@@ -10,7 +10,7 @@ import (
 
 // UploadAvatar
 const MaxAvatarMemory = 5 << 20
-const avatarForm = "avatar"
+const avatarFormKey = "avatar"
 
 type userUploadAvatarResponse struct {
 	Status string `json:"status"`

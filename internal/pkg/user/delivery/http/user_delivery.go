@@ -46,7 +46,7 @@ func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get user", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't change user info", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -125,7 +125,7 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	avatarFile, avatarHeader, err := r.FormFile(avatarForm)
+	avatarFile, avatarHeader, err := r.FormFile(avatarFormKey)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
 		return
