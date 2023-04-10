@@ -42,12 +42,10 @@ func (u *Usecase) Delete(artistID uint32, userID uint32) error {
 		return fmt.Errorf("(usecase) can't find artist in repository: %w", err)
 	}
 
-	// artist doesn't even have related user
 	if artist.UserID == nil {
 		return fmt.Errorf("(usecase) artist can't be deleted by user: %w", &models.ForbiddenUserError{})
 	}
 
-	// this user isn't related to artist
 	if *artist.UserID != userID {
 		return fmt.Errorf("(usecase) artist can't be deleted by this user: %w", &models.ForbiddenUserError{})
 	}
@@ -113,10 +111,10 @@ func (u *Usecase) UnLike(artistID, userID uint32) (bool, error) {
 		return false, fmt.Errorf("(usecase) can't get artist: %w", err)
 	}
 
-	iSdeleted, err := u.repo.DeleteLike(artistID, userID)
+	isDeleted, err := u.repo.DeleteLike(artistID, userID)
 	if err != nil {
 		return false, fmt.Errorf("(usecase) failed to unset like: %w", err)
 	}
 
-	return iSdeleted, nil
+	return isDeleted, nil
 }

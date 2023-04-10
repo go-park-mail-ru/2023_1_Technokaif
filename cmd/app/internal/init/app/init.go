@@ -29,6 +29,7 @@ import (
 	csrfDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http"
 
 	authMiddlware "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http/middleware"
+	userMiddlware "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http/middleware"
 	csrfMiddlware "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http/middleware"
 )
 
@@ -54,6 +55,7 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	csrfHandler := csrfDelivery.NewHandler(tokenUsecase, logger)
 
 	authMiddlware := authMiddlware.NewMiddleware(authUsecase, tokenUsecase, logger)
+	userMiddleware := userMiddlware.NewMiddleware(logger)
 	csrfMiddlware := csrfMiddlware.NewMiddleware(tokenUsecase, logger)
 
 	return router.InitRouter(
@@ -62,6 +64,7 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 		trackHandler,
 		authHandler,
 		userHandler,
+		userMiddleware,
 		authMiddlware,
 		csrfHandler,
 		csrfMiddlware,

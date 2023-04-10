@@ -150,12 +150,12 @@ func (u *Usecase) UnLike(trackID, userID uint32) (bool, error) {
 		return false, fmt.Errorf("(usecase) can't get track: %w", err)
 	}
 
-	iSdeleted, err := u.trackRepo.DeleteLike(trackID, userID)
+	isDeleted, err := u.trackRepo.DeleteLike(trackID, userID)
 	if err != nil {
 		return false, fmt.Errorf("(usecase) failed to unset like: %w", err)
 	}
 
-	return iSdeleted, nil
+	return isDeleted, nil
 }
 
 func (u *Usecase) IsLiked(trackID, userID uint32) (bool, error) {

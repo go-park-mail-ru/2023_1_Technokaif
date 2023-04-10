@@ -9,10 +9,6 @@ import (
 
 func init() { // For validation
 	valid.CustomTypeTagMap.Set("born", func(date interface{}, context interface{}) bool {
-		if _, ok := context.(User); !ok {
-			return false
-		}
-
 		d, ok := date.(Date)
 		if !ok {
 			return false
