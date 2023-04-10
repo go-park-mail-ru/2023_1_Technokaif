@@ -9,7 +9,7 @@ import (
 )
 
 // UploadAvatar
-const maxAvatarMemory = 1 << 20
+const MaxAvatarMemory = 5 << 20
 const avatarForm = "avatar"
 
 type userUploadAvatarResponse struct {

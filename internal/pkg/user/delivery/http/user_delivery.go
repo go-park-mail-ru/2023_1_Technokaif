@@ -44,8 +44,9 @@ func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist
 // @Failure     500    	{object}  	http.Error  		"Server error"
 // @Router	    /api/users/{userID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
-	user, err := h.checkUserAuthAndResponce(w, r)
+	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -67,8 +68,9 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  http.Error  			   	"Server error"
 // @Router       /api/users/{userID}/update [post]
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
-	user, err := h.checkUserAuthAndResponce(w, r)
+	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -112,17 +114,17 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  http.Error  			   "Server error"
 // @Router       /api/users/{userID}/avatar [post]
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
-	user, err := h.checkUserAuthAndResponce(w, r)
+	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	if err := r.ParseMultipartForm(maxAvatarMemory); err != nil {
+	if err := r.ParseMultipartForm(MaxAvatarMemory); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, maxAvatarMemory)
 	avatarFile, avatarHeader, err := r.FormFile(avatarForm)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
@@ -159,8 +161,9 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  	http.Error  			"Server error"
 // @Router       /api/users/{userID}/tracks [get]
 func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
-	user, err := h.checkUserAuthAndResponce(w, r)
+	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -190,8 +193,9 @@ func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  	http.Error  			"Server error"
 // @Router       /api/users/{userID}/albums [get]
 func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
-	user, err := h.checkUserAuthAndResponce(w, r)
+	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -221,8 +225,9 @@ func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  	http.Error  			"Server error"
 // @Router       /api/users/{userID}/artists [get]
 func (h *Handler) GetFavouriteArtists(w http.ResponseWriter, r *http.Request) {
-	user, err := h.checkUserAuthAndResponce(w, r)
+	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -235,31 +240,4 @@ func (h *Handler) GetFavouriteArtists(w http.ResponseWriter, r *http.Request) {
 	at := models.ArtistTransferFromQuery(favArtists)
 
 	commonHttp.SuccessResponse(w, at, h.logger)
-}
-
-// help func
-func (h *Handler) checkUserAuthAndResponce(w http.ResponseWriter, r *http.Request) (*models.User, error) {
-	authFailedError := errors.New("user auth failed")
-
-	urlID, err := commonHttp.GetUserIDFromRequest(r)
-	if err != nil {
-		h.logger.Infof("invalid url parameter: %v", err.Error())
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
-		return nil, authFailedError
-	}
-
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil {
-		h.logger.Infof("unathorized user: %v", err)
-		commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, h.logger)
-		return nil, authFailedError
-	}
-
-	if urlID != user.ID {
-		h.logger.Infof("forbidden user with id #%d", urlID)
-		commonHttp.ErrorResponse(w, "user has no rights", http.StatusForbidden, h.logger)
-		return nil, authFailedError
-	}
-
-	return user, nil
 }

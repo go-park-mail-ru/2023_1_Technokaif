@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,6 +14,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/init/app"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/app/internal/server"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/common"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
@@ -41,8 +43,8 @@ func main() {
 		return
 	}
 
-	if err = godotenv.Load(); err != nil {
-		logger.Errorf("error while loading environment: %v", err)
+	if err := common.InitPaths(); err != nil {
+		logger.Errorf("can't init paths: %v", err)
 		return
 	}
 
@@ -80,5 +82,11 @@ func main() {
 
 	if err := db.Close(); err != nil {
 		logger.Errorf("error while closing DB connection: %v", err)
+	}
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("error while loading environment: %v", err)
 	}
 }

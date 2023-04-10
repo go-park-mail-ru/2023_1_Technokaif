@@ -2,10 +2,12 @@ package usecase
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	common "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -43,7 +45,7 @@ func (u *Usecase) UpdateInfo(user *models.User) error {
 	return nil
 }
 
-const dirForUserAvatars = "./img/user_avatars"
+var dirForUserAvatar = common.MediaPath() + common.AvatarFolder()
 
 var ErrAvatarWrongFormat = errors.New("wrong avatar file fromat")
 
@@ -56,26 +58,30 @@ func (u *Usecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtens
 	if fileType, err := common.CheckMimeType(file, "image/png", "image/jpeg"); err != nil {
 		return fmt.Errorf("(usecase) file format %s: %w", fileType, ErrAvatarWrongFormat)
 	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("(usecase) can't do file seek: %w", err)
+	}
 
 	// Create standard filename
 	hasher := sha256.New()
 	if _, err := io.Copy(hasher, file); err != nil {
 		return fmt.Errorf("(usecase): can't write sent avatar to hasher: %w", err)
 	}
-	newFileName := fmt.Sprintf("%x", hasher.Sum(nil))
+	newFileName := hex.EncodeToString(hasher.Sum(nil))
+
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("(usecase) can't do file seek: %w", err)
+	}
 
 	filenameWithExtencion := newFileName + "." + fileExtension
 
 	// Save path to avatar into user entry
-	path := dirForUserAvatars + "/" + filenameWithExtencion
-	user.AvatarSrc = path
+	path := filepath.Join(dirForUserAvatar, filenameWithExtencion)
 
-	if err := os.MkdirAll(dirForUserAvatars, os.ModePerm); err != nil {
-		return fmt.Errorf("(usecase): can't create dir to save avatar: %w", err)
-	}
+	user.AvatarSrc = filepath.Join(common.AvatarFolder(), filenameWithExtencion)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		newFD, err := os.Create(path)
+		newFD, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			return fmt.Errorf("(usecase): can't create file to save avatar: %w", err)
 		}

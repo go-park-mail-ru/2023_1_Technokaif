@@ -29,7 +29,7 @@ func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecas
 
 func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
 	salt := generateRandomSalt()
-	user.Salt = fmt.Sprintf("%x", salt)
+	user.Salt = hex.EncodeToString(salt)
 
 	user.Password = hashPassword(user.Password, salt)
 
@@ -78,7 +78,7 @@ func (u *Usecase) IncreaseUserVersion(userID uint32) error {
 func (u *Usecase) ChangePassword(userID uint32, password string) error {
 	salt := generateRandomSalt()
 	passHash := hashPassword(password, salt)
-	if err := u.authRepo.UpdatePassword(userID, passHash, fmt.Sprintf("%x", salt)); err != nil {
+	if err := u.authRepo.UpdatePassword(userID, passHash, hex.EncodeToString(salt)); err != nil {
 		return fmt.Errorf("(usecase) failed to update password: %w", err)
 	}
 
@@ -87,7 +87,7 @@ func (u *Usecase) ChangePassword(userID uint32, password string) error {
 
 func hashPassword(plainPassword string, salt []byte) string {
 	hashedPassword := argon2.IDKey([]byte(plainPassword), []byte(salt), 1, 64*1024, 4, 32)
-	return fmt.Sprintf("%x", hashedPassword)
+	return hex.EncodeToString(hashedPassword)
 }
 
 func generateRandomSalt() []byte {
