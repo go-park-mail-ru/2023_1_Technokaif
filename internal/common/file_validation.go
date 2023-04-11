@@ -12,10 +12,6 @@ func CheckMimeType(file io.ReadSeeker, correctTypes ...string) (string, error) {
 		return "", err
 	}
 
-	if _, err := file.Seek(0, io.SeekStart); err != nil {
-		return "", err
-	}
-
 	var fileHeader [512]byte
 	if _, err := file.Read(fileHeader[:]); err != nil {
 		return "", err
