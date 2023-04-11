@@ -31,6 +31,11 @@ func (m *Middleware) CheckCSRFToken(next http.Handler) http.Handler {
 		}
 
 		csrfToken := r.Header.Get(csrfTokenHttpHeader)
+		if csrfToken == "" {
+			commonHttp.ErrorResponseWithErrLogging(w, "missing CSRF token", http.StatusBadRequest, m.logger, err)
+			return
+		}
+
 		userIDFromToken, err := m.tokenServices.CheckCSRFToken(csrfToken)
 		if err != nil {
 			commonHttp.ErrorResponseWithErrLogging(w, "invalid CSRF token", http.StatusBadRequest, m.logger, err)
