@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"strings"
+	"path/filepath"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -132,8 +132,7 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	defer avatarFile.Close()
 
-	fileNameParts := strings.Split(avatarHeader.Filename, ".")
-	extension := fileNameParts[len(fileNameParts)-1]
+	extension := filepath.Ext(avatarHeader.Filename)
 	err = h.userServices.UploadAvatar(user, avatarFile, extension)
 	if err != nil {
 		if errors.Is(err, h.userServices.UploadAvatarWrongFormatError()) {

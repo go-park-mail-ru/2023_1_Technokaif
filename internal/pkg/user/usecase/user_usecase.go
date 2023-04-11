@@ -45,7 +45,7 @@ func (u *Usecase) UpdateInfo(user *models.User) error {
 	return nil
 }
 
-var dirForUserAvatar = common.MediaPath() + common.AvatarFolder()
+var dirForUserAvatar = filepath.Join(common.MediaPath(), common.AvatarFolder())
 
 var ErrAvatarWrongFormat = errors.New("wrong avatar file fromat")
 
@@ -73,7 +73,7 @@ func (u *Usecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtens
 		return fmt.Errorf("(usecase) can't do file seek: %w", err)
 	}
 
-	filenameWithExtencion := newFileName + "." + fileExtension
+	filenameWithExtencion := newFileName + fileExtension
 
 	// Save path to avatar into user entry
 	path := filepath.Join(dirForUserAvatar, filenameWithExtencion)
