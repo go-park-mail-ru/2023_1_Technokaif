@@ -68,7 +68,7 @@ func main() {
 		}
 	}()
 	logger.Info("trying to launch server")
-	
+
 	timer := time.AfterFunc(2*time.Second, func() {
 		logger.Infof("server launched at %s:%s", os.Getenv("SERVER_HOST"), os.Getenv("SERVER_PORT"))
 	})
