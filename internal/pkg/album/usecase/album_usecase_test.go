@@ -4,15 +4,15 @@ import (
 	"errors"
 	"testing"
 
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
-func TestArtistUsecaseCreate(t *testing.T) {
+func TestAlbumUsecaseCreate(t *testing.T) {
 	type mockBehavior func(alr *albumMocks.MockRepository, arr *artistMocks.MockRepository,
 		album models.Album, artistsID []uint32, userID uint32)
 
