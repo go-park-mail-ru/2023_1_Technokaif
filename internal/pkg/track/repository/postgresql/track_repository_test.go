@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	trackMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/mocks"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 const trackTable = "Tracks"
@@ -56,11 +56,7 @@ func TestTrackRepositoryInsert(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	tablesMock := trackMocks.NewMockTables(c)
 
@@ -189,11 +185,7 @@ func TestTrackRepositoryGetByID(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	tablesMock := trackMocks.NewMockTables(c)
 
@@ -292,11 +284,7 @@ func TestTrackRepositoryDeleteByID(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	tablesMock := trackMocks.NewMockTables(c)
 
@@ -380,11 +368,7 @@ func TestTrackRepositoryGetFeed(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	tablesMock := trackMocks.NewMockTables(c)
 
@@ -454,11 +438,7 @@ func TestTrackRepositoryGetByArtist(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	tablesMock := trackMocks.NewMockTables(c)
 
@@ -554,11 +534,7 @@ func TestTrackRepositoryGetByAlbum(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	tablesMock := trackMocks.NewMockTables(c)
 
@@ -659,12 +635,7 @@ func TestTrackRepositoryGetLikedByUser(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
-
+	l := commonTests.MockLogger(c)
 	tablesMock := trackMocks.NewMockTables(c)
 
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
@@ -764,11 +735,7 @@ func TestTrackRepositoryLike(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	tablesMock := trackMocks.NewMockTables(c)
 
@@ -866,11 +833,7 @@ func TestTrackRepositoryDeleteLike(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	tablesMock := trackMocks.NewMockTables(c)
 

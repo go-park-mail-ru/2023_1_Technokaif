@@ -1,26 +1,20 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
-var wrapRequestWithUser = func(r *http.Request, user *models.User) *http.Request {
-	if user == nil {
-		return r
-	}
-	ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
-	return r.WithContext(ctx)
-}
+var wrapRequestWithUser = commonTests.WrapRequestWithUserNotNil
 
 var correctUser = models.User{
 	ID: 1,
@@ -29,11 +23,7 @@ var correctUser = models.User{
 func TestUserDeliveryCheckUserAuthAndResponse(t *testing.T) {
 	c := gomock.NewController(t)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewMiddleware(l)
 
