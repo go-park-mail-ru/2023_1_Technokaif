@@ -16,7 +16,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestAuthDeliveryAuthorization(t *testing.T) {
@@ -116,11 +116,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 
 			tc.mockBehavior(authMockUsecase, tokenMockUsecase, tc.cookieValue, tc.expectedUser)
 
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+			l := commonTests.MockLogger(c)
 
 			h := NewMiddleware(authMockUsecase, tokenMockUsecase, l)
 

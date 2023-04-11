@@ -2,10 +2,8 @@ package http
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -16,16 +14,11 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
-var wrapRequestWithUser = func(r *http.Request, user *models.User) *http.Request {
-	if user == nil {
-		return r
-	}
-	ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
-	return r.WithContext(ctx)
-}
+var wrapRequestWithUser = commonTests.WrapRequestWithUserNotNil
+
 var correctUser = models.User{
 	ID: 1,
 }
@@ -38,11 +31,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 
 	au := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(au, l)
 
@@ -147,11 +136,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 
 	au := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(au, l)
 
@@ -247,11 +232,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 
 	au := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(au, l)
 
@@ -365,11 +346,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 
 	au := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(au, l)
 
@@ -481,11 +458,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 
 	au := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(au, l)
 
@@ -588,11 +561,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 
 	au := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(au, l)
 

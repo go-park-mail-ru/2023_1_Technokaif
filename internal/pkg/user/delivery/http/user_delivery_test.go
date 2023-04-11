@@ -2,11 +2,9 @@ package http
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -21,16 +19,10 @@ import (
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
 	trackMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/mocks"
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
-var wrapRequestWithUser = func(r *http.Request, user *models.User) *http.Request {
-	if user == nil {
-		return r
-	}
-	ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
-	return r.WithContext(ctx)
-}
+var wrapRequestWithUser = commonTests.WrapRequestWithUserNotNil
 
 func getCorrectUser() *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
@@ -78,11 +70,7 @@ func TestUserDeliveryGet(t *testing.T) {
 	alu := albumMocks.NewMockUsecase(c)
 	aru := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(uu, tu, alu, aru, l)
 
@@ -153,11 +141,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 	alu := albumMocks.NewMockUsecase(c)
 	aru := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(uu, tu, alu, aru, l)
 
@@ -259,11 +243,7 @@ func TestUserDeliveryGetFavoriteTracks(t *testing.T) {
 	alu := albumMocks.NewMockUsecase(c)
 	aru := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(uu, tu, alu, aru, l)
 
@@ -417,11 +397,7 @@ func TestUserDeliveryGetFavoriteAlbums(t *testing.T) {
 	alu := albumMocks.NewMockUsecase(c)
 	aru := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(uu, tu, alu, aru, l)
 
@@ -559,11 +535,7 @@ func TestUserDeliveryGetFavoriteArtists(t *testing.T) {
 	alu := albumMocks.NewMockUsecase(c)
 	aru := artistMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(uu, tu, alu, aru, l)
 

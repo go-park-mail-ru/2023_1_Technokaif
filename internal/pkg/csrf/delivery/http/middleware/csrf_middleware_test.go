@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -14,7 +13,7 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
@@ -25,13 +24,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 		Version: uint32(rand.Intn(100)),
 	}
 
-	testWrapRequestWithUser := func(r *http.Request, user *models.User, doWrap bool) *http.Request {
-		if !doWrap {
-			return r
-		}
-		ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
-		return r.WithContext(ctx)
-	}
+	testWrapRequestWithUser := commonTests.WrapRequestWithUser
 
 	testTable := []struct {
 		name              string
@@ -122,11 +115,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 
 			tc.mockBehavior(tokenMockUsecase, tc.csrfToken)
 
-			l := logMocks.NewMockLogger(c)
-			l.EXPECT().Error(gomock.Any()).AnyTimes()
-			l.EXPECT().Info(gomock.Any()).AnyTimes()
-			l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-			l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+			l := commonTests.MockLogger(c)
 
 			h := NewMiddleware(tokenMockUsecase, l)
 

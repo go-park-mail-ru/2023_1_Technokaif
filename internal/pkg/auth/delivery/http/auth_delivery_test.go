@@ -2,11 +2,9 @@ package http
 
 import (
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"math/rand"
-	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -19,7 +17,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestDeliverySignUp(t *testing.T) {
@@ -31,11 +29,7 @@ func TestDeliverySignUp(t *testing.T) {
 	authMockUsecase := authMocks.NewMockUsecase(c)
 	tokenMockUsecase := tokenMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(authMockUsecase, tokenMockUsecase, l)
 
@@ -154,11 +148,7 @@ func TestDeliveryLogin(t *testing.T) {
 	authMockUsecase := authMocks.NewMockUsecase(c)
 	tokenMockUsecase := tokenMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(authMockUsecase, tokenMockUsecase, l)
 
@@ -302,11 +292,7 @@ func TestDeliveryLogout(t *testing.T) {
 	authMockUsecase := authMocks.NewMockUsecase(c)
 	tokenMockUsecase := tokenMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(authMockUsecase, tokenMockUsecase, l)
 
@@ -319,13 +305,7 @@ func TestDeliveryLogout(t *testing.T) {
 		ID:      1,
 		Version: 1,
 	}
-	testWrapRequestWithUser := func(r *http.Request, user *models.User, doWrap bool) *http.Request {
-		if !doWrap {
-			return r
-		}
-		ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
-		return r.WithContext(ctx)
-	}
+	testWrapRequestWithUser := commonTests.WrapRequestWithUser
 
 	testTable := []struct {
 		name             string

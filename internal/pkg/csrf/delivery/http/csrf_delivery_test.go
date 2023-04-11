@@ -1,9 +1,7 @@
 package delivery
 
 import (
-	"context"
 	"errors"
-	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -13,30 +11,20 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
-	logMocks "github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger/mocks"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestDeliveryGetCSRF(t *testing.T) {
 	// Init
 	type mockBehavior func(t *tokenMocks.MockUsecase, u *models.User)
 
-	testWrapRequestWithUser := func(r *http.Request, user *models.User, doWrap bool) *http.Request {
-		if !doWrap {
-			return r
-		}
-		ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
-		return r.WithContext(ctx)
-	}
+	testWrapRequestWithUser := commonTests.WrapRequestWithUser
 
 	c := gomock.NewController(t)
 
 	tokenMockUsecase := tokenMocks.NewMockUsecase(c)
 
-	l := logMocks.NewMockLogger(c)
-	l.EXPECT().Error(gomock.Any()).AnyTimes()
-	l.EXPECT().Info(gomock.Any()).AnyTimes()
-	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
-	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
+	l := commonTests.MockLogger(c)
 
 	h := NewHandler(tokenMockUsecase, l)
 
