@@ -7,15 +7,15 @@ import (
 )
 
 func CheckMimeType(file io.ReadSeeker, correctTypes ...string) (string, error) {
-	curPosition, err := file.Seek(0, 1) // save current position
+	curPosition, err := file.Seek(0, io.SeekCurrent) // save current position
 	if err != nil {
 		return "", err
 	}
 
-	if _, err := file.Seek(0, 0); err != nil {
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
 		return "", err
 	}
-	
+
 	var fileHeader [512]byte
 	if _, err := file.Read(fileHeader[:]); err != nil {
 		return "", err
@@ -28,7 +28,7 @@ func CheckMimeType(file io.ReadSeeker, correctTypes ...string) (string, error) {
 		}
 	}
 
-	if _, err = file.Seek(curPosition, 0); err != nil { // go back to curPosition
+	if _, err = file.Seek(curPosition, io.SeekStart); err != nil { // go back to curPosition
 		return "", err
 	}
 

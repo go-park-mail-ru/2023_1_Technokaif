@@ -37,6 +37,7 @@ func (u *Usecase) Create(track models.Track, artistsID []uint32, userID uint32) 
 		}
 		if a.UserID != nil && *a.UserID == userID {
 			userInArtists = true
+			break
 		}
 	}
 	if !userInArtists {
