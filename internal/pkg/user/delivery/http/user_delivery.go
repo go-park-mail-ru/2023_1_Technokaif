@@ -169,13 +169,13 @@ func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 
 	favTracks, err := h.trackServices.GetLikedByUser(user.ID)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	tt, err := models.TrackTransferFromQuery(favTracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite tracks", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite tracks", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -201,13 +201,13 @@ func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 
 	favAlbums, err := h.albumServices.GetLikedByUser(user.ID)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	at, err := models.AlbumTransferFromQuery(favAlbums, h.artistServices.GetByAlbum)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite albums", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -233,7 +233,7 @@ func (h *Handler) GetFavouriteArtists(w http.ResponseWriter, r *http.Request) {
 
 	favArtists, err := h.artistServices.GetLikedByUser(user.ID)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "error while getting favourite albums", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite artists", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
