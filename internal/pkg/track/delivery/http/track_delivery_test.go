@@ -1,15 +1,12 @@
 package http
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
@@ -17,8 +14,6 @@ import (
 	trackMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/mocks"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
-
-var wrapRequestWithUser = commonTests.WrapRequestWithUserNotNil
 
 var correctUser = models.User{
 	ID: 1,
@@ -159,14 +154,8 @@ func TestTrackDeliveryCreate(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tu)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/api/tracks/", bytes.NewBufferString(tc.requestBody))
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestPost(t, r, "/api/tracks/", tc.requestBody, tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -286,14 +275,8 @@ func TestTrackDeliveryGet(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tu, au)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/tracks/"+tc.trackIDPath+"/", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/tracks/"+tc.trackIDPath+"/", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -398,14 +381,8 @@ func TestTrackDeliveryDelete(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tu)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("DELETE", "/api/tracks/"+tc.trackIDPath+"/", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestDelete(t, r, "/api/tracks/"+tc.trackIDPath+"/", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -549,14 +526,8 @@ func TestTrackDeliveryFeed(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tu, au)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/tracks/feed", nil)
-			r.ServeHTTP(w, req)
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/tracks/feed", tc.expectedStatus, tc.expectedResponse,
+				commonTests.NoWrapUserFunc())
 		})
 	}
 }
@@ -650,14 +621,8 @@ func TestTrackDeliveryLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tu)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/tracks/"+tc.trackIDPath+"/like", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/tracks/"+tc.trackIDPath+"/like", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -677,7 +642,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 
 	// Routing
 	r := chi.NewRouter()
-	r.Get("/api/tracks/{trackID}/like", h.UnLike)
+	r.Get("/api/tracks/{trackID}/unlike", h.UnLike)
 
 	// Test filling
 	testTable := []struct {
@@ -751,14 +716,8 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tu)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/tracks/"+tc.trackIDPath+"/like", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/tracks/"+tc.trackIDPath+"/unlike", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }

@@ -1,11 +1,9 @@
 package http
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"math/rand"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -14,10 +12,10 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestDeliverySignUp(t *testing.T) {
@@ -127,14 +125,8 @@ func TestDeliverySignUp(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(authMockUsecase, tc.userFromBody)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/signup", bytes.NewBufferString(tc.requestBody))
-			r.ServeHTTP(w, req)
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestPost(t, r, "/signup", tc.requestBody, tc.expectedStatus, tc.expectedResponse,
+				commonTests.NoWrapUserFunc())
 		})
 	}
 }
@@ -267,18 +259,13 @@ func TestDeliveryLogin(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(authMockUsecase, tokenMockUsecase, tc.loginFromBody)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/login", bytes.NewBufferString(tc.requestBody))
-			r.ServeHTTP(w, req)
+			w := commonTests.DeliveryTestPost(t, r, "/login", tc.requestBody, tc.expectedStatus, tc.expectedResponse,
+				commonTests.NoWrapUserFunc())
 
 			if tc.expectingCookie {
 				assert.Equal(t, correctCookieName, w.Result().Cookies()[0].Name)
 				assert.Equal(t, tc.expectedCookieValue, w.Result().Cookies()[0].Value)
 			}
-
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
 		})
 	}
 }
@@ -305,15 +292,15 @@ func TestDeliveryLogout(t *testing.T) {
 		ID:      1,
 		Version: 1,
 	}
-	testWrapRequestWithUser := commonTests.WrapRequestWithUser
 
 	testTable := []struct {
-		name             string
-		user             *models.User
-		mockBehavior     mockBehavior
-		expectedStatus   int
-		expectedResponse string
-		doWrap           bool
+		name                 string
+		user                 *models.User
+		doWrap               bool
+		mockBehavior         mockBehavior
+		expectedStatus       int
+		expectedResponse     string
+		expectingCookieReset bool
 	}{
 		{
 			name: "Common",
@@ -321,9 +308,10 @@ func TestDeliveryLogout(t *testing.T) {
 			mockBehavior: func(a *authMocks.MockUsecase, user *models.User) {
 				a.EXPECT().IncreaseUserVersion(user.ID).Return(nil)
 			},
-			expectedStatus:   200,
-			expectedResponse: `{"status": "ok"}`,
-			doWrap:           true,
+			expectedStatus:       200,
+			expectedResponse:     `{"status": "ok"}`,
+			doWrap:               true,
+			expectingCookieReset: true,
 		},
 		{
 			name:             "No user in request",
@@ -358,15 +346,13 @@ func TestDeliveryLogout(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(authMockUsecase, tc.user)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/logout", nil)
+			w := commonTests.DeliveryTestGet(t, r, "/logout", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserFunc(tc.user, tc.doWrap))
 
-			r.ServeHTTP(w, testWrapRequestWithUser(req, tc.user, tc.doWrap))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			if tc.expectingCookieReset {
+				assert.Equal(t, commonHttp.AcessTokenCookieName, w.Result().Cookies()[0].Name)
+				assert.Equal(t, "", w.Result().Cookies()[0].Value)
+			}
 		})
 	}
 }

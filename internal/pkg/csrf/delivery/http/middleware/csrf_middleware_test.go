@@ -24,8 +24,6 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 		Version: uint32(rand.Intn(100)),
 	}
 
-	testWrapRequestWithUser := commonTests.WrapRequestWithUser
-
 	testTable := []struct {
 		name              string
 		csrfHeader        string
@@ -129,9 +127,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			req := httptest.NewRequest("GET", "/csrf", nil)
 			req.Header.Set(tc.csrfHeader, tc.csrfToken)
 
-			reqWrapped := testWrapRequestWithUser(req, tc.userInRequest, tc.wrapUser)
-
-			r.ServeHTTP(w, reqWrapped)
+			r.ServeHTTP(w, commonTests.WrapRequestWithUser(req, tc.userInRequest, tc.wrapUser))
 
 			if tc.expectingResponse {
 				assert.Equal(t, tc.expectedStatus, w.Code)

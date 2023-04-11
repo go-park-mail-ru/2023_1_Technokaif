@@ -1,23 +1,19 @@
 package http
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"net/http/httptest"
+	"net/http"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
-
-var wrapRequestWithUser = commonTests.WrapRequestWithUserNotNil
 
 var correctUser = models.User{
 	ID: 1,
@@ -146,14 +142,8 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/api/albums/", bytes.NewBufferString(tc.requestBody))
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestPost(t, r, "/api/albums/", tc.requestBody, tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -273,14 +263,8 @@ func TestAlbumDeliveryGet(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu, aru)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/albums/"+tc.albumIDPath+"/", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/albums/"+tc.albumIDPath+"/", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -387,14 +371,8 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("DELETE", "/api/albums/"+tc.albumIDPath+"/", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestDelete(t, r, "/api/albums/"+tc.albumIDPath+"/", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -533,14 +511,8 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu, aru)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/albums/feed", nil)
-			r.ServeHTTP(w, req)
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/albums/feed", tc.expectedStatus, tc.expectedResponse, 
+				func(req *http.Request) *http.Request {return req})
 		})
 	}
 }
@@ -636,14 +608,8 @@ func TestAlbumDeliveryLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/albums/"+tc.albumIDPath+"/like", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/albums/"+tc.albumIDPath+"/like", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -663,7 +629,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 
 	// Routing
 	r := chi.NewRouter()
-	r.Get("/api/albums/{albumID}/like", h.UnLike)
+	r.Get("/api/albums/{albumID}/unlike", h.UnLike)
 
 	correctAlbumID := uint32(1)
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
@@ -739,14 +705,8 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/albums/"+tc.albumIDPath+"/like", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/albums/"+tc.albumIDPath+"/unlike", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }

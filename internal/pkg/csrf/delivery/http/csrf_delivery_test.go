@@ -2,12 +2,10 @@ package delivery
 
 import (
 	"errors"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
@@ -17,8 +15,6 @@ import (
 func TestDeliveryGetCSRF(t *testing.T) {
 	// Init
 	type mockBehavior func(t *tokenMocks.MockUsecase, u *models.User)
-
-	testWrapRequestWithUser := commonTests.WrapRequestWithUser
 
 	c := gomock.NewController(t)
 
@@ -90,15 +86,8 @@ func TestDeliveryGetCSRF(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tokenMockUsecase, tc.user)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/csrf", nil)
-
-			r.ServeHTTP(w, testWrapRequestWithUser(req, tc.user, tc.doWrap))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/csrf", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserFunc(tc.user, tc.doWrap))
 		})
 	}
 }

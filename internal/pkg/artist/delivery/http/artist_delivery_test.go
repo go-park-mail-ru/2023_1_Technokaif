@@ -1,23 +1,18 @@
 package http
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
-
-var wrapRequestWithUser = commonTests.WrapRequestWithUserNotNil
 
 var correctUser = models.User{
 	ID: 1,
@@ -116,14 +111,8 @@ func TestArtistDeliveryCreate(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(au)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/api/artists/", bytes.NewBufferString(tc.requestBody))
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestPost(t, r, "/api/artists/", tc.requestBody, tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -212,14 +201,8 @@ func TestArtistDeliveryGet(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(au)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/artists/"+tc.artistIDPath+"/", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/artists/"+tc.artistIDPath+"/", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -326,14 +309,8 @@ func TestArtistDeliveryDelete(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(au)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("DELETE", "/api/artists/"+tc.artistIDPath+"/", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestDelete(t, r, "/api/artists/"+tc.artistIDPath+"/", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -438,14 +415,8 @@ func TestArtistDeliveryFeed(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(au)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/artists/feed", nil)
-			r.ServeHTTP(w, req)
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/artists/feed", tc.expectedStatus, tc.expectedResponse,
+				commonTests.NoWrapUserFunc())
 		})
 	}
 }
@@ -541,14 +512,8 @@ func TestArtistDeliveryLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(au)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/artists/"+tc.artistIDPath+"/like", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r,  "/api/artists/"+tc.artistIDPath+"/like", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -567,7 +532,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 
 	// Routing
 	r := chi.NewRouter()
-	r.Get("/api/artists/{artistID}/like", h.UnLike)
+	r.Get("/api/artists/{artistID}/unlike", h.UnLike)
 
 	// Test filling
 	correctArtistID := uint32(1)
@@ -644,14 +609,8 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(au)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/artists/"+tc.artistIDPath+"/like", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r,  "/api/artists/"+tc.artistIDPath+"/unlike", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }

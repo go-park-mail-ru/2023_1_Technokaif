@@ -3,18 +3,14 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
-
-var wrapRequestWithUser = commonTests.WrapRequestWithUserNotNil
 
 var correctUser = models.User{
 	ID: 1,
@@ -66,14 +62,8 @@ func TestUserDeliveryCheckUserAuthAndResponse(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			r.With(h.CheckUserAuthAndResponce).Get("/user/{userID}", func(w http.ResponseWriter, r *http.Request) {})
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/user/"+tc.userIDPath, nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/user/"+tc.userIDPath, tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }

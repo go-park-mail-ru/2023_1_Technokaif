@@ -1,17 +1,14 @@
 package http
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"log"
-	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
@@ -21,8 +18,6 @@ import (
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
-
-var wrapRequestWithUser = commonTests.WrapRequestWithUserNotNil
 
 func getCorrectUser() *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
@@ -118,14 +113,8 @@ func TestUserDeliveryGet(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("GET", "/api/users/"+tc.userIDPath+"/", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/users/"+tc.userIDPath+"/", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -221,14 +210,8 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(uu, tc.user)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/api/users/"+tc.userIDPath+"/update", bytes.NewBufferString(tc.requestBody))
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestPost(t, r, "/api/users/"+tc.userIDPath+"/update", tc.requestBody, tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -249,7 +232,7 @@ func TestUserDeliveryGetFavoriteTracks(t *testing.T) {
 
 	// Routing
 	r := chi.NewRouter()
-	r.Post("/api/users/{userID}/tracks", h.GetFavouriteTracks)
+	r.Get("/api/users/{userID}/tracks", h.GetFavouriteTracks)
 
 	// Test filling
 	correctUserID := uint32(1)
@@ -375,14 +358,8 @@ func TestUserDeliveryGetFavoriteTracks(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tu, aru, tc.user.ID)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/api/users/"+correctUserIDPath+"/tracks", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/tracks", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -403,7 +380,7 @@ func TestUserDeliveryGetFavoriteAlbums(t *testing.T) {
 
 	// Routing
 	r := chi.NewRouter()
-	r.Post("/api/users/{userID}/albums", h.GetFavouriteAlbums)
+	r.Get("/api/users/{userID}/albums", h.GetFavouriteAlbums)
 
 	// Test filling
 	correctUserID := uint32(1)
@@ -513,14 +490,8 @@ func TestUserDeliveryGetFavoriteAlbums(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu, aru, tc.user.ID)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/api/users/"+correctUserIDPath+"/albums", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/albums", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
@@ -541,7 +512,7 @@ func TestUserDeliveryGetFavoriteArtists(t *testing.T) {
 
 	// Routing
 	r := chi.NewRouter()
-	r.Post("/api/users/{userID}/artists", h.GetFavouriteArtists)
+	r.Get("/api/users/{userID}/artists", h.GetFavouriteArtists)
 
 	// Test filling
 	correctUserID := uint32(1)
@@ -605,14 +576,8 @@ func TestUserDeliveryGetFavoriteArtists(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(aru, tc.user.ID)
 
-			// Request
-			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/api/users/"+correctUserIDPath+"/artists", nil)
-			r.ServeHTTP(w, wrapRequestWithUser(req, tc.user))
-
-			// Test
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
+			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/artists", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }
