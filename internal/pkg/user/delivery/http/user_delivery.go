@@ -41,7 +41,7 @@ func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist
 // @Failure		400		{object}	http.Error			"Client error"
 // @Failure     401    	{object}  	http.Error  		"Unauthorized user"
 // @Failure     403    	{object}  	http.Error  		"Forbidden user"
-// @Failure     500    	{object}  	http.Error  		"Server error"
+// @Failure     500    	{object}  	http.Error  		"Can't get user"
 // @Router	    /api/users/{userID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
@@ -65,7 +65,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 // @Failure      400    {object}  http.Error  			   	"Invalid input"
 // @Failure      401    {object}  http.Error  			   	"User Unathorized"
 // @Failure      403    {object}  http.Error  			   	"User hasn't rights"
-// @Failure      500    {object}  http.Error  			   	"Server error"
+// @Failure      500    {object}  http.Error  			   	"Can't change user info"
 // @Router       /api/users/{userID}/update [post]
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
