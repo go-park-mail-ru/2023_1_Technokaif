@@ -8,8 +8,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 const (
@@ -44,11 +42,9 @@ func initServerRunConfig() (runConfig, error) {
 	return cfg, nil
 }
 
-// Run launches http Server on chosen port with given handler
-func (s *Server) Run(handler http.Handler, logger logger.Logger) error {
+func (s *Server) Init(handler http.Handler) error {
 	cfg, err := initServerRunConfig()
 	if err != nil {
-		logger.Errorf("error while launching server: %v", err)
 		return fmt.Errorf("can't init server config: %w", err)
 	}
 
@@ -59,7 +55,11 @@ func (s *Server) Run(handler http.Handler, logger logger.Logger) error {
 		ReadTimeout:    readTimeout,
 		WriteTimeout:   writeTimeout,
 	}
+	return nil
+}
 
+// Run launches http Server on chosen port with given handler
+func (s *Server) Run() error {
 	if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}
