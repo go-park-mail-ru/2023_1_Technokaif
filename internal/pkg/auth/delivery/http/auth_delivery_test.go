@@ -3,7 +3,9 @@ package http
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,6 +15,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
@@ -142,9 +145,9 @@ func TestDeliverySignUp(t *testing.T) {
 	}
 }
 
-/* func TestDeliveryLogin(t *testing.T) {
+func TestDeliveryLogin(t *testing.T) {
 	// Init
-	type mockBehavior func(a *authMocks.MockUsecase, l loginInput)
+	type mockBehavior func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput)
 
 	c := gomock.NewController(t)
 
@@ -170,32 +173,43 @@ func TestDeliverySignUp(t *testing.T) {
 		Password: "Love1234",
 	}
 
+	correctCookieName := commonHttp.AcessTokenCookieName
+	randomUserID := uint32(rand.Intn(100))
+
 	testTable := []struct {
-		name             string
-		requestBody      string
-		loginFromBody    loginInput
-		mockBehavior     mockBehavior
-		expectedStatus   int
-		expectedResponse string
+		name                string
+		requestBody         string
+		loginFromBody       loginInput
+		mockBehavior        mockBehavior
+		expectedStatus      int
+		expectedResponse    string
+		expectingCookie     bool
+		expectedCookieValue string
 	}{
 		{
 			name:          "Common",
 			requestBody:   correctTestRequestBody,
 			loginFromBody: correctTestLogin,
-			mockBehavior: func(a *authMocks.MockUsecase, l loginInput) {
-				a.EXPECT().LoginUser(l.Username, l.Password).Return("jwt.access.token", nil)
+			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {
+				user := &models.User{ID: randomUserID, Version: uint32(rand.Intn(100))}
+
+				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(user, nil)
+				t.EXPECT().GenerateAccessToken(user.ID, user.Version).Return("token", nil)
 			},
-			expectedStatus:   200,
-			expectedResponse: `{"jwt": "jwt.access.token"}`,
+			expectedStatus:      200,
+			expectedResponse:    fmt.Sprintf(`{"id": %d}`, randomUserID),
+			expectingCookie:     true,
+			expectedCookieValue: "token",
 		},
 		{
 			// Missing one quote (after username)
 			name:             "Incorrect Request Body",
 			requestBody:      `{"username": "yarik_tri, "password": "Love1234"}`,
 			loginFromBody:    correctTestLogin,
-			mockBehavior:     func(a *authMocks.MockUsecase, l loginInput) {},
+			mockBehavior:     func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
+			expectingCookie:  false,
 		},
 		{
 			// These tests aren't tests of validation but delivery-layer
@@ -204,49 +218,80 @@ func TestDeliverySignUp(t *testing.T) {
 			name:             "Validation Error",
 			requestBody:      `{"username": "yarik_tri"}`,
 			loginFromBody:    loginInput{},
-			mockBehavior:     func(a *authMocks.MockUsecase, l loginInput) {},
+			mockBehavior:     func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {},
 			expectedStatus:   400,
 			expectedResponse: `{"message": "incorrect input body"}`,
+			expectingCookie:  false,
 		},
 		{
-			name:          "Login Error",
+			name:          "No Such User",
 			requestBody:   correctTestRequestBody,
 			loginFromBody: correctTestLogin,
-			mockBehavior: func(a *authMocks.MockUsecase, l loginInput) {
-				a.EXPECT().LoginUser(correctTestLogin.Username,
-					correctTestLogin.Password).Return("", &models.NoSuchUserError{})
+			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {
+				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(&models.User{}, &models.NoSuchUserError{})
 			},
 			expectedStatus:   400,
-			expectedResponse: `{"message": "can't login user"}`,
+			expectedResponse: `{"message": "no such user"}`,
+			expectingCookie:  false,
 		},
 		{
-			name:          "Server Error",
+			name:          "Incorrect Password",
 			requestBody:   correctTestRequestBody,
 			loginFromBody: correctTestLogin,
-			mockBehavior: func(a *authMocks.MockUsecase, l loginInput) {
-				a.EXPECT().LoginUser(correctTestLogin.Username,
-					correctTestLogin.Password).Return("", fmt.Errorf("database error"))
+			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {
+				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(&models.User{}, &models.IncorrectPasswordError{})
+			},
+			expectedStatus:   400,
+			expectedResponse: `{"message": "incorrect password"}`,
+			expectingCookie:  false,
+		},
+		{
+			name:          "Getting User Server Error",
+			requestBody:   correctTestRequestBody,
+			loginFromBody: correctTestLogin,
+			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {
+				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(&models.User{}, errors.New("database error"))
 			},
 			expectedStatus:   500,
 			expectedResponse: `{"message": "server failed to login user"}`,
+			expectingCookie:  false,
+		},
+		{
+			name:          "Generating token Server Error",
+			requestBody:   correctTestRequestBody,
+			loginFromBody: correctTestLogin,
+			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {
+				user := &models.User{ID: uint32(rand.Intn(100)), Version: uint32(rand.Intn(100))}
+
+				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(user, nil)
+				t.EXPECT().GenerateAccessToken(user.ID, user.Version).Return("", errors.New("generating token error"))
+			},
+			expectedStatus:   500,
+			expectedResponse: `{"message": "server failed to login user"}`,
+			expectingCookie:  false,
 		},
 	}
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
-			tc.mockBehavior(authMockUsecase, tc.loginFromBody)
+			tc.mockBehavior(authMockUsecase, tokenMockUsecase, tc.loginFromBody)
 
 			// Request
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/login", bytes.NewBufferString(tc.requestBody))
 			r.ServeHTTP(w, req)
 
+			if tc.expectingCookie {
+				assert.Equal(t, correctCookieName, w.Result().Cookies()[0].Name)
+				assert.Equal(t, tc.expectedCookieValue, w.Result().Cookies()[0].Value)
+			}
+
 			assert.Equal(t, tc.expectedStatus, w.Code)
 			assert.JSONEq(t, tc.expectedResponse, w.Body.String())
 		})
 	}
-} */
+}
 
 func TestDeliveryLogout(t *testing.T) {
 	// Init
