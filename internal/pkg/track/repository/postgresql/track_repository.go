@@ -33,6 +33,7 @@ func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (uint32, err
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
+	defer tx.Rollback()
 
 	insertTrackQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, album_id, album_position, cover_src, record_src) 
@@ -42,7 +43,6 @@ func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (uint32, err
 	var trackID uint32
 	row := tx.QueryRow(insertTrackQuery, track.Name, track.AlbumID, track.AlbumPosition, track.CoverSrc, track.RecordSrc)
 	if err := row.Scan(&trackID); err != nil {
-		tx.Rollback()
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -53,7 +53,6 @@ func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (uint32, err
 
 	for _, artistID := range artistsID {
 		if _, err := tx.Exec(insertTrackArtistsQuery, artistID, trackID); err != nil {
-			tx.Rollback()
 			return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 		}
 	}
