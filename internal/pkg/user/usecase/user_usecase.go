@@ -73,12 +73,12 @@ func (u *Usecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtens
 		return fmt.Errorf("(usecase) can't do file seek: %w", err)
 	}
 
-	filenameWithExtencion := newFileName + fileExtension
+	filenameWithExtension := newFileName + fileExtension
 
 	// Save path to avatar into user entry
-	path := filepath.Join(dirForUserAvatar, filenameWithExtencion)
+	path := filepath.Join(dirForUserAvatar, filenameWithExtension)
 
-	user.AvatarSrc = filepath.Join(common.AvatarFolder(), filenameWithExtencion)
+	user.AvatarSrc = filepath.Join(common.AvatarFolder(), filenameWithExtension)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		newFD, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
