@@ -41,12 +41,12 @@ func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist
 // @Failure		400		{object}	http.Error			"Client error"
 // @Failure     401    	{object}  	http.Error  		"Unauthorized user"
 // @Failure     403    	{object}  	http.Error  		"Forbidden user"
-// @Failure     500    	{object}  	http.Error  		"Server error"
+// @Failure     500    	{object}  	http.Error  		"Can't get user"
 // @Router	    /api/users/{userID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get user", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -65,12 +65,12 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 // @Failure      400    {object}  http.Error  			   	"Invalid input"
 // @Failure      401    {object}  http.Error  			   	"User Unathorized"
 // @Failure      403    {object}  http.Error  			   	"User hasn't rights"
-// @Failure      500    {object}  http.Error  			   	"Server error"
+// @Failure      500    {object}  http.Error  			   	"Can't change user info"
 // @Router       /api/users/{userID}/update [post]
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "can't change user info", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -125,7 +125,7 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	avatarFile, avatarHeader, err := r.FormFile(avatarForm)
+	avatarFile, avatarHeader, err := r.FormFile(avatarFormKey)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
 		return
