@@ -1,0 +1,14 @@
+.PHONY: all
+
+all: clear_media server_start
+
+server_start:
+	go run ./cmd/app/main.go
+
+clear_media:
+	rm -r ./img
+
+check_coverage:
+	go test -coverpkg=./... -coverprofile=coverage.out ./... \
+	&& cat coverage.out | fgrep -v "mocks" | fgrep -v "docs" > purified_coverage.out \
+	&& go tool cover -func purified_coverage.out | grep total

@@ -1,53 +1,140 @@
-basePath: /feed
+basePath: /api/albums/feed
 definitions:
-  delivery.FeedResponse:
-    properties:
-      albums:
-        items:
-          $ref: '#/definitions/models.AlbumFeed'
-        type: array
-      artists:
-        items:
-          $ref: '#/definitions/models.ArtistFeed'
-        type: array
-      tracks:
-        items:
-          $ref: '#/definitions/models.TrackFeed'
-        type: array
-    type: object
-  delivery.errorResponse:
+  http.Error:
     properties:
       message:
         type: string
     type: object
-  delivery.loginInput:
+  http.albumCreateInput:
+    properties:
+      artistsID:
+        items:
+          type: integer
+        type: array
+      cover:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  http.albumCreateResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  http.albumDeleteResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  http.albumLikeResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  http.artistCreateInput:
+    properties:
+      cover:
+        type: string
+      name:
+        type: string
+    type: object
+  http.artistCreateResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  http.artistDeleteResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  http.artistLikeResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  http.loginInput:
     properties:
       password:
         type: string
       username:
         type: string
     type: object
-  delivery.loginResponse:
+  http.loginResponse:
     properties:
       jwt:
         type: string
     type: object
-  delivery.logoutResponse:
+  http.logoutResponse:
     properties:
       status:
         type: string
     type: object
-  delivery.signUpResponse:
+  http.signUpResponse:
     properties:
       id:
         type: integer
     type: object
-  models.AlbumFeed:
+  http.trackCreateInput:
+    properties:
+      albumID:
+        type: integer
+      albumPosition:
+        type: integer
+      artistsID:
+        items:
+          type: integer
+        type: array
+      cover:
+        type: string
+      name:
+        type: string
+      record:
+        type: string
+    type: object
+  http.trackCreateResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  http.trackDeleteResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  http.trackLikeResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  http.userInfoInput:
+    properties:
+      birthDate:
+        $ref: '#/definitions/models.Date'
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      sex:
+        $ref: '#/definitions/models.Sex'
+    type: object
+  http.userUploadAvatarResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  models.AlbumTransfer:
     properties:
       artists:
         items:
-          $ref: '#/definitions/models.ArtistFeed'
+          $ref: '#/definitions/models.ArtistTransfer'
         type: array
+      cover:
+        type: string
       description:
         type: string
       id:
@@ -55,8 +142,10 @@ definitions:
       name:
         type: string
     type: object
-  models.ArtistFeed:
+  models.ArtistTransfer:
     properties:
+      cover:
+        type: string
       id:
         type: integer
       name:
@@ -77,15 +166,25 @@ definitions:
     - Male
     - Female
     - Other
-  models.TrackFeed:
+  models.TrackTransfer:
     properties:
+      albumID:
+        type: integer
+      albumPosition:
+        type: integer
       artists:
         items:
-          $ref: '#/definitions/models.ArtistFeed'
+          $ref: '#/definitions/models.ArtistTransfer'
         type: array
+      cover:
+        type: string
       id:
         type: integer
+      listens:
+        type: integer
       name:
+        type: string
+      record:
         type: string
     type: object
   models.User:
@@ -105,73 +204,475 @@ definitions:
       username:
         type: string
     type: object
+  models.UserTransfer:
+    properties:
+      avatar:
+        type: string
+      birthDate:
+        $ref: '#/definitions/models.Date'
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+      sex:
+        $ref: '#/definitions/models.Sex'
+      username:
+        type: string
+    type: object
 host: localhost:4443
 info:
-  contact: {}
+  contact:
+    email: yarik1448kuzmin@gmail.com
+    name: Fluire API Support
   description: Server API for Fluire Streaming Service Application
   title: Fluire API
-  version: "1.0"
+  version: 1.0.1
 paths:
+  /api/albums/:
+    post:
+      consumes:
+      - application/json
+      description: Create new album by sent object
+      parameters:
+      - description: Album info
+        in: body
+        name: album
+        required: true
+        schema:
+          $ref: '#/definitions/http.albumCreateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Album created
+          schema:
+            $ref: '#/definitions/http.albumCreateResponse'
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Create Album
+      tags:
+      - Album
+  /api/albums/{albumID}/:
+    delete:
+      description: Delete album with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Album deleted
+          schema:
+            $ref: '#/definitions/http.albumDeleteResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Delete Album
+      tags:
+      - Album
+    get:
+      description: Get album with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Album got
+          schema:
+            $ref: '#/definitions/models.AlbumTransfer'
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get Album
+      tags:
+      - Album
+  /api/albums/{albumID}/like:
+    post:
+      description: Set like by user to chosen album (add to favorite)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like set
+          schema:
+            $ref: '#/definitions/http.albumLikeResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Set like
+      tags:
+      - Album
+  /api/albums/{albumID}/tracks:
+    get:
+      description: All tracks of album with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Show tracks
+          schema:
+            items:
+              $ref: '#/definitions/models.TrackTransfer'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Tracks of Album
+      tags:
+      - Album
+  /api/albums/{albumID}/unlike:
+    post:
+      description: Remove like by user from chosen album (remove from favorite)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like removed
+          schema:
+            $ref: '#/definitions/http.albumLikeResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Remove like
+      tags:
+      - Album
+  /api/albums/feed:
+    get:
+      description: Feed albums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Albums feed
+          schema:
+            items:
+              $ref: '#/definitions/models.AlbumTransfer'
+            type: array
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Album Feed
+      tags:
+      - Feed
+  /api/artists/:
+    post:
+      consumes:
+      - application/json
+      description: Create new artist by sent object
+      parameters:
+      - description: Track info
+        in: body
+        name: artist
+        required: true
+        schema:
+          $ref: '#/definitions/http.artistCreateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Artist created
+          schema:
+            $ref: '#/definitions/http.artistCreateResponse'
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Create Artist
+      tags:
+      - Artist
+  /api/artists/{artistID}/:
+    delete:
+      description: Delete artist with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Artist deleted
+          schema:
+            $ref: '#/definitions/http.artistDeleteResponse'
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Delete Artist
+      tags:
+      - Artist
+    get:
+      description: Get artist with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Artist got
+          schema:
+            $ref: '#/definitions/models.ArtistTransfer'
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get Artist
+      tags:
+      - Artist
+  /api/artists/{artistID}/albums:
+    get:
+      description: All albums of artist with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Show albums
+          schema:
+            items:
+              $ref: '#/definitions/models.AlbumTransfer'
+            type: array
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Albums of Artist
+      tags:
+      - Artist
+  /api/artists/{artistID}/like:
+    post:
+      description: Set like by user to chosen artist (add to favorite)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like set
+          schema:
+            $ref: '#/definitions/http.artistLikeResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Set like
+      tags:
+      - Artist
+  /api/artists/{artistID}/tracks:
+    get:
+      description: All tracks of artist with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Show tracks
+          schema:
+            items:
+              $ref: '#/definitions/models.TrackTransfer'
+            type: array
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Tracks of Artist
+      tags:
+      - Artist
+  /api/artists/{artistID}/unlike:
+    post:
+      description: Remove like by user from chosen artist (remove from favorite)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like removed
+          schema:
+            $ref: '#/definitions/http.artistLikeResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Remove like
+      tags:
+      - Artist
+  /api/artists/feed:
+    get:
+      description: Feed artists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Artists feed
+          schema:
+            items:
+              $ref: '#/definitions/models.ArtistTransfer'
+            type: array
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Artist Feed
+      tags:
+      - Feed
   /api/auth/login:
     post:
       consumes:
       - application/json
-      description: login account
+      description: Login account
       parameters:
       - description: username and password
         in: body
         name: userInput
         required: true
         schema:
-          $ref: '#/definitions/delivery.loginInput'
+          $ref: '#/definitions/http.loginInput'
       produces:
       - application/json
       responses:
         "200":
           description: User created
           schema:
-            $ref: '#/definitions/delivery.loginResponse'
+            $ref: '#/definitions/http.loginResponse'
         "400":
           description: Incorrect input
           schema:
-            $ref: '#/definitions/delivery.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
-          description: Server DB error
+          description: Server error
           schema:
-            $ref: '#/definitions/delivery.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Sign In
       tags:
-      - auth
+      - Auth
   /api/auth/logout:
     get:
       consumes:
       - application/json
-      description: logout account
+      description: Logout account
       produces:
       - application/json
       responses:
         "200":
           description: User loged out
           schema:
-            $ref: '#/definitions/delivery.logoutResponse'
+            $ref: '#/definitions/http.logoutResponse'
         "400":
           description: Logout fail
           schema:
-            $ref: '#/definitions/delivery.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
-          description: Server DB error
+          description: Server error
           schema:
-            $ref: '#/definitions/delivery.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Log Out
       tags:
-      - auth
+      - Auth
   /api/auth/signup:
     post:
       consumes:
       - application/json
-      description: create account
+      description: Create account
       parameters:
-      - description: user info
+      - description: User info
         in: body
         name: user
         required: true
@@ -183,35 +684,373 @@ paths:
         "200":
           description: User created
           schema:
-            $ref: '#/definitions/delivery.signUpResponse'
+            $ref: '#/definitions/http.signUpResponse'
         "400":
           description: Incorrect input
           schema:
-            $ref: '#/definitions/delivery.errorResponse'
+            $ref: '#/definitions/http.Error'
         "500":
-          description: Server DB error
+          description: Server error
           schema:
-            $ref: '#/definitions/delivery.errorResponse'
+            $ref: '#/definitions/http.Error'
       summary: Sign Up
       tags:
-      - auth
-  /api/feed:
-    get:
+      - Auth
+  /api/tracks/:
+    post:
       consumes:
       - application/json
-      description: User's feed (Tracks, artists, albums)
+      description: Create new track by sent object
+      parameters:
+      - description: Track info
+        in: body
+        name: track
+        required: true
+        schema:
+          $ref: '#/definitions/http.trackCreateInput'
       produces:
       - application/json
       responses:
         "200":
-          description: Show feed
+          description: Track created
           schema:
-            $ref: '#/definitions/delivery.FeedResponse'
+            $ref: '#/definitions/http.trackCreateResponse'
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
         "500":
-          description: Server DB error
+          description: Server error
           schema:
-            $ref: '#/definitions/delivery.errorResponse'
-      summary: Main Page
+            $ref: '#/definitions/http.Error'
+      summary: Create Track
       tags:
-      - feed
+      - Track
+  /api/tracks/{trackID}/:
+    delete:
+      description: Delete track with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Track deleted
+          schema:
+            $ref: '#/definitions/http.trackDeleteResponse'
+        "400":
+          description: No such track
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Delete Track
+      tags:
+      - Track
+    get:
+      description: Get track with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Track got
+          schema:
+            $ref: '#/definitions/models.TrackTransfer'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get Track
+      tags:
+      - Track
+  /api/tracks/{trackID}/like:
+    post:
+      description: Set like by user to chosen track (add to favorite)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like set
+          schema:
+            $ref: '#/definitions/http.trackLikeResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Set like
+      tags:
+      - Track
+  /api/tracks/{trackID}/unlike:
+    post:
+      description: Remove like by user from chosen track (remove from favorite)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like removed
+          schema:
+            $ref: '#/definitions/http.trackLikeResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Remove like
+      tags:
+      - Track
+  /api/tracks/feed:
+    get:
+      description: Feed tracks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tracks feed
+          schema:
+            items:
+              $ref: '#/definitions/models.TrackTransfer'
+            type: array
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Track Feed
+      tags:
+      - Feed
+  /api/users/{userID}/:
+    get:
+      description: Get user with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User got
+          schema:
+            $ref: '#/definitions/models.UserTransfer'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: Forbidden user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get User
+      tags:
+      - User
+  /api/users/{userID}/albums:
+    get:
+      description: Get user's favorite albums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Albums got
+          schema:
+            items:
+              $ref: '#/definitions/models.AlbumTransfer'
+            type: array
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: Forbidden user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Favorite Albums
+      tags:
+      - User
+  /api/users/{userID}/artists:
+    get:
+      description: Get user's favorite artists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Artists got
+          schema:
+            items:
+              $ref: '#/definitions/models.ArtistTransfer'
+            type: array
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: Forbidden user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Favorite Artists
+      tags:
+      - User
+  /api/users/{userID}/avatar:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Update user avatar
+      parameters:
+      - description: Avatar file
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Avatar updated
+          schema:
+            $ref: '#/definitions/http.userUploadAvatarResponse'
+        "400":
+          description: Invalid form data
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User Unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Upload Avatar
+      tags:
+      - User
+  /api/users/{userID}/tracks:
+    get:
+      description: Get ser's avorite racks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tracks got
+          schema:
+            items:
+              $ref: '#/definitions/models.TrackTransfer'
+            type: array
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: Forbidden user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Favorite Tracks
+      tags:
+      - User
+  /api/users/{userID}/update:
+    post:
+      consumes:
+      - application/json
+      description: Update info about user
+      parameters:
+      - description: User info
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/http.userInfoInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User info updated
+          schema:
+            $ref: '#/definitions/http.userUploadAvatarResponse'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User Unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Update Info
+      tags:
+      - User
 swagger: "2.0"

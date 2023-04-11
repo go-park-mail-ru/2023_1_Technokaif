@@ -8,10 +8,10 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_DB: ${DBNAME}
-      POSTGRES_USER: ${DBUSER}
-      POSTGRES_PASSWORD: ${DBPASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - 5436:5432
     volumes:
-      - ./schema/:/docker-entrypoint-initdb.d
+      - ./cmd/app/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d
