@@ -3,7 +3,6 @@ package http
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
@@ -18,11 +17,9 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Lo
 	errorResp := Error{Message: msg}
 	message, err := json.Marshal(errorResp)
 	if err != nil {
-		logger.Errorf("failed to marshal error message: %s", err.Error())
+		logger.Errorf("failed to marshal error message: %v", err)
+		w.Write([]byte(`{"message": "can't encode error response into json"}`))
 		w.WriteHeader(http.StatusInternalServerError)
-		msgNoBreak := strings.ReplaceAll(msg, "\n", "\\n")
-		msgClear := strings.ReplaceAll(msgNoBreak, "\t", "\\t")
-		w.Write([]byte(`{"message": "can't encode error response into json, msg: ` + msgClear + `"}`))
 		return
 	}
 
