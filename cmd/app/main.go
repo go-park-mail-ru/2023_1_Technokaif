@@ -57,9 +57,13 @@ func main() {
 	router := app.Init(db, tables, logger)
 
 	var srv server.Server
+	if err := srv.Init(router); err != nil {
+		logger.Errorf("error while launching server: %v", err)
+	}
+
 	go func() {
-		if err := srv.Run(router, logger); err != nil {
-			logger.Errorf("error while launching server: %v", err)
+		if err := srv.Run(); err != nil {
+			logger.Errorf("server error: %v", err)
 			os.Exit(1)
 		}
 	}()
