@@ -26,7 +26,7 @@ func (m *Middleware) CheckCSRFToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, err := commonHttp.GetUserFromRequest(r)
 		if err != nil {
-			commonHttp.ErrorResponseWithErrLogging(w, "invalid acess token", http.StatusBadRequest, m.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, "invalid access token", http.StatusBadRequest, m.logger, err)
 			return
 		}
 

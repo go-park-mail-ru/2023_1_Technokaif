@@ -195,7 +195,7 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.tokenServices.GenerateAccessToken(user.ID, user.Version + 1)
+	token, err := h.tokenServices.GenerateAccessToken(user.ID, user.Version+1)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "server failed to generate new token", http.StatusInternalServerError, h.logger, err)
 		return
