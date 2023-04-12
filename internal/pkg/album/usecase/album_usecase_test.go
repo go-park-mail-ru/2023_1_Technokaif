@@ -25,7 +25,7 @@ func TestAlbumUsecaseCreate(t *testing.T) {
 
 	u := NewUsecase(alr, arr, l)
 
-	correctUserID := uint32(1)
+	var correctUserID uint32 = 1
 	correctArtists := []models.Artist{
 		{
 			ID:        1,

@@ -166,7 +166,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 	r.Get("/api/albums/{albumID}/", h.Get)
 
 	// Test filling
-	correctAlbumID := uint32(1)
+	const correctAlbumID uint32 = 1
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
 
 	description := "Антиутопия"
@@ -286,7 +286,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 	r := chi.NewRouter()
 	r.Delete("/api/albums/{albumID}/", h.Delete)
 
-	correctAlbumID := uint32(1)
+	const correctAlbumID uint32 = 1
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
 
 	testTable := []struct {
@@ -534,7 +534,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 	r := chi.NewRouter()
 	r.Get("/api/albums/{albumID}/like", h.Like)
 
-	correctAlbumID := uint32(1)
+	const correctAlbumID uint32 = 1
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
 
 	testTable := []struct {
@@ -631,7 +631,7 @@ func TestAlbumDeliveryUnLike(t *testing.T) {
 	r := chi.NewRouter()
 	r.Get("/api/albums/{albumID}/unlike", h.UnLike)
 
-	correctAlbumID := uint32(1)
+	const correctAlbumID uint32 = 1
 	correctAlbumIDPath := fmt.Sprint(correctAlbumID)
 
 	testTable := []struct {

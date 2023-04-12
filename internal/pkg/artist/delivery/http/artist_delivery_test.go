@@ -2,8 +2,8 @@ package http
 
 import (
 	"errors"
-	"net/http"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -135,7 +135,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 	r.Get("/api/artists/{artistID}/", h.Get)
 
 	// Test filling
-	correctArtistID := uint32(1)
+	const correctArtistID uint32 = 1
 	correctArtistIDPath := fmt.Sprint(correctArtistID)
 
 	expectedReturnArtist := models.Artist{
@@ -225,7 +225,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 	r.Delete("/api/artists/{artistID}/", h.Delete)
 
 	// Test filing
-	correctArtistID := uint32(1)
+	const correctArtistID uint32 = 1
 	correctArtistIDPath := fmt.Sprint(correctArtistID)
 
 	testTable := []struct {
@@ -439,7 +439,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 	r.Get("/api/artists/{artistID}/like", h.Like)
 
 	// Test filling
-	correctArtistID := uint32(1)
+	const correctArtistID uint32 = 1
 	correctArtistIDPath := fmt.Sprint(correctArtistID)
 
 	testTable := []struct {
@@ -536,7 +536,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 	r.Get("/api/artists/{artistID}/unlike", h.UnLike)
 
 	// Test filling
-	correctArtistID := uint32(1)
+	const correctArtistID uint32 = 1
 	correctArtistIDPath := fmt.Sprint(correctArtistID)
 
 	testTable := []struct {

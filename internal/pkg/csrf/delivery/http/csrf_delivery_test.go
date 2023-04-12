@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"errors"
+	"net/http"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -49,7 +50,7 @@ func TestDeliveryGetCSRF(t *testing.T) {
 			mockBehavior: func(t *tokenMocks.MockUsecase, u *models.User) {
 				t.EXPECT().GenerateCSRFToken(u.ID).Return(expectedDefaultCSRF, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"csrf": "` + expectedDefaultCSRF + `"}`,
 			doWrap:           true,
 		},
@@ -57,7 +58,7 @@ func TestDeliveryGetCSRF(t *testing.T) {
 			name:             "No user in request",
 			user:             nil,
 			mockBehavior:     func(t *tokenMocks.MockUsecase, u *models.User) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "invalid access token"}`,
 			doWrap:           false,
 		},
@@ -65,7 +66,7 @@ func TestDeliveryGetCSRF(t *testing.T) {
 			name:             "Nil user in request",
 			user:             nil,
 			mockBehavior:     func(t *tokenMocks.MockUsecase, u *models.User) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "invalid access token"}`,
 			doWrap:           true,
 		},
@@ -75,7 +76,7 @@ func TestDeliveryGetCSRF(t *testing.T) {
 			mockBehavior: func(t *tokenMocks.MockUsecase, u *models.User) {
 				t.EXPECT().GenerateCSRFToken(u.ID).Return(expectedDefaultCSRF, errors.New("server token error"))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "failed to get CSRF-token"}`,
 			doWrap:           true,
 		},

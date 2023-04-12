@@ -3,6 +3,7 @@ package http
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -19,7 +20,8 @@ var correctUser = models.User{
 	ID: 1,
 }
 
-var correctTrackID = uint32(1)
+const correctTrackID uint32 = 1
+
 var correctTrackIDPath = fmt.Sprint(correctTrackID)
 
 func TestTrackDeliveryCreate(t *testing.T) {
@@ -72,14 +74,14 @@ func TestTrackDeliveryCreate(t *testing.T) {
 					correctUser.ID,
 				).Return(uint32(1), nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"id": 1}`,
 		},
 		{
 			name:             "No User",
 			user:             nil,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
@@ -91,7 +93,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 				"cover": "/tracks/covers/hit.png"
 			}`,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
 		{
@@ -103,7 +105,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 				"cover": "/tracks/covers/hit.png"
 			}`,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
 		{
@@ -116,7 +118,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 				"cover": "/tracks/covers/gorgorod.png"
 			}`,
 			mockBehavior:     func(au *trackMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
 		{
@@ -130,7 +132,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 					correctUser.ID,
 				).Return(uint32(0), &models.ForbiddenUserError{})
 			},
-			expectedStatus:   403,
+			expectedStatus:   http.StatusForbidden,
 			expectedResponse: `{"message": "no rights to create track"}`,
 		},
 		{
@@ -144,7 +146,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 					correctUser.ID,
 				).Return(uint32(0), errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't create track"}`,
 		},
 	}
@@ -227,14 +229,14 @@ func TestTrackDeliveryGet(t *testing.T) {
 				tu.EXPECT().IsLiked(correctTrackID, correctUser.ID).Return(false, nil)
 				au.EXPECT().GetByTrack(correctTrackID).Return(expectedReturnArtists, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: correctResponse,
 		},
 		{
 			name:             "Incorrect ID In Path",
 			trackIDPath:      "-5",
 			mockBehavior:     func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
@@ -244,7 +246,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetByID(correctTrackID).Return(nil, &models.NoSuchTrackError{})
 			},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "no such track"}`,
 		},
 		{
@@ -254,7 +256,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetByID(correctTrackID).Return(nil, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't get track"}`,
 		},
 		{
@@ -265,7 +267,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 				tu.EXPECT().GetByID(correctTrackID).Return(&expectedReturnTrack, nil)
 				au.EXPECT().GetByTrack(correctTrackID).Return(nil, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't get track"}`,
 		},
 	}
@@ -317,14 +319,14 @@ func TestTrackDeliveryDelete(t *testing.T) {
 					correctUser.ID,
 				).Return(nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "ok"}`,
 		},
 		{
 			name:             "Incorrect ID In Path",
 			trackIDPath:      "incorrect",
 			mockBehavior:     func(au *trackMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
@@ -332,7 +334,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 			trackIDPath:      correctTrackIDPath,
 			user:             nil,
 			mockBehavior:     func(au *trackMocks.MockUsecase) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
@@ -345,7 +347,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 					correctUser.ID,
 				).Return(&models.ForbiddenUserError{})
 			},
-			expectedStatus:   403,
+			expectedStatus:   http.StatusForbidden,
 			expectedResponse: `{"message": "no rights to delete track"}`,
 		},
 		{
@@ -358,7 +360,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 					correctUser.ID,
 				).Return(&models.NoSuchTrackError{})
 			},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "no such track"}`,
 		},
 		{
@@ -371,7 +373,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 					correctUser.ID,
 				).Return(errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't delete track"}`,
 		},
 	}
@@ -491,7 +493,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(expectedReturnArtists[0:1], nil)
 				au.EXPECT().GetByTrack(expectedReturnTracks[1].ID).Return(expectedReturnArtists[1:3], nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: correctResponse,
 		},
 		{
@@ -499,7 +501,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetFeed().Return([]models.Track{}, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `[]`,
 		},
 		{
@@ -507,7 +509,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
 				tu.EXPECT().GetFeed().Return(nil, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't get tracks"}`,
 		},
 		{
@@ -516,7 +518,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 				tu.EXPECT().GetFeed().Return(expectedReturnTracks, nil)
 				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(nil, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't get tracks"}`,
 		},
 	}
@@ -565,7 +567,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(true, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "ok"}`,
 		},
 		{
@@ -575,7 +577,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "already liked"}`,
 		},
 		{
@@ -583,7 +585,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			trackIDPath:      "0",
 			user:             &correctUser,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
@@ -591,7 +593,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			trackIDPath:      correctTrackIDPath,
 			user:             nil,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
@@ -601,7 +603,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, &models.NoSuchTrackError{})
 			},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "no such track"}`,
 		},
 		{
@@ -611,7 +613,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().SetLike(correctTrackID, correctUser.ID).Return(false, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't set like"}`,
 		},
 	}
@@ -660,7 +662,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(true, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "ok"}`,
 		},
 		{
@@ -670,7 +672,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "wasn't liked"}`,
 		},
 		{
@@ -678,7 +680,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			trackIDPath:      "0",
 			user:             &correctUser,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
@@ -686,7 +688,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			trackIDPath:      correctTrackIDPath,
 			user:             nil,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
@@ -696,7 +698,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, &models.NoSuchTrackError{})
 			},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "no such track"}`,
 		},
 		{
@@ -706,7 +708,7 @@ func TestTrackDeliveryUnLike(t *testing.T) {
 			mockBehavior: func(tu *trackMocks.MockUsecase) {
 				tu.EXPECT().UnLike(correctTrackID, correctUser.ID).Return(false, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't remove like"}`,
 		},
 	}

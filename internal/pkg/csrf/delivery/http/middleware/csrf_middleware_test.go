@@ -53,7 +53,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			wrapUser:          false,
 			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
-			expectedStatus:    400,
+			expectedStatus:    http.StatusBadRequest,
 			expectedResponse:  `{"message": "invalid access token"}`,
 		},
 		{
@@ -64,7 +64,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			wrapUser:          true,
 			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
-			expectedStatus:    400,
+			expectedStatus:    http.StatusBadRequest,
 			expectedResponse:  `{"message": "invalid access token"}`,
 		},
 		{
@@ -77,7 +77,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 				t.EXPECT().CheckCSRFToken(token).Return(uint32(0), errors.New("invalid signing token"))
 			},
 			expectingResponse: true,
-			expectedStatus:    400,
+			expectedStatus:    http.StatusBadRequest,
 			expectedResponse:  `{"message": "invalid CSRF token"}`,
 		},
 		{
@@ -86,7 +86,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			wrapUser:          true,
 			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
-			expectedStatus:    400,
+			expectedStatus:    http.StatusBadRequest,
 			expectedResponse:  `{"message": "missing CSRF token"}`,
 		},
 		{
@@ -99,7 +99,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 				t.EXPECT().CheckCSRFToken(token).Return(uint32(0), nil)
 			},
 			expectingResponse: true,
-			expectedStatus:    400,
+			expectedStatus:    http.StatusBadRequest,
 			expectedResponse:  `{"message": "invalid CSRF token"}`,
 		},
 	}
@@ -119,7 +119,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 
 			r := chi.NewRouter()
 			r.With(h.CheckCSRFToken).Get("/csrf", func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(200)
+				w.WriteHeader(http.StatusOK)
 			})
 
 			// Init Test Request
@@ -133,7 +133,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 				assert.Equal(t, tc.expectedStatus, w.Code)
 				assert.JSONEq(t, tc.expectedResponse, w.Body.String())
 			} else {
-				assert.Equal(t, 200, w.Code)
+				assert.Equal(t, http.StatusOK, w.Code)
 			}
 		})
 	}

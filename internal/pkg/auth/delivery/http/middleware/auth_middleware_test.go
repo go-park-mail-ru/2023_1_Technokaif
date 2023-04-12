@@ -71,7 +71,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 			},
 			expectingUserInContext: false,
 			expectingResponse:      true,
-			expectedStatus:         400,
+			expectedStatus:         http.StatusBadRequest,
 			expectedResponse:       `{"message": "token check failed"}`,
 		},
 		{
@@ -86,7 +86,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 			},
 			expectingUserInContext: false,
 			expectingResponse:      true,
-			expectedStatus:         400,
+			expectedStatus:         http.StatusBadRequest,
 			expectedResponse:       `{"message": "auth data check failed"}`,
 		},
 		{
@@ -101,7 +101,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 			},
 			expectingUserInContext: false,
 			expectingResponse:      true,
-			expectedStatus:         500,
+			expectedStatus:         http.StatusInternalServerError,
 			expectedResponse:       `{"message": "server failed to check authorization"}`,
 		},
 	}

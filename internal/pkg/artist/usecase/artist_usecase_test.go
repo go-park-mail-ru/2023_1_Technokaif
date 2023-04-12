@@ -22,7 +22,7 @@ func TestArtistUsecaseCreate(t *testing.T) {
 
 	u := NewUsecase(au, l)
 
-	userID := uint32(1)
+	var userID uint32 = 1
 	correctArtist := models.Artist{
 		ID:        1,
 		UserID:    &userID,

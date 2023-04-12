@@ -23,8 +23,8 @@ const likedTracksTable = "Liked_tracks"
 
 var errPqInternal = errors.New("postgres is dead")
 
-var defaultTrackAlbumID1 = uint32(1)
-var defaultTrackAlbumID2 = uint32(2)
+var defaultTrackAlbumID1 uint32 = 1
+var defaultTrackAlbumID2 uint32 = 2
 var defaultTracks = []models.Track{
 	{
 		ID:        1,
@@ -63,8 +63,8 @@ func TestTrackRepositoryInsert(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	albumID := uint32(1)
-	AlbumPosition := uint32(1)
+	var albumID uint32 = 1
+	var AlbumPosition uint32 = 1
 
 	defaultTrackToIsert := models.Track{
 		Name:          "LAGG OUT",
@@ -192,8 +192,8 @@ func TestTrackRepositoryGetByID(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultTrackToGetID := uint32(1)
-	defaultTrackAlbumID := uint32(1)
+	var defaultTrackToGetID uint32 = 1
+	var defaultTrackAlbumID uint32 = 1
 
 	defaultTrack := models.Track{
 		ID:        defaultTrackToGetID,
@@ -291,7 +291,7 @@ func TestTrackRepositoryDeleteByID(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultTrackToDeleteID := uint32(1)
+	const defaultTrackToDeleteID uint32 = 1
 
 	testTable := []struct {
 		name            string
@@ -445,7 +445,7 @@ func TestTrackRepositoryGetByArtist(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultArtistID := uint32(1)
+	const defaultArtistID uint32 = 1
 
 	testTable := []struct {
 		name           string
@@ -541,9 +541,8 @@ func TestTrackRepositoryGetByAlbum(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultAlbumID := uint32(1)
-
-	defaultAlbumPosition := uint32(1)
+	const defaultAlbumID uint32 = 1
+	var defaultAlbumPosition uint32 = 1
 	for ind := range defaultTracks {
 		defaultTracks[ind].AlbumPosition = &defaultAlbumPosition
 	}
@@ -641,7 +640,7 @@ func TestTrackRepositoryGetLikedByUser(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultUserID := uint32(1)
+	const defaultUserID uint32 = 1
 
 	testTable := []struct {
 		name           string
@@ -742,8 +741,8 @@ func TestTrackRepositoryLike(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultTrackToLikeID := uint32(1)
-	defaultLikedUserID := uint32(1)
+	const defaultTrackToLikeID uint32 = 1
+	const defaultLikedUserID uint32 = 1
 
 	defaultLikeInfo := LikeInfo{
 		trackID: defaultTrackToLikeID,
