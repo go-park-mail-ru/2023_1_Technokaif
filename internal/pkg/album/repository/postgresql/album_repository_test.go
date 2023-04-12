@@ -12,9 +12,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 const albumTable = "Albums"

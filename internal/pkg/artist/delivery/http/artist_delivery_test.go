@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
-	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
+	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
 )
 
 var correctUser = models.User{
@@ -512,7 +512,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(au)
 
-			commonTests.DeliveryTestGet(t, r,  "/api/artists/"+tc.artistIDPath+"/like", tc.expectedStatus, tc.expectedResponse,
+			commonTests.DeliveryTestGet(t, r, "/api/artists/"+tc.artistIDPath+"/like", tc.expectedStatus, tc.expectedResponse,
 				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
@@ -609,7 +609,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(au)
 
-			commonTests.DeliveryTestGet(t, r,  "/api/artists/"+tc.artistIDPath+"/unlike", tc.expectedStatus, tc.expectedResponse,
+			commonTests.DeliveryTestGet(t, r, "/api/artists/"+tc.artistIDPath+"/unlike", tc.expectedStatus, tc.expectedResponse,
 				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}

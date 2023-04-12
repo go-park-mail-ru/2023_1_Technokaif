@@ -12,9 +12,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 const usersTable = "Users"

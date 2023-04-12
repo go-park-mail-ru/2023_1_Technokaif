@@ -1,9 +1,9 @@
 package tests
 
 import (
-	"net/http"
 	"context"
-	
+	"net/http"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 

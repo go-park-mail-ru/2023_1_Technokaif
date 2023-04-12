@@ -1,19 +1,19 @@
 package middleware
 
 import (
+	"errors"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"errors"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
@@ -47,25 +47,25 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			expectingResponse: false,
 		},
 		{
-			name:          "No user in context",
-			csrfHeader:    csrfTokenHttpHeader,
-			csrfToken:     "token",
-			wrapUser:      false,
-			mockBehavior: func(t *tokenMocks.MockUsecase, token string) {},
+			name:              "No user in context",
+			csrfHeader:        csrfTokenHttpHeader,
+			csrfToken:         "token",
+			wrapUser:          false,
+			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
-			expectedStatus: 400,
-			expectedResponse: `{"message": "invalid access token"}`,
+			expectedStatus:    400,
+			expectedResponse:  `{"message": "invalid access token"}`,
 		},
 		{
-			name:          "Nil user in context",
-			csrfHeader:    csrfTokenHttpHeader,
-			csrfToken:     "token",
-			userInRequest: nil,
-			wrapUser:      true,
-			mockBehavior: func(t *tokenMocks.MockUsecase, token string) {},
+			name:              "Nil user in context",
+			csrfHeader:        csrfTokenHttpHeader,
+			csrfToken:         "token",
+			userInRequest:     nil,
+			wrapUser:          true,
+			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
-			expectedStatus: 400,
-			expectedResponse: `{"message": "invalid access token"}`,
+			expectedStatus:    400,
+			expectedResponse:  `{"message": "invalid access token"}`,
 		},
 		{
 			name:          "Invalid token",
@@ -77,17 +77,17 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 				t.EXPECT().CheckCSRFToken(token).Return(uint32(0), errors.New("invalid signing token"))
 			},
 			expectingResponse: true,
-			expectedStatus: 400,
-			expectedResponse: `{"message": "invalid CSRF token"}`,
+			expectedStatus:    400,
+			expectedResponse:  `{"message": "invalid CSRF token"}`,
 		},
 		{
-			name:          "Missing token",
-			userInRequest: correctTestUser,
-			wrapUser:      true,
-			mockBehavior: func(t *tokenMocks.MockUsecase, token string) {},
+			name:              "Missing token",
+			userInRequest:     correctTestUser,
+			wrapUser:          true,
+			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
-			expectedStatus: 400,
-			expectedResponse: `{"message": "missing CSRF token"}`,
+			expectedStatus:    400,
+			expectedResponse:  `{"message": "missing CSRF token"}`,
 		},
 		{
 			name:          "Incorrect token payload userID",
@@ -99,8 +99,8 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 				t.EXPECT().CheckCSRFToken(token).Return(uint32(0), nil)
 			},
 			expectingResponse: true,
-			expectedStatus: 400,
-			expectedResponse: `{"message": "invalid CSRF token"}`,
+			expectedStatus:    400,
+			expectedResponse:  `{"message": "invalid CSRF token"}`,
 		},
 	}
 

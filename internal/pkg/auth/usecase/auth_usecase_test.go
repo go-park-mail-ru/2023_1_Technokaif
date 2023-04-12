@@ -7,10 +7,10 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestUsecaseAuthCreateUser(t *testing.T) {

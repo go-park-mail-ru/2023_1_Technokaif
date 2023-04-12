@@ -7,9 +7,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestDeliveryGetCSRF(t *testing.T) {

@@ -13,10 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
 func TestAuthDeliveryAuthorization(t *testing.T) {

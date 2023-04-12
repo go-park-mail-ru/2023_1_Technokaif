@@ -38,7 +38,7 @@ type logoutResponse struct {
 
 // ChangePassword
 type changePassInput struct {
-	OldPassword string `json:"oldPassword"` 
+	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword" valid:"required,runelength(8|30),passwordcheck"`
 }
 

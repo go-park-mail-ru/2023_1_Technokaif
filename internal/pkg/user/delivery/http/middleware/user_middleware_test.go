@@ -8,8 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
 var correctUser = models.User{
