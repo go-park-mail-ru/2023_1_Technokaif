@@ -22,9 +22,8 @@ import (
 
 func getCorrectUser(t *testing.T) *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
-	if err != nil {
-		require.NoError(t, err, "can't Parse birth date")
-	}
+	require.NoError(t, err, "can't Parse birth date")
+
 	birthDate := models.Date{Time: birthTime}
 
 	return &models.User{
@@ -41,9 +40,8 @@ func getCorrectUser(t *testing.T) *models.User {
 
 func getCorrectUserInfo(t *testing.T) *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
-	if err != nil {
-		require.NoError(t, err, "can't Parse birth date")
-	}
+	require.NoError(t, err, "can't Parse birth date")
+	
 	birthDate := models.Date{Time: birthTime}
 
 	return &models.User{

@@ -68,9 +68,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	u, err := defaultUser()
-	if err != nil {
-		require.NoError(t, err, "can't create default user")
-	}
+	require.NoError(t, err, "can't create default user")
 
 	testTable := []struct {
 		name          string
