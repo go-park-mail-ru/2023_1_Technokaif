@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 )
@@ -37,12 +38,12 @@ func InitPaths() error {
 		return errors.New("RECORDS_FOLDER isn't set")
 	}
 
-	var dirForUserAvatars = mediaPath + avatarsFolder
+	var dirForUserAvatars = filepath.Join(mediaPath, avatarsFolder)
 	if err := os.MkdirAll(dirForUserAvatars, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir to save avatars: %w", err)
 	}
 
-	var dirForTracks = mediaPath + recordsFolder
+	var dirForTracks = filepath.Join(mediaPath, recordsFolder)
 	if err := os.MkdirAll(dirForTracks, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir for tracks: %w", err)
 	}

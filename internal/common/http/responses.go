@@ -17,9 +17,9 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Lo
 	errorResp := Error{Message: msg}
 	message, err := json.Marshal(errorResp)
 	if err != nil {
-		logger.Errorf("failed to marshal error message: %s", err.Error())
+		logger.Errorf("failed to marshal error message: %v", err)
+		w.Write([]byte(`{"message": "can't encode error response into json"}`))
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message": "can't encode error response into json, msg: ` + msg + `"}`))
 		return
 	}
 

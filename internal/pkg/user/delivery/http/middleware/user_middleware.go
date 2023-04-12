@@ -8,12 +8,12 @@ import (
 )
 
 type Middleware struct {
-	logger        logger.Logger
+	logger logger.Logger
 }
 
 func NewMiddleware(l logger.Logger) *Middleware {
 	return &Middleware{
-		logger:        l,
+		logger: l,
 	}
 }
 

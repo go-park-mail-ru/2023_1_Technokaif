@@ -28,11 +28,18 @@ func NewPostgreSQL(db *sqlx.DB, t album.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (uint32, error) {
+func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (_ uint32, err error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 
 	insertAlbumQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
@@ -42,7 +49,6 @@ func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (uint32, err
 	var albumID uint32
 	row := tx.QueryRow(insertAlbumQuery, album.Name, album.Description, album.CoverSrc)
 	if err := row.Scan(&albumID); err != nil {
-		tx.Rollback()
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -53,12 +59,9 @@ func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (uint32, err
 
 	for _, artistID := range artistsID {
 		if _, err := tx.Exec(insertAlbumArtistsQuery, artistID, albumID); err != nil {
-			tx.Rollback()
 			return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 		}
 	}
-
-	tx.Commit()
 
 	return albumID, nil
 }
