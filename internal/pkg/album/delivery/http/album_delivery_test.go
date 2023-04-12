@@ -511,8 +511,8 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu, aru)
 
-			commonTests.DeliveryTestGet(t, r, "/api/albums/feed", tc.expectedStatus, tc.expectedResponse, 
-				func(req *http.Request) *http.Request {return req})
+			commonTests.DeliveryTestGet(t, r, "/api/albums/feed", tc.expectedStatus, tc.expectedResponse,
+				func(req *http.Request) *http.Request { return req })
 		})
 	}
 }
