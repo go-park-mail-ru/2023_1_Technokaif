@@ -27,7 +27,7 @@ func TestTrackUsecaseCreate(t *testing.T) {
 
 	u := NewUsecase(tr, arr, alr, l)
 
-	correctUserID := uint32(1)
+	var correctUserID uint32 = 1
 	correctArtists := []models.Artist{
 		{
 			ID:        1,

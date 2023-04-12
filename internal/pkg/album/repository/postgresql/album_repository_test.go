@@ -165,7 +165,7 @@ func TestAlbumRepositoryGetByID(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultAlbumToGetID := uint32(1)
+	const defaultAlbumToGetID uint32 = 1
 
 	description := "Антиутопия"
 	defaultAlbum := models.Album{
@@ -262,7 +262,7 @@ func TestAlbumRepositoryDeleteByID(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultAlbumToDeleteID := uint32(1)
+	const defaultAlbumToDeleteID uint32 = 1
 
 	testTable := []struct {
 		name            string
@@ -433,7 +433,7 @@ func TestAlbumRepositoryGetByArtist(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultArtistID := uint32(1)
+	const defaultArtistID uint32 = 1
 
 	descriptionID1 := "Антиутопия"
 	descriptionID2 := "Грайм из Лондона"
@@ -546,7 +546,7 @@ func TestAlbumRepositoryGetByTrack(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultTrackID := uint32(1)
+	const defaultTrackID uint32 = 1
 
 	description := "Антиутопия"
 	defaultAlbum := models.Album{
@@ -649,7 +649,7 @@ func TestAlbumRepositoryGetLikedByUser(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultUserID := uint32(1)
+	const defaultUserID uint32 = 1
 
 	descriptionID1 := "Антиутопия"
 	descriptionID2 := "Грайм из Лондона"
@@ -767,8 +767,8 @@ func TestAlbumRepositoryLike(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultAlbumToLikeID := uint32(1)
-	defaultLikedUserID := uint32(1)
+	const defaultAlbumToLikeID uint32 = 1
+	const defaultLikedUserID uint32 = 1
 
 	defaultLikeInfo := LikeInfo{
 		albumID: defaultAlbumToLikeID,

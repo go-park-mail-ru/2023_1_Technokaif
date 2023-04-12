@@ -43,7 +43,7 @@ func TestArtistRepositoryInsert(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultUserOfArtistID := uint32(1)
+	var defaultUserOfArtistID uint32 = 1
 
 	defaultArtistToIsert := models.Artist{
 		Name:      "Oxxxymiron",
@@ -125,7 +125,7 @@ func TestArtistRepositoryGetByID(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultArtistToGetID := uint32(1)
+	const defaultArtistToGetID uint32 = 1
 
 	defaultArtist := models.Artist{
 		ID:        defaultArtistToGetID,
@@ -220,7 +220,7 @@ func TestArtistRepositoryDeleteByID(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultArtistToDeleteID := uint32(1)
+	const defaultArtistToDeleteID uint32 = 1
 
 	testTable := []struct {
 		name             string
@@ -387,7 +387,7 @@ func TestArtistRepositoryGetByAlbum(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultAlbumID := uint32(1)
+	const defaultAlbumID uint32 = 1
 
 	defaultArtists := []models.Artist{
 		{
@@ -496,7 +496,7 @@ func TestArtistRepositoryGetByTrack(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultTrackID := uint32(1)
+	const defaultTrackID uint32 = 1
 
 	defaultArtists := []models.Artist{
 		{
@@ -605,7 +605,7 @@ func TestArtistRepositoryGetLikedByUser(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultUserID := uint32(1)
+	const defaultUserID uint32 = 1
 
 	defaultArtists := []models.Artist{
 		{
@@ -719,8 +719,8 @@ func TestArtistRepositoryLike(t *testing.T) {
 	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
 
 	// Test filling
-	defaultArtistToLikeID := uint32(1)
-	defaultLikedUserID := uint32(1)
+	const defaultArtistToLikeID uint32 = 1
+	const defaultLikedUserID uint32 = 1
 
 	defaultLikeInfo := LikeInfo{
 		artistID: defaultArtistToLikeID,
