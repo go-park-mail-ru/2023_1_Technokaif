@@ -2,6 +2,7 @@ package http
 
 import (
 	"errors"
+	"net/http"
 	"fmt"
 	"testing"
 
@@ -63,14 +64,14 @@ func TestArtistDeliveryCreate(t *testing.T) {
 					expectedCallArtist,
 				).Return(uint32(1), nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"id": 1}`,
 		},
 		{
 			name:             "No User",
 			user:             nil,
 			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
@@ -81,7 +82,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 				"cover": "/artists/covers/yarik.png"
 			}`,
 			mockBehavior:     func(tu *artistMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
 		{
@@ -89,7 +90,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 			user:             &correctUser,
 			requestBody:      `{"name": "YARIK"}`,
 			mockBehavior:     func(tu *artistMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "incorrect input body"}`,
 		},
 		{
@@ -101,7 +102,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 					expectedCallArtist,
 				).Return(uint32(0), errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't create artist"}`,
 		},
 	}
@@ -164,14 +165,14 @@ func TestArtistDeliveryGet(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetByID(correctArtistID).Return(&expectedReturnArtist, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: correctResponse,
 		},
 		{
 			name:             "Incorrect ID In Path",
 			artistIDPath:     "0",
 			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
@@ -181,7 +182,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetByID(correctArtistID).Return(nil, &models.NoSuchArtistError{})
 			},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "no such artist"}`,
 		},
 		{
@@ -191,7 +192,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetByID(correctArtistID).Return(nil, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't get artist"}`,
 		},
 	}
@@ -245,14 +246,14 @@ func TestArtistDeliveryDelete(t *testing.T) {
 					correctUser.ID,
 				).Return(nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "ok"}`,
 		},
 		{
 			name:             "Incorrect ID In Path",
 			artistIDPath:     "incorrect",
 			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
@@ -260,7 +261,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 			artistIDPath:     correctArtistIDPath,
 			user:             nil,
 			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
@@ -273,7 +274,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 					correctUser.ID,
 				).Return(&models.ForbiddenUserError{})
 			},
-			expectedStatus:   403,
+			expectedStatus:   http.StatusForbidden,
 			expectedResponse: `{"message": "no rights to delete artist"}`,
 		},
 		{
@@ -286,7 +287,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 					correctUser.ID,
 				).Return(&models.NoSuchArtistError{})
 			},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "no such artist"}`,
 		},
 		{
@@ -299,7 +300,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 					correctUser.ID,
 				).Return(errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't delete artist"}`,
 		},
 	}
@@ -389,7 +390,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetFeed().Return(expectedReturnArtists, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: correctResponse,
 		},
 		{
@@ -397,7 +398,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetFeed().Return([]models.Artist{}, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `[]`,
 		},
 		{
@@ -405,7 +406,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().GetFeed().Return(nil, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't get artists"}`,
 		},
 	}
@@ -456,7 +457,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctArtistID, correctUser.ID).Return(true, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "ok"}`,
 		},
 		{
@@ -466,7 +467,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctArtistID, correctUser.ID).Return(false, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "already liked"}`,
 		},
 		{
@@ -474,7 +475,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			artistIDPath:     "0",
 			user:             &correctUser,
 			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
@@ -482,7 +483,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			artistIDPath:     correctArtistIDPath,
 			user:             nil,
 			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
@@ -492,7 +493,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctArtistID, correctUser.ID).Return(false, &models.NoSuchArtistError{})
 			},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "no such artist"}`,
 		},
 		{
@@ -502,7 +503,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().SetLike(correctArtistID, correctUser.ID).Return(false, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't set like"}`,
 		},
 	}
@@ -553,7 +554,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctArtistID, correctUser.ID).Return(true, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "ok"}`,
 		},
 		{
@@ -563,7 +564,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctArtistID, correctUser.ID).Return(false, nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"status": "wasn't liked"}`,
 		},
 		{
@@ -571,7 +572,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			artistIDPath:     "0",
 			user:             &correctUser,
 			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "invalid url parameter"}`,
 		},
 		{
@@ -579,7 +580,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			artistIDPath:     correctArtistIDPath,
 			user:             nil,
 			mockBehavior:     func(au *artistMocks.MockUsecase) {},
-			expectedStatus:   401,
+			expectedStatus:   http.StatusUnauthorized,
 			expectedResponse: `{"message": "unathorized"}`,
 		},
 		{
@@ -589,7 +590,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctArtistID, correctUser.ID).Return(false, &models.NoSuchArtistError{})
 			},
-			expectedStatus:   400,
+			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: `{"message": "no such artist"}`,
 		},
 		{
@@ -599,7 +600,7 @@ func TestArtistDeliveryUnLike(t *testing.T) {
 			mockBehavior: func(au *artistMocks.MockUsecase) {
 				au.EXPECT().UnLike(correctArtistID, correctUser.ID).Return(false, errors.New(""))
 			},
-			expectedStatus:   500,
+			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: `{"message": "can't remove like"}`,
 		},
 	}

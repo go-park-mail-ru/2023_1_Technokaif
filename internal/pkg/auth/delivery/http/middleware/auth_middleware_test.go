@@ -149,7 +149,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 				assert.Equal(t, tc.expectedStatus, w.Code)
 				assert.JSONEq(t, tc.expectedResponse, w.Body.String())
 			} else {
-				assert.Equal(t, 200, w.Code)
+				assert.Equal(t, http.StatusOK, w.Code)
 			}
 		})
 	}

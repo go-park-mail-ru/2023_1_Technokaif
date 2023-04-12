@@ -11,6 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -68,7 +69,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 
 	u, err := defaultUser()
 	if err != nil {
-		t.Errorf("can't create default user: %v", err)
+		require.NoError(t, err, "can't create default user")
 	}
 
 	testTable := []struct {

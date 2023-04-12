@@ -32,7 +32,7 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	if err != nil {
-		t.Errorf("can't Parse birth date: %v", err)
+		t.Fatalf("can't Parse birth date: %v", err)
 	}
 	birthDate := models.Date{Time: birthTime}
 

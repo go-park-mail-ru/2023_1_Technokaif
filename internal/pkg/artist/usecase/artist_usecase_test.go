@@ -62,6 +62,7 @@ func TestArtistUsecaseCreate(t *testing.T) {
 			if tc.expectError {
 				assert.Error(t, err)
 			} else {
+				assert.NoError(t, err)
 				assert.Equal(t, correctArtist.ID, artistID)
 			}
 		})

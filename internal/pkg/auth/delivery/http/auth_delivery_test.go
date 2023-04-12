@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
 	"testing"
 	"time"
 
@@ -71,7 +72,7 @@ func TestDeliverySignUp(t *testing.T) {
 			mockBehavior: func(a *authMocks.MockUsecase, u models.User) {
 				a.EXPECT().SignUpUser(u).Return(uint32(1), nil)
 			},
-			expectedStatus:   200,
+			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"id": 1}`,
 		},
 		{
@@ -178,7 +179,7 @@ func TestDeliveryLogin(t *testing.T) {
 				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(user, nil)
 				t.EXPECT().GenerateAccessToken(user.ID, user.Version).Return("token", nil)
 			},
-			expectedStatus:      200,
+			expectedStatus:      http.StatusOK,
 			expectedResponse:    fmt.Sprintf(`{"id": %d}`, randomUserID),
 			expectingCookie:     true,
 			expectedCookieValue: "token",

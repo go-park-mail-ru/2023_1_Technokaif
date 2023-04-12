@@ -166,8 +166,8 @@ func TestTrackRepositoryInsert(t *testing.T) {
 			if tc.expectError {
 				assert.ErrorIs(t, err, tc.expectedError)
 			} else {
-				assert.Equal(t, id, tc.expectedID)
 				assert.NoError(t, err)
+				assert.Equal(t, id, tc.expectedID)
 			}
 		})
 	}
@@ -265,8 +265,8 @@ func TestTrackRepositoryGetByID(t *testing.T) {
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedError.Error())
 			} else {
-				assert.Equal(t, tc.expectedTrack, *tr)
 				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedTrack, *tr)
 			}
 		})
 	}
@@ -419,8 +419,8 @@ func TestTrackRepositoryGetFeed(t *testing.T) {
 			if tc.expectError {
 				assert.ErrorAs(t, err, &tc.expectedError)
 			} else {
-				assert.Equal(t, tc.expectedTracks, tr)
 				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedTracks, tr)
 			}
 		})
 	}
@@ -515,8 +515,8 @@ func TestTrackRepositoryGetByArtist(t *testing.T) {
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedError.Error())
 			} else {
-				assert.Equal(t, tc.expectedTracks, a)
 				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedTracks, a)
 			}
 		})
 	}
@@ -616,8 +616,8 @@ func TestTrackRepositoryGetByAlbum(t *testing.T) {
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedError.Error())
 			} else {
-				assert.Equal(t, tc.expectedTracks, tr)
 				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedTracks, tr)
 			}
 		})
 	}
@@ -711,8 +711,8 @@ func TestTrackRepositoryGetLikedByUser(t *testing.T) {
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedError.Error())
 			} else {
-				assert.Equal(t, tc.expectedTracks, tr)
 				assert.NoError(t, err)
+				assert.Equal(t, tc.expectedTracks, tr)
 			}
 		})
 	}
