@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -32,7 +33,7 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	if err != nil {
-		t.Fatalf("can't Parse birth date: %v", err)
+		require.NoError(t, err, "can't Parse birth date")
 	}
 	birthDate := models.Date{Time: birthTime}
 

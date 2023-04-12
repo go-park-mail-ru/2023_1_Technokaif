@@ -124,6 +124,7 @@ func TestTrackUsecaseCreate(t *testing.T) {
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedErrorMsg)
 			} else {
+				assert.NoError(t, err)
 				assert.Equal(t, albumID, tc.album.ID)
 			}
 		})
