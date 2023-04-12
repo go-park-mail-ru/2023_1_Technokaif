@@ -3,12 +3,12 @@ package http
 import (
 	"errors"
 	"fmt"
-	"log"
 	"testing"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/require"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
@@ -19,10 +19,10 @@ import (
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
 )
 
-func getCorrectUser() *models.User {
+func getCorrectUser(t *testing.T) *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	if err != nil {
-		log.Fatalf("can't Parse birth date: %v", err)
+		require.NoError(t, err, "can't Parse birth date")
 	}
 	birthDate := models.Date{Time: birthTime}
 
@@ -38,10 +38,10 @@ func getCorrectUser() *models.User {
 	}
 }
 
-func getCorrectUserInfo() *models.User {
+func getCorrectUserInfo(t *testing.T) *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	if err != nil {
-		log.Fatalf("can't Parse birth date: %v", err)
+		require.NoError(t, err, "can't Parse birth date")
 	}
 	birthDate := models.Date{Time: birthTime}
 
@@ -98,7 +98,7 @@ func TestUserDeliveryGet(t *testing.T) {
 		{
 			name:             "Common",
 			userIDPath:       correctUserIDPath,
-			user:             getCorrectUser(),
+			user:             getCorrectUser(t),
 			expectedStatus:   200,
 			expectedResponse: correctResponse,
 		},
@@ -164,7 +164,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 		{
 			name:        "Common",
 			userIDPath:  correctUserIDPath,
-			user:        getCorrectUserInfo(),
+			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
 				uu.EXPECT().UpdateInfo(user).Return(nil)
@@ -175,7 +175,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 		{
 			name:             "Incorrect Body",
 			userIDPath:       correctUserIDPath,
-			user:             getCorrectUserInfo(),
+			user:             getCorrectUserInfo(t),
 			requestBody:      `{"id": 1`,
 			mockBehavior:     func(uu *userMocks.MockUsecase, user *models.User) {},
 			expectedStatus:   400,
@@ -184,7 +184,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 		{
 			name:        "No Such User",
 			userIDPath:  correctUserIDPath,
-			user:        getCorrectUserInfo(),
+			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
 				uu.EXPECT().UpdateInfo(user).Return(&models.NoSuchUserError{})
@@ -195,7 +195,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 		{
 			name:        "Server Error",
 			userIDPath:  correctUserIDPath,
-			user:        getCorrectUserInfo(),
+			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
 				uu.EXPECT().UpdateInfo(user).Return(errors.New(""))
@@ -310,7 +310,7 @@ func TestUserDeliveryGetFavoriteTracks(t *testing.T) {
 	}{
 		{
 			name: "Common",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
 				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
 				for ind, track := range expectedReturnTracks {
@@ -323,7 +323,7 @@ func TestUserDeliveryGetFavoriteTracks(t *testing.T) {
 		},
 		{
 			name: "Tracks Issue",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
 				tu.EXPECT().GetLikedByUser(userID).Return(nil, errors.New(""))
 			},
@@ -332,7 +332,7 @@ func TestUserDeliveryGetFavoriteTracks(t *testing.T) {
 		},
 		{
 			name: "Artists Issue",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
 				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
 				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(nil, errors.New(""))
@@ -342,7 +342,7 @@ func TestUserDeliveryGetFavoriteTracks(t *testing.T) {
 		},
 		{
 			name: "Likes Issue",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
 				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
 				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(expectedReturnArtists[0:1], nil)
@@ -454,7 +454,7 @@ func TestUserDeliveryGetFavoriteAlbums(t *testing.T) {
 	}{
 		{
 			name: "Common",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(alu *albumMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
 				alu.EXPECT().GetLikedByUser(userID).Return(expectedReturnAlbums, nil)
 				for ind, track := range expectedReturnAlbums {
@@ -466,7 +466,7 @@ func TestUserDeliveryGetFavoriteAlbums(t *testing.T) {
 		},
 		{
 			name: "Albums Issue",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(alu *albumMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
 				alu.EXPECT().GetLikedByUser(userID).Return(nil, errors.New(""))
 			},
@@ -475,7 +475,7 @@ func TestUserDeliveryGetFavoriteAlbums(t *testing.T) {
 		},
 		{
 			name: "Artists Issue",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(alu *albumMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
 				alu.EXPECT().GetLikedByUser(userID).Return(expectedReturnAlbums, nil)
 				au.EXPECT().GetByAlbum(expectedReturnAlbums[0].ID).Return(nil, errors.New(""))
@@ -553,7 +553,7 @@ func TestUserDeliveryGetFavoriteArtists(t *testing.T) {
 	}{
 		{
 			name: "Common",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(au *artistMocks.MockUsecase, userID uint32) {
 				au.EXPECT().GetLikedByUser(userID).Return(expectedReturnArtists, nil)
 			},
@@ -562,7 +562,7 @@ func TestUserDeliveryGetFavoriteArtists(t *testing.T) {
 		},
 		{
 			name: "Artists Issue",
-			user: getCorrectUser(),
+			user: getCorrectUser(t),
 			mockBehavior: func(au *artistMocks.MockUsecase, userID uint32) {
 				au.EXPECT().GetLikedByUser(userID).Return(nil, errors.New(""))
 			},

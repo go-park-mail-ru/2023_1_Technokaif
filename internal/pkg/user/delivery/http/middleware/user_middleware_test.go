@@ -12,10 +12,6 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
-var correctUser = models.User{
-	ID: 1,
-}
-
 func TestUserDeliveryCheckUserAuthAndResponse(t *testing.T) {
 	c := gomock.NewController(t)
 
@@ -25,8 +21,10 @@ func TestUserDeliveryCheckUserAuthAndResponse(t *testing.T) {
 
 	r := chi.NewRouter()
 
-	correctUserID := uint32(1)
-	correctUserIDPath := fmt.Sprint(correctUserID)
+	correctUser := models.User{
+		ID: 1,
+	}
+	correctUserIDPath := fmt.Sprint(correctUser.ID)
 
 	testTable := []struct {
 		name             string

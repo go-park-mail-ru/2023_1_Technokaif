@@ -14,21 +14,24 @@ type Wrapper func(req *http.Request) *http.Request
 
 func DeliveryTestPost(t *testing.T, r *chi.Mux, target string, requestBody string, expectedStatus int, expectedJSONResponse string,
 	wrapper Wrapper) *httptest.ResponseRecorder {
-
+	
+	t.Helper()
 	req := httptest.NewRequest("POST", target, bytes.NewBufferString(requestBody))
 	return deliveryTest(t, r, req, expectedStatus, expectedJSONResponse, wrapper)
 }
 
 func DeliveryTestGet(t *testing.T, r *chi.Mux, target string, expectedStatus int, expectedJSONResponse string,
 	wrapper Wrapper) *httptest.ResponseRecorder {
-
+	
+	t.Helper()
 	req := httptest.NewRequest("GET", target, nil)
 	return deliveryTest(t, r, req, expectedStatus, expectedJSONResponse, wrapper)
 }
 
 func DeliveryTestDelete(t *testing.T, r *chi.Mux, target string, expectedStatus int, expectedJSONResponse string,
 	wrapper Wrapper) *httptest.ResponseRecorder {
-
+	
+	t.Helper()	
 	req := httptest.NewRequest("DELETE", target, nil)
 	return deliveryTest(t, r, req, expectedStatus, expectedJSONResponse, wrapper)
 }
