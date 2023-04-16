@@ -54,7 +54,7 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func UserTransferFromUser(user User) UserTransfer {
+func UserTransferFromEntry(user User) UserTransfer {
 	return UserTransfer{
 		ID:        user.ID,
 		Username:  user.Username,
@@ -65,4 +65,13 @@ func UserTransferFromUser(user User) UserTransfer {
 		BirhDate:  user.BirthDate,
 		AvatarSrc: user.AvatarSrc,
 	}
+}
+
+func UserTransferFromQuery(users []User) []UserTransfer {
+	userTransfers := make([]UserTransfer, 0, len(users))
+	for _, u := range users {
+		userTransfers = append(userTransfers, UserTransferFromEntry(u))
+	}
+
+	return userTransfers
 }

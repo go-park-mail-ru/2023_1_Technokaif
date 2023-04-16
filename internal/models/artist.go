@@ -13,20 +13,6 @@ type ArtistTransfer struct {
 	AvatarSrc string `json:"cover"`
 }
 
-// ArtistTransferFromQuery converts []Artist to []ArtistTransfer
-func ArtistTransferFromQuery(artists []Artist) []ArtistTransfer {
-	at := make([]ArtistTransfer, 0, len(artists))
-	for _, a := range artists {
-		at = append(at, ArtistTransfer{
-			ID:        a.ID,
-			Name:      a.Name,
-			AvatarSrc: a.AvatarSrc,
-		})
-	}
-
-	return at
-}
-
 // ArtistTransferFromEntry converts Artist to ArtistTransfer
 func ArtistTransferFromEntry(artist Artist) ArtistTransfer {
 	return ArtistTransfer{
@@ -34,4 +20,14 @@ func ArtistTransferFromEntry(artist Artist) ArtistTransfer {
 		Name:      artist.Name,
 		AvatarSrc: artist.AvatarSrc,
 	}
+}
+
+// ArtistTransferFromQuery converts []Artist to []ArtistTransfer
+func ArtistTransferFromQuery(artists []Artist) []ArtistTransfer {
+	artistTransfers := make([]ArtistTransfer, 0, len(artists))
+	for _, a := range artists {
+		artistTransfers = append(artistTransfers, ArtistTransferFromEntry(a))
+	}
+
+	return artistTransfers
 }

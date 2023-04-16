@@ -50,7 +50,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ut := models.UserTransferFromUser(*user)
+	ut := models.UserTransferFromEntry(*user)
 
 	commonHttp.SuccessResponse(w, ut, h.logger)
 }

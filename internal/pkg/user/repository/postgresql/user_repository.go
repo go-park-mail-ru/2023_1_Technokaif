@@ -132,3 +132,29 @@ func (p *PostgreSQL) UpdateInfo(u *models.User) error {
 
 	return nil
 }
+
+func (p *PostgreSQL) GetByPlaylist(playlistID uint32) ([]models.User, error) {
+	query := fmt.Sprintf(
+		`SELECT id,
+				username,
+				email,
+				first_name,
+				last_name,
+				sex,
+				birth_date
+		FROM %s u
+			INNER JOIN %s up ON u.ID == up.user_id
+		WHERE up.playlist_id = $1;`,
+		p.tables.Users(), p.tables.UsersPlaylists())
+
+	var users []models.User
+	if err := p.db.Select(&users, query, playlistID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchPlaylistError{PlaylistID: playlistID}, err)
+		}
+
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return users, nil
+}

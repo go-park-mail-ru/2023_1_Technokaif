@@ -2,7 +2,7 @@ package models
 
 import "fmt"
 
-// TRACK ERRORS
+// Track errors
 
 type NoSuchTrackError struct {
 	TrackID uint32
@@ -12,7 +12,7 @@ func (e *NoSuchTrackError) Error() string {
 	return fmt.Sprintf("track #%d doesn't exist", e.TrackID)
 }
 
-// ALBUM ERRORS
+// Album errors
 
 type NoSuchAlbumError struct {
 	AlbumID uint32
@@ -22,7 +22,17 @@ func (e *NoSuchAlbumError) Error() string {
 	return fmt.Sprintf("album #%d doesn't exist", e.AlbumID)
 }
 
-// ARTIST ERRORS
+// Playlist errors
+
+type NoSuchPlaylistError struct {
+	PlaylistID uint32
+}
+
+func (e *NoSuchPlaylistError) Error() string {
+	return fmt.Sprintf("playlist #%d doesn't exist", e.PlaylistID)
+}
+
+// Artist errors
 
 type NoSuchArtistError struct {
 	ArtistID uint32
@@ -32,7 +42,7 @@ func (e *NoSuchArtistError) Error() string {
 	return fmt.Sprintf("artist #%d doesn't exist", e.ArtistID)
 }
 
-// AUTH ERRORS
+// Auth errors
 type ForbiddenUserError struct{}
 
 func (e *ForbiddenUserError) Error() string {

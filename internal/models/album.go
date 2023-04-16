@@ -33,7 +33,7 @@ func AlbumTransferFromEntry(a Album, artistsGetter artistsByAlbumGetter) (AlbumT
 	}, nil
 }
 
-// Convert []Album to []AlbumTransfer
+// AlbumTransferFromQuery converts []Album to []AlbumTransfer
 func AlbumTransferFromQuery(albums []Album, artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
 	albumTransfers := make([]AlbumTransfer, 0, len(albums))
 	for _, a := range albums {

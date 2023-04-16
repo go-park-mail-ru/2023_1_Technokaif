@@ -145,6 +145,21 @@ func (mr *MockRepositoryMockRecorder) GetByID(userID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepository)(nil).GetByID), userID)
 }
 
+// GetByPlaylist mocks base method.
+func (m *MockRepository) GetByPlaylist(playlistID uint32) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByPlaylist", playlistID)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByPlaylist indicates an expected call of GetByPlaylist.
+func (mr *MockRepositoryMockRecorder) GetByPlaylist(playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPlaylist", reflect.TypeOf((*MockRepository)(nil).GetByPlaylist), playlistID)
+}
+
 // GetUserByUsername mocks base method.
 func (m *MockRepository) GetUserByUsername(username string) (*models.User, error) {
 	m.ctrl.T.Helper()
@@ -209,4 +224,18 @@ func (m *MockTables) Users() string {
 func (mr *MockTablesMockRecorder) Users() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Users", reflect.TypeOf((*MockTables)(nil).Users))
+}
+
+// UsersPlaylists mocks base method.
+func (m *MockTables) UsersPlaylists() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UsersPlaylists")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// UsersPlaylists indicates an expected call of UsersPlaylists.
+func (mr *MockTablesMockRecorder) UsersPlaylists() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UsersPlaylists", reflect.TypeOf((*MockTables)(nil).UsersPlaylists))
 }

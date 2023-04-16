@@ -29,10 +29,13 @@ type Repository interface {
 
 	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
 	GetUserByUsername(username string) (*models.User, error)
+
+	GetByPlaylist(playlistID uint32) ([]models.User, error)
 }
 
 // Tables includes methods which return needed tables
 // to work with users on repository-layer
 type Tables interface {
 	Users() string
+	UsersPlaylists() string
 }

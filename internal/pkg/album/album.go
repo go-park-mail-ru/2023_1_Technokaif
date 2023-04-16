@@ -15,7 +15,6 @@ type Usecase interface {
 	GetLikedByUser(userID uint32) ([]models.Album, error)
 	SetLike(albumID, userID uint32) (bool, error)
 	UnLike(albumID, userID uint32) (bool, error)
-	// GetListens(albumID uint32) (uint32, error)
 }
 
 // Repository includes DBMS-relatable methods to work with albums
@@ -29,7 +28,6 @@ type Repository interface {
 	GetLikedByUser(userID uint32) ([]models.Album, error)
 	InsertLike(albumID, userID uint32) (bool, error)
 	DeleteLike(albumID, userID uint32) (bool, error)
-	// GetListens(albumID uint32) (uint32, error)
 }
 
 // Tables includes methods which return needed tables
