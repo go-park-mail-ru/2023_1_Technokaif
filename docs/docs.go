@@ -1898,9 +1898,6 @@ const docTemplate = `{
         "http.playlistCreateInput": {
             "type": "object",
             "properties": {
-                "cover": {
-                    "type": "string"
-                },
                 "description": {
                     "type": "string"
                 },
@@ -1926,14 +1923,8 @@ const docTemplate = `{
         "http.playlistUpdateInput": {
             "type": "object",
             "properties": {
-                "cover": {
-                    "type": "string"
-                },
                 "description": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

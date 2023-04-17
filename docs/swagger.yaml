@@ -79,8 +79,6 @@ definitions:
     type: object
   http.playlistCreateInput:
     properties:
-      cover:
-        type: string
       description:
         type: string
       name:
@@ -97,12 +95,8 @@ definitions:
     type: object
   http.playlistUpdateInput:
     properties:
-      cover:
-        type: string
       description:
         type: string
-      id:
-        type: integer
       name:
         type: string
       users:
