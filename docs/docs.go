@@ -1089,6 +1089,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/playlists/{playlistID}/update": {
+            "post": {
+                "description": "Update playlist",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Update Playlist",
+                "parameters": [
+                    {
+                        "description": "Playlist info",
+                        "name": "playlist",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.playlistUpdateInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Playlist updated",
+                        "schema": {
+                            "$ref": "#/definitions/http.defaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "User hasn't rights",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/api/tracks/": {
             "post": {
                 "description": "Create new track by sent object",
@@ -1726,7 +1784,7 @@ const docTemplate = `{
         "http.albumCreateInput": {
             "type": "object",
             "properties": {
-                "artistsID": {
+                "artists": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -1849,7 +1907,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "usersID": {
+                "users": {
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -1862,6 +1920,29 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "http.playlistUpdateInput": {
+            "type": "object",
+            "properties": {
+                "cover": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },

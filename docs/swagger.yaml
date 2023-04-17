@@ -7,7 +7,7 @@ definitions:
     type: object
   http.albumCreateInput:
     properties:
-      artistsID:
+      artists:
         items:
           type: integer
         type: array
@@ -85,7 +85,7 @@ definitions:
         type: string
       name:
         type: string
-      usersID:
+      users:
         items:
           type: integer
         type: array
@@ -94,6 +94,21 @@ definitions:
     properties:
       id:
         type: integer
+    type: object
+  http.playlistUpdateInput:
+    properties:
+      cover:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      users:
+        items:
+          type: integer
+        type: array
     type: object
   http.signUpResponse:
     properties:
@@ -955,6 +970,44 @@ paths:
           schema:
             $ref: '#/definitions/http.Error'
       summary: Remove like
+      tags:
+      - Playlist
+  /api/playlists/{playlistID}/update:
+    post:
+      consumes:
+      - application/json
+      description: Update playlist
+      parameters:
+      - description: Playlist info
+        in: body
+        name: playlist
+        required: true
+        schema:
+          $ref: '#/definitions/http.playlistUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlist updated
+          schema:
+            $ref: '#/definitions/http.defaultResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Update Playlist
       tags:
       - Playlist
   /api/playlists/feed:
