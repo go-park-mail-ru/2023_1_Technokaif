@@ -96,6 +96,7 @@ func InitRouter(
 
 					r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {
 						r.Post("/update", playlistH.Update)
+						r.Post("/cover", playlistH.UploadCover)
 						r.Delete("/", playlistH.Delete)
 
 						r.Route("/tracks"+trackIdRoute, func(r chi.Router) {

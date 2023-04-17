@@ -1,4 +1,4 @@
-package common
+package file
 
 import (
 	"errors"
@@ -21,10 +21,15 @@ func RecordsFolder() string {
 	return os.Getenv("RECORDS_FOLDER")
 }
 
+func PlaylistCoverFolder() string {
+	return os.Getenv("PLAYLIST_COVERS_FOLDER")
+}
+
 func InitPaths() error {
 	mediaPath := MediaPath()
 	avatarsFolder := AvatarFolder()
 	recordsFolder := RecordsFolder()
+	playlistCoverFolder := PlaylistCoverFolder()
 
 	if mediaPath == "" {
 		return errors.New("MEDIA_PATH isn't set")
@@ -38,6 +43,10 @@ func InitPaths() error {
 		return errors.New("RECORDS_FOLDER isn't set")
 	}
 
+	if playlistCoverFolder == "" {
+		return errors.New("PLAYLIST_COVERS_FOLDER isn't set")
+	}
+
 	var dirForUserAvatars = filepath.Join(mediaPath, avatarsFolder)
 	if err := os.MkdirAll(dirForUserAvatars, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir to save avatars: %w", err)
@@ -46,6 +55,11 @@ func InitPaths() error {
 	var dirForTracks = filepath.Join(mediaPath, recordsFolder)
 	if err := os.MkdirAll(dirForTracks, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir for tracks: %w", err)
+	}
+
+	var dirForPlaylistCovers = filepath.Join(mediaPath, playlistCoverFolder)
+	if err := os.MkdirAll(dirForPlaylistCovers, os.ModePerm); err != nil {
+		return fmt.Errorf("can't create dir for playlists: %w", err)
 	}
 
 	return nil

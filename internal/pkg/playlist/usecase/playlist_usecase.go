@@ -1,8 +1,12 @@
 package usecase
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"path/filepath"
 
+	commonFile "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/file"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
@@ -60,10 +64,12 @@ func (u *Usecase) GetByID(playlistID uint32) (*models.Playlist, error) {
 	return playlist, nil
 }
 
-func (u *Usecase) Update(playlist models.Playlist, usersID []uint32, userID uint32) error {
-	if _, err := u.playlistRepo.GetByID(playlist.ID); err != nil {
+func (u *Usecase) UpdateInfoAndMembers(playlist models.Playlist, usersID []uint32, userID uint32) error {
+	pl, err := u.playlistRepo.GetByID(playlist.ID)
+	if err != nil {
 		return fmt.Errorf("(usecase) can't find playlist in repository: %w", err)
 	}
+	playlist.CoverSrc = pl.CoverSrc
 
 	userInAuthors, err := u.checkUserInAuthors(playlist.ID, userID)
 	if err != nil {
@@ -89,10 +95,52 @@ func (u *Usecase) Update(playlist models.Playlist, usersID []uint32, userID uint
 		}
 	}
 
-	if err := u.playlistRepo.Update(playlist, newAuthorsID); err != nil {
+	if err := u.playlistRepo.UpdateWithMembers(playlist, newAuthorsID); err != nil {
 		return fmt.Errorf("(usecase) can't update playlist in repository: %w", err)
 	}
 
+	return nil
+}
+
+var dirForPlaylistCovers = filepath.Join(commonFile.MediaPath(), commonFile.PlaylistCoverFolder())
+
+var ErrCoverWrongFormat = errors.New("wrong cover file fromat")
+
+func (u *Usecase) UploadCoverWrongFormatError() error {
+	return ErrCoverWrongFormat
+}
+
+func (u *Usecase) UploadCover(playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error {
+	playlist, err := u.playlistRepo.GetByID(playlistID)
+	if err != nil {
+		return fmt.Errorf("(usecase) can't find playlist: %w", err)
+	}
+
+	userInAuthors, err := u.checkUserInAuthors(playlistID, userID)
+	if err != nil {
+		return err
+	}
+	if !userInAuthors {
+		return fmt.Errorf("(usecase) playlist can't be deleted by user: %w", &models.ForbiddenUserError{})
+	}
+
+	// Check format
+	if fileType, err := commonFile.CheckMimeType(file, "image/png", "image/jpeg"); err != nil {
+		return fmt.Errorf("(usecase) file format %s: %w", fileType, ErrCoverWrongFormat)
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("(usecase) can't do file seek: %w", err)
+	}
+
+	filenameWithExtension, _, err := commonFile.CreateFile(file, fileExtension, dirForPlaylistCovers)
+	if err != nil {
+		return fmt.Errorf("(usecase) can't create file: %w", err)
+	}
+
+	playlist.CoverSrc = filepath.Join(commonFile.PlaylistCoverFolder(), filenameWithExtension)
+	if err := u.playlistRepo.Update(*playlist); err != nil {
+		return fmt.Errorf("(usecase) can't update playlist: %w", err)
+	}
 	return nil
 }
 

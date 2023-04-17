@@ -87,7 +87,7 @@ func (p *PostgreSQL) GetByID(playlistID uint32) (*models.Playlist, error) {
 	return &playlist, nil
 }
 
-func (p *PostgreSQL) Update(pl models.Playlist, usersID []uint32) error {
+func (p *PostgreSQL) UpdateWithMembers(pl models.Playlist, usersID []uint32) error {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return fmt.Errorf("(repo) failed to begin transaction: %w", err)
@@ -121,6 +121,22 @@ func (p *PostgreSQL) Update(pl models.Playlist, usersID []uint32) error {
 		if _, err := tx.Exec(insertPlaylistUsersQuery, userID, pl.ID); err != nil {
 			return fmt.Errorf("(repo) failed to exec query: %w", err)
 		}
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) Update(pl models.Playlist) error {
+	updatePlaylistQuery := fmt.Sprintf(
+		`UPDATE %s
+		SET name = $2,
+			description = $3,
+			cover_src = $4
+		WHERE id = $1;`,
+		p.tables.Playlists())
+
+	if _, err := p.db.Exec(updatePlaylistQuery, pl.ID, pl.Name, pl.Description, pl.CoverSrc); err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
 	return nil

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"path/filepath"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -115,6 +116,63 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
+func (h *Handler) UploadCover(w http.ResponseWriter, r *http.Request) {
+	playlistRequestID, err := commonHttp.GetPlaylistIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("Get playlist's id: %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		return
+	}
+
+	if err := r.ParseMultipartForm(MaxCoverMemory); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "invalid cover data", http.StatusBadRequest, h.logger, err)
+		return
+	}
+
+	coverFile, coverHeader, err := r.FormFile(coverFormKey)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "invalid cover data", http.StatusBadRequest, h.logger, err)
+		return
+	}
+	defer coverFile.Close()
+
+	extension := filepath.Ext(coverHeader.Filename)
+
+	err = h.playlistServices.UploadCover(playlistRequestID, user.ID, coverFile, extension)
+	if err != nil {
+		if errors.Is(err, h.playlistServices.UploadCoverWrongFormatError()) {
+			commonHttp.ErrorResponseWithErrLogging(w, "invalid cover data type", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		var errForbiddenUser *models.ForbiddenUserError
+		if errors.As(err, &errForbiddenUser) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no rights to upload cover", http.StatusForbidden, h.logger, err)
+			return
+		}
+
+		var errNoSuchPlaylist *models.NoSuchPlaylistError
+		if errors.As(err, &errNoSuchPlaylist) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't upload cover", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	resp := defaultResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, resp, h.logger)
+
+}
+
 // @Summary		Update Playlist
 // @Tags		Playlist
 // @Description	Update playlist
@@ -153,14 +211,9 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if pui.ID != playlistRequestID {
-		commonHttp.ErrorResponse(w, "url param doesn't match playlist's ID", http.StatusBadRequest, h.logger)
-		return
-	}
+	playlist := pui.ToPlaylist(playlistRequestID)
 
-	playlist := pui.ToPlaylist()
-
-	err = h.playlistServices.Update(playlist, pui.UsersID, user.ID)
+	err = h.playlistServices.UpdateInfoAndMembers(playlist, pui.UsersID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {

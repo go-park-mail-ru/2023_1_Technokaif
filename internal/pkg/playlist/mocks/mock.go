@@ -5,6 +5,7 @@
 package mock_playlist
 
 import (
+	io "io"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -181,18 +182,32 @@ func (mr *MockUsecaseMockRecorder) UnLike(playlistID, userID interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnLike", reflect.TypeOf((*MockUsecase)(nil).UnLike), playlistID, userID)
 }
 
-// Update mocks base method.
-func (m *MockUsecase) Update(playlist models.Playlist, usersID []uint32, userID uint32) error {
+// UpdateInfoAndMembers mocks base method.
+func (m *MockUsecase) UpdateInfoAndMembers(playlist models.Playlist, usersID []uint32, userID uint32) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", playlist, usersID, userID)
+	ret := m.ctrl.Call(m, "UpdateInfoAndMembers", playlist, usersID, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Update indicates an expected call of Update.
-func (mr *MockUsecaseMockRecorder) Update(playlist, usersID, userID interface{}) *gomock.Call {
+// UpdateInfoAndMembers indicates an expected call of UpdateInfoAndMembers.
+func (mr *MockUsecaseMockRecorder) UpdateInfoAndMembers(playlist, usersID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), playlist, usersID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateInfoAndMembers", reflect.TypeOf((*MockUsecase)(nil).UpdateInfoAndMembers), playlist, usersID, userID)
+}
+
+// UploadCover mocks base method.
+func (m *MockUsecase) UploadCover(playlistID uint32, file io.ReadSeeker, fileExtension string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadCover", playlistID, file, fileExtension)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadCover indicates an expected call of UploadCover.
+func (mr *MockUsecaseMockRecorder) UploadCover(playlistID, file, fileExtension interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCover", reflect.TypeOf((*MockUsecase)(nil).UploadCover), playlistID, file, fileExtension)
 }
 
 // MockRepository is a mock of Repository interface.
@@ -366,17 +381,31 @@ func (mr *MockRepositoryMockRecorder) InsertLike(playlistID, userID interface{})
 }
 
 // Update mocks base method.
-func (m *MockRepository) Update(playlist models.Playlist, usersID []uint32) error {
+func (m *MockRepository) Update(playlist models.Playlist) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", playlist, usersID)
+	ret := m.ctrl.Call(m, "Update", playlist)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockRepositoryMockRecorder) Update(playlist, usersID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Update(playlist interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), playlist, usersID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), playlist)
+}
+
+// UpdateWithMembers mocks base method.
+func (m *MockRepository) UpdateWithMembers(playlist models.Playlist, usersID []uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateWithMembers", playlist, usersID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateWithMembers indicates an expected call of UpdateWithMembers.
+func (mr *MockRepositoryMockRecorder) UpdateWithMembers(playlist, usersID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWithMembers", reflect.TypeOf((*MockRepository)(nil).UpdateWithMembers), playlist, usersID)
 }
 
 // MockTables is a mock of Tables interface.

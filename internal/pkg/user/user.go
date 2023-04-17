@@ -12,7 +12,7 @@ import (
 type Usecase interface {
 	GetByID(userID uint32) (*models.User, error)
 	UpdateInfo(user *models.User) error
-	UploadAvatar(user *models.User, file io.ReadSeeker, fileExtension string) error
+	UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension string) error
 	UploadAvatarWrongFormatError() error
 	GetByPlaylist(playlistID uint32) ([]models.User, error)
 }
@@ -27,6 +27,8 @@ type Repository interface {
 
 	// Update info updates non-sensetive user info by given User
 	UpdateInfo(user *models.User) error
+
+	UpdateAvatarSrc(userID uint32, avatarSrc string) error
 
 	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
 	GetUserByUsername(username string) (*models.User, error)

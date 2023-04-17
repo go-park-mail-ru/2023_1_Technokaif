@@ -121,11 +121,24 @@ func (p *PostgreSQL) UpdateInfo(u *models.User) error {
 			last_name = $4,
 			sex = $5,
 			birth_date = $6,
-			avatar_src = $7
 		WHERE id = $1;`,
 		p.tables.Users())
 	if _, err := p.db.Exec(query, u.ID, u.Email, u.FirstName, u.LastName,
-		u.Sex, u.BirthDate.Format(time.RFC3339), u.AvatarSrc); err != nil {
+		u.Sex, u.BirthDate.Format(time.RFC3339)); err != nil {
+
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) UpdateAvatarSrc(userID uint32, avatarSrc string) error {
+	query := fmt.Sprintf(
+		`UPDATE %s
+		SET avatar_src = $2
+		WHERE id = $1;`,
+		p.tables.Users())
+	if _, err := p.db.Exec(query, userID, avatarSrc); err != nil {
 
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}

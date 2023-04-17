@@ -80,17 +80,17 @@ func (mr *MockUsecaseMockRecorder) UpdateInfo(user interface{}) *gomock.Call {
 }
 
 // UploadAvatar mocks base method.
-func (m *MockUsecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtension string) error {
+func (m *MockUsecase) UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadAvatar", user, file, fileExtension)
+	ret := m.ctrl.Call(m, "UploadAvatar", userID, file, fileExtension)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadAvatar indicates an expected call of UploadAvatar.
-func (mr *MockUsecaseMockRecorder) UploadAvatar(user, file, fileExtension interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) UploadAvatar(userID, file, fileExtension interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockUsecase)(nil).UploadAvatar), user, file, fileExtension)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockUsecase)(nil).UploadAvatar), userID, file, fileExtension)
 }
 
 // UploadAvatarWrongFormatError mocks base method.
@@ -188,6 +188,20 @@ func (m *MockRepository) GetUserByUsername(username string) (*models.User, error
 func (mr *MockRepositoryMockRecorder) GetUserByUsername(username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByUsername", reflect.TypeOf((*MockRepository)(nil).GetUserByUsername), username)
+}
+
+// UpdateAvatarSrc mocks base method.
+func (m *MockRepository) UpdateAvatarSrc(userID uint32, avatarSrc string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAvatarSrc", userID, avatarSrc)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAvatarSrc indicates an expected call of UpdateAvatarSrc.
+func (mr *MockRepositoryMockRecorder) UpdateAvatarSrc(userID, avatarSrc interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAvatarSrc", reflect.TypeOf((*MockRepository)(nil).UpdateAvatarSrc), userID, avatarSrc)
 }
 
 // UpdateInfo mocks base method.
