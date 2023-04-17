@@ -8,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
+	playlistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/mocks"
 	trackMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -22,10 +23,11 @@ func TestTrackUsecaseCreate(t *testing.T) {
 	tr := trackMocks.NewMockRepository(c)
 	arr := artistMocks.NewMockRepository(c)
 	alr := albumMocks.NewMockRepository(c)
+	pr := playlistMocks.NewMockRepository(c)
 
 	l := commonTests.MockLogger(c)
 
-	u := NewUsecase(tr, arr, alr, l)
+	u := NewUsecase(tr, arr, alr, pr, l)
 
 	var correctUserID uint32 = 1
 	correctArtists := []models.Artist{

@@ -210,6 +210,49 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
+// @Summary		Tracks of Playlist
+// @Tags		Playlist
+// @Description	All tracks of playlist with chosen ID
+// @Produce		json
+// @Success		200		{object}	[]models.TrackTransfer "Show tracks"
+// @Failure		400		{object}	http.Error			   "Incorrect body"
+// @Failure		500		{object}	http.Error			   "Server error"
+// @Router		/api/playlists/{playlistID}/tracks [get]
+func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
+	artistID, err := commonHttp.GetArtistIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("Get by playlist: %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	tracks, err := h.trackServices.GetByPlaylist(artistID)
+	if err != nil {
+		var errNoSuchPlaylist *models.NoSuchPlaylistError
+		if errors.As(err, &errNoSuchPlaylist) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, tt, h.logger)
+}
+
 // @Summary		Tracks of Album
 // @Tags		Album
 // @Description	All tracks of album with chosen ID

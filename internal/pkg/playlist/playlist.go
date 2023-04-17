@@ -9,6 +9,10 @@ type Usecase interface {
 	GetByID(playlistID uint32) (*models.Playlist, error)
 	Update(playlist models.Playlist, usersID []uint32, userID uint32) error
 	Delete(playlistID uint32, userID uint32) error
+
+	AddTrack(trackID, playlistID, userID uint32) error
+	DeleteTrack(trackID, playlistID, userID uint32) error
+
 	GetFeed() ([]models.Playlist, error)
 	GetByUser(userID uint32) ([]models.Playlist, error)
 	GetLikedByUser(userID uint32) ([]models.Playlist, error)
@@ -21,6 +25,10 @@ type Repository interface {
 	GetByID(playlistID uint32) (*models.Playlist, error)
 	Update(playlist models.Playlist, usersID []uint32) error
 	DeleteByID(playlistID uint32) error
+
+	AddTrack(trackID, playlistID uint32) error
+	DeleteTrack(trackID, playlistID uint32) error
+
 	GetFeed() ([]models.Playlist, error)
 	GetByUser(userID uint32) ([]models.Playlist, error)
 	GetLikedByUser(userID uint32) ([]models.Playlist, error)
@@ -32,7 +40,6 @@ type Repository interface {
 // to work with playlists on repository-layer
 type Tables interface {
 	Playlists() string
-	Tracks() string
 	UsersPlaylists() string
 	PlaylistsTracks() string
 	LikedPlaylists() string

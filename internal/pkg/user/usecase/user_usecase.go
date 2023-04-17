@@ -33,6 +33,14 @@ func (u *Usecase) GetByID(userID uint32) (*models.User, error) {
 	return user, nil
 }
 
+func (u *Usecase) GetByPlaylist(playlistID uint32) ([]models.User, error) {
+	users, err := u.repo.GetByPlaylist(playlistID)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get users of playlist: %w", err)
+	}
+	return users, nil
+}
+
 func (u *Usecase) UpdateInfo(user *models.User) error {
 	if _, err := u.repo.GetByID(user.ID); err != nil {
 		return err

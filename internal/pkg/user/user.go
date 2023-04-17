@@ -14,6 +14,7 @@ type Usecase interface {
 	UpdateInfo(user *models.User) error
 	UploadAvatar(user *models.User, file io.ReadSeeker, fileExtension string) error
 	UploadAvatarWrongFormatError() error
+	GetByPlaylist(playlistID uint32) ([]models.User, error)
 }
 
 // Repository includes DBMS-relatable methods to work with users

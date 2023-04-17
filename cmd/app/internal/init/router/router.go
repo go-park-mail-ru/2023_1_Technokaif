@@ -13,6 +13,7 @@ import (
 	authM "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http/middleware"
 	csrf "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http"
 	csrfM "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http/middleware"
+	playlist "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/delivery/http"
 	track "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
 	user "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 	userM "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http/middleware"
@@ -20,15 +21,17 @@ import (
 )
 
 const (
-	userIdRoute   = "/{" + commonHttp.UserIdUrlParam + "}"
-	albumIdRoute  = "/{" + commonHttp.AlbumIdUrlParam + "}"
-	artistIdRoute = "/{" + commonHttp.ArtistIdUrlParam + "}"
-	trackIdRoute  = "/{" + commonHttp.TrackIdUrlParam + "}"
+	userIdRoute     = "/{" + commonHttp.UserIdUrlParam + "}"
+	albumIdRoute    = "/{" + commonHttp.AlbumIdUrlParam + "}"
+	playlistIdRoute = "/{" + commonHttp.PlaylistIdUrlParam + "}"
+	artistIdRoute   = "/{" + commonHttp.ArtistIdUrlParam + "}"
+	trackIdRoute    = "/{" + commonHttp.TrackIdUrlParam + "}"
 )
 
 // InitRouter describes all app's endpoints and their handlers
 func InitRouter(
 	albumH *album.Handler,
+	playlistH *playlist.Handler,
 	artistH *artist.Handler,
 	trackH *track.Handler,
 	authH *auth.Handler,
@@ -59,6 +62,7 @@ func InitRouter(
 				r.Route("/favorite", func(r chi.Router) {
 					r.Get("/tracks", userH.GetFavouriteTracks)
 					r.Get("/albums", userH.GetFavouriteAlbums)
+					r.Get("/playlists", userH.GetFavouritePlaylists)
 					r.Get("/artists", userH.GetFavouriteArtists)
 				})
 			})
@@ -80,6 +84,30 @@ func InitRouter(
 				})
 			})
 			r.Get("/feed", albumH.Feed)
+		})
+
+		r.Route("/playlists", func(r chi.Router) {
+			r.With(authM.Authorization).Post("/", playlistH.Create)
+			r.Route(playlistIdRoute, func(r chi.Router) {
+				r.Get("/", playlistH.Get)
+
+				r.With(authM.Authorization).Group(func(r chi.Router) {
+					r.Get("/tracks", trackH.GetByPlaylist)
+
+					r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {
+						r.Delete("/", playlistH.Delete)
+
+						r.Route("/tracks"+trackIdRoute, func(r chi.Router) {
+							r.Post("/", playlistH.AddTrack)
+							r.Delete("/", playlistH.DeleteTrack)
+						})
+
+						r.Post("/like", playlistH.Like)
+						r.Post("/unlike", playlistH.UnLike)
+					})
+				})
+			})
+			r.Get("/feed", playlistH.Feed)
 		})
 
 		r.Route("/artists", func(r chi.Router) {

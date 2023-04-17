@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
@@ -12,6 +13,7 @@ import (
 // Usecase implements album.Usecase
 type Usecase struct {
 	playlistRepo playlist.Repository
+	trackRepo    track.Repository
 	userRepo     user.Repository
 	logger       logger.Logger
 }
@@ -104,6 +106,54 @@ func (u *Usecase) Delete(playlistID uint32, userID uint32) error {
 
 	if err := u.playlistRepo.DeleteByID(playlistID); err != nil {
 		return fmt.Errorf("(usecase) can't delete playlist from repository: %w", err)
+	}
+
+	return nil
+}
+
+func (u *Usecase) AddTrack(trackID, playlistID, userID uint32) error {
+	if _, err := u.playlistRepo.GetByID(playlistID); err != nil {
+		return fmt.Errorf("(usecase) can't find playlist in repository: %w", err)
+	}
+
+	if _, err := u.trackRepo.GetByID(trackID); err != nil {
+		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
+	}
+
+	userInAuthors, err := u.checkUserInAuthors(playlistID, userID)
+	if err != nil {
+		return err
+	}
+	if !userInAuthors {
+		return fmt.Errorf("(usecase) playlist can't be updated by user: %w", &models.ForbiddenUserError{})
+	}
+
+	if err := u.playlistRepo.AddTrack(trackID, playlistID); err != nil {
+		return fmt.Errorf("(usecase) can't add track into playlist in repository: %w", err)
+	}
+
+	return nil
+}
+
+func (u *Usecase) DeleteTrack(trackID, playlistID, userID uint32) error {
+	if _, err := u.playlistRepo.GetByID(playlistID); err != nil {
+		return fmt.Errorf("(usecase) can't find playlist in repository: %w", err)
+	}
+
+	if _, err := u.trackRepo.GetByID(trackID); err != nil {
+		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
+	}
+
+	userInAuthors, err := u.checkUserInAuthors(playlistID, userID)
+	if err != nil {
+		return err
+	}
+	if !userInAuthors {
+		return fmt.Errorf("(usecase) playlist can't be updated by user: %w", &models.ForbiddenUserError{})
+	}
+
+	if err := u.playlistRepo.DeleteTrack(trackID, playlistID); err != nil {
+		return fmt.Errorf("(usecase) can't delete track of playlist in repository: %w", err)
 	}
 
 	return nil

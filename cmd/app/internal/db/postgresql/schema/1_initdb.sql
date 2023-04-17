@@ -87,7 +87,7 @@ CREATE TABLE Playlists_Tracks
 (
     playlist_id INT REFERENCES Playlists(id) ON DELETE CASCADE,
     track_id    INT REFERENCES Tracks        ON DELETE CASCADE,
-    position    INT,
+    added_at    TIMESTAMPTZ DEFAULT NOW()                      NOT NULL,
 
     PRIMARY KEY(playlist_id, track_id, position)
 );

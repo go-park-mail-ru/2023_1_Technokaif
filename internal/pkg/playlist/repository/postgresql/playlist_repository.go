@@ -28,6 +28,8 @@ func NewPostgreSQL(db *sqlx.DB, t playlist.Tables, l logger.Logger) *PostgreSQL 
 	}
 }
 
+const errorAlreadyExists = "unique_violation"
+
 func (p *PostgreSQL) Insert(playlist models.Playlist, usersID []uint32) (_ uint32, err error) {
 	tx, err := p.db.Begin()
 	if err != nil {
@@ -143,6 +145,43 @@ func (p *PostgreSQL) DeleteByID(playlistID uint32) error {
 	return nil
 }
 
+func (p *PostgreSQL) AddTrack(trackID, playlistID uint32) error {
+	query := fmt.Sprintf(
+		`INSERT INTO %s (track_id, playlist_id)
+		VALUES ($1, $2);`,
+		p.tables.PlaylistsTracks())
+
+	if _, err := p.db.Exec(query, trackID, playlistID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("(repo) %w: %w", &models.NoSuchPlaylistError{PlaylistID: playlistID}, err)
+		}
+
+		if pqerr, ok := err.(*pq.Error); ok {
+			if pqerr.Code.Name() == errorAlreadyExists {
+				return fmt.Errorf("(repo) entry already exists: %w", pqerr)
+			}
+		}
+
+		return fmt.Errorf("(repo) failed to insert: %w", err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) DeleteTrack(trackID, playlistID uint32) error {
+	query := fmt.Sprintf(
+		`DELETE
+		FROM %s
+		WHERE track_id = $1 AND playlist_id = $2;`,
+		p.tables.PlaylistsTracks())
+
+	if _, err := p.db.Exec(query, trackID, playlistID); err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return nil
+}
+
 func (p *PostgreSQL) GetFeed() ([]models.Playlist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src  
@@ -198,12 +237,10 @@ func (p *PostgreSQL) GetLikedByUser(userID uint32) ([]models.Playlist, error) {
 	return playlists, nil
 }
 
-const errorLikeExists = "unique_violation"
-
 func (p *PostgreSQL) InsertLike(playlistID, userID uint32) (bool, error) {
 	insertLikeQuery := fmt.Sprintf(
 		`INSERT INTO %s (playlist_id, user_id) 
-		VALUES ($1, $2)`,
+		VALUES ($1, $2);`,
 		p.tables.LikedPlaylists())
 
 	if _, err := p.db.Exec(insertLikeQuery, playlistID, userID); err != nil {
@@ -212,7 +249,7 @@ func (p *PostgreSQL) InsertLike(playlistID, userID uint32) (bool, error) {
 		}
 
 		if pqerr, ok := err.(*pq.Error); ok {
-			if pqerr.Code.Name() == errorLikeExists {
+			if pqerr.Code.Name() == errorAlreadyExists {
 				return false, nil
 			}
 		}

@@ -10,17 +10,20 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type Handler struct {
-	userServices   user.Usecase
-	trackServices  track.Usecase
-	albumServices  album.Usecase
-	artistServices artist.Usecase
-	logger         logger.Logger
+	userServices     user.Usecase
+	trackServices    track.Usecase
+	albumServices    album.Usecase
+	playlistServices playlist.Usecase
+	artistServices   artist.Usecase
+
+	logger logger.Logger
 }
 
 func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler {
@@ -158,7 +161,7 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 // @Failure      401    {object}  	http.Error  			"Unauthorized user"
 // @Failure      403    {object}  	http.Error  			"Forbidden user"
 // @Failure      500    {object}  	http.Error  			"Server error"
-// @Router       /api/users/{userID}/tracks [get]
+// @Router       /api/users/{userID}/favorite/tracks [get]
 func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
@@ -190,7 +193,7 @@ func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 // @Failure      401    {object}  	http.Error  			"Unauthorized user"
 // @Failure      403    {object}  	http.Error  			"Forbidden user"
 // @Failure      500    {object}  	http.Error  			"Server error"
-// @Router       /api/users/{userID}/albums [get]
+// @Router       /api/users/{userID}/favorite/albums [get]
 func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
@@ -213,6 +216,38 @@ func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, at, h.logger)
 }
 
+// @Summary      Favorite Playlists
+// @Tags         User
+// @Description  Get user's favorite playlists
+// @Produce      application/json
+// @Success      200    {object}  	[]models.PlaylistTransfer 	"Playlists got"
+// @Failure		 400	{object}	http.Error					"Incorrect input"
+// @Failure      401    {object}  	http.Error  				"Unauthorized user"
+// @Failure      403    {object}  	http.Error  				"Forbidden user"
+// @Failure      500    {object}  	http.Error  				"Server error"
+// @Router       /api/users/{userID}/favorite/playlists [get]
+func (h *Handler) GetFavouritePlaylists(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	favPlaylists, err := h.playlistServices.GetLikedByUser(user.ID)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite playlists", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	at, err := models.PlaylistTransferFromQuery(favPlaylists, h.userServices.GetByPlaylist)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite playlists", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, at, h.logger)
+}
+
 // @Summary      Favorite Artists
 // @Tags         User
 // @Description  Get user's favorite artists
@@ -222,7 +257,7 @@ func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 // @Failure      401    {object}  	http.Error  			"Unauthorized user"
 // @Failure      403    {object}  	http.Error  			"Forbidden user"
 // @Failure      500    {object}  	http.Error  			"Server error"
-// @Router       /api/users/{userID}/artists [get]
+// @Router       /api/users/{userID}/favorite/artists [get]
 func (h *Handler) GetFavouriteArtists(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {

@@ -34,6 +34,20 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
+// AddTrack mocks base method.
+func (m *MockUsecase) AddTrack(trackID, playlistID, userID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTrack", trackID, playlistID, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTrack indicates an expected call of AddTrack.
+func (mr *MockUsecaseMockRecorder) AddTrack(trackID, playlistID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrack", reflect.TypeOf((*MockUsecase)(nil).AddTrack), trackID, playlistID, userID)
+}
+
 // Create mocks base method.
 func (m *MockUsecase) Create(playlist models.Playlist, usersID []uint32, userID uint32) (uint32, error) {
 	m.ctrl.T.Helper()
@@ -61,6 +75,20 @@ func (m *MockUsecase) Delete(playlistID, userID uint32) error {
 func (mr *MockUsecaseMockRecorder) Delete(playlistID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), playlistID, userID)
+}
+
+// DeleteTrack mocks base method.
+func (m *MockUsecase) DeleteTrack(trackID, playlistID, userID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTrack", trackID, playlistID, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteTrack indicates an expected call of DeleteTrack.
+func (mr *MockUsecaseMockRecorder) DeleteTrack(trackID, playlistID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrack", reflect.TypeOf((*MockUsecase)(nil).DeleteTrack), trackID, playlistID, userID)
 }
 
 // GetByID mocks base method.
@@ -154,15 +182,17 @@ func (mr *MockUsecaseMockRecorder) UnLike(playlistID, userID interface{}) *gomoc
 }
 
 // Update mocks base method.
-func (m *MockUsecase) Update(playlist models.Playlist, userID uint32) {
+func (m *MockUsecase) Update(playlist models.Playlist, usersID []uint32, userID uint32) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Update", playlist, userID)
+	ret := m.ctrl.Call(m, "Update", playlist, usersID, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockUsecaseMockRecorder) Update(playlist, userID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) Update(playlist, usersID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), playlist, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUsecase)(nil).Update), playlist, usersID, userID)
 }
 
 // MockRepository is a mock of Repository interface.
@@ -186,6 +216,20 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// AddTrack mocks base method.
+func (m *MockRepository) AddTrack(trackID, playlistID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddTrack", trackID, playlistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddTrack indicates an expected call of AddTrack.
+func (mr *MockRepositoryMockRecorder) AddTrack(trackID, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrack", reflect.TypeOf((*MockRepository)(nil).AddTrack), trackID, playlistID)
 }
 
 // DeleteByID mocks base method.
@@ -215,6 +259,20 @@ func (m *MockRepository) DeleteLike(playlistID, userID uint32) (bool, error) {
 func (mr *MockRepositoryMockRecorder) DeleteLike(playlistID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLike", reflect.TypeOf((*MockRepository)(nil).DeleteLike), playlistID, userID)
+}
+
+// DeleteTrack mocks base method.
+func (m *MockRepository) DeleteTrack(trackID, playlistID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteTrack", trackID, playlistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteTrack indicates an expected call of DeleteTrack.
+func (mr *MockRepositoryMockRecorder) DeleteTrack(trackID, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTrack", reflect.TypeOf((*MockRepository)(nil).DeleteTrack), trackID, playlistID)
 }
 
 // GetByID mocks base method.
@@ -384,20 +442,6 @@ func (m *MockTables) PlaylistsTracks() string {
 func (mr *MockTablesMockRecorder) PlaylistsTracks() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlaylistsTracks", reflect.TypeOf((*MockTables)(nil).PlaylistsTracks))
-}
-
-// Tracks mocks base method.
-func (m *MockTables) Tracks() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Tracks")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// Tracks indicates an expected call of Tracks.
-func (mr *MockTablesMockRecorder) Tracks() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Tracks", reflect.TypeOf((*MockTables)(nil).Tracks))
 }
 
 // UsersPlaylists mocks base method.

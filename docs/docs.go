@@ -725,6 +725,370 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/playlists/": {
+            "post": {
+                "description": "Create new playlist by sent object",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Create Playlist",
+                "parameters": [
+                    {
+                        "description": "Playlist info",
+                        "name": "playlist",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.playlistCreateInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Playlist created",
+                        "schema": {
+                            "$ref": "#/definitions/http.playlistCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "User hasn't rights",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/playlists/feed": {
+            "get": {
+                "description": "Feed playlists",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Feed"
+                ],
+                "summary": "Playlist Feed",
+                "responses": {
+                    "200": {
+                        "description": "Playlist feed",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.PlaylistTransfer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/playlists/{playlistID}/": {
+            "get": {
+                "description": "Get playlist with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Get Playlist",
+                "responses": {
+                    "200": {
+                        "description": "Playlist got",
+                        "schema": {
+                            "$ref": "#/definitions/models.PlaylistTransfer"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete playlist with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Delete Playlist",
+                "responses": {
+                    "200": {
+                        "description": "Playlist deleted",
+                        "schema": {
+                            "$ref": "#/definitions/http.defaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "User hasn't rights",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/playlists/{playlistID}/like": {
+            "post": {
+                "description": "Set like by user to chosen playlist (add to favorite)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Set like",
+                "responses": {
+                    "200": {
+                        "description": "Like set",
+                        "schema": {
+                            "$ref": "#/definitions/http.defaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/playlists/{playlistID}/tracks": {
+            "get": {
+                "description": "All tracks of playlist with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Tracks of Playlist",
+                "responses": {
+                    "200": {
+                        "description": "Show tracks",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.TrackTransfer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect body",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/playlists/{playlistID}/tracks/{trackID}": {
+            "post": {
+                "description": "Add track into playlist",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Add Track",
+                "responses": {
+                    "200": {
+                        "description": "Track added",
+                        "schema": {
+                            "$ref": "#/definitions/http.playlistCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "User hasn't rights",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete track from playlist",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Delete Track",
+                "responses": {
+                    "200": {
+                        "description": "Track deleted",
+                        "schema": {
+                            "$ref": "#/definitions/http.playlistCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "User hasn't rights",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/playlists/{playlistID}/unlike": {
+            "post": {
+                "description": "Remove like by user from chosen playlist (remove from favorite)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Remove like",
+                "responses": {
+                    "200": {
+                        "description": "Like removed",
+                        "schema": {
+                            "$ref": "#/definitions/http.defaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/api/tracks/": {
             "post": {
                 "description": "Create new track by sent object",
@@ -1004,101 +1368,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "$ref": "#/definitions/http.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/users/{userID}/albums": {
-            "get": {
-                "description": "Get user's favorite albums",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Favorite Albums",
-                "responses": {
-                    "200": {
-                        "description": "Albums got",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.AlbumTransfer"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Incorrect input",
-                        "schema": {
-                            "$ref": "#/definitions/http.Error"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized user",
-                        "schema": {
-                            "$ref": "#/definitions/http.Error"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden user",
-                        "schema": {
-                            "$ref": "#/definitions/http.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "$ref": "#/definitions/http.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/users/{userID}/artists": {
-            "get": {
-                "description": "Get user's favorite artists",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Favorite Artists",
-                "responses": {
-                    "200": {
-                        "description": "Artists got",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.ArtistTransfer"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Incorrect input",
-                        "schema": {
-                            "$ref": "#/definitions/http.Error"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized user",
-                        "schema": {
-                            "$ref": "#/definitions/http.Error"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden user",
-                        "schema": {
-                            "$ref": "#/definitions/http.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
+                        "description": "Can't get user",
                         "schema": {
                             "$ref": "#/definitions/http.Error"
                         }
@@ -1162,7 +1432,148 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users/{userID}/tracks": {
+        "/api/users/{userID}/favorite/albums": {
+            "get": {
+                "description": "Get user's favorite albums",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Favorite Albums",
+                "responses": {
+                    "200": {
+                        "description": "Albums got",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AlbumTransfer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{userID}/favorite/artists": {
+            "get": {
+                "description": "Get user's favorite artists",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Favorite Artists",
+                "responses": {
+                    "200": {
+                        "description": "Artists got",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ArtistTransfer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{userID}/favorite/playlists": {
+            "get": {
+                "description": "Get user's favorite playlists",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Favorite Playlists",
+                "responses": {
+                    "200": {
+                        "description": "Playlists got",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.PlaylistTransfer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect input",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{userID}/favorite/tracks": {
             "get": {
                 "description": "Get ser's avorite racks",
                 "produces": [
@@ -1196,6 +1607,41 @@ const docTemplate = `{
                     },
                     "403": {
                         "description": "Forbidden user",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{userID}/playlists": {
+            "get": {
+                "description": "All playlists of user with chosen ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Playlists of User",
+                "responses": {
+                    "200": {
+                        "description": "Show playlists",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.PlaylistTransfer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
                         "schema": {
                             "$ref": "#/definitions/http.Error"
                         }
@@ -1259,7 +1705,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Server error",
+                        "description": "Can't change user info",
                         "schema": {
                             "$ref": "#/definitions/http.Error"
                         }
@@ -1356,6 +1802,14 @@ const docTemplate = `{
                 }
             }
         },
+        "http.defaultResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "http.loginInput": {
             "type": "object",
             "properties": {
@@ -1370,8 +1824,8 @@ const docTemplate = `{
         "http.loginResponse": {
             "type": "object",
             "properties": {
-                "jwt": {
-                    "type": "string"
+                "id": {
+                    "type": "integer"
                 }
             }
         },
@@ -1380,6 +1834,34 @@ const docTemplate = `{
             "properties": {
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "http.playlistCreateInput": {
+            "type": "object",
+            "properties": {
+                "cover": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "usersID": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "http.playlistCreateResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
                 }
             }
         },
@@ -1405,9 +1887,6 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
-                },
-                "cover": {
-                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -1514,6 +1993,29 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PlaylistTransfer": {
+            "type": "object",
+            "properties": {
+                "cover": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserTransfer"
+                    }
+                }
+            }
+        },
         "models.Sex": {
             "type": "string",
             "enum": [
@@ -1548,13 +2050,16 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "isLiked": {
+                    "type": "boolean"
+                },
                 "listens": {
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
                 },
-                "record": {
+                "recordSrc": {
                     "type": "string"
                 }
             }
@@ -1562,6 +2067,9 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
+                "avatarSrc": {
+                    "type": "string"
+                },
                 "birthDate": {
                     "$ref": "#/definitions/models.Date"
                 },
@@ -1588,7 +2096,7 @@ const docTemplate = `{
         "models.UserTransfer": {
             "type": "object",
             "properties": {
-                "avatar": {
+                "avatarSrc": {
                     "type": "string"
                 },
                 "birthDate": {

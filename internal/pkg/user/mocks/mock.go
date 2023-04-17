@@ -50,6 +50,21 @@ func (mr *MockUsecaseMockRecorder) GetByID(userID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), userID)
 }
 
+// GetByPlaylist mocks base method.
+func (m *MockUsecase) GetByPlaylist(playlistID uint32) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByPlaylist", playlistID)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByPlaylist indicates an expected call of GetByPlaylist.
+func (mr *MockUsecaseMockRecorder) GetByPlaylist(playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPlaylist", reflect.TypeOf((*MockUsecase)(nil).GetByPlaylist), playlistID)
+}
+
 // UpdateInfo mocks base method.
 func (m *MockUsecase) UpdateInfo(user *models.User) error {
 	m.ctrl.T.Helper()

@@ -140,6 +140,26 @@ func (p *PostgreSQL) GetByAlbum(albumID uint32) ([]models.Track, error) {
 
 	return tracks, nil
 }
+func (p *PostgreSQL) GetByPlaylist(playlistID uint32) ([]models.Track, error) {
+	query := fmt.Sprintf(
+		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens
+		FROM %s t
+			INNER JOIN %s pt ON t.id = pt.track_id 
+		WHERE pt.playlist_id = $1
+		ORDER BY pt.added_at;`,
+		p.tables.Tracks(), p.tables.PlaylistsTracks())
+
+	var tracks []models.Track
+	if err := p.db.Select(&tracks, query, playlistID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchPlaylistError{PlaylistID: playlistID}, err)
+		}
+
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return tracks, nil
+}
 
 func (p *PostgreSQL) GetByArtist(artistID uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(

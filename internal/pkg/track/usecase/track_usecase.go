@@ -6,25 +6,31 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 // Usecase implements track.Usecase
 type Usecase struct {
-	trackRepo  track.Repository
-	artistRepo artist.Repository
-	albumRepo  album.Repository
+	trackRepo    track.Repository
+	artistRepo   artist.Repository
+	albumRepo    album.Repository
+	playlistRepo playlist.Repository
 
 	logger logger.Logger
 }
 
-func NewUsecase(tr track.Repository, arr artist.Repository, alr album.Repository, l logger.Logger) *Usecase {
+func NewUsecase(tr track.Repository, arr artist.Repository,
+	alr album.Repository, pr playlist.Repository, l logger.Logger) *Usecase {
+
 	return &Usecase{
-		trackRepo:  tr,
-		artistRepo: arr,
-		albumRepo:  alr,
-		logger:     l,
+		trackRepo:    tr,
+		artistRepo:   arr,
+		albumRepo:    alr,
+		playlistRepo: pr,
+
+		logger: l,
 	}
 }
 
@@ -103,6 +109,20 @@ func (u *Usecase) GetByAlbum(albumID uint32) ([]models.Track, error) {
 	}
 
 	tracks, err := u.trackRepo.GetByAlbum(albumID)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get tracks from repository: %w", err)
+	}
+
+	return tracks, nil
+}
+
+func (u *Usecase) GetByPlaylist(playlistID uint32) ([]models.Track, error) {
+	_, err := u.playlistRepo.GetByID(playlistID)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get playlist with id #%d: %w", playlistID, err)
+	}
+
+	tracks, err := u.trackRepo.GetByPlaylist(playlistID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get tracks from repository: %w", err)
 	}

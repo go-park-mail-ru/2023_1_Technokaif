@@ -11,10 +11,11 @@ import (
 )
 
 const (
-	TrackIdUrlParam  = "trackID"
-	ArtistIdUrlParam = "artistID"
-	AlbumIdUrlParam  = "albumID"
-	UserIdUrlParam   = "userID"
+	TrackIdUrlParam    = "trackID"
+	ArtistIdUrlParam   = "artistID"
+	AlbumIdUrlParam    = "albumID"
+	PlaylistIdUrlParam = "playlistID"
+	UserIdUrlParam     = "userID"
 )
 
 var ErrUnauthorized = &models.UnathorizedError{}
@@ -46,6 +47,10 @@ func GetArtistIDFromRequest(r *http.Request) (uint32, error) {
 
 func GetAlbumIDFromRequest(r *http.Request) (uint32, error) {
 	return convertID(chi.URLParam(r, AlbumIdUrlParam))
+}
+
+func GetPlaylistIDFromRequest(r *http.Request) (uint32, error) {
+	return convertID(chi.URLParam(r, PlaylistIdUrlParam))
 }
 
 func convertID(idUrl string) (uint32, error) {
