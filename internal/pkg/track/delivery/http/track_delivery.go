@@ -219,14 +219,14 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/playlists/{playlistID}/tracks [get]
 func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
-	artistID, err := commonHttp.GetArtistIDFromRequest(r)
+	playlistID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get by playlist: %v", err)
 		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
 		return
 	}
 
-	tracks, err := h.trackServices.GetByPlaylist(artistID)
+	tracks, err := h.trackServices.GetByPlaylist(playlistID)
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {

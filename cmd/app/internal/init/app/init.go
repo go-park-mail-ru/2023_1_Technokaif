@@ -45,7 +45,7 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	userRepo := userRepository.NewPostgreSQL(db, tables, logger)
 
 	albumUsecase := albumUsecase.NewUsecase(albumRepo, artistRepo, logger)
-	playlistUsecase := playlistUsecase.NewUsecase(playlistRepo, userRepo, logger)
+	playlistUsecase := playlistUsecase.NewUsecase(playlistRepo, trackRepo, userRepo, logger)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo, logger)
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo, logger)
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, playlistRepo, logger)

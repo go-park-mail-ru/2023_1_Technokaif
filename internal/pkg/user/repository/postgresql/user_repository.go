@@ -143,17 +143,30 @@ func (p *PostgreSQL) GetByPlaylist(playlistID uint32) ([]models.User, error) {
 				sex,
 				birth_date
 		FROM %s u
-			INNER JOIN %s up ON u.ID == up.user_id
+			INNER JOIN %s up ON u.ID = up.user_id
 		WHERE up.playlist_id = $1;`,
 		p.tables.Users(), p.tables.UsersPlaylists())
 
+	rows, err := p.db.Query(query, playlistID)
+	if err != nil {
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+	defer rows.Close()
+
 	var users []models.User
-	if err := p.db.Select(&users, query, playlistID); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchPlaylistError{PlaylistID: playlistID}, err)
+	for rows.Next() {
+		var u models.User
+		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time)
+
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchPlaylistError{PlaylistID: playlistID}, err)
+			}
+
+			return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 		}
 
-		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+		users = append(users, u)
 	}
 
 	return users, nil

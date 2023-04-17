@@ -11,21 +11,21 @@ import (
 // Create
 type playlistCreateInput struct {
 	Name        string   `json:"name" valid:"required"`
-	UsersID     []uint32 `json:"usersID" valid:"required"`
+	UsersID     []uint32 `json:"users" valid:"required"`
 	Description *string  `json:"description"`
-	CoverSrc    *string  `json:"cover" valid:"required"`
+	CoverSrc    *string  `json:"cover"`
 }
 
-func (p *playlistCreateInput) validate() error {
-	p.Name = html.EscapeString(p.Name)
-	if p.Description != nil {
-		*p.Description = html.EscapeString(*p.Description)
+func (pci *playlistCreateInput) validate() error {
+	pci.Name = html.EscapeString(pci.Name)
+	if pci.Description != nil {
+		*pci.Description = html.EscapeString(*pci.Description)
 	}
-	if p.CoverSrc != nil {
-		*p.CoverSrc = html.EscapeString(*p.CoverSrc)
+	if pci.CoverSrc != nil {
+		*pci.CoverSrc = html.EscapeString(*pci.CoverSrc)
 	}
 
-	_, err := valid.ValidateStruct(p)
+	_, err := valid.ValidateStruct(pci)
 
 	return err
 }
@@ -35,6 +35,38 @@ func (pci *playlistCreateInput) ToPlaylist() models.Playlist {
 		Name:        pci.Name,
 		Description: pci.Description,
 		CoverSrc:    pci.CoverSrc,
+	}
+}
+
+// Update
+type playlistUpdateInput struct {
+	ID          uint32   `json:"id" valid:"required"`
+	Name        string   `json:"name" valid:"required"`
+	UsersID     []uint32 `json:"users" valid:"required"`
+	Description *string  `json:"description"`
+	CoverSrc    *string  `json:"cover"`
+}
+
+func (pui *playlistUpdateInput) validate() error {
+	pui.Name = html.EscapeString(pui.Name)
+	if pui.Description != nil {
+		*pui.Description = html.EscapeString(*pui.Description)
+	}
+	if pui.CoverSrc != nil {
+		*pui.CoverSrc = html.EscapeString(*pui.CoverSrc)
+	}
+
+	_, err := valid.ValidateStruct(pui)
+
+	return err
+}
+
+func (pui *playlistUpdateInput) ToPlaylist() models.Playlist {
+	return models.Playlist{
+		ID:          pui.ID,
+		Name:        pui.Name,
+		Description: pui.Description,
+		CoverSrc:    pui.CoverSrc,
 	}
 }
 

@@ -11,7 +11,7 @@ import (
 // Create
 type albumCreateInput struct {
 	Name        string   `json:"name" valid:"required"`
-	ArtistsID   []uint32 `json:"artistsID" valid:"required"`
+	ArtistsID   []uint32 `json:"artists" valid:"required"`
 	Description *string  `json:"description"`
 	CoverSrc    string   `json:"cover" valid:"required"`
 }

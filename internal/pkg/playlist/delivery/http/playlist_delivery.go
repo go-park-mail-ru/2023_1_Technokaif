@@ -115,6 +115,74 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
+// @Summary		Update Playlist
+// @Tags		Playlist
+// @Description	Update playlist
+// @Accept		json
+// @Produce		json
+// @Param		playlist body		playlistUpdateInput	true	"Playlist info"
+// @Success		200		{object}	defaultResponse				"Playlist updated"
+// @Failure		400		{object}	http.Error					"Client error"
+// @Failure		401		{object}	http.Error  				"User unathorized"
+// @Failure		403		{object}	http.Error					"User hasn't rights"
+// @Failure		500		{object}	http.Error					"Server error"
+// @Router		/api/playlists/{playlistID}/update [post]
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+	playlistRequestID, err := commonHttp.GetPlaylistIDFromRequest(r)
+	if err != nil {
+		h.logger.Infof("Get playlist's id: %v", err)
+		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		return
+	}
+
+	var pui playlistUpdateInput
+	if err := json.NewDecoder(r.Body).Decode(&pui); err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		return
+	}
+
+	if err := pui.validate(); err != nil {
+		h.logger.Infof("Creating playlist input validation failed: %s", err.Error())
+		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	if pui.ID != playlistRequestID {
+		commonHttp.ErrorResponse(w, "url param doesn't match playlist's ID", http.StatusBadRequest, h.logger)
+		return
+	}
+
+	playlist := pui.ToPlaylist()
+
+	err = h.playlistServices.Update(playlist, pui.UsersID, user.ID)
+	if err != nil {
+		var errForbiddenUser *models.ForbiddenUserError
+		if errors.As(err, &errForbiddenUser) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no rights to update playlist", http.StatusForbidden, h.logger, err)
+			return
+		}
+
+		var errNoSuchPlaylist *models.NoSuchPlaylistError
+		if errors.As(err, &errNoSuchPlaylist) {
+			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHttp.ErrorResponseWithErrLogging(w, "can't update playlist", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	dr := defaultResponse{Status: "ok"}
+
+	commonHttp.SuccessResponse(w, dr, h.logger)
+}
+
 // @Summary		Delete Playlist
 // @Tags		Playlist
 // @Description	Delete playlist with chosen ID

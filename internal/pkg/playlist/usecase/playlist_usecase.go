@@ -18,8 +18,13 @@ type Usecase struct {
 	logger       logger.Logger
 }
 
-func NewUsecase(pr playlist.Repository, ur user.Repository, l logger.Logger) *Usecase {
-	return &Usecase{playlistRepo: pr, userRepo: ur, logger: l}
+func NewUsecase(pr playlist.Repository, tr track.Repository, ur user.Repository, l logger.Logger) *Usecase {
+	return &Usecase{
+		playlistRepo: pr,
+		trackRepo:    tr,
+		userRepo:     ur,
+
+		logger: l}
 }
 
 func (u *Usecase) Create(playlist models.Playlist, usersID []uint32, userID uint32) (uint32, error) {

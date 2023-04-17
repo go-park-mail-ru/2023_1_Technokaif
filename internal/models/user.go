@@ -39,7 +39,7 @@ type UserTransfer struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Sex       Sex    `json:"sex"`
-	BirhDate  Date   `json:"birthDate"`
+	BirthDate Date   `json:"birthDate,omitempty"`
 	AvatarSrc string `json:"avatarSrc,omitempty"`
 }
 
@@ -62,7 +62,7 @@ func UserTransferFromEntry(user User) UserTransfer {
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Sex:       user.Sex,
-		BirhDate:  user.BirthDate,
+		BirthDate: user.BirthDate,
 		AvatarSrc: user.AvatarSrc,
 	}
 }
