@@ -89,7 +89,7 @@ CREATE TABLE Playlists_Tracks
     track_id    INT REFERENCES Tracks        ON DELETE CASCADE,
     added_at    TIMESTAMPTZ DEFAULT NOW()                      NOT NULL,
 
-    PRIMARY KEY(playlist_id, track_id, position)
+    PRIMARY KEY(playlist_id, track_id)
 );
 
 CREATE TABLE Liked_albums

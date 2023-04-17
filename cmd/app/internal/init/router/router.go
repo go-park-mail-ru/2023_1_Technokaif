@@ -87,7 +87,7 @@ func InitRouter(
 		})
 
 		r.Route("/playlists", func(r chi.Router) {
-			r.With(authM.Authorization).Post("/", playlistH.Create)
+			r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/", playlistH.Create)
 			r.Route(playlistIdRoute, func(r chi.Router) {
 				r.Get("/", playlistH.Get)
 
