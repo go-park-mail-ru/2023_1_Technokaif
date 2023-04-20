@@ -892,6 +892,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/playlists/{playlistID}/cover": {
+            "post": {
+                "description": "Update playlist cover",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Playlist"
+                ],
+                "summary": "Upload Cover",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Cover file",
+                        "name": "cover",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Cover updated",
+                        "schema": {
+                            "$ref": "#/definitions/http.defaultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid form data",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User Unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "User hasn't rights",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/api/playlists/{playlistID}/like": {
             "post": {
                 "description": "Set like by user to chosen playlist (add to favorite)",

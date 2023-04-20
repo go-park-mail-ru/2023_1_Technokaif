@@ -116,6 +116,18 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
+// @Summary      Upload Cover
+// @Tags         Playlist
+// @Description  Update playlist cover
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param		 cover  formData  file true 		"Cover file"
+// @Success      200    {object}  defaultResponse	"Cover updated"
+// @Failure      400    {object}  http.Error  		"Invalid form data"
+// @Failure      401    {object}  http.Error  		"User Unathorized"
+// @Failure      403    {object}  http.Error  		"User hasn't rights"
+// @Failure      500    {object}  http.Error  		"Server error"
+// @Router       /api/playlists/{playlistID}/cover [post]
 func (h *Handler) UploadCover(w http.ResponseWriter, r *http.Request) {
 	playlistRequestID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {

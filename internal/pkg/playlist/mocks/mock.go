@@ -197,17 +197,31 @@ func (mr *MockUsecaseMockRecorder) UpdateInfoAndMembers(playlist, usersID, userI
 }
 
 // UploadCover mocks base method.
-func (m *MockUsecase) UploadCover(playlistID uint32, file io.ReadSeeker, fileExtension string) error {
+func (m *MockUsecase) UploadCover(playlistID, userID uint32, file io.ReadSeeker, fileExtension string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadCover", playlistID, file, fileExtension)
+	ret := m.ctrl.Call(m, "UploadCover", playlistID, userID, file, fileExtension)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadCover indicates an expected call of UploadCover.
-func (mr *MockUsecaseMockRecorder) UploadCover(playlistID, file, fileExtension interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) UploadCover(playlistID, userID, file, fileExtension interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCover", reflect.TypeOf((*MockUsecase)(nil).UploadCover), playlistID, file, fileExtension)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCover", reflect.TypeOf((*MockUsecase)(nil).UploadCover), playlistID, userID, file, fileExtension)
+}
+
+// UploadCoverWrongFormatError mocks base method.
+func (m *MockUsecase) UploadCoverWrongFormatError() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadCoverWrongFormatError")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadCoverWrongFormatError indicates an expected call of UploadCoverWrongFormatError.
+func (mr *MockUsecaseMockRecorder) UploadCoverWrongFormatError() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCoverWrongFormatError", reflect.TypeOf((*MockUsecase)(nil).UploadCoverWrongFormatError))
 }
 
 // MockRepository is a mock of Repository interface.
