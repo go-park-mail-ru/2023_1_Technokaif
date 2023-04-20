@@ -18,15 +18,19 @@ type playlistCreateInput struct {
 	Description *string  `json:"description"`
 }
 
-func (pci *playlistCreateInput) validate() error {
-	pci.Name = html.EscapeString(pci.Name)
-	if pci.Description != nil {
-		*pci.Description = html.EscapeString(*pci.Description)
-	}
+func (pci *playlistCreateInput) validateAndEscape() error {
+	pci.escapeHtml()
 
 	_, err := valid.ValidateStruct(pci)
 
 	return err
+}
+
+func (pci *playlistCreateInput) escapeHtml() {
+	pci.Name = html.EscapeString(pci.Name)
+	if pci.Description != nil {
+		*pci.Description = html.EscapeString(*pci.Description)
+	}
 }
 
 func (pci *playlistCreateInput) ToPlaylist() models.Playlist {
