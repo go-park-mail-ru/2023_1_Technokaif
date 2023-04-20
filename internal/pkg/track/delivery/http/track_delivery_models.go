@@ -34,7 +34,6 @@ func (t *trackCreateInput) escapeHtml() {
 	t.Name = html.EscapeString(t.Name)
 }
 
-
 func (tci *trackCreateInput) ToTrack() models.Track {
 	return models.Track{
 		Name:          tci.Name,

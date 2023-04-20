@@ -58,7 +58,6 @@ func (pui *playlistUpdateInput) escapeHtml() {
 	}
 }
 
-
 func (pui *playlistUpdateInput) ToPlaylist(playlistID uint32) models.Playlist {
 	return models.Playlist{
 		ID:          playlistID,

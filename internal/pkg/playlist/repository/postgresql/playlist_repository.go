@@ -155,7 +155,7 @@ func (p *PostgreSQL) DeleteByID(playlistID uint32) error {
 	if err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
-	deleted, err := resExec.RowsAffected() 
+	deleted, err := resExec.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
 	}
@@ -202,7 +202,7 @@ func (p *PostgreSQL) DeleteTrack(trackID, playlistID uint32) error {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
-	deleted, err := resExec.RowsAffected() 
+	deleted, err := resExec.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
 	}
