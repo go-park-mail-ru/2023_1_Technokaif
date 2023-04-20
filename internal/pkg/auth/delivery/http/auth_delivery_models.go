@@ -18,13 +18,17 @@ type loginInput struct {
 	Password string `json:"password" valid:"required"`
 }
 
-func (li *loginInput) validate() error {
-	li.Username = html.EscapeString(li.Username)
-	li.Password = html.EscapeString(li.Password)
+func (li *loginInput) validateAndEscape() error {
+	li.escapeHtml()
 
 	_, err := valid.ValidateStruct(*li)
 
 	return err
+}
+
+func (li *loginInput) escapeHtml() {
+	li.Username = html.EscapeString(li.Username)
+	li.Password = html.EscapeString(li.Password)
 }
 
 type loginResponse struct {

@@ -43,16 +43,21 @@ type playlistUpdateInput struct {
 	Description *string  `json:"description"`
 }
 
-func (pui *playlistUpdateInput) validate() error {
-	pui.Name = html.EscapeString(pui.Name)
-	if pui.Description != nil {
-		*pui.Description = html.EscapeString(*pui.Description)
-	}
+func (pui *playlistUpdateInput) validateAndEscape() error {
+	pui.escapeHtml()
 
 	_, err := valid.ValidateStruct(pui)
 
 	return err
 }
+
+func (pui *playlistUpdateInput) escapeHtml() {
+	pui.Name = html.EscapeString(pui.Name)
+	if pui.Description != nil {
+		*pui.Description = html.EscapeString(*pui.Description)
+	}
+}
+
 
 func (pui *playlistUpdateInput) ToPlaylist(playlistID uint32) models.Playlist {
 	return models.Playlist{

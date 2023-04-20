@@ -16,16 +16,20 @@ type albumCreateInput struct {
 	CoverSrc    string   `json:"cover" valid:"required"`
 }
 
-func (a *albumCreateInput) validate() error {
+func (a *albumCreateInput) validateAndEscape() error {
+	a.escapeHtml()
+
+	_, err := valid.ValidateStruct(a)
+
+	return err
+}
+
+func (a *albumCreateInput) escapeHtml() {
 	a.Name = html.EscapeString(a.Name)
 	if a.Description != nil {
 		*a.Description = html.EscapeString(*a.Description)
 	}
 	a.CoverSrc = html.EscapeString(a.CoverSrc)
-
-	_, err := valid.ValidateStruct(a)
-
-	return err
 }
 
 func (aci *albumCreateInput) ToAlbum() models.Album {

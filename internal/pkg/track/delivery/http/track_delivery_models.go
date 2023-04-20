@@ -18,8 +18,8 @@ type trackCreateInput struct {
 	RecordSrc     string   `json:"record" valid:"required"`
 }
 
-func (t *trackCreateInput) validate() error {
-	t.Name = html.EscapeString(t.Name)
+func (t *trackCreateInput) validateAndEscape() error {
+	t.escapeHtml()
 
 	if (t.AlbumID == nil) != (t.AlbumPosition == nil) {
 		return errors.New("(delivery) albumID is nil while albumPosition isn't (or vice versa)")
@@ -29,6 +29,11 @@ func (t *trackCreateInput) validate() error {
 
 	return err
 }
+
+func (t *trackCreateInput) escapeHtml() {
+	t.Name = html.EscapeString(t.Name)
+}
+
 
 func (tci *trackCreateInput) ToTrack() models.Track {
 	return models.Track{

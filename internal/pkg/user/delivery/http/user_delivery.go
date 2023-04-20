@@ -83,7 +83,7 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := userInfo.validate(); err != nil {
+	if err := userInfo.validateAndEscape(); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
 		return
 	}

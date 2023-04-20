@@ -14,13 +14,17 @@ type artistCreateInput struct {
 	AvatarSrc string `json:"cover" valid:"required"`
 }
 
-func (a *artistCreateInput) validate() error {
-	a.Name = html.EscapeString(a.Name)
-	a.AvatarSrc = html.EscapeString(a.AvatarSrc)
+func (a *artistCreateInput) validateAndEscape() error {
+	a.escapeHtml()
 
 	_, err := valid.ValidateStruct(a)
 
 	return err
+}
+
+func (a *artistCreateInput) escapeHtml() {
+	a.Name = html.EscapeString(a.Name)
+	a.AvatarSrc = html.EscapeString(a.AvatarSrc)
 }
 
 func (aci *artistCreateInput) ToArtist(userID *uint32) models.Artist {

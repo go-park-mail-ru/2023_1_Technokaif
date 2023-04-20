@@ -205,7 +205,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := pui.validate(); err != nil {
+	if err := pui.validateAndEscape(); err != nil {
 		h.logger.Infof("Creating playlist input validation failed: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return

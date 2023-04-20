@@ -97,7 +97,11 @@ func (p *PostgreSQL) DeleteByID(albumID uint32) error {
 	if err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
-	deleted, _ := resExec.RowsAffected() // postgres 100% supports rowsAffected, so no error
+	deleted, err := resExec.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
+	}
+
 	if deleted == 0 {
 		return fmt.Errorf("(repo): %w", &models.NoSuchAlbumError{AlbumID: albumID})
 	}

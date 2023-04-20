@@ -51,7 +51,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := aci.validate(); err != nil {
+	if err := aci.validateAndEscape(); err != nil {
 		h.logger.Infof("Creating album input validation failed: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return

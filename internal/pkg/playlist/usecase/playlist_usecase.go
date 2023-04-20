@@ -83,7 +83,7 @@ func (u *Usecase) UpdateInfoAndMembers(playlist models.Playlist, usersID []uint3
 	if err != nil {
 		return fmt.Errorf("(usecase) can't get authors of playlist: %w", err)
 	}
-	authorsMap := make(map[uint32]struct{})
+	authorsMap := make(map[uint32]struct{}, len(authors))
 	for _, a := range authors {
 		authorsMap[a.ID] = struct{}{}
 	}

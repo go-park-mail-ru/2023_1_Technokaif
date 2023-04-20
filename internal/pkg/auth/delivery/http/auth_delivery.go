@@ -85,7 +85,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := userInput.validate(); err != nil {
+	if err := userInput.validateAndEscape(); err != nil {
 		h.logger.Infof("user validation failed: %s", err.Error())
 		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
 		return

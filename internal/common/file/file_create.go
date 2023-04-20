@@ -10,6 +10,11 @@ import (
 )
 
 func CreateFile(file io.ReadSeeker, extension string, dirPath string) (filename string, path string, _ error) {
+	beginPosition, err := file.Seek(0, io.SeekCurrent) // save begin position
+	if err != nil {
+		return "", "", fmt.Errorf("can't do file seek: %w", err)
+	}
+
 	// Create standard filename
 	hasher := sha256.New()
 	if _, err := io.Copy(hasher, file); err != nil {
@@ -17,7 +22,7 @@ func CreateFile(file io.ReadSeeker, extension string, dirPath string) (filename 
 	}
 	newFileName := hex.EncodeToString(hasher.Sum(nil))
 
-	if _, err := file.Seek(0, 0); err != nil {
+	if _, err = file.Seek(beginPosition, io.SeekStart); err != nil { // go back to beginPosition
 		return "", "", fmt.Errorf("can't do file seek: %w", err)
 	}
 
@@ -25,8 +30,9 @@ func CreateFile(file io.ReadSeeker, extension string, dirPath string) (filename 
 
 	path = filepath.Join(dirPath, filename)
 
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		newFD, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
+	_, err = os.Stat(path)
+	if os.IsNotExist(err) {
+		newFD, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0600)
 		if err != nil {
 			return "", "", fmt.Errorf("can't create file to save avatar: %w", err)
 		}
@@ -35,6 +41,12 @@ func CreateFile(file io.ReadSeeker, extension string, dirPath string) (filename 
 		if _, err := io.Copy(newFD, file); err != nil {
 			return "", "", fmt.Errorf("can't write sent avatar to file: %w", err)
 		}
+	} else {
+		return "", "", fmt.Errorf("can't check file stat: %w", err)
+	}
+
+	if _, err = file.Seek(beginPosition, io.SeekStart); err != nil { // go back to beginPosition
+		return "", "", fmt.Errorf("can't do file seek: %w", err)
 	}
 
 	return filename, path, nil

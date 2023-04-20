@@ -25,14 +25,18 @@ type userInfoInput struct {
 	BirthDate models.Date `json:"birthDate" valid:"required,born"`
 }
 
-func (ui *userInfoInput) validate() error {
-	ui.Email = html.EscapeString(ui.Email)
-	ui.FirstName = html.EscapeString(ui.FirstName)
-	ui.LastName = html.EscapeString(ui.LastName)
+func (ui *userInfoInput) validateAndEscape() error {
+	ui.escapeHtml()
 
 	_, err := valid.ValidateStruct(*ui)
 
 	return err
+}
+
+func (ui *userInfoInput) escapeHtml() {
+	ui.Email = html.EscapeString(ui.Email)
+	ui.FirstName = html.EscapeString(ui.FirstName)
+	ui.LastName = html.EscapeString(ui.LastName)
 }
 
 func (ui *userInfoInput) ToUser(user *models.User) *models.User {

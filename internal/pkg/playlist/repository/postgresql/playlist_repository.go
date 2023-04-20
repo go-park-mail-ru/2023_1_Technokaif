@@ -28,20 +28,28 @@ func NewPostgreSQL(db *sqlx.DB, t playlist.Tables, l logger.Logger) *PostgreSQL 
 	}
 }
 
+func checkTransaction(tx *sql.Tx, repoError *error) {
+	if *repoError != nil {
+		if err := tx.Rollback(); err != nil {
+			*repoError = fmt.Errorf("(repo) failed to Rollback: %w: %w", err, *repoError)
+		}
+
+	} else {
+		if err := tx.Commit(); err != nil {
+			_ = tx.Rollback()
+			*repoError = fmt.Errorf("(repo) failed to Commit: %w: %w", err, *repoError)
+		}
+	}
+}
+
 const errorAlreadyExists = "unique_violation"
 
-func (p *PostgreSQL) Insert(playlist models.Playlist, usersID []uint32) (_ uint32, err error) {
+func (p *PostgreSQL) Insert(playlist models.Playlist, usersID []uint32) (_ uint32, repoErr error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkTransaction(tx, &repoErr)
 
 	insertAlbumQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
@@ -87,18 +95,12 @@ func (p *PostgreSQL) GetByID(playlistID uint32) (*models.Playlist, error) {
 	return &playlist, nil
 }
 
-func (p *PostgreSQL) UpdateWithMembers(pl models.Playlist, usersID []uint32) error {
+func (p *PostgreSQL) UpdateWithMembers(pl models.Playlist, usersID []uint32) (repoErr error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer checkTransaction(tx, &repoErr)
 
 	updatePlaylistQuery := fmt.Sprintf(
 		`UPDATE %s
@@ -153,7 +155,11 @@ func (p *PostgreSQL) DeleteByID(playlistID uint32) error {
 	if err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
-	deleted, _ := resExec.RowsAffected() // postgres 100% supports rowsAffected, so no error
+	deleted, err := resExec.RowsAffected() 
+	if err != nil {
+		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
+	}
+
 	if deleted == 0 {
 		return fmt.Errorf("(repo): %w", &models.NoSuchPlaylistError{PlaylistID: playlistID})
 	}
@@ -191,8 +197,18 @@ func (p *PostgreSQL) DeleteTrack(trackID, playlistID uint32) error {
 		WHERE track_id = $1 AND playlist_id = $2;`,
 		p.tables.PlaylistsTracks())
 
-	if _, err := p.db.Exec(query, trackID, playlistID); err != nil {
+	resExec, err := p.db.Exec(query, trackID, playlistID)
+	if err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	deleted, err := resExec.RowsAffected() 
+	if err != nil {
+		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
+	}
+
+	if deleted == 0 {
+		return fmt.Errorf("(repo) no such track or playlist")
 	}
 
 	return nil

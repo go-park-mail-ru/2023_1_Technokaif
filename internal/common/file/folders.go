@@ -1,63 +1,65 @@
 package file
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
+	valid "github.com/asaskevich/govalidator"
 	"github.com/joho/godotenv"
 )
 
+const (
+	mediaPathParam           = "MEDIA_PATH"
+	avatarFolderParam        = "AVATARS_FOLDER"
+	recordsFolderParam       = "RECORDS_FOLDER"
+	playlistCoverFolderParam = "PLAYLIST_COVERS_FOLDER"
+)
+
+var paths = struct {
+	mediaPath           string `valid:"required,not_empty"`
+	avatarsFolder       string `valid:"required,not_empty"`
+	recordsFolder       string `valid:"required,not_empty"`
+	playlistCoverFolder string `valid:"required,not_empty"`
+}{
+	mediaPath:           os.Getenv(mediaPathParam),
+	avatarsFolder:       os.Getenv(avatarFolderParam),
+	recordsFolder:       os.Getenv(recordsFolderParam),
+	playlistCoverFolder: os.Getenv(playlistCoverFolderParam),
+}
+
 func MediaPath() string {
-	return os.Getenv("MEDIA_PATH")
+	return paths.mediaPath
 }
 
 func AvatarFolder() string {
-	return os.Getenv("AVATARS_FOLDER")
+	return paths.avatarsFolder
 }
 
 func RecordsFolder() string {
-	return os.Getenv("RECORDS_FOLDER")
+	return paths.recordsFolder
 }
 
 func PlaylistCoverFolder() string {
-	return os.Getenv("PLAYLIST_COVERS_FOLDER")
+	return paths.playlistCoverFolder
 }
 
 func InitPaths() error {
-	mediaPath := MediaPath()
-	avatarsFolder := AvatarFolder()
-	recordsFolder := RecordsFolder()
-	playlistCoverFolder := PlaylistCoverFolder()
-
-	if mediaPath == "" {
-		return errors.New("MEDIA_PATH isn't set")
+	if _, err := valid.ValidateStruct(paths); err != nil {
+		return err
 	}
 
-	if avatarsFolder == "" {
-		return errors.New("AVATARS_FOLDER isn't set")
-	}
-
-	if recordsFolder == "" {
-		return errors.New("RECORDS_FOLDER isn't set")
-	}
-
-	if playlistCoverFolder == "" {
-		return errors.New("PLAYLIST_COVERS_FOLDER isn't set")
-	}
-
-	var dirForUserAvatars = filepath.Join(mediaPath, avatarsFolder)
+	var dirForUserAvatars = filepath.Join(paths.mediaPath, paths.avatarsFolder)
 	if err := os.MkdirAll(dirForUserAvatars, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir to save avatars: %w", err)
 	}
 
-	var dirForTracks = filepath.Join(mediaPath, recordsFolder)
+	var dirForTracks = filepath.Join(paths.mediaPath, paths.recordsFolder)
 	if err := os.MkdirAll(dirForTracks, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir for tracks: %w", err)
 	}
 
-	var dirForPlaylistCovers = filepath.Join(mediaPath, playlistCoverFolder)
+	var dirForPlaylistCovers = filepath.Join(paths.mediaPath, paths.playlistCoverFolder)
 	if err := os.MkdirAll(dirForPlaylistCovers, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir for playlists: %w", err)
 	}
@@ -67,4 +69,8 @@ func InitPaths() error {
 
 func init() {
 	godotenv.Load()
+
+	valid.TagMap["not_empty"] = valid.Validator(func(str string) bool {
+		return !(valid.Trim(str, " ") == "")
+	})
 }
