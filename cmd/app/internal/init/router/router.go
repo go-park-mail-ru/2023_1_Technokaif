@@ -92,21 +92,25 @@ func InitRouter(
 				r.Get("/", playlistH.Get)
 
 				r.With(authM.Authorization).Group(func(r chi.Router) {
-					r.Get("/tracks", trackH.GetByPlaylist)
-
 					r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {
 						r.Post("/update", playlistH.Update)
 						r.Post("/cover", playlistH.UploadCover)
 						r.Delete("/", playlistH.Delete)
 
-						r.Route("/tracks"+trackIdRoute, func(r chi.Router) {
-							r.Post("/", playlistH.AddTrack)
-							r.Delete("/", playlistH.DeleteTrack)
-						})
-
 						r.Post("/like", playlistH.Like)
 						r.Post("/unlike", playlistH.UnLike)
 					})
+
+					r.Route("/tracks", func(r chi.Router) {
+						r.Get("/", trackH.GetByPlaylist)
+						r.Route(trackIdRoute, func(r chi.Router) {
+							r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {
+								r.Post("/", playlistH.AddTrack)
+								r.Delete("/", playlistH.DeleteTrack)
+							})
+						})
+					})
+
 				})
 			})
 			r.Get("/feed", playlistH.Feed)

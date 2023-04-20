@@ -181,6 +181,9 @@ func (p *PostgreSQL) GetByPlaylist(playlistID uint32) ([]models.User, error) {
 
 		users = append(users, u)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
 
 	return users, nil
 }

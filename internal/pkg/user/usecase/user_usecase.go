@@ -63,9 +63,6 @@ func (u *Usecase) UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension 
 	if fileType, err := commonFile.CheckMimeType(file, "image/png", "image/jpeg"); err != nil {
 		return fmt.Errorf("(usecase) file format %s: %w", fileType, ErrAvatarWrongFormat)
 	}
-	if _, err := file.Seek(0, 0); err != nil {
-		return fmt.Errorf("(usecase) can't do file seek: %w", err)
-	}
 
 	filenameWithExtension, _, err := commonFile.CreateFile(file, fileExtension, dirForUserAvatar)
 	if err != nil {
