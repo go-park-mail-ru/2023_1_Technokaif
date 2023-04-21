@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package auth;
+
+message SignUpMsg {
+	string username = 1; // @gotags: json:"username" valid:"required,runelength(4|20)" db:"username"
+	string email = 2; // @gotags: json:"email" valid:"required,email,maxstringlength(255)" db:"email"
+	string password = 3; // @gotags: json:"password" valid:"required,runelength(8|30),passwordcheck" db:"password_hash"
+	string firstName = 4; // @gotags: json:"firstName" valid:"required,runelength(2|20)" db:"first_name"
+	string lastName = 5; // @gotags: json:"lastName" valid:"required,runelength(2|20)" db:"last_name"
+	string sex = 6; // @gotags: json:"sex" valid:"required,in(F|M|O)" db:"sex"
+	string birthDate = 7; // @gotags: json:"birthDate" valid:"required,born" db:"birth_date"
+}
+
+message SignUpResponse {
+    uint32 id = 1;
+}
+
+message UserResponse {
+    uint32 id = 1; // @gotags: json:"id"
+    string username = 2; // @gotags: json:"username"
+	string email = 3; // @gotags: json:"email"
+	string password = 4; // @gotags: json:"password"
+	string firstName = 5; // @gotags: json:"firstName"
+	string lastName = 6; // @gotags: json:"lastName"
+	string sex = 7; // @gotags: json:"sex"
+	string birthDate = 8; // @gotags: json:"birthDate"
+	string avatarSrc = 9; // @gotags: json:"avatarSrc"
+}
+
+
+message Credentials {
+    string username = 1;
+    string plainPassword = 2;
+}
+
+message AuthData {
+    uint32 id = 1;
+    uint32 version = 2;
+}
+
+service Authorization {
+    rpc SignUpUser(SignUpMsg) returns (SignUpResponse) {};
+	rpc CheckCredentials(Credentials) returns () {};
+	rpc GetUserByAuthData(AuthData) returns () {};
+	rpc IncreaseUserVersion(userID uint32) returns () {};
+	rpc ChangePassword(userID uint32, password string) returns () {};
+    rpc GenerateAccessToken(userID, userVersion uint32) returns () {};
+	rpc CheckAccessToken(AccessToken string) returns () {};
+	rpc GenerateCSRFToken(userID uint32) returns () {};
+	rpc CheckCSRFToken(csrfToken string) returns () {};
+}

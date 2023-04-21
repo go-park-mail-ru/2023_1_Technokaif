@@ -24,7 +24,9 @@ func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecas
 	return &Usecase{
 		authRepo: ar,
 		userRepo: ur,
-		logger:   l}
+
+		logger: l,
+	}
 }
 
 func (u *Usecase) SignUpUser(user models.User) (uint32, error) {

@@ -8,10 +8,10 @@ import (
 
 // Usecase includes bussiness logics methods to work with authentication
 type Usecase interface {
-	// CreateUser creates new user and returns it's id
+	// SignUpUser creates new user and returns it's id
 	SignUpUser(user models.User) (uint32, error)
 
-	// GetUserID returns User if such User exists in repository
+	// GetUserByCreds returns User if such User exists in repository
 	GetUserByCreds(username, plainPassword string) (*models.User, error)
 
 	// GetUserByAuthData returns User if such User exists in repository
@@ -21,6 +21,11 @@ type Usecase interface {
 	IncreaseUserVersion(userID uint32) error
 
 	ChangePassword(userID uint32, password string) error
+}
+
+// Agent ...
+type Agent interface {
+	// ...
 }
 
 // Repository includes DBMS-relatable methods to work with authentication
