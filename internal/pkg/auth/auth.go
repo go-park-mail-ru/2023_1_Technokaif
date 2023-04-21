@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"context"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
@@ -25,7 +27,7 @@ type Usecase interface {
 
 // Agent ...
 type Agent interface {
-	// ...
+	SignUpUser(u models.User, context context.Context) (uint32, error)
 }
 
 // Repository includes DBMS-relatable methods to work with authentication

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -15,13 +16,18 @@ import (
 
 // Usecase implements auth.Usecase
 type Usecase struct {
+	authAgent auth.Agent
+
 	authRepo auth.Repository
 	userRepo user.Repository
+
 	logger   logger.Logger
 }
 
-func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecase {
+func NewUsecase(aa auth.Agent, ar auth.Repository, ur user.Repository, l logger.Logger) *Usecase {
 	return &Usecase{
+		authAgent: aa,
+
 		authRepo: ar,
 		userRepo: ur,
 
@@ -30,12 +36,13 @@ func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecas
 }
 
 func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
-	salt := generateRandomSalt()
+	/*salt := generateRandomSalt()
 	user.Salt = hex.EncodeToString(salt)
 
 	user.Password = hashPassword(user.Password, salt)
 
-	userId, err := u.userRepo.CreateUser(user)
+	userId, err := u.userRepo.CreateUser(user)*/
+	userId, err := u.authAgent.SignUpUser(user, context.Background()) // TODO context
 	if err != nil {
 		return 0, fmt.Errorf("(usecase) cannot create user: %w", err)
 	}
