@@ -14,11 +14,11 @@ type ArtistTransfer struct {
 }
 
 // ArtistTransferFromEntry converts Artist to ArtistTransfer
-func ArtistTransferFromEntry(artist Artist) ArtistTransfer {
+func ArtistTransferFromEntry(a Artist) ArtistTransfer {
 	return ArtistTransfer{
-		ID:        artist.ID,
-		Name:      artist.Name,
-		AvatarSrc: artist.AvatarSrc,
+		ID:        a.ID,
+		Name:      a.Name,
+		AvatarSrc: a.AvatarSrc,
 	}
 }
 

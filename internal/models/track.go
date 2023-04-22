@@ -23,10 +23,10 @@ type TrackTransfer struct {
 }
 
 type artistsByTrackGetter func(trackID uint32) ([]Artist, error)
-type likeChecker func(trackID, userID uint32) (bool, error)
+type trackLikeChecker func(trackID, userID uint32) (bool, error)
 
 // TrackTransferFromEntry converts Track to TrackTransfer
-func TrackTransferFromEntry(t Track, user *User, lc likeChecker, ag artistsByTrackGetter) (TrackTransfer, error) {
+func TrackTransferFromEntry(t Track, user *User, lc trackLikeChecker, ag artistsByTrackGetter) (TrackTransfer, error) {
 	artists, err := ag(t.ID)
 	if err != nil {
 		return TrackTransfer{}, err
@@ -54,7 +54,7 @@ func TrackTransferFromEntry(t Track, user *User, lc likeChecker, ag artistsByTra
 }
 
 // TrackTransferFromQuery converts []Track to []TrackTransfer
-func TrackTransferFromQuery(tracks []Track, user *User, lc likeChecker, ag artistsByTrackGetter) ([]TrackTransfer, error) {
+func TrackTransferFromQuery(tracks []Track, user *User, lc trackLikeChecker, ag artistsByTrackGetter) ([]TrackTransfer, error) {
 	trackTransfers := make([]TrackTransfer, 0, len(tracks))
 	for _, t := range tracks {
 		trackTransfer, err := TrackTransferFromEntry(t, user, lc, ag)

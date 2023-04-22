@@ -107,7 +107,13 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.PlaylistTransferFromEntry(*playlist, h.userServices.GetByPlaylist)
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	resp, err := models.PlaylistTransferFromEntry(*playlist, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlist", http.StatusInternalServerError, h.logger, err)
 		return
@@ -323,7 +329,13 @@ func (h *Handler) GetByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, err := models.PlaylistTransferFromQuery(playlists, h.userServices.GetByPlaylist)
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	pt, err := models.PlaylistTransferFromQuery(playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
 		return
@@ -472,7 +484,13 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.PlaylistTransferFromQuery(playlists, h.userServices.GetByPlaylist)
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	resp, err := models.PlaylistTransferFromQuery(playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
 		return

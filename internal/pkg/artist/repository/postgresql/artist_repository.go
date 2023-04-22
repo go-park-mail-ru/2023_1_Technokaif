@@ -209,3 +209,21 @@ func (p *PostgreSQL) DeleteLike(artistID, userID uint32) (bool, error) {
 		return true, nil
 	}
 }
+
+func (p *PostgreSQL) IsLiked(artistID, userID uint32) (bool, error) {
+	query := fmt.Sprintf(
+		`SELECT CASE WHEN 
+			EXISTS(SELECT *
+				FROM %s
+				WHERE artist_id = $1 AND user_id = $2
+			) THEN TRUE ELSE FALSE END;`,
+		p.tables.LikedArtists())
+
+	var isLiked bool
+	err := p.db.Get(&isLiked, query, artistID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(repo) failed to check if artist is liked by user: %w", err)
+	}
+
+	return isLiked, nil
+}

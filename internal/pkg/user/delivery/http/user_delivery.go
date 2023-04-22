@@ -207,7 +207,7 @@ func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := models.AlbumTransferFromQuery(favAlbums, h.artistServices.GetByAlbum)
+	at, err := models.AlbumTransferFromQuery(favAlbums, user, h.albumServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite albums", http.StatusInternalServerError, h.logger, err)
 		return
@@ -239,7 +239,7 @@ func (h *Handler) GetFavouritePlaylists(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	at, err := models.PlaylistTransferFromQuery(favPlaylists, h.userServices.GetByPlaylist)
+	at, err := models.PlaylistTransferFromQuery(favPlaylists, user, h.trackServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite playlists", http.StatusInternalServerError, h.logger, err)
 		return

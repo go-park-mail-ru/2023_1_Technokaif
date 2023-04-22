@@ -138,6 +138,21 @@ func (mr *MockUsecaseMockRecorder) GetLikedByUser(userID interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockUsecase)(nil).GetLikedByUser), userID)
 }
 
+// IsLiked mocks base method.
+func (m *MockUsecase) IsLiked(albumID, userID uint32) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsLiked", albumID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsLiked indicates an expected call of IsLiked.
+func (mr *MockUsecaseMockRecorder) IsLiked(albumID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockUsecase)(nil).IsLiked), albumID, userID)
+}
+
 // SetLike mocks base method.
 func (m *MockUsecase) SetLike(albumID, userID uint32) (bool, error) {
 	m.ctrl.T.Helper()
@@ -323,6 +338,21 @@ func (m *MockRepository) InsertLike(albumID, userID uint32) (bool, error) {
 func (mr *MockRepositoryMockRecorder) InsertLike(albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertLike", reflect.TypeOf((*MockRepository)(nil).InsertLike), albumID, userID)
+}
+
+// IsLiked mocks base method.
+func (m *MockRepository) IsLiked(albumID, userID uint32) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsLiked", albumID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsLiked indicates an expected call of IsLiked.
+func (mr *MockRepositoryMockRecorder) IsLiked(albumID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockRepository)(nil).IsLiked), albumID, userID)
 }
 
 // MockTables is a mock of Tables interface.
