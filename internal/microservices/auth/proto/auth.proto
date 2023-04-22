@@ -1,10 +1,8 @@
 syntax = "proto3";
 
-package auth;
-
-option go_package = "microservices/auth/proto";
-
 // protoc --go_out=. --go-grpc_out=. --go-grpc_opt=paths=source_relative --go_opt=paths=source_relative *.proto
+package auth;
+option go_package = "microservices/auth/proto";
 
 message SignUpMsg {
 	string username = 1; // @gotags: json:"username" valid:"required,runelength(4|20)" db:"username"
@@ -20,6 +18,21 @@ message SignUpResponse {
     uint32 id = 1;
 }
 
+message PasswordCheckMsg {
+    string plainPassword = 1;
+	string salt = 2;
+    string expectedPassword = 3;
+}
+
+message PasswordCheckResponse {
+	bool isValid = 1;
+}
+
+message AuthData {
+    uint32 id = 1;
+    uint32 version = 2;
+}
+
 message UserResponse {
     uint32 id = 1; // @gotags: json:"id"
     string username = 2; // @gotags: json:"username"
@@ -32,21 +45,11 @@ message UserResponse {
 	string avatarSrc = 9; // @gotags: json:"avatarSrc"
 }
 
-
-message Credentials {
-    string username = 1;
-    string plainPassword = 2;
-}
-
-message AuthData {
-    uint32 id = 1;
-    uint32 version = 2;
-}
-
 service Authorization {
     rpc SignUpUser(SignUpMsg) returns (SignUpResponse) {};
-	/* rpc CheckCredentials(Credentials) returns () {};
-	rpc GetUserByAuthData(AuthData) returns () {};
+	rpc CheckPassword(PasswordCheckMsg) returns (PasswordCheckResponse) {};
+	rpc GetUserByAuthData(AuthData) returns (UserResponse) {};
+	/*
 	rpc IncreaseUserVersion(userID uint32) returns () {};
 	rpc ChangePassword(userID uint32, password string) returns () {};
     rpc GenerateAccessToken(userID, userVersion uint32) returns () {};

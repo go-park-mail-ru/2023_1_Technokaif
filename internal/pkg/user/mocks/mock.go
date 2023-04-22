@@ -218,6 +218,41 @@ func (mr *MockRepositoryMockRecorder) UpdateInfo(user interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateInfo", reflect.TypeOf((*MockRepository)(nil).UpdateInfo), user)
 }
 
+// MockAgent is a mock of Agent interface.
+type MockAgent struct {
+	ctrl     *gomock.Controller
+	recorder *MockAgentMockRecorder
+}
+
+// MockAgentMockRecorder is the mock recorder for MockAgent.
+type MockAgentMockRecorder struct {
+	mock *MockAgent
+}
+
+// NewMockAgent creates a new mock instance.
+func NewMockAgent(ctrl *gomock.Controller) *MockAgent {
+	mock := &MockAgent{ctrl: ctrl}
+	mock.recorder = &MockAgentMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAgent) EXPECT() *MockAgentMockRecorder {
+	return m.recorder
+}
+
+// CreateUser mocks base method.
+func (m *MockAgent) CreateUser(user models.User) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "CreateUser", user)
+}
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockAgentMockRecorder) CreateUser(user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockAgent)(nil).CreateUser), user)
+}
+
 // MockTables is a mock of Tables interface.
 type MockTables struct {
 	ctrl     *gomock.Controller

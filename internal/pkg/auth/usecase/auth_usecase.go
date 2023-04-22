@@ -21,7 +21,7 @@ type Usecase struct {
 	authRepo auth.Repository
 	userRepo user.Repository
 
-	logger   logger.Logger
+	logger logger.Logger
 }
 
 func NewUsecase(aa auth.Agent, ar auth.Repository, ur user.Repository, l logger.Logger) *Usecase {
@@ -36,15 +36,9 @@ func NewUsecase(aa auth.Agent, ar auth.Repository, ur user.Repository, l logger.
 }
 
 func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
-	/*salt := generateRandomSalt()
-	user.Salt = hex.EncodeToString(salt)
-
-	user.Password = hashPassword(user.Password, salt)
-
-	userId, err := u.userRepo.CreateUser(user)*/
-	userId, err := u.authAgent.SignUpUser(user, context.Background()) // TODO context
+	userId, err := u.authAgent.SignUpUser(context.Background(), user) // TODO request context
 	if err != nil {
-		return 0, fmt.Errorf("(usecase) cannot create user: %w", err)
+		return 0, fmt.Errorf("(usecase) can't create user: %w", err)
 	}
 	return userId, nil
 }
@@ -55,15 +49,25 @@ func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error
 		return nil, fmt.Errorf("(usecase) cannot find user: %w", err)
 	}
 
-	salt, err := hex.DecodeString(user.Salt)
+	valid, err := u.authAgent.CheckPassword(context.Background(), password, user.Salt, user.Password)
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) invalid salt: %w", err)
+		return nil, fmt.Errorf("(usecase) can't check password: %w", err)
 	}
 
-	hashedPassword := hashPassword(password, salt)
-	if hashedPassword != user.Password {
-		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w", &models.IncorrectPasswordError{UserId: user.ID})
+	if !valid {
+		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w",
+			&models.IncorrectPasswordError{UserID: user.ID})
 	}
+
+	// salt, err := hex.DecodeString(user.Salt)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("(usecase) invalid salt: %w", err)
+	// }
+
+	// if hashPassword(password, salt) != user.Password {
+	// 	return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w",
+	// 		&models.IncorrectPasswordError{UserID: user.ID})
+	// }
 
 	return user, nil
 }
@@ -71,7 +75,7 @@ func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error
 func (u *Usecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	user, err := u.authRepo.GetUserByAuthData(userID, userVersion)
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) cannot find user by userId and userVersion: %w", err)
+		return nil, fmt.Errorf("(usecase) cannot find user by id and version: %w", err)
 	}
 	return user, nil
 }

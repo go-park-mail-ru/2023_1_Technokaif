@@ -105,13 +105,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "server failed to login user", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "failed to login user", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	token, err := h.tokenServices.GenerateAccessToken(user.ID, user.Version)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server failed to login user", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, "failed to login user", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 

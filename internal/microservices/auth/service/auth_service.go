@@ -16,14 +16,14 @@ import (
 type authService struct {
 	// authRepo auth.Repository
 	userRepo user.Repository
-	proto.UnsafeAuthorizationServer  // ?????
+	proto.UnimplementedAuthorizationServer
 }
 
 func NewAuthService(userRepo user.Repository) proto.AuthorizationServer {
 	return &authService{userRepo: userRepo}
 }
 
-func (a authService) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto.SignUpResponse, error) {
+func (a *authService) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto.SignUpResponse, error) {
 	salt := generateRandomSalt()
 
 	time, err := time.Parse("2006-01-02", msg.BirthDate)
@@ -32,11 +32,11 @@ func (a authService) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*pro
 	}
 
 	user := models.User{
-		Username: msg.Username,
-		Email: msg.Email,
+		Username:  msg.Username,
+		Email:     msg.Email,
 		FirstName: msg.FirstName,
-		LastName: msg.LastName,
-		Sex: models.Sex(msg.Sex),
+		LastName:  msg.LastName,
+		Sex:       models.Sex(msg.Sex),
 	}
 	user.BirthDate.Time = time
 

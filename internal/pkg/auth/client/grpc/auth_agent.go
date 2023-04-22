@@ -12,20 +12,26 @@ type authAgent struct {
 }
 
 func NewAuthAgent(c proto.AuthorizationClient) *authAgent {
-	return &authAgent{client: c}
+	return &authAgent{
+		client: c,
+	}
 }
 
-func (a authAgent) SignUpUser(u models.User, ctx context.Context) (uint32, error) {
-	
+func (a *authAgent) SignUpUser(ctx context.Context, u models.User) (uint32, error) {
 	msg := &proto.SignUpMsg{
-		Username: u.Username,
-		Email: u.Email,
-		Password: u.Password,
+		Username:  u.Username,
+		Email:     u.Email,
+		Password:  u.Password,
 		FirstName: u.FirstName,
-		LastName: u.LastName,
-		Sex: string(u.Sex),
-		BirthDate: u.BirthDate.Format("2006-01-02"),  // TODO Format
+		LastName:  u.LastName,
+		Sex:       string(u.Sex),
+		BirthDate: u.BirthDate.Format("2006-01-02"), // TODO Format
 	}
 	resp, err := a.client.SignUpUser(ctx, msg)
+
 	return resp.Id, err
+}
+
+func (a *authAgent) CheckCredentials() {
+
 }

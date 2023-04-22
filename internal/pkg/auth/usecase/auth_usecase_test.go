@@ -24,12 +24,13 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 
 	c := gomock.NewController(t)
 
+	authMocksAgent := authMocks.NewMockAgent(c)
 	authMocksRepo := authMocks.NewMockRepository(c)
 	userMocksRepo := userMocks.NewMockRepository(c)
 
 	l := commonTests.MockLogger(c)
 
-	u := NewUsecase(authMocksRepo, userMocksRepo, l)
+	u := NewUsecase(authMocksAgent, authMocksRepo, userMocksRepo, l)
 
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	require.NoError(t, err, "can't Parse birth date")

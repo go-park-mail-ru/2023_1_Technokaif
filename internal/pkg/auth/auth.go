@@ -27,7 +27,9 @@ type Usecase interface {
 
 // Agent ...
 type Agent interface {
-	SignUpUser(u models.User, context context.Context) (uint32, error)
+	SignUpUser(context context.Context, user models.User) (uint32, error)
+	CheckPassword(context context.Context, plainPassword, salt, expectedPassword string) (bool, error)
+	GetUserByAuthData(context context.Context, userID, userVersion uint32) (*models.User, error)
 }
 
 // Repository includes DBMS-relatable methods to work with authentication

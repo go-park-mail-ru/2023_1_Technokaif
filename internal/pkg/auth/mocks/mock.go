@@ -5,6 +5,7 @@
 package mock_auth
 
 import (
+	context "context"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -105,6 +106,44 @@ func (m *MockUsecase) SignUpUser(user models.User) (uint32, error) {
 func (mr *MockUsecaseMockRecorder) SignUpUser(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignUpUser", reflect.TypeOf((*MockUsecase)(nil).SignUpUser), user)
+}
+
+// MockAgent is a mock of Agent interface.
+type MockAgent struct {
+	ctrl     *gomock.Controller
+	recorder *MockAgentMockRecorder
+}
+
+// MockAgentMockRecorder is the mock recorder for MockAgent.
+type MockAgentMockRecorder struct {
+	mock *MockAgent
+}
+
+// NewMockAgent creates a new mock instance.
+func NewMockAgent(ctrl *gomock.Controller) *MockAgent {
+	mock := &MockAgent{ctrl: ctrl}
+	mock.recorder = &MockAgentMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAgent) EXPECT() *MockAgentMockRecorder {
+	return m.recorder
+}
+
+// SignUpUser mocks base method.
+func (m *MockAgent) SignUpUser(context context.Context, user models.User) (uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SignUpUser", context, user)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SignUpUser indicates an expected call of SignUpUser.
+func (mr *MockAgentMockRecorder) SignUpUser(context, user interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignUpUser", reflect.TypeOf((*MockAgent)(nil).SignUpUser), context, user)
 }
 
 // MockRepository is a mock of Repository interface.
