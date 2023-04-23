@@ -26,7 +26,6 @@ go.work
 # Auto generated
 *pb.go
 mocks
-docs
 
 # Static
 img
