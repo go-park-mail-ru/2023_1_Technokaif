@@ -60,10 +60,10 @@ func InitRouter(
 				})
 
 				r.Route("/favorite", func(r chi.Router) {
-					r.Get("/tracks", userH.GetFavouriteTracks)
-					r.Get("/albums", userH.GetFavouriteAlbums)
-					r.Get("/playlists", userH.GetFavouritePlaylists)
-					r.Get("/artists", userH.GetFavouriteArtists)
+					r.Get("/tracks", trackH.GetFavorite)
+					r.Get("/albums", albumH.GetFavorite)
+					r.Get("/playlists", playlistH.GetFavorite)
+					r.Get("/artists", artistH.GetFavorite)
 				})
 			})
 		})

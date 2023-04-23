@@ -30,7 +30,7 @@ func NewMiddleware(u auth.Usecase, t token.Usecase, l logger.Logger) *Middleware
 func (m *Middleware) Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		token, err := commonHttp.GetAcessTokenFromCookie(r)
+		token, err := commonHttp.GetAccessTokenFromCookie(r)
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
 				m.logger.Infof("middleware: %s", err.Error())

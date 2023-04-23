@@ -8,31 +8,20 @@ import (
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type Handler struct {
-	userServices     user.Usecase
-	trackServices    track.Usecase
-	albumServices    album.Usecase
-	playlistServices playlist.Usecase
-	artistServices   artist.Usecase
+	userServices user.Usecase
 
 	logger logger.Logger
 }
 
-func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler {
+func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
 	return &Handler{
-		userServices:   uu,
-		trackServices:  tu,
-		albumServices:  alu,
-		artistServices: aru,
-		logger:         l,
+		userServices: uu,
+		logger:       l,
 	}
 }
 
@@ -49,7 +38,7 @@ func NewHandler(uu user.Usecase, tu track.Usecase, alu album.Usecase, aru artist
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get user", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, userGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -73,33 +62,33 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't change user info", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, userUpdateInfoServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	var userInfo userInfoInput
 	if err := json.NewDecoder(r.Body).Decode(&userInfo); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := userInfo.validateAndEscape(); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := h.userServices.UpdateInfo(userInfo.ToUser(user)); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no user to update", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, userNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't change user info", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, userUpdateInfoServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	uuir := userChangeInfoResponse{Status: "ok"}
+	uuir := userChangeInfoResponse{Status: userUpdatedInfoSuccessfully}
 
 	commonHttp.SuccessResponse(w, uuir, h.logger)
 }
@@ -119,18 +108,18 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadServerError, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	if err := r.ParseMultipartForm(MaxAvatarMemory); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadInvalidData, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	avatarFile, avatarHeader, err := r.FormFile(avatarFormKey)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data", http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadInvalidData, http.StatusBadRequest, h.logger, err)
 		return
 	}
 	defer avatarFile.Close()
@@ -139,145 +128,15 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	err = h.userServices.UploadAvatar(user.ID, avatarFile, extension)
 	if err != nil {
 		if errors.Is(err, h.userServices.UploadAvatarWrongFormatError()) {
-			commonHttp.ErrorResponseWithErrLogging(w, "invalid avatar data type", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadInvalidDataType, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't upload avatar", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	uuar := userUploadAvatarResponse{Status: "ok"}
+	uuar := userUploadAvatarResponse{Status: userAvatarUploadedSuccessfully}
 
 	commonHttp.SuccessResponse(w, uuar, h.logger)
-}
-
-// @Summary      Favorite Tracks
-// @Tags         User
-// @Description  Get ser's avorite racks
-// @Produce      application/json
-// @Success      200    {object}  	[]models.TrackTransfer 	"Tracks got"
-// @Failure		 400	{object}	http.Error				"Incorrect input"
-// @Failure      401    {object}  	http.Error  			"Unauthorized user"
-// @Failure      403    {object}  	http.Error  			"Forbidden user"
-// @Failure      500    {object}  	http.Error  			"Server error"
-// @Router       /api/users/{userID}/favorite/tracks [get]
-func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	favTracks, err := h.trackServices.GetLikedByUser(user.ID)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite tracks", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	tt, err := models.TrackTransferFromQuery(favTracks, user, h.trackServices.IsLiked,
-		h.artistServices.IsLiked, h.artistServices.GetByTrack)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite tracks", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	commonHttp.SuccessResponse(w, tt, h.logger)
-}
-
-// @Summary      Favorite Albums
-// @Tags         User
-// @Description  Get user's favorite albums
-// @Produce      application/json
-// @Success      200    {object}  	[]models.AlbumTransfer 	"Albums got"
-// @Failure		 400	{object}	http.Error				"Incorrect input"
-// @Failure      401    {object}  	http.Error  			"Unauthorized user"
-// @Failure      403    {object}  	http.Error  			"Forbidden user"
-// @Failure      500    {object}  	http.Error  			"Server error"
-// @Router       /api/users/{userID}/favorite/albums [get]
-func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	favAlbums, err := h.albumServices.GetLikedByUser(user.ID)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite albums", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	at, err := models.AlbumTransferFromQuery(favAlbums, user, h.albumServices.IsLiked,
-		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite albums", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	commonHttp.SuccessResponse(w, at, h.logger)
-}
-
-// @Summary      Favorite Playlists
-// @Tags         User
-// @Description  Get user's favorite playlists
-// @Produce      application/json
-// @Success      200    {object}  	[]models.PlaylistTransfer 	"Playlists got"
-// @Failure		 400	{object}	http.Error					"Incorrect input"
-// @Failure      401    {object}  	http.Error  				"Unauthorized user"
-// @Failure      403    {object}  	http.Error  				"Forbidden user"
-// @Failure      500    {object}  	http.Error  				"Server error"
-// @Router       /api/users/{userID}/favorite/playlists [get]
-func (h *Handler) GetFavouritePlaylists(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	favPlaylists, err := h.playlistServices.GetLikedByUser(user.ID)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite playlists", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	at, err := models.PlaylistTransferFromQuery(favPlaylists, user, h.trackServices.IsLiked, h.userServices.GetByPlaylist)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite playlists", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	commonHttp.SuccessResponse(w, at, h.logger)
-}
-
-// @Summary      Favorite Artists
-// @Tags         User
-// @Description  Get user's favorite artists
-// @Produce      application/json
-// @Success      200    {object}  	[]models.ArtistTransfer "Artists got"
-// @Failure		 400	{object}	http.Error				"Incorrect input"
-// @Failure      401    {object}  	http.Error  			"Unauthorized user"
-// @Failure      403    {object}  	http.Error  			"Forbidden user"
-// @Failure      500    {object}  	http.Error  			"Server error"
-// @Router       /api/users/{userID}/favorite/artists [get]
-func (h *Handler) GetFavouriteArtists(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "server error", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	favArtists, err := h.artistServices.GetLikedByUser(user.ID)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite artists", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	at, err := models.ArtistTransferFromQuery(favArtists, user, h.artistServices.IsLiked)
-	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite artists", http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	commonHttp.SuccessResponse(w, at, h.logger)
 }

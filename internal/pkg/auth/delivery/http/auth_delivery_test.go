@@ -156,7 +156,7 @@ func TestDeliveryLogin(t *testing.T) {
 		Password: "Love1234",
 	}
 
-	correctCookieName := commonHttp.AcessTokenCookieName
+	correctCookieName := commonHttp.AccessTokenCookieName
 	randomUserID := uint32(rand.Intn(100))
 
 	testTable := []struct {
@@ -351,7 +351,7 @@ func TestDeliveryLogout(t *testing.T) {
 				commonTests.WrapRequestWithUserFunc(tc.user, tc.doWrap))
 
 			if tc.expectingCookieReset {
-				assert.Equal(t, commonHttp.AcessTokenCookieName, w.Result().Cookies()[0].Name)
+				assert.Equal(t, commonHttp.AccessTokenCookieName, w.Result().Cookies()[0].Name)
 				assert.Equal(t, "", w.Result().Cookies()[0].Value)
 			}
 		})

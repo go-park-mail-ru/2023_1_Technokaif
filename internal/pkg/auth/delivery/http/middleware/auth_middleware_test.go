@@ -36,7 +36,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 	}{
 		{
 			name:        "Ok",
-			cookieName:  commonHttp.AcessTokenCookieName,
+			cookieName:  commonHttp.AccessTokenCookieName,
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				t.EXPECT().CheckAccessToken(token).Return(user.ID, user.Version, nil)
@@ -56,7 +56,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 		},
 		{
 			name:                   "Empty cookies",
-			cookieName:             commonHttp.AcessTokenCookieName,
+			cookieName:             commonHttp.AccessTokenCookieName,
 			cookieValue:            "",
 			mockBehavior:           func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {},
 			expectingUserInContext: false,
@@ -64,7 +64,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 		},
 		{
 			name:        "Incorrect token sign",
-			cookieName:  commonHttp.AcessTokenCookieName,
+			cookieName:  commonHttp.AccessTokenCookieName,
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				t.EXPECT().CheckAccessToken(token).Return(uint32(0), uint32(0), fmt.Errorf(""))
@@ -76,7 +76,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 		},
 		{
 			name:        "Auth failed",
-			cookieName:  commonHttp.AcessTokenCookieName,
+			cookieName:  commonHttp.AccessTokenCookieName,
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				randVal := uint32(rand.Intn(100))
@@ -91,7 +91,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 		},
 		{
 			name:        "Server error",
-			cookieName:  commonHttp.AcessTokenCookieName,
+			cookieName:  commonHttp.AccessTokenCookieName,
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				randVal := uint32(rand.Intn(100))

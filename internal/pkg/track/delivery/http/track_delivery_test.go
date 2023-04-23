@@ -535,6 +535,157 @@ func TestTrackDeliveryFeed(t *testing.T) {
 	}
 }
 
+func TestTrackDeliveryGetFavorite(t *testing.T) {
+	type mockBehavior func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32)
+
+	c := gomock.NewController(t)
+
+	tu := trackMocks.NewMockUsecase(c)
+	aru := artistMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(tu, aru, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/users/{userID}/tracks", h.GetFavorite)
+
+	// Test filling
+	const correctUserID uint32 = 1
+	correctUserIDPath := fmt.Sprint(correctUserID)
+
+	expectedReturnTracks := []models.Track{
+		{
+			ID:        1,
+			Name:      "Накануне",
+			CoverSrc:  "/tracks/covers/1.png",
+			Listens:   2700000,
+			RecordSrc: "/tracks/records/1.wav",
+		},
+		{
+			ID:        2,
+			Name:      "LAGG OUT",
+			CoverSrc:  "/tracks/covers/2.png",
+			Listens:   4500000,
+			RecordSrc: "/tracks/records/2.wav",
+		},
+	}
+
+	expectedReturnArtists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "Oxxxymiron",
+			AvatarSrc: "/artists/avatars/1.png",
+		},
+		{
+			ID:        2,
+			Name:      "SALUKI",
+			AvatarSrc: "/artists/avatars/2.png",
+		},
+	}
+
+	correctResponse := `[
+		{
+			"id": 1,
+			"name": "Накануне",
+			"artists": [
+				{
+					"id": 1,
+					"name": "Oxxxymiron",
+					"isLiked": false,
+					"cover": "/artists/avatars/1.png"
+				}
+			],
+			"cover": "/tracks/covers/1.png",
+			"listens": 2700000,
+			"isLiked": true,
+			"recordSrc": "/tracks/records/1.wav"
+		},
+		{
+			"id": 2,
+			"name": "LAGG OUT",
+			"artists": [
+				{
+					"id": 2,
+					"name": "SALUKI",
+					"isLiked": false,
+					"cover": "/artists/avatars/2.png"
+				}
+			],
+			"cover": "/tracks/covers/2.png",
+			"listens": 4500000,
+			"isLiked": true,
+			"recordSrc": "/tracks/records/2.wav"
+		}
+	]`
+
+	testTable := []struct {
+		name             string
+		user             *models.User
+		mockBehavior     mockBehavior
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name: "Common",
+			user: &correctUser,
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
+				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
+				for ind, track := range expectedReturnTracks {
+					au.EXPECT().GetByTrack(track.ID).Return(expectedReturnArtists[ind:ind+1], nil)
+					tu.EXPECT().IsLiked(track.ID, userID).Return(true, nil)
+					for _, a := range expectedReturnArtists[ind : ind+1] {
+						au.EXPECT().IsLiked(a.ID, correctUserID)
+					}
+				}
+			},
+			expectedStatus:   http.StatusOK,
+			expectedResponse: correctResponse,
+		},
+		{
+			name: "Tracks Issue",
+			user: &correctUser,
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
+				tu.EXPECT().GetLikedByUser(userID).Return(nil, errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(tracksGetServerError),
+		},
+		{
+			name: "Artists Issue",
+			user: &correctUser,
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
+				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
+				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(nil, errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(tracksGetServerError),
+		},
+		{
+			name: "Likes Issue",
+			user: &correctUser,
+			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
+				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
+				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(expectedReturnArtists[0:1], nil)
+				tu.EXPECT().IsLiked(expectedReturnTracks[0].ID, userID).Return(false, errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(tracksGetServerError),
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(tu, aru, tc.user.ID)
+
+			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/tracks", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
+		})
+	}
+}
+
 func TestTrackDeliveryLike(t *testing.T) {
 	// Init
 	type mockBehavior func(tu *trackMocks.MockUsecase)

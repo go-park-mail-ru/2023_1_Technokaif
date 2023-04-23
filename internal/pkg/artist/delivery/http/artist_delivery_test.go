@@ -422,6 +422,94 @@ func TestArtistDeliveryFeed(t *testing.T) {
 	}
 }
 
+func TestArtistDeliveryGetFavorite(t *testing.T) {
+	type mockBehavior func(aru *artistMocks.MockUsecase, userID uint32)
+
+	c := gomock.NewController(t)
+
+	au := artistMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(au, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/users/{userID}/artists", h.GetFavorite)
+
+	// Test filling
+	const correctUserID uint32 = 1
+	correctUserIDPath := fmt.Sprint(correctUserID)
+
+	expectedReturnArtists := []models.Artist{
+		{
+			ID:        1,
+			Name:      "Oxxxymiron",
+			AvatarSrc: "/artists/avatars/oxxxymiron.png",
+		},
+		{
+			ID:        2,
+			Name:      "SALUKI",
+			AvatarSrc: "/artists/avatars/saluki.png",
+		},
+	}
+
+	correctResponse := `[
+		{
+			"id": 1,
+			"name": "Oxxxymiron",
+			"isLiked": true,
+			"cover": "/artists/avatars/oxxxymiron.png"
+		},
+		{
+			"id": 2,
+			"name": "SALUKI",
+			"isLiked": true,
+			"cover": "/artists/avatars/saluki.png"
+		}
+	]`
+
+	testTable := []struct {
+		name             string
+		user             *models.User
+		mockBehavior     mockBehavior
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name: "Common",
+			user: &correctUser,
+			mockBehavior: func(au *artistMocks.MockUsecase, userID uint32) {
+				au.EXPECT().GetLikedByUser(userID).Return(expectedReturnArtists, nil)
+				for _, a := range expectedReturnArtists {
+					au.EXPECT().IsLiked(a.ID, userID).Return(true, nil)
+				}
+			},
+			expectedStatus:   http.StatusOK,
+			expectedResponse: correctResponse,
+		},
+		{
+			name: "Artists Issue",
+			user: &correctUser,
+			mockBehavior: func(au *artistMocks.MockUsecase, userID uint32) {
+				au.EXPECT().GetLikedByUser(userID).Return(nil, errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(artistsGetServerError),
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(au, tc.user.ID)
+
+			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/artists", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
+		})
+	}
+}
+
 func TestArtistDeliveryLike(t *testing.T) {
 	// Init
 	type mockBehavior func(au *artistMocks.MockUsecase)

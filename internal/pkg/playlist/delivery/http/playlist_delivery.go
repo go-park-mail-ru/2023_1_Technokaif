@@ -9,19 +9,22 @@ import (
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 type Handler struct {
 	playlistServices playlist.Usecase
+	trackServices    track.Usecase
 	userServices     user.Usecase
 	logger           logger.Logger
 }
 
-func NewHandler(pu playlist.Usecase, uu user.Usecase, l logger.Logger) *Handler {
+func NewHandler(pu playlist.Usecase, tu track.Usecase, uu user.Usecase, l logger.Logger) *Handler {
 	return &Handler{
 		playlistServices: pu,
+		trackServices:    tu,
 		userServices:     uu,
 
 		logger: l,
@@ -43,19 +46,19 @@ func NewHandler(pu playlist.Usecase, uu user.Usecase, l logger.Logger) *Handler 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	var pci playlistCreateInput
 	if err := json.NewDecoder(r.Body).Decode(&pci); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := pci.validateAndEscape(); err != nil {
 		h.logger.Infof("Creating playlist input validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger)
 		return
 	}
 
@@ -65,11 +68,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no rights to create playlist", http.StatusForbidden, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistCreateNorights, http.StatusForbidden, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't create playlist", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistCreateServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -91,7 +94,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	playlistID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get playlist by id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
@@ -99,23 +102,23 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlist", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	resp, err := models.PlaylistTransferFromEntry(*playlist, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlist", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -138,24 +141,24 @@ func (h *Handler) UploadCover(w http.ResponseWriter, r *http.Request) {
 	playlistRequestID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get playlist's id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	if err := r.ParseMultipartForm(MaxCoverMemory); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "invalid cover data", http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistCoverInvalidData, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	coverFile, coverHeader, err := r.FormFile(coverFormKey)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "invalid cover data", http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistCoverInvalidData, http.StatusBadRequest, h.logger, err)
 		return
 	}
 	defer coverFile.Close()
@@ -165,27 +168,27 @@ func (h *Handler) UploadCover(w http.ResponseWriter, r *http.Request) {
 	err = h.playlistServices.UploadCover(playlistRequestID, user.ID, coverFile, extension)
 	if err != nil {
 		if errors.Is(err, h.playlistServices.UploadCoverWrongFormatError()) {
-			commonHttp.ErrorResponseWithErrLogging(w, "invalid cover data type", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistCoverInvalidDataType, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no rights to upload cover", http.StatusForbidden, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistCoverUploadNoRights, http.StatusForbidden, h.logger, err)
 			return
 		}
 
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't upload cover", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistCoverServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	resp := defaultResponse{Status: "ok"}
+	resp := defaultResponse{Status: playlistCoverUploadedSuccessfully}
 
 	commonHttp.SuccessResponse(w, resp, h.logger)
 
@@ -207,25 +210,25 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	playlistRequestID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get playlist's id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	var pui playlistUpdateInput
 	if err := json.NewDecoder(r.Body).Decode(&pui); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "incorrect input body", http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := pui.validateAndEscape(); err != nil {
 		h.logger.Infof("Creating playlist input validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, "incorrect input body", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger)
 		return
 	}
 
@@ -235,21 +238,21 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no rights to update playlist", http.StatusForbidden, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistUpdateNoRights, http.StatusForbidden, h.logger, err)
 			return
 		}
 
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't update playlist", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistUpdateServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	dr := defaultResponse{Status: "ok"}
+	dr := defaultResponse{Status: playlistUpdatedSuccessfully}
 
 	commonHttp.SuccessResponse(w, dr, h.logger)
 }
@@ -268,13 +271,13 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	playlistID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get playlist's id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
@@ -282,21 +285,21 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no rights to delete playlist", http.StatusForbidden, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistDeleteNoRights, http.StatusForbidden, h.logger, err)
 			return
 		}
 
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't delete playlist", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistDeleteServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	dr := defaultResponse{Status: "ok"}
+	dr := defaultResponse{Status: playlistDeletedSuccessfully}
 
 	commonHttp.SuccessResponse(w, dr, h.logger)
 }
@@ -313,7 +316,7 @@ func (h *Handler) GetByUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := commonHttp.GetUserIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get user by id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
@@ -321,23 +324,23 @@ func (h *Handler) GetByUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such user", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, userNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	pt, err := models.PlaylistTransferFromQuery(playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -358,27 +361,27 @@ func (h *Handler) AddTrack(w http.ResponseWriter, r *http.Request) {
 	playlistID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get playlist by id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get track by id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	if err := h.playlistServices.AddTrack(trackID, playlistID, user.ID); err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no rights to add track into playlist",
+			commonHttp.ErrorResponseWithErrLogging(w, playlistAddTrackNoRights,
 				http.StatusForbidden, h.logger, err)
 
 			return
@@ -386,23 +389,23 @@ func (h *Handler) AddTrack(w http.ResponseWriter, r *http.Request) {
 
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such track", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, trackNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't add track into playlist",
+		commonHttp.ErrorResponseWithErrLogging(w, playlistAddTrackServerError,
 			http.StatusInternalServerError, h.logger, err)
 
 		return
 	}
 
-	dr := defaultResponse{Status: "ok"}
+	dr := defaultResponse{Status: playlistTrackAddedSuccessfully}
 
 	commonHttp.SuccessResponse(w, dr, h.logger)
 }
@@ -421,27 +424,27 @@ func (h *Handler) DeleteTrack(w http.ResponseWriter, r *http.Request) {
 	playlistID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get playlist by id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	trackID, err := commonHttp.GetTrackIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get track by id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	if err := h.playlistServices.DeleteTrack(trackID, playlistID, user.ID); err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no rights to delete track from playlist",
+			commonHttp.ErrorResponseWithErrLogging(w, playlistDeleteTrackNoRights,
 				http.StatusForbidden, h.logger, err)
 
 			return
@@ -449,23 +452,23 @@ func (h *Handler) DeleteTrack(w http.ResponseWriter, r *http.Request) {
 
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such track", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, trackNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't delete track from playlist",
+		commonHttp.ErrorResponseWithErrLogging(w, playlistDeleteTrackServerError,
 			http.StatusInternalServerError, h.logger, err)
 
 		return
 	}
 
-	dr := defaultResponse{Status: "ok"}
+	dr := defaultResponse{Status: playlistTrackDeletedSuccessfully}
 
 	commonHttp.SuccessResponse(w, dr, h.logger)
 }
@@ -480,23 +483,55 @@ func (h *Handler) DeleteTrack(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	playlists, err := h.playlistServices.GetFeed()
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	resp, err := models.PlaylistTransferFromQuery(playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "can't get playlists", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	commonHttp.SuccessResponse(w, resp, h.logger)
+}
+
+// @Summary      Favorite Playlists
+// @Tags         Favorite
+// @Description  Get user's favorite playlists
+// @Produce      application/json
+// @Success      200    {object}  	[]models.PlaylistTransfer 	"Playlists got"
+// @Failure		 400	{object}	http.Error					"Incorrect input"
+// @Failure      401    {object}  	http.Error  				"Unauthorized user"
+// @Failure      403    {object}  	http.Error  				"Forbidden user"
+// @Failure      500    {object}  	http.Error  				"Server error"
+// @Router       /api/users/{userID}/favorite/playlists [get]
+func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	favPlaylists, err := h.playlistServices.GetLikedByUser(user.ID)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	at, err := models.PlaylistTransferFromQuery(favPlaylists, user, h.trackServices.IsLiked, h.userServices.GetByPlaylist)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, at, h.logger)
 }
 
 // @Summary		Set like
@@ -512,13 +547,13 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	playlistID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get playlist by id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
@@ -526,17 +561,17 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't set like", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.SetLikeServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	dr := defaultResponse{Status: "ok"}
+	dr := defaultResponse{Status: commonHttp.LikeSuccess}
 	if !notExisted {
-		dr.Status = "already liked"
+		dr.Status = commonHttp.LikeAlreadyExists
 	}
 	commonHttp.SuccessResponse(w, dr, h.logger)
 }
@@ -554,13 +589,13 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	playlistID, err := commonHttp.GetPlaylistIDFromRequest(r)
 	if err != nil {
 		h.logger.Infof("Get playlist by id: %v", err)
-		commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, "unathorized", http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
@@ -568,17 +603,17 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, "no such playlist", http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, "can't remove like", http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.SetLikeServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	dr := defaultResponse{Status: "ok"}
+	dr := defaultResponse{Status: commonHttp.UnLikeSuccess}
 	if !notExisted {
-		dr.Status = "wasn't liked"
+		dr.Status = commonHttp.LikeDoesntExist
 	}
 	commonHttp.SuccessResponse(w, dr, h.logger)
 }

@@ -331,6 +331,39 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, tt, h.logger)
 }
 
+// @Summary      Favorite Tracks
+// @Tags         Favorite
+// @Description  Get ser's avorite tracks
+// @Produce      application/json
+// @Success      200    {object}  	[]models.TrackTransfer 	"Tracks got"
+// @Failure		 400	{object}	http.Error				"Incorrect input"
+// @Failure      401    {object}  	http.Error  			"Unauthorized user"
+// @Failure      403    {object}  	http.Error  			"Forbidden user"
+// @Failure      500    {object}  	http.Error  			"Server error"
+// @Router       /api/users/{userID}/favorite/tracks [get]
+func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	favTracks, err := h.trackServices.GetLikedByUser(user.ID)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	tt, err := models.TrackTransferFromQuery(favTracks, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, tt, h.logger)
+}
+
 // @Summary		Set like
 // @Tags		Track
 // @Description	Set like by user to chosen track (add to favorite)

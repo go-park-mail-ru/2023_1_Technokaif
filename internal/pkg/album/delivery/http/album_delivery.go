@@ -243,6 +243,39 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 
+// @Summary      Favorite Albums
+// @Tags         Favorite
+// @Description  Get user's favorite albums
+// @Produce      application/json
+// @Success      200    {object}  	[]models.AlbumTransfer 	"Albums got"
+// @Failure		 400	{object}	http.Error				"Incorrect input"
+// @Failure      401    {object}  	http.Error  			"Unauthorized user"
+// @Failure      403    {object}  	http.Error  			"Forbidden user"
+// @Failure      500    {object}  	http.Error  			"Server error"
+// @Router       /api/users/{userID}/favorite/albums [get]
+func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, albumsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	favAlbums, err := h.albumServices.GetLikedByUser(user.ID)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, albumsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	at, err := models.AlbumTransferFromQuery(favAlbums, user, h.albumServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, albumsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, at, h.logger)
+}
+
 // @Summary		Set like
 // @Tags		Album
 // @Description	Set like by user to chosen album (add to favorite)

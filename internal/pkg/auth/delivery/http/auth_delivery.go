@@ -119,7 +119,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	lr := loginResponse{UserID: user.ID}
 
-	commonHttp.SetAcessTokenCookie(w, token)
+	commonHttp.SetAccessTokenCookie(w, token)
 	commonHttp.SuccessResponse(w, lr, h.logger)
 }
 
@@ -148,7 +148,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	lr := logoutResponse{Status: "ok"}
 
-	commonHttp.SetAcessTokenCookie(w, "")
+	commonHttp.SetAccessTokenCookie(w, "")
 	commonHttp.SuccessResponse(w, lr, h.logger)
 }
 
@@ -203,7 +203,7 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	resp := changePassResponse{Status: "ok"}
 
-	commonHttp.SetAcessTokenCookie(w, token)
+	commonHttp.SetAccessTokenCookie(w, token)
 	commonHttp.SuccessResponse(w, resp, h.logger)
 }
 

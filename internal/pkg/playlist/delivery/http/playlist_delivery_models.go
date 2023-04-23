@@ -11,6 +11,38 @@ import (
 const MaxCoverMemory = 5 << 20
 const coverFormKey = "cover"
 
+// Response messages
+const (
+	playlistNotFound = "no such playlist"
+	trackNotFound    = "no such track"
+	userNotFound     = "no such user"
+
+	playlistCoverInvalidData     = "invalid cover data"
+	playlistCoverInvalidDataType = "invalid cover data type"
+	playlistCoverUploadNoRights  = "no rights to upload cover"
+	playlistCoverServerError     = "can't upload cover"
+
+	playlistCreateNorights      = "no rights to create playlist"
+	playlistUpdateNoRights      = "no rights to update playlist"
+	playlistDeleteNoRights      = "no rights to delete playlist"
+	playlistAddTrackNoRights    = "no rights to add track into playlist"
+	playlistDeleteTrackNoRights = "no rights to delete track from playlist"
+
+	playlistCreateServerError      = "can't create playlist"
+	playlistGetServerError         = "can't get playlist"
+	playlistsGetServerError        = "can't get playlists"
+	playlistUpdateServerError      = "can't update playlist"
+	playlistDeleteServerError      = "can't delete playlist"
+	playlistAddTrackServerError    = "can't add track into playlist"
+	playlistDeleteTrackServerError = "can't delete track from playlist"
+
+	playlistUpdatedSuccessfully       = "ok"
+	playlistDeletedSuccessfully       = "ok"
+	playlistTrackAddedSuccessfully    = "ok"
+	playlistTrackDeletedSuccessfully  = "ok"
+	playlistCoverUploadedSuccessfully = "ok"
+)
+
 // Create
 type playlistCreateInput struct {
 	Name        string   `json:"name" valid:"required"`

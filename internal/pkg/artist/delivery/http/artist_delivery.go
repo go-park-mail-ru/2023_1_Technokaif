@@ -185,6 +185,38 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	commonHttp.SuccessResponse(w, artistsTransfer, h.logger)
 }
 
+// @Summary      Favorite Artists
+// @Tags         Favorite
+// @Description  Get user's favorite artists
+// @Produce      application/json
+// @Success      200    {object}  	[]models.ArtistTransfer "Artists got"
+// @Failure		 400	{object}	http.Error				"Incorrect input"
+// @Failure      401    {object}  	http.Error  			"Unauthorized user"
+// @Failure      403    {object}  	http.Error  			"Forbidden user"
+// @Failure      500    {object}  	http.Error  			"Server error"
+// @Router       /api/users/{userID}/favorite/artists [get]
+func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	artists, err := h.artistServices.GetLikedByUser(user.ID)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	at, err := models.ArtistTransferFromQuery(artists, user, h.artistServices.IsLiked)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, at, h.logger)
+}
+
 // @Summary		Set like
 // @Tags		Artist
 // @Description	Set like by user to chosen artist (add to favorite)
