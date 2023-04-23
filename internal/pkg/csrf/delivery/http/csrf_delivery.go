@@ -25,14 +25,14 @@ func (h *Handler) GetCSRF(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
 		h.logger.Infof("failed to get CSRF: %s", err.Error())
-		commonHttp.ErrorResponse(w, "invalid access token", http.StatusUnauthorized, h.logger)
+		commonHttp.ErrorResponse(w, invalidAccessToken, http.StatusUnauthorized, h.logger)
 		return
 	}
 
 	token, err := h.tokenServices.GenerateCSRFToken(user.ID)
 	if err != nil {
 		h.logger.Errorf("failed to get CSRF: %s", err.Error())
-		commonHttp.ErrorResponse(w, "failed to get CSRF-token", http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponse(w, csrfGetError, http.StatusInternalServerError, h.logger)
 		return
 	}
 

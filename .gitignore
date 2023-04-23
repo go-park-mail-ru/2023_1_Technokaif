@@ -23,6 +23,11 @@ go.work
 # Logs
 *.log
 
+# Auto generated
+*pb.go
+mocks
+docs
+
 # Static
 img
 records

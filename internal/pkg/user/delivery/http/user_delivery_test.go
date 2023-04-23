@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
 )
@@ -160,7 +161,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 				uu.EXPECT().UpdateInfo(user).Return(nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: `{"status": "ok"}`,
+			expectedResponse: commonTests.OKResponse(userUpdatedInfoSuccessfully),
 		},
 		{
 			name:             "Incorrect Body",
@@ -169,7 +170,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			requestBody:      `{"id": 1`,
 			mockBehavior:     func(uu *userMocks.MockUsecase, user *models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "incorrect input body"}`,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
 		},
 		{
 			name:        "No Such User",
@@ -180,7 +181,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 				uu.EXPECT().UpdateInfo(user).Return(&models.NoSuchUserError{})
 			},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "no such user"}`,
+			expectedResponse: commonTests.ErrorResponse(userNotFound),
 		},
 		{
 			name:        "Server Error",
@@ -191,7 +192,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 				uu.EXPECT().UpdateInfo(user).Return(errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't update user info"}`,
+			expectedResponse: commonTests.ErrorResponse(userUpdateInfoServerError),
 		},
 	}
 

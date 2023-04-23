@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -38,21 +39,21 @@ func TestUserDeliveryCheckUserAuthAndResponse(t *testing.T) {
 			userIDPath:       "0",
 			user:             &correctUser,
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "invalid url parameter"}`,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
 		},
 		{
 			name:             "No User",
 			userIDPath:       correctUserIDPath,
 			user:             nil,
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: `{"message": "unathorized"}`,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
 		},
 		{
 			name:             "Mismatched IDs",
 			userIDPath:       "2",
 			user:             &correctUser,
 			expectedStatus:   http.StatusForbidden,
-			expectedResponse: `{"message": "user has no rights"}`,
+			expectedResponse: commonTests.ErrorResponse("user has no rights"),
 		},
 	}
 
