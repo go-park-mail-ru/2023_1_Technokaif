@@ -68,11 +68,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 			user:        &correctUser,
 			requestBody: correctRequestBody,
 			mockBehavior: func(au *albumMocks.MockUsecase) {
-				au.EXPECT().Create(
-					expectedCallAlbum,
-					correctArtistsID,
-					correctUser.ID,
-				).Return(uint32(1), nil)
+				au.EXPECT().Create(expectedCallAlbum, correctArtistsID, correctUser.ID).Return(uint32(1), nil)
 			},
 			expectedStatus:   http.StatusOK,
 			expectedResponse: `{"id": 1}`,

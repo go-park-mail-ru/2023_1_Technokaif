@@ -37,7 +37,7 @@ type trackCreateInput struct {
 }
 
 func (t *trackCreateInput) validateAndEscape() error {
-	t.escapeHtml()
+	t.escapeHTML()
 
 	if (t.AlbumID == nil) != (t.AlbumPosition == nil) {
 		return errors.New("(delivery) albumID is nil while albumPosition isn't (or vice versa)")
@@ -48,7 +48,7 @@ func (t *trackCreateInput) validateAndEscape() error {
 	return err
 }
 
-func (t *trackCreateInput) escapeHtml() {
+func (t *trackCreateInput) escapeHTML() {
 	t.Name = html.EscapeString(t.Name)
 }
 

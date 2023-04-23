@@ -17,26 +17,26 @@ const (
 )
 
 var paths = struct {
-	mediaPath           string `valid:"required,not_empty"`
-	avatarsFolder       string `valid:"required,not_empty"`
-	recordsFolder       string `valid:"required,not_empty"`
-	playlistCoverFolder string `valid:"required,not_empty"`
+	MediaPath           string `valid:"required,not_empty"`
+	AvatarsFolder       string `valid:"required,not_empty"`
+	RecordsFolder       string `valid:"required,not_empty"`
+	PlaylistCoverFolder string `valid:"required,not_empty"`
 }{}
 
 func MediaPath() string {
-	return paths.mediaPath
+	return paths.MediaPath
 }
 
 func AvatarFolder() string {
-	return paths.avatarsFolder
+	return paths.AvatarsFolder
 }
 
 func RecordsFolder() string {
-	return paths.recordsFolder
+	return paths.RecordsFolder
 }
 
 func PlaylistCoverFolder() string {
-	return paths.playlistCoverFolder
+	return paths.PlaylistCoverFolder
 }
 
 func InitPaths() error {
@@ -44,17 +44,17 @@ func InitPaths() error {
 		return err
 	}
 
-	var dirForUserAvatars = filepath.Join(paths.mediaPath, paths.avatarsFolder)
+	var dirForUserAvatars = filepath.Join(paths.MediaPath, paths.AvatarsFolder)
 	if err := os.MkdirAll(dirForUserAvatars, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir to save avatars: %w", err)
 	}
 
-	var dirForTracks = filepath.Join(paths.mediaPath, paths.recordsFolder)
+	var dirForTracks = filepath.Join(paths.MediaPath, paths.RecordsFolder)
 	if err := os.MkdirAll(dirForTracks, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir for tracks: %w", err)
 	}
 
-	var dirForPlaylistCovers = filepath.Join(paths.mediaPath, paths.playlistCoverFolder)
+	var dirForPlaylistCovers = filepath.Join(paths.MediaPath, paths.PlaylistCoverFolder)
 	if err := os.MkdirAll(dirForPlaylistCovers, os.ModePerm); err != nil {
 		return fmt.Errorf("can't create dir for playlists: %w", err)
 	}
@@ -64,10 +64,10 @@ func InitPaths() error {
 
 func init() {
 	godotenv.Load()
-	paths.mediaPath = os.Getenv(mediaPathParam)
-	paths.avatarsFolder = os.Getenv(avatarFolderParam)
-	paths.recordsFolder = os.Getenv(recordsFolderParam)
-	paths.playlistCoverFolder = os.Getenv(playlistCoverFolderParam)
+	paths.MediaPath = os.Getenv(mediaPathParam)
+	paths.AvatarsFolder = os.Getenv(avatarFolderParam)
+	paths.RecordsFolder = os.Getenv(recordsFolderParam)
+	paths.PlaylistCoverFolder = os.Getenv(playlistCoverFolderParam)
 
 	valid.TagMap["not_empty"] = valid.Validator(func(str string) bool {
 		return !(valid.Trim(str, " ") == "")
