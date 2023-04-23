@@ -286,6 +286,146 @@ func TestPlaylistDeliveryGet(t *testing.T) {
 	}
 }
 
+func TestPlaylistDeliveryUpdate(t *testing.T) {
+	// Init
+	type mockBehavior func(pu *playlistMocks.MockUsecase)
+
+	c := gomock.NewController(t)
+
+	pu := playlistMocks.NewMockUsecase(c)
+	tu := trackMocks.NewMockUsecase(c)
+	uu := userMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(pu, tu, uu, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Post("/api/playlists/{playlistID}/update", h.Update)
+
+	// Test filling
+	correctRequestBody := `{
+		"id": 1,
+		"name": "Музыка для эпичной защиты",
+		"users": [1],
+		"description": "Ожидайте 3 июня"
+	}`
+
+	correctUsersID := []uint32{1}
+
+	description := "Ожидайте 3 июня"
+	expectedCallPlaylist := models.Playlist{
+		ID:          1,
+		Name:        "Музыка для эпичной защиты",
+		Description: &description,
+	}
+
+	const correctPlaylistID uint32 = 1
+	correctPlaylistIDPath := fmt.Sprint(correctPlaylistID)
+
+	testTable := []struct {
+		name             string
+		playlistIDPath   string
+		user             *models.User
+		requestBody      string
+		mockBehavior     mockBehavior
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:           "Common",
+			playlistIDPath: correctPlaylistIDPath,
+			user:           &correctUser,
+			requestBody:    correctRequestBody,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().UpdateInfoAndMembers(
+					expectedCallPlaylist, correctUsersID, correctUser.ID,
+				).Return(nil)
+			},
+			expectedStatus:   http.StatusOK,
+			expectedResponse: commonTests.OKResponse(playlistUpdatedSuccessfully),
+		},
+		{
+			name:             "Incorrect ID In Path",
+			playlistIDPath:   "incorrect",
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+		},
+		{
+			name:             "No User",
+			playlistIDPath:   correctPlaylistIDPath,
+			user:             nil,
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusUnauthorized,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+		},
+		{
+			name:           "Incorrect JSON",
+			playlistIDPath: correctPlaylistIDPath,
+			user:           &correctUser,
+			requestBody: `{
+				"name": ,
+				"users": [1],
+				"description": "Ожидайте ? июня"
+			}`,
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+		},
+		{
+			name:           "Incorrect Body (no name)",
+			playlistIDPath: correctPlaylistIDPath,
+			user:           &correctUser,
+			requestBody: `{
+				"users": [1],
+				"description": "Ожидайте ? июня"
+			}`,
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+		},
+		{
+			name:           "User Has No Rights",
+			playlistIDPath: correctPlaylistIDPath,
+			user:           &correctUser,
+			requestBody:    correctRequestBody,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().UpdateInfoAndMembers(
+					expectedCallPlaylist, correctUsersID, correctUser.ID,
+				).Return(&models.ForbiddenUserError{})
+			},
+			expectedStatus:   http.StatusForbidden,
+			expectedResponse: commonTests.ErrorResponse(playlistUpdateNoRights),
+		},
+		{
+			name:           "Server Error",
+			playlistIDPath: correctPlaylistIDPath,
+			user:           &correctUser,
+			requestBody:    correctRequestBody,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().UpdateInfoAndMembers(
+					expectedCallPlaylist, correctUsersID, correctUser.ID,
+				).Return(errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(playlistUpdateServerError),
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(pu)
+
+			commonTests.DeliveryTestPost(t, r, "/api/playlists/"+tc.playlistIDPath+"/update",
+				tc.requestBody, tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
+		})
+	}
+}
+
 func TestPlaylistDeliveryDelete(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase)
@@ -386,6 +526,278 @@ func TestPlaylistDeliveryDelete(t *testing.T) {
 			tc.mockBehavior(pu)
 
 			commonTests.DeliveryTestDelete(t, r, "/api/playlists/"+tc.playlistIDPath+"/",
+				tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
+		})
+	}
+}
+
+func TestPlaylistDeliveryAddTrack(t *testing.T) {
+	// Init
+	type mockBehavior func(pu *playlistMocks.MockUsecase)
+
+	c := gomock.NewController(t)
+
+	pu := playlistMocks.NewMockUsecase(c)
+	tu := trackMocks.NewMockUsecase(c)
+	uu := userMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(pu, tu, uu, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Post("/api/playlists/{playlistID}/tracks/{trackID}", h.AddTrack)
+
+	const correctPlaylistID uint32 = 1
+	correctPlaylistIDPath := fmt.Sprint(correctPlaylistID)
+	const correctTrackID uint32 = 1
+	correctTrackIDPath := fmt.Sprint(correctTrackID)
+
+	testTable := []struct {
+		name             string
+		playlistIDPath   string
+		trackIDPath      string
+		user             *models.User
+		mockBehavior     mockBehavior
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:           "Common",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().AddTrack(
+					correctPlaylistID, correctTrackID, correctUser.ID,
+				).Return(nil)
+			},
+			expectedStatus:   http.StatusOK,
+			expectedResponse: commonTests.OKResponse(playlistTrackAddedSuccessfully),
+		},
+		{
+			name:             "Incorrect Playlist ID In Path",
+			playlistIDPath:   "incorrect",
+			trackIDPath:      correctTrackIDPath,
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+		},
+		{
+			name:             "Incorrect Track ID In Path",
+			playlistIDPath:   correctPlaylistIDPath,
+			trackIDPath:      "0",
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+		},
+		{
+			name:             "No User",
+			playlistIDPath:   correctPlaylistIDPath,
+			trackIDPath:      correctTrackIDPath,
+			user:             nil,
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusUnauthorized,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+		},
+		{
+			name:           "User Has No Rights",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().AddTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(&models.ForbiddenUserError{})
+			},
+			expectedStatus:   http.StatusForbidden,
+			expectedResponse: commonTests.ErrorResponse(playlistAddTrackNoRights),
+		},
+		{
+			name:           "No Playlist",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().AddTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(&models.NoSuchPlaylistError{})
+			},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(playlistNotFound),
+		},
+		{
+			name:           "No Track",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().AddTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(&models.NoSuchTrackError{})
+			},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(trackNotFound),
+		},
+		{
+			name:           "Server Error",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().AddTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(playlistAddTrackServerError),
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(pu)
+
+			commonTests.DeliveryTestPost(t, r, "/api/playlists/"+tc.playlistIDPath+"/tracks/"+tc.trackIDPath,
+				"", tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
+		})
+	}
+}
+
+func TestPlaylistDeliveryDeleteTrack(t *testing.T) {
+	// Init
+	type mockBehavior func(pu *playlistMocks.MockUsecase)
+
+	c := gomock.NewController(t)
+
+	pu := playlistMocks.NewMockUsecase(c)
+	tu := trackMocks.NewMockUsecase(c)
+	uu := userMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(pu, tu, uu, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Delete("/api/playlists/{playlistID}/tracks/{trackID}", h.DeleteTrack)
+
+	const correctPlaylistID uint32 = 1
+	correctPlaylistIDPath := fmt.Sprint(correctPlaylistID)
+	const correctTrackID uint32 = 1
+	correctTrackIDPath := fmt.Sprint(correctTrackID)
+
+	testTable := []struct {
+		name             string
+		playlistIDPath   string
+		trackIDPath      string
+		user             *models.User
+		mockBehavior     mockBehavior
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:           "Common",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().DeleteTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(nil)
+			},
+			expectedStatus:   http.StatusOK,
+			expectedResponse: commonTests.OKResponse(playlistTrackAddedSuccessfully),
+		},
+		{
+			name:             "Incorrect Playlist ID In Path",
+			playlistIDPath:   "incorrect",
+			trackIDPath:      correctTrackIDPath,
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+		},
+		{
+			name:             "Incorrect Track ID In Path",
+			playlistIDPath:   correctPlaylistIDPath,
+			trackIDPath:      "0",
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+		},
+		{
+			name:             "No User",
+			playlistIDPath:   correctPlaylistIDPath,
+			trackIDPath:      correctTrackIDPath,
+			user:             nil,
+			mockBehavior:     func(pu *playlistMocks.MockUsecase) {},
+			expectedStatus:   http.StatusUnauthorized,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+		},
+		{
+			name:           "User Has No Rights",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().DeleteTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(&models.ForbiddenUserError{})
+			},
+			expectedStatus:   http.StatusForbidden,
+			expectedResponse: commonTests.ErrorResponse(playlistDeleteTrackNoRights),
+		},
+		{
+			name:           "No Playlist",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().DeleteTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(&models.NoSuchPlaylistError{})
+			},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(playlistNotFound),
+		},
+		{
+			name:           "No Track",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().DeleteTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(&models.NoSuchTrackError{})
+			},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(trackNotFound),
+		},
+		{
+			name:           "Server Error",
+			playlistIDPath: correctPlaylistIDPath,
+			trackIDPath:    correctTrackIDPath,
+			user:           &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase) {
+				pu.EXPECT().DeleteTrack(
+					correctTrackID, correctPlaylistID, correctUser.ID,
+				).Return(errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(playlistDeleteTrackServerError),
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(pu)
+
+			commonTests.DeliveryTestDelete(t, r, "/api/playlists/"+tc.playlistIDPath+"/tracks/"+tc.trackIDPath,
 				tc.expectedStatus, tc.expectedResponse,
 				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
