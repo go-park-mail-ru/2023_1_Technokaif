@@ -15,3 +15,9 @@ check_coverage:
 	go test -coverpkg=./... -coverprofile=coverage.out ./... \
 	&& cat coverage.out | fgrep -v "mocks" | fgrep -v "docs" > purified_coverage.out \
 	&& go tool cover -func purified_coverage.out | grep total
+
+generate_api_docs:
+	swag init -g cmd/app/main.go
+
+generate_mocks:
+	go generate ./...

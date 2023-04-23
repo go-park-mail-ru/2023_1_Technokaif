@@ -69,11 +69,11 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	tokenUsecase := tokenUsecase.NewUsecase(logger)
 
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)
-	playlistHandler := playlistDelivery.NewHandler(playlistUsecase, userUsecase, logger)
+	playlistHandler := playlistDelivery.NewHandler(playlistUsecase, trackUsecase, userUsecase, logger)
 	artistHandler := artistDelivery.NewHandler(artistUsecase, logger)
 	authHandler := authDelivery.NewHandler(authUsecase, tokenUsecase, logger)
 	trackHandler := trackDelivery.NewHandler(trackUsecase, artistUsecase, logger)
-	userHandler := userDelivery.NewHandler(userUsecase, trackUsecase, albumUsecase, artistUsecase, logger)
+	userHandler := userDelivery.NewHandler(userUsecase, logger)
 	csrfHandler := csrfDelivery.NewHandler(tokenUsecase, logger)
 
 	authMiddlware := authMiddlware.NewMiddleware(authUsecase, tokenUsecase, logger)

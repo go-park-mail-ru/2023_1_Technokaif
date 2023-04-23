@@ -118,3 +118,12 @@ func (u *Usecase) UnLike(artistID, userID uint32) (bool, error) {
 
 	return isDeleted, nil
 }
+
+func (u *Usecase) IsLiked(artistID, userID uint32) (bool, error) {
+	isLiked, err := u.repo.IsLiked(artistID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) can't check in repository if artist is liked: %w", err)
+	}
+
+	return isLiked, nil
+}

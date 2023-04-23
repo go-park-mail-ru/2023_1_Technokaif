@@ -169,6 +169,8 @@ definitions:
         type: string
       id:
         type: integer
+      isLiked:
+        type: boolean
       name:
         type: string
     type: object
@@ -178,6 +180,8 @@ definitions:
         type: string
       id:
         type: integer
+      isLiked:
+        type: boolean
       name:
         type: string
     type: object
@@ -194,6 +198,8 @@ definitions:
         type: string
       id:
         type: integer
+      isLiked:
+        type: boolean
       name:
         type: string
       users:
@@ -1316,7 +1322,7 @@ paths:
             $ref: '#/definitions/http.Error'
       summary: Favorite Albums
       tags:
-      - User
+      - Favorite
   /api/users/{userID}/favorite/artists:
     get:
       description: Get user's favorite artists
@@ -1347,7 +1353,7 @@ paths:
             $ref: '#/definitions/http.Error'
       summary: Favorite Artists
       tags:
-      - User
+      - Favorite
   /api/users/{userID}/favorite/playlists:
     get:
       description: Get user's favorite playlists
@@ -1378,10 +1384,10 @@ paths:
             $ref: '#/definitions/http.Error'
       summary: Favorite Playlists
       tags:
-      - User
+      - Favorite
   /api/users/{userID}/favorite/tracks:
     get:
-      description: Get ser's avorite racks
+      description: Get ser's avorite tracks
       produces:
       - application/json
       responses:
@@ -1409,7 +1415,7 @@ paths:
             $ref: '#/definitions/http.Error'
       summary: Favorite Tracks
       tags:
-      - User
+      - Favorite
   /api/users/{userID}/playlists:
     get:
       description: All playlists of user with chosen ID

@@ -7,6 +7,21 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
+const (
+	LikeSuccess   = "ok"
+	UnLikeSuccess = "ok"
+
+	IncorrectRequestBody = "incorrect input body"
+	InvalidURLParameter  = "invalid url parameter"
+	UnathorizedUser      = "unathorized"
+
+	SetLikeServerError    = "can't set like"
+	DeleteLikeServerError = "can't remove like"
+
+	LikeAlreadyExists = "already liked"
+	LikeDoesntExist   = "wasn't liked"
+)
+
 type Error struct {
 	Message string `json:"message"`
 }

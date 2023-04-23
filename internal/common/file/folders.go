@@ -21,7 +21,7 @@ var paths = struct {
 	avatarsFolder       string `valid:"required,not_empty"`
 	recordsFolder       string `valid:"required,not_empty"`
 	playlistCoverFolder string `valid:"required,not_empty"`
-} {}
+}{}
 
 func MediaPath() string {
 	return paths.mediaPath

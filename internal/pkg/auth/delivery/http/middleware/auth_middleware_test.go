@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -19,6 +20,8 @@ import (
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
 )
 
+var ctx = context.Background()
+
 func TestAuthDeliveryAuthorization(t *testing.T) {
 	type mockBehavior func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User)
 
@@ -36,11 +39,11 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 	}{
 		{
 			name:        "Ok",
-			cookieName:  commonHttp.AcessTokenCookieName,
+			cookieName:  commonHttp.AccessTokenCookieName,
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				t.EXPECT().CheckAccessToken(token).Return(user.ID, user.Version, nil)
-				a.EXPECT().GetUserByAuthData(user.ID, user.Version).Return(&user, nil)
+				a.EXPECT().GetUserByAuthData(ctx, user.ID, user.Version).Return(&user, nil)
 			},
 			expectingUserInContext: true,
 			expectedUser:           models.User{ID: uint32(rand.Intn(100)), Version: uint32(rand.Intn(100))},
@@ -56,7 +59,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 		},
 		{
 			name:                   "Empty cookies",
-			cookieName:             commonHttp.AcessTokenCookieName,
+			cookieName:             commonHttp.AccessTokenCookieName,
 			cookieValue:            "",
 			mockBehavior:           func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {},
 			expectingUserInContext: false,
@@ -64,7 +67,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 		},
 		{
 			name:        "Incorrect token sign",
-			cookieName:  commonHttp.AcessTokenCookieName,
+			cookieName:  commonHttp.AccessTokenCookieName,
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				t.EXPECT().CheckAccessToken(token).Return(uint32(0), uint32(0), fmt.Errorf(""))
@@ -72,37 +75,37 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 			expectingUserInContext: false,
 			expectingResponse:      true,
 			expectedStatus:         http.StatusBadRequest,
-			expectedResponse:       `{"message": "token check failed"}`,
+			expectedResponse:       commonTests.ErrorResponse(tokenCheckFail),
 		},
 		{
 			name:        "Auth failed",
-			cookieName:  commonHttp.AcessTokenCookieName,
+			cookieName:  commonHttp.AccessTokenCookieName,
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				randVal := uint32(rand.Intn(100))
 
 				t.EXPECT().CheckAccessToken(token).Return(randVal, randVal, nil)
-				a.EXPECT().GetUserByAuthData(randVal, randVal).Return(&user, &models.NoSuchUserError{})
+				a.EXPECT().GetUserByAuthData(ctx, randVal, randVal).Return(&user, &models.NoSuchUserError{})
 			},
 			expectingUserInContext: false,
 			expectingResponse:      true,
 			expectedStatus:         http.StatusBadRequest,
-			expectedResponse:       `{"message": "auth data check failed"}`,
+			expectedResponse:       commonTests.ErrorResponse(authDataCheckFail),
 		},
 		{
 			name:        "Server error",
-			cookieName:  commonHttp.AcessTokenCookieName,
+			cookieName:  commonHttp.AccessTokenCookieName,
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				randVal := uint32(rand.Intn(100))
 
 				t.EXPECT().CheckAccessToken(token).Return(randVal, randVal, nil)
-				a.EXPECT().GetUserByAuthData(randVal, randVal).Return(&user, errors.New("server error"))
+				a.EXPECT().GetUserByAuthData(ctx, randVal, randVal).Return(&user, errors.New("server error"))
 			},
 			expectingUserInContext: false,
 			expectingResponse:      true,
 			expectedStatus:         http.StatusInternalServerError,
-			expectedResponse:       `{"message": "server failed to check authorization"}`,
+			expectedResponse:       commonTests.ErrorResponse(authCheckServerErorr),
 		},
 	}
 

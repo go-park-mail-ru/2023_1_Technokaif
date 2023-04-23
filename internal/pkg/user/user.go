@@ -19,20 +19,23 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with users
 type Repository interface {
+	// GetByID returns models.User of user-entry in DB with given ID
 	GetByID(userID uint32) (*models.User, error)
 
 	// CreateUser inserts new user into DB and return it's id
 	// or error if it already exists
 	CreateUser(user models.User) (uint32, error)
 
-	// Update info updates non-sensetive user info by given User
+	// UpdateInfo updates non-sensetive user info by given User
 	UpdateInfo(user *models.User) error
 
+	// UpdateAvatarSrc updates
 	UpdateAvatarSrc(userID uint32, avatarSrc string) error
 
 	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
 	GetUserByUsername(username string) (*models.User, error)
 
+	// GetUserByPlaylist returns []models.User of users who are authors of playlist
 	GetByPlaylist(playlistID uint32) ([]models.User, error)
 }
 

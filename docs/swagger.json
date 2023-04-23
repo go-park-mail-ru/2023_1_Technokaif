@@ -1546,7 +1546,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Favorite"
                 ],
                 "summary": "Favorite Albums",
                 "responses": {
@@ -1593,7 +1593,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Favorite"
                 ],
                 "summary": "Favorite Artists",
                 "responses": {
@@ -1640,7 +1640,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Favorite"
                 ],
                 "summary": "Favorite Playlists",
                 "responses": {
@@ -1682,12 +1682,12 @@
         },
         "/api/users/{userID}/favorite/tracks": {
             "get": {
-                "description": "Get ser's avorite racks",
+                "description": "Get ser's avorite tracks",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Favorite"
                 ],
                 "summary": "Favorite Tracks",
                 "responses": {
@@ -2087,6 +2087,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "isLiked": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 }
@@ -2100,6 +2103,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isLiked": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -2125,6 +2131,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isLiked": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

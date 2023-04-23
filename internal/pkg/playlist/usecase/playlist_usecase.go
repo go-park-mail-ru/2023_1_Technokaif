@@ -285,3 +285,12 @@ func (u *Usecase) checkUserInAuthors(playlistID, userID uint32) (bool, error) {
 
 	return userInAuthors, nil
 }
+
+func (u *Usecase) IsLiked(albumID, userID uint32) (bool, error) {
+	isLiked, err := u.playlistRepo.IsLiked(albumID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) can't check in repository if playlist is liked: %w", err)
+	}
+
+	return isLiked, nil
+}

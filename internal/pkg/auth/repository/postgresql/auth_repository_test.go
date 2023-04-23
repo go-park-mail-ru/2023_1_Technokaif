@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"testing"
@@ -19,6 +20,8 @@ import (
 )
 
 const usersTable = "Users"
+
+var ctx = context.Background()
 
 func defaultUser() (models.User, error) {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
@@ -138,7 +141,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.authData.userID, tc.authData.userVersion, tc.expectedUser)
 
-			user, err := repo.GetUserByAuthData(tc.authData.userID, tc.authData.userVersion)
+			user, err := repo.GetUserByAuthData(ctx, tc.authData.userID, tc.authData.userVersion)
 
 			// Test
 			if tc.expectError {
@@ -225,7 +228,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			tc.mockBehavior(tc.userID)
 
 			// Test
-			err := repo.IncreaseUserVersion(tc.userID)
+			err := repo.IncreaseUserVersion(ctx, tc.userID)
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedError.Error())
 			} else {

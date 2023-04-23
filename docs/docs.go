@@ -1553,7 +1553,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Favorite"
                 ],
                 "summary": "Favorite Albums",
                 "responses": {
@@ -1600,7 +1600,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Favorite"
                 ],
                 "summary": "Favorite Artists",
                 "responses": {
@@ -1647,7 +1647,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Favorite"
                 ],
                 "summary": "Favorite Playlists",
                 "responses": {
@@ -1689,12 +1689,12 @@ const docTemplate = `{
         },
         "/api/users/{userID}/favorite/tracks": {
             "get": {
-                "description": "Get ser's avorite racks",
+                "description": "Get ser's avorite tracks",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Favorite"
                 ],
                 "summary": "Favorite Tracks",
                 "responses": {
@@ -2094,6 +2094,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "isLiked": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 }
@@ -2107,6 +2110,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isLiked": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -2132,6 +2138,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isLiked": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

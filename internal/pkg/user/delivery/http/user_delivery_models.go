@@ -12,6 +12,20 @@ import (
 const MaxAvatarMemory = 5 << 20
 const avatarFormKey = "avatar"
 
+const (
+	userNotFound = "no such user"
+
+	userGetServerError          = "can't get user"
+	userUpdateInfoServerError   = "can't update user info"
+	userAvatarUploadServerError = "can't upload avatar"
+
+	userAvatarUploadInvalidData     = "invalid avatar data"
+	userAvatarUploadInvalidDataType = "invalid avatar data type"
+
+	userUpdatedInfoSuccessfully    = "ok"
+	userAvatarUploadedSuccessfully = "ok"
+)
+
 type userUploadAvatarResponse struct {
 	Status string `json:"status"`
 }

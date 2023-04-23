@@ -12,32 +12,52 @@ type AlbumTransfer struct {
 	Name        string           `json:"name"`
 	Artists     []ArtistTransfer `json:"artists"`
 	Description *string          `json:"description,omitempty"`
+	IsLiked     bool             `json:"isLiked"`
 	CoverSrc    string           `json:"cover"`
 }
 
 type artistsByAlbumGetter func(albumID uint32) ([]Artist, error)
+type albumLikeChecker func(albumID, userID uint32) (bool, error)
 
 // AlbumTransferFromEntry converts Album to AlbumTransfer
-func AlbumTransferFromEntry(a Album, artistsGetter artistsByAlbumGetter) (AlbumTransfer, error) {
+func AlbumTransferFromEntry(a Album, user *User, likeChecker albumLikeChecker,
+	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) (AlbumTransfer, error) {
+
 	artists, err := artistsGetter(a.ID)
 	if err != nil {
 		return AlbumTransfer{}, err
 	}
 
+	var isLiked = false
+	if user != nil {
+		isLiked, err = likeChecker(a.ID, user.ID)
+		if err != nil {
+			return AlbumTransfer{}, err
+		}
+	}
+
+	at, err := ArtistTransferFromQuery(artists, user, artistLikeChecker)
+	if err != nil {
+		return AlbumTransfer{}, nil
+	}
+
 	return AlbumTransfer{
 		ID:          a.ID,
 		Name:        a.Name,
-		Artists:     ArtistTransferFromQuery(artists),
+		Artists:     at,
 		Description: a.Description,
+		IsLiked:     isLiked,
 		CoverSrc:    a.CoverSrc,
 	}, nil
 }
 
 // AlbumTransferFromQuery converts []Album to []AlbumTransfer
-func AlbumTransferFromQuery(albums []Album, artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
+func AlbumTransferFromQuery(albums []Album, user *User, likeChecker albumLikeChecker,
+	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
+
 	albumTransfers := make([]AlbumTransfer, 0, len(albums))
 	for _, a := range albums {
-		at, err := AlbumTransferFromEntry(a, artistsGetter)
+		at, err := AlbumTransferFromEntry(a, user, likeChecker, artistLikeChecker, artistsGetter)
 		if err != nil {
 			return nil, err
 		}

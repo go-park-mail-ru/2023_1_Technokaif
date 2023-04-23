@@ -9,6 +9,24 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+// Response messages
+const (
+	albumNotFound    = "no such album"
+	artistNotFound   = "no such artist"
+	playlistNotFound = "no such playlist"
+	trackNotFound    = "no such track"
+
+	trackCreateNorights = "no rights to create track"
+	trackDeleteNoRights = "no rights to delete track"
+
+	trackCreateServerError = "can't create track"
+	trackGetServerError    = "can't get track"
+	tracksGetServerError   = "can't get tracks"
+	trackDeleteServerError = "can't delete track"
+
+	trackDeletedSuccessfully = "ok"
+)
+
 // Create
 type trackCreateInput struct {
 	Name          string   `json:"name" valid:"required"`

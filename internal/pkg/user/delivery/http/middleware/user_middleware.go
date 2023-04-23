@@ -22,14 +22,14 @@ func (m *Middleware) CheckUserAuthAndResponce(next http.Handler) http.Handler {
 		urlID, err := commonHttp.GetUserIDFromRequest(r)
 		if err != nil {
 			m.logger.Infof("invalid url parameter: %v", err.Error())
-			commonHttp.ErrorResponse(w, "invalid url parameter", http.StatusBadRequest, m.logger)
+			commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, m.logger)
 			return
 		}
 
 		user, err := commonHttp.GetUserFromRequest(r)
 		if err != nil {
 			m.logger.Infof("unathorized user: %v", err)
-			commonHttp.ErrorResponse(w, "unathorized", http.StatusUnauthorized, m.logger)
+			commonHttp.ErrorResponse(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, m.logger)
 			return
 		}
 

@@ -24,6 +24,7 @@ type Usecase interface {
 	GetLikedByUser(userID uint32) ([]models.Playlist, error)
 	SetLike(playlistID, userID uint32) (bool, error)
 	UnLike(playlistID, userID uint32) (bool, error)
+	IsLiked(artistID, userID uint32) (bool, error)
 }
 
 type Repository interface {
@@ -41,6 +42,7 @@ type Repository interface {
 	GetLikedByUser(userID uint32) ([]models.Playlist, error)
 	InsertLike(playlistID, userID uint32) (bool, error)
 	DeleteLike(playlistID, userID uint32) (bool, error)
+	IsLiked(artistID, userID uint32) (bool, error)
 }
 
 // Tables includes methods which return needed tables
