@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -52,8 +51,6 @@ func (u *Usecase) UpdateInfo(user *models.User) error {
 
 var dirForUserAvatar = filepath.Join(commonFile.MediaPath(), commonFile.AvatarFolder())
 
-var ErrAvatarWrongFormat = errors.New("wrong avatar file fromat")
-
 func (u *Usecase) UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension string) error {
 	if _, err := u.repo.GetByID(userID); err != nil {
 		return fmt.Errorf("(usecase) can't get user: %w", err)
@@ -61,7 +58,7 @@ func (u *Usecase) UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension 
 
 	// Check format
 	if fileType, err := commonFile.CheckMimeType(file, "image/png", "image/jpeg"); err != nil {
-		return fmt.Errorf("(usecase) file format %s: %w", fileType, ErrAvatarWrongFormat)
+		return fmt.Errorf("(usecase) file format %s: %w", fileType, &models.AvatarWrongFormatError{FileType: fileType})
 	}
 
 	filenameWithExtension, _, err := commonFile.CreateFile(file, fileExtension, dirForUserAvatar)
@@ -74,8 +71,4 @@ func (u *Usecase) UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension 
 		return fmt.Errorf("(usecase) can't update avatarSrc: %w", err)
 	}
 	return nil
-}
-
-func (u *Usecase) UploadAvatarWrongFormatError() error {
-	return ErrAvatarWrongFormat
 }
