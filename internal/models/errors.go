@@ -99,7 +99,7 @@ func (e *AvatarWrongFormatError) Error() string {
 	return fmt.Sprintf("wrong avatar format: %s", e.FileType)
 }
 
-const (  // Not used
+const ( // Not used
 	NoSuchTrackStatusCode uint32 = iota
 	NoSuchAlbumStatusCode
 	NoSuchPlaylistStatusCode

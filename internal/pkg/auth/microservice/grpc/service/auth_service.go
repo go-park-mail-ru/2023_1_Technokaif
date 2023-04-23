@@ -21,7 +21,7 @@ import (
 type AuthService struct {
 	authRepo auth.Repository
 	userRepo user.Repository
-	logger logger.Logger
+	logger   logger.Logger
 
 	proto.UnimplementedAuthorizationServer
 }
@@ -30,7 +30,7 @@ func NewAuthService(userRepo user.Repository, authRepo auth.Repository, l logger
 	return &AuthService{
 		authRepo: authRepo,
 		userRepo: userRepo,
-		logger: l,
+		logger:   l,
 	}
 }
 

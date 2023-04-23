@@ -16,7 +16,7 @@ type Usecase struct {
 	logger logger.Logger
 }
 
-func NewUsecase(aa auth.Agent,l logger.Logger) *Usecase {
+func NewUsecase(aa auth.Agent, l logger.Logger) *Usecase {
 	return &Usecase{
 		authAgent: aa,
 

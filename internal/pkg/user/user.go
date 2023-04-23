@@ -40,7 +40,7 @@ type Repository interface {
 
 // Agent ...
 type Agent interface {
-	CreateUser(user models.User) 
+	CreateUser(user models.User)
 }
 
 // Tables includes methods which return needed tables

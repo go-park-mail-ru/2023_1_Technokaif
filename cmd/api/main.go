@@ -11,11 +11,11 @@ import (
 
 	"github.com/joho/godotenv" // load environment
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/app"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/server"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/file"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
