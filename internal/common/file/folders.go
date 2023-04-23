@@ -21,12 +21,7 @@ var paths = struct {
 	avatarsFolder       string `valid:"required,not_empty"`
 	recordsFolder       string `valid:"required,not_empty"`
 	playlistCoverFolder string `valid:"required,not_empty"`
-}{
-	mediaPath:           os.Getenv(mediaPathParam),
-	avatarsFolder:       os.Getenv(avatarFolderParam),
-	recordsFolder:       os.Getenv(recordsFolderParam),
-	playlistCoverFolder: os.Getenv(playlistCoverFolderParam),
-}
+} {}
 
 func MediaPath() string {
 	return paths.mediaPath
@@ -69,6 +64,10 @@ func InitPaths() error {
 
 func init() {
 	godotenv.Load()
+	paths.mediaPath = os.Getenv(mediaPathParam)
+	paths.avatarsFolder = os.Getenv(avatarFolderParam)
+	paths.recordsFolder = os.Getenv(recordsFolderParam)
+	paths.playlistCoverFolder = os.Getenv(playlistCoverFolderParam)
 
 	valid.TagMap["not_empty"] = valid.Validator(func(str string) bool {
 		return !(valid.Trim(str, " ") == "")

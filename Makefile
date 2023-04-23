@@ -2,8 +2,11 @@
 
 all: clear_media server_start
 
-server_start:
-	go run ./cmd/app/main.go
+api_start:
+	go run ./cmd/api/main.go
+
+auth_start:
+	go run ./cmd/auth/auth.go
 
 clear_media:
 	rm -r ./img

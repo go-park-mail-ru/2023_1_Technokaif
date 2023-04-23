@@ -48,7 +48,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := h.authServices.SignUpUser(user)
+	id, err := h.authServices.SignUpUser(r.Context(), user)
 	if err != nil {
 		var errUserAlreadyExists *models.UserAlreadyExistsError
 		if errors.As(err, &errUserAlreadyExists) {
@@ -91,7 +91,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.authServices.GetUserByCreds(userInput.Username, userInput.Password)
+	user, err := h.authServices.GetUserByCreds(r.Context(), userInput.Username, userInput.Password)
 	if err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
@@ -140,7 +140,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = h.authServices.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
+	if err = h.authServices.IncreaseUserVersion(r.Context(), user.ID); err != nil { // userVersion UP
 		h.logger.Errorf("failed to logout: %s", err.Error())
 		commonHttp.ErrorResponse(w, "failed to log out", http.StatusInternalServerError, h.logger)
 		return
@@ -173,7 +173,7 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := h.authServices.GetUserByCreds(user.Username, passwordsInput.OldPassword); err != nil {
+	if _, err := h.authServices.GetUserByCreds(r.Context(), user.Username, passwordsInput.OldPassword); err != nil {
 		var errIncorrectPassword *models.IncorrectPasswordError
 		if errors.As(err, &errIncorrectPassword) {
 			commonHttp.ErrorResponseWithErrLogging(w, "incorrect password", http.StatusBadRequest, h.logger, err)
@@ -184,12 +184,12 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.authServices.ChangePassword(user.ID, passwordsInput.NewPassword); err != nil {
+	if err := h.authServices.ChangePassword(r.Context(), user.ID, passwordsInput.NewPassword); err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "server failed to change password", http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	if err = h.authServices.IncreaseUserVersion(user.ID); err != nil { // userVersion UP
+	if err = h.authServices.IncreaseUserVersion(r.Context(), user.ID); err != nil { // userVersion UP
 		h.logger.Errorf("failed to increase version while changing pass: %s", err.Error())
 		commonHttp.ErrorResponse(w, "server failed to change password", http.StatusInternalServerError, h.logger)
 		return

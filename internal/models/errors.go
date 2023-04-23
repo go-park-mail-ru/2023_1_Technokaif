@@ -60,6 +60,9 @@ type NoSuchUserError struct {
 }
 
 func (e *NoSuchUserError) Error() string {
+	if e.UserID == 0 {
+		return "user doesn't exist"
+	}
 	return fmt.Sprintf("user #%d doesn't exist", e.UserID)
 }
 
@@ -68,6 +71,9 @@ type IncorrectPasswordError struct {
 }
 
 func (e *IncorrectPasswordError) Error() string {
+	if e.UserID == 0 {
+		return "incorrect password for user"
+	}
 	return fmt.Sprintf("incorrect password for user #%d", e.UserID)
 }
 
@@ -76,3 +82,16 @@ type UnathorizedError struct{}
 func (e *UnathorizedError) Error() string {
 	return "unathorized"
 }
+
+const (  // Not used
+	NoSuchTrackStatusCode uint32 = iota
+	NoSuchAlbumStatusCode
+	NoSuchPlaylistStatusCode
+	NoSuchArtistStatusCode
+	ForbiddenUserStatusCode
+	UserAlreadyExistsStatusCode
+	NoSuchUserStatusCode
+	IncorrectPasswordStatusCode
+	UnathorizedStatusCode
+	OtherStatusCode
+)

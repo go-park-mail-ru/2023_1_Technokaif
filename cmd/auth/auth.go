@@ -1,0 +1,57 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"net"
+	"os"
+
+	"google.golang.org/grpc"
+	"github.com/joho/godotenv" // load environment
+
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
+	authProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/microservice/grpc/proto"
+	authService "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/microservice/grpc/service"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
+
+	authRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/repository/postgresql"
+	userRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/repository/postgresql"
+)
+
+func main() {
+	logger, err := logger.NewLogger()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "logger can not be defined: %v\n", err)
+		return
+	}
+
+	db, tables, err := postgresql.InitPostgresDB()
+	if err != nil {
+		logger.Errorf("error while connecting to database: %v", err)
+		return
+	}
+
+	userRepo := userRepository.NewPostgreSQL(db, tables, logger)
+	authRepo := authRepository.NewPostgreSQL(db, tables, logger)
+
+	listener, err := net.Listen("tcp", cmd.AuthHostParam + ":" + cmd.AuthPortParam)
+	if err != nil {
+		log.Fatalln("cant listen port", err)
+		return
+	}
+
+	server := grpc.NewServer()
+	authProto.RegisterAuthorizationServer(server, authService.NewAuthService(userRepo, authRepo, logger))
+	if err := server.Serve(listener); err != nil {
+		log.Fatalf("Auth Server error: %v", err)
+		return
+	}
+}
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error while loading environment: %v", err)
+	}
+}
+

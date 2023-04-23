@@ -11,32 +11,34 @@ import (
 // Usecase includes bussiness logics methods to work with authentication
 type Usecase interface {
 	// SignUpUser creates new user and returns it's id
-	SignUpUser(user models.User) (uint32, error)
+	SignUpUser(ctx context.Context, user models.User) (uint32, error)
 
 	// GetUserByCreds returns User if such User exists in repository
-	GetUserByCreds(username, plainPassword string) (*models.User, error)
+	GetUserByCreds(ctx context.Context, username, plainPassword string) (*models.User, error)
 
 	// GetUserByAuthData returns User if such User exists in repository
-	GetUserByAuthData(userID, userVersion uint32) (*models.User, error)
+	GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error)
 
 	// IncreaseUserVersion increases user's access token version
-	IncreaseUserVersion(userID uint32) error
+	IncreaseUserVersion(ctx context.Context, userID uint32) error
 
-	ChangePassword(userID uint32, password string) error
+	ChangePassword(ctx context.Context, userID uint32, password string) error
 }
 
 // Agent ...
 type Agent interface {
-	SignUpUser(context context.Context, user models.User) (uint32, error)
-	CheckPassword(context context.Context, plainPassword, salt, expectedPassword string) (bool, error)
-	GetUserByAuthData(context context.Context, userID, userVersion uint32) (*models.User, error)
+	SignUpUser(ctx context.Context, user models.User) (uint32, error)
+	GetUserByCreds(ctx context.Context, username, plainPassword string) (*models.User, error)
+	GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error)
+	IncreaseUserVersion(ctx context.Context, userID uint32) error
+	ChangePassword(ctx context.Context, userID uint32, password string) error
 }
 
 // Repository includes DBMS-relatable methods to work with authentication
 type Repository interface {
-	GetUserByAuthData(userID, userVersion uint32) (*models.User, error)
-	IncreaseUserVersion(userID uint32) error
-	UpdatePassword(userID uint32, passwordHash, salt string) error
+	GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error)
+	IncreaseUserVersion(ctx context.Context, userID uint32) error
+	UpdatePassword(ctx context.Context, userID uint32, passwordHash, salt string) error
 }
 
 // Tables includes methods which return needed tables
