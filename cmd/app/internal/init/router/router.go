@@ -68,12 +68,12 @@ func InitRouter(
 			})
 		})
 
-		r.Route("/albums", func(r chi.Router) {
-			r.With(authM.Authorization).Post("/", albumH.Create)
+		r.With(authM.Authorization).Route("/albums", func(r chi.Router) {
+			r.Post("/", albumH.Create)
 			r.Route(albumIdRoute, func(r chi.Router) {
 				r.Get("/", albumH.Get)
 
-				r.With(authM.Authorization).Group(func(r chi.Router) {
+				r.Group(func(r chi.Router) {
 					r.Get("/tracks", trackH.GetByAlbum)
 
 					r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {
@@ -86,12 +86,12 @@ func InitRouter(
 			r.Get("/feed", albumH.Feed)
 		})
 
-		r.Route("/playlists", func(r chi.Router) {
-			r.With(authM.Authorization, csrfM.CheckCSRFToken).Post("/", playlistH.Create)
+		r.With(authM.Authorization).Route("/playlists", func(r chi.Router) {
+			r.With(csrfM.CheckCSRFToken).Post("/", playlistH.Create)
 			r.Route(playlistIdRoute, func(r chi.Router) {
 				r.Get("/", playlistH.Get)
 
-				r.With(authM.Authorization).Group(func(r chi.Router) {
+				r.Group(func(r chi.Router) {
 					r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {
 						r.Post("/update", playlistH.Update)
 						r.Post("/cover", playlistH.UploadCover)
@@ -116,12 +116,12 @@ func InitRouter(
 			r.Get("/feed", playlistH.Feed)
 		})
 
-		r.Route("/artists", func(r chi.Router) {
-			r.With(authM.Authorization).Post("/", artistH.Create)
+		r.With(authM.Authorization).Route("/artists", func(r chi.Router) {
+			r.Post("/", artistH.Create)
 			r.Route(artistIdRoute, func(r chi.Router) {
 				r.Get("/", artistH.Get)
 
-				r.With(authM.Authorization).Group(func(r chi.Router) {
+				r.Group(func(r chi.Router) {
 					r.Get("/tracks", trackH.GetByArtist)
 
 					r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {

@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 type Album struct {
 	ID          uint32  `db:"id"`
 	Name        string  `db:"name"`
@@ -30,10 +32,13 @@ func AlbumTransferFromEntry(a Album, user *User, likeChecker albumLikeChecker,
 
 	var isLiked = false
 	if user != nil {
+		fmt.Println("USER NOT NIL")
 		isLiked, err = likeChecker(a.ID, user.ID)
 		if err != nil {
 			return AlbumTransfer{}, err
 		}
+	} else {
+		fmt.Println("USER NIL")
 	}
 
 	at, err := ArtistTransferFromQuery(artists, user, artistLikeChecker)
