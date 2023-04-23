@@ -3,7 +3,6 @@ package http
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
@@ -112,8 +111,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		commonHttp.ErrorResponseWithErrLogging(w, albumGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
-
-	fmt.Println("ALBUM BEFORE", *album)
 
 	resp, err := models.AlbumTransferFromEntry(*album, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
