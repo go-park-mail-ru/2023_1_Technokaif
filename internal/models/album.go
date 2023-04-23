@@ -38,7 +38,7 @@ func AlbumTransferFromEntry(a Album, user *User, likeChecker albumLikeChecker,
 
 	at, err := ArtistTransferFromQuery(artists, user, artistLikeChecker)
 	if err != nil {
-		return AlbumTransfer{}, nil
+		return AlbumTransfer{}, err
 	}
 
 	return AlbumTransfer{

@@ -94,7 +94,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
 		},
 		{
-			name: "Incorrect Body (no name & isLiked)",
+			name: "Incorrect Body (no name)",
 			user: &correctUser,
 			requestBody: `{
 				"artistsID": [1],
@@ -312,7 +312,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 				).Return(nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: `{"status": "ok"}`,
+			expectedResponse: commonTests.OKResponse(albumDeletedSuccessfully),
 		},
 		{
 			name:             "Incorrect ID In Path",
@@ -540,7 +540,7 @@ func TestAlbumDeliveryGetFavorite(t *testing.T) {
 
 	// Routing
 	r := chi.NewRouter()
-	r.Get("/api/users/{userID}/albums", h.GetFavorite)
+	r.Get("/api/users/{userID}/favorite/albums", h.GetFavorite)
 
 	// Test filling
 	const correctUserID uint32 = 1
@@ -658,7 +658,8 @@ func TestAlbumDeliveryGetFavorite(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(alu, aru, tc.user.ID)
 
-			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/albums", tc.expectedStatus, tc.expectedResponse,
+			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/favorite/albums",
+				tc.expectedStatus, tc.expectedResponse,
 				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}

@@ -126,11 +126,11 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 // @Tags		Album
 // @Description	Delete album with chosen ID
 // @Produce		json
-// @Success		200		{object}	albumDeleteResponse	        "Album deleted"
-// @Failure		400		{object}	http.Error	"Client error"
-// @Failure		401		{object}	http.Error  "User unathorized"
-// @Failure		403		{object}	http.Error	"User hasn't rights"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Success		200		{object}	albumDeleteResponse	  	"Album deleted"
+// @Failure		400		{object}	http.Error				"Client error"
+// @Failure		401		{object}	http.Error  			"User unathorized"
+// @Failure		403		{object}	http.Error				"User hasn't rights"
+// @Failure		500		{object}	http.Error				"Server error"
 // @Router		/api/albums/{albumID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
@@ -173,9 +173,9 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Tags		Artist
 // @Description	All albums of artist with chosen ID
 // @Produce		json
-// @Success		200		{object}	[]models.AlbumTransfer	    "Show albums"
-// @Failure		400		{object}	http.Error	"Client error"
-// @Failure		500		{object}	http.Error	"Server error"
+// @Success		200		{object}	[]models.AlbumTransfer "Show albums"
+// @Failure		400		{object}	http.Error			   "Client error"
+// @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/artists/{artistID}/albums [get]
 func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
@@ -217,8 +217,8 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 // @Tags		Feed
 // @Description	Feed albums
 // @Produce		json
-// @Success		200		{object}	[]models.AlbumTransfer	 "Albums feed"
-// @Failure		500		{object}	http.Error "Server error"
+// @Success		200		{object}	[]models.AlbumTransfer	"Albums feed"
+// @Failure		500		{object}	http.Error 				"Server error"
 // @Router		/api/albums/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	albums, err := h.albumServices.GetFeed()
