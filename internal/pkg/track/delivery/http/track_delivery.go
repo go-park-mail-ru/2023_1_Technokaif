@@ -22,7 +22,8 @@ func NewHandler(tu track.Usecase, au artist.Usecase, l logger.Logger) *Handler {
 	return &Handler{
 		trackServices:  tu,
 		artistServices: au,
-		logger:         l,
+
+		logger: l,
 	}
 }
 
@@ -111,7 +112,8 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromEntry(*track, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
+	tt, err := models.TrackTransferFromEntry(*track, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get track", http.StatusInternalServerError, h.logger, err)
 		return
@@ -201,7 +203,8 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
+	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
@@ -244,7 +247,8 @@ func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
+	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
@@ -287,7 +291,8 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
+	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return
@@ -316,7 +321,8 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
+	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get tracks", http.StatusInternalServerError, h.logger, err)
 		return

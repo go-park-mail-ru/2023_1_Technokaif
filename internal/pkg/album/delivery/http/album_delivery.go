@@ -22,7 +22,8 @@ func NewHandler(alu album.Usecase, aru artist.Usecase, l logger.Logger) *Handler
 	return &Handler{
 		albumServices:  alu,
 		artistServices: aru,
-		logger:         l,
+
+		logger: l,
 	}
 }
 
@@ -111,7 +112,8 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromEntry(*album, user, h.albumServices.IsLiked, h.artistServices.GetByAlbum)
+	resp, err := models.AlbumTransferFromEntry(*album, user, h.albumServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get album", http.StatusInternalServerError, h.logger, err)
 		return
@@ -201,7 +203,8 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromQuery(albums, user, h.albumServices.IsLiked, h.artistServices.GetByAlbum)
+	resp, err := models.AlbumTransferFromQuery(albums, user, h.albumServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return
@@ -230,7 +233,8 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromQuery(albums, user, h.albumServices.IsLiked, h.artistServices.GetByAlbum)
+	resp, err := models.AlbumTransferFromQuery(albums, user, h.albumServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get albums", http.StatusInternalServerError, h.logger, err)
 		return

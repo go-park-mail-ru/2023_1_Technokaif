@@ -175,7 +175,8 @@ func (h *Handler) GetFavouriteTracks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(favTracks, user, h.trackServices.IsLiked, h.artistServices.GetByTrack)
+	tt, err := models.TrackTransferFromQuery(favTracks, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite tracks", http.StatusInternalServerError, h.logger, err)
 		return
@@ -207,7 +208,8 @@ func (h *Handler) GetFavouriteAlbums(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := models.AlbumTransferFromQuery(favAlbums, user, h.albumServices.IsLiked, h.artistServices.GetByAlbum)
+	at, err := models.AlbumTransferFromQuery(favAlbums, user, h.albumServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite albums", http.StatusInternalServerError, h.logger, err)
 		return
@@ -271,7 +273,11 @@ func (h *Handler) GetFavouriteArtists(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at := models.ArtistTransferFromQuery(favArtists)
+	at, err := models.ArtistTransferFromQuery(favArtists, user, h.artistServices.IsLiked)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get favorite artists", http.StatusInternalServerError, h.logger, err)
+		return
+	}
 
 	commonHttp.SuccessResponse(w, at, h.logger)
 }

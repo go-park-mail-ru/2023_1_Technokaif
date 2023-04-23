@@ -94,9 +94,19 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistResponse := models.ArtistTransferFromEntry(*artist)
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get artist", http.StatusInternalServerError, h.logger, err)
+		return
+	}
 
-	commonHttp.SuccessResponse(w, artistResponse, h.logger)
+	ar, err := models.ArtistTransferFromEntry(*artist, user, h.artistServices.IsLiked)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get artist", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHttp.SuccessResponse(w, ar, h.logger)
 }
 
 // @Summary		Delete Artist
@@ -160,7 +170,17 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistsTransfer := models.ArtistTransferFromQuery(artists)
+	user, err := commonHttp.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't get artist", http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	artistsTransfer, err := models.ArtistTransferFromQuery(artists, user, h.artistServices.IsLiked)
+	if err != nil {
+		commonHttp.ErrorResponseWithErrLogging(w, "can't delete artist", http.StatusInternalServerError, h.logger, err)
+		return
+	}
 
 	commonHttp.SuccessResponse(w, artistsTransfer, h.logger)
 }

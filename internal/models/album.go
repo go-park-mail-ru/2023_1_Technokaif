@@ -21,7 +21,7 @@ type albumLikeChecker func(albumID, userID uint32) (bool, error)
 
 // AlbumTransferFromEntry converts Album to AlbumTransfer
 func AlbumTransferFromEntry(a Album, user *User, likeChecker albumLikeChecker,
-	artistsGetter artistsByAlbumGetter) (AlbumTransfer, error) {
+	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) (AlbumTransfer, error) {
 
 	artists, err := artistsGetter(a.ID)
 	if err != nil {
@@ -36,7 +36,10 @@ func AlbumTransferFromEntry(a Album, user *User, likeChecker albumLikeChecker,
 		}
 	}
 
-	at := ArtistTransferFromQuery(artists)
+	at, err := ArtistTransferFromQuery(artists, user, artistLikeChecker)
+	if err != nil {
+		return AlbumTransfer{}, nil
+	}
 
 	return AlbumTransfer{
 		ID:          a.ID,
@@ -50,11 +53,11 @@ func AlbumTransferFromEntry(a Album, user *User, likeChecker albumLikeChecker,
 
 // AlbumTransferFromQuery converts []Album to []AlbumTransfer
 func AlbumTransferFromQuery(albums []Album, user *User, likeChecker albumLikeChecker,
-	artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
+	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
 
 	albumTransfers := make([]AlbumTransfer, 0, len(albums))
 	for _, a := range albums {
-		at, err := AlbumTransferFromEntry(a, user, likeChecker, artistsGetter)
+		at, err := AlbumTransferFromEntry(a, user, likeChecker, artistLikeChecker, artistsGetter)
 		if err != nil {
 			return nil, err
 		}
