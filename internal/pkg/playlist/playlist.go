@@ -13,7 +13,6 @@ type Usecase interface {
 	GetByID(playlistID uint32) (*models.Playlist, error)
 	UpdateInfoAndMembers(playlist models.Playlist, usersID []uint32, userID uint32) error
 	UploadCover(playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error
-	UploadCoverWrongFormatError() error
 	Delete(playlistID uint32, userID uint32) error
 
 	AddTrack(trackID, playlistID, userID uint32) error

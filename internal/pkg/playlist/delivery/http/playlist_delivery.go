@@ -167,7 +167,8 @@ func (h *Handler) UploadCover(w http.ResponseWriter, r *http.Request) {
 
 	err = h.playlistServices.UploadCover(playlistRequestID, user.ID, coverFile, extension)
 	if err != nil {
-		if errors.Is(err, h.playlistServices.UploadCoverWrongFormatError()) {
+		var errCoverWrongFormat *models.CoverWrongFormatError
+		if errors.As(err, &errCoverWrongFormat) {
 			commonHttp.ErrorResponseWithErrLogging(w, playlistCoverInvalidDataType, http.StatusBadRequest, h.logger, err)
 			return
 		}

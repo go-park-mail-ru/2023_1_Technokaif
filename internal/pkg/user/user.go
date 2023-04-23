@@ -13,7 +13,6 @@ type Usecase interface {
 	GetByID(userID uint32) (*models.User, error)
 	UpdateInfo(user *models.User) error
 	UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension string) error
-	UploadAvatarWrongFormatError() error
 	GetByPlaylist(playlistID uint32) ([]models.User, error)
 }
 
