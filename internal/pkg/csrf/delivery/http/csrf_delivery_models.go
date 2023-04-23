@@ -1,5 +1,6 @@
 package delivery
 
+// Response messages
 const (
 	invalidAccessToken = "invalid access token"
 	csrfGetError       = "failed to get CSRF-token"

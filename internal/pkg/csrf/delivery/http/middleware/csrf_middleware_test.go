@@ -54,7 +54,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
 			expectedStatus:    http.StatusBadRequest,
-			expectedResponse:  `{"message": "invalid access token"}`,
+			expectedResponse:  commonTests.ErrorResponse(invalidAccessToken),
 		},
 		{
 			name:              "Nil user in context",
@@ -65,7 +65,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
 			expectedStatus:    http.StatusBadRequest,
-			expectedResponse:  `{"message": "invalid access token"}`,
+			expectedResponse:  commonTests.ErrorResponse(invalidAccessToken),
 		},
 		{
 			name:          "Invalid token",
@@ -78,7 +78,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			},
 			expectingResponse: true,
 			expectedStatus:    http.StatusBadRequest,
-			expectedResponse:  `{"message": "invalid CSRF token"}`,
+			expectedResponse:  commonTests.ErrorResponse(invalidCSRFToken),
 		},
 		{
 			name:              "Missing token",
@@ -87,7 +87,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			mockBehavior:      func(t *tokenMocks.MockUsecase, token string) {},
 			expectingResponse: true,
 			expectedStatus:    http.StatusBadRequest,
-			expectedResponse:  `{"message": "missing CSRF token"}`,
+			expectedResponse:  commonTests.ErrorResponse(missingCSRFToken),
 		},
 		{
 			name:          "Incorrect token payload userID",
@@ -100,7 +100,7 @@ func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
 			},
 			expectingResponse: true,
 			expectedStatus:    http.StatusBadRequest,
-			expectedResponse:  `{"message": "invalid CSRF token"}`,
+			expectedResponse:  commonTests.ErrorResponse(invalidCSRFToken),
 		},
 	}
 

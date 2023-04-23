@@ -84,7 +84,7 @@ func TestDeliverySignUp(t *testing.T) {
 			userFromBody:     correctTestUser,
 			mockBehavior:     func(a *authMocks.MockUsecase, u models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "incorrect input body"}`,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
 		},
 		{
 			// These tests aren't tests of validation but delivery-layer
@@ -97,7 +97,7 @@ func TestDeliverySignUp(t *testing.T) {
 			userFromBody:     models.User{},
 			mockBehavior:     func(a *authMocks.MockUsecase, u models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "incorrect input body"}`,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
 		},
 		{
 			name:         "Creating existing user Error",
@@ -107,7 +107,7 @@ func TestDeliverySignUp(t *testing.T) {
 				a.EXPECT().SignUpUser(u).Return(uint32(0), &models.UserAlreadyExistsError{})
 			},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "user already exists"}`,
+			expectedResponse: commonTests.ErrorResponse(userAlreadyExists),
 		},
 		{
 			name:         "Creating database Error",
@@ -117,7 +117,7 @@ func TestDeliverySignUp(t *testing.T) {
 				a.EXPECT().SignUpUser(u).Return(uint32(0), fmt.Errorf("database query error"))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "server failed to sign up user"}`,
+			expectedResponse: commonTests.ErrorResponse(userSignUpServerError),
 		},
 	}
 
@@ -191,7 +191,7 @@ func TestDeliveryLogin(t *testing.T) {
 			loginFromBody:    correctTestLogin,
 			mockBehavior:     func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "incorrect input body"}`,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
 			expectingCookie:  false,
 		},
 		{
@@ -203,7 +203,7 @@ func TestDeliveryLogin(t *testing.T) {
 			loginFromBody:    loginInput{},
 			mockBehavior:     func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "incorrect input body"}`,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
 			expectingCookie:  false,
 		},
 		{
@@ -214,7 +214,7 @@ func TestDeliveryLogin(t *testing.T) {
 				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(&models.User{}, &models.NoSuchUserError{})
 			},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "no such user"}`,
+			expectedResponse: commonTests.ErrorResponse(userNotFound),
 			expectingCookie:  false,
 		},
 		{
@@ -225,7 +225,7 @@ func TestDeliveryLogin(t *testing.T) {
 				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(&models.User{}, &models.IncorrectPasswordError{})
 			},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "incorrect password"}`,
+			expectedResponse: commonTests.ErrorResponse(passwordMismatch),
 			expectingCookie:  false,
 		},
 		{
@@ -236,7 +236,7 @@ func TestDeliveryLogin(t *testing.T) {
 				a.EXPECT().GetUserByCreds(l.Username, l.Password).Return(&models.User{}, errors.New("database error"))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "server failed to login user"}`,
+			expectedResponse: commonTests.ErrorResponse(userLoginServerError),
 			expectingCookie:  false,
 		},
 		{
@@ -250,7 +250,7 @@ func TestDeliveryLogin(t *testing.T) {
 				t.EXPECT().GenerateAccessToken(user.ID, user.Version).Return("", errors.New("generating token error"))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "server failed to login user"}`,
+			expectedResponse: commonTests.ErrorResponse(userLoginServerError),
 			expectingCookie:  false,
 		},
 	}
@@ -310,7 +310,7 @@ func TestDeliveryLogout(t *testing.T) {
 				a.EXPECT().IncreaseUserVersion(user.ID).Return(nil)
 			},
 			expectedStatus:       http.StatusOK,
-			expectedResponse:     `{"status": "ok"}`,
+			expectedResponse:     commonTests.OKResponse(userLogedOutSuccessfully),
 			doWrap:               true,
 			expectingCookieReset: true,
 		},
@@ -319,7 +319,7 @@ func TestDeliveryLogout(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(a *authMocks.MockUsecase, user *models.User) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: `{"message": "invalid token"}`,
+			expectedResponse: commonTests.ErrorResponse(invalidToken),
 			doWrap:           false,
 		},
 		{
@@ -327,7 +327,7 @@ func TestDeliveryLogout(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(a *authMocks.MockUsecase, user *models.User) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: `{"message": "invalid token"}`,
+			expectedResponse: commonTests.ErrorResponse(invalidToken),
 			doWrap:           true,
 		},
 		{
@@ -337,7 +337,7 @@ func TestDeliveryLogout(t *testing.T) {
 				a.EXPECT().IncreaseUserVersion(user.ID).Return(fmt.Errorf("database error"))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "failed to log out"}`,
+			expectedResponse: commonTests.ErrorResponse(userLogoutServerError),
 			doWrap:           true,
 		},
 	}

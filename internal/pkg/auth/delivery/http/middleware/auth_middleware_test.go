@@ -72,7 +72,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 			expectingUserInContext: false,
 			expectingResponse:      true,
 			expectedStatus:         http.StatusBadRequest,
-			expectedResponse:       `{"message": "token check failed"}`,
+			expectedResponse:       commonTests.ErrorResponse(tokenCheckFail),
 		},
 		{
 			name:        "Auth failed",
@@ -87,7 +87,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 			expectingUserInContext: false,
 			expectingResponse:      true,
 			expectedStatus:         http.StatusBadRequest,
-			expectedResponse:       `{"message": "auth data check failed"}`,
+			expectedResponse:       commonTests.ErrorResponse(authDataCheckFail),
 		},
 		{
 			name:        "Server error",
@@ -102,7 +102,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 			expectingUserInContext: false,
 			expectingResponse:      true,
 			expectedStatus:         http.StatusInternalServerError,
-			expectedResponse:       `{"message": "server failed to check authorization"}`,
+			expectedResponse:       commonTests.ErrorResponse(authCheckServerErorr),
 		},
 	}
 
