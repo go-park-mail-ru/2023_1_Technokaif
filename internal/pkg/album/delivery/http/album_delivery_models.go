@@ -8,6 +8,22 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+// Response messages
+const (
+	albumNotFound  = "no such album"
+	artistNotFound = "no such artist"
+
+	albumCreateNorights = "no rights to create album"
+	albumDeleteNoRights = "no rights to delete album"
+
+	albumCreateServerError = "can't create album"
+	albumGetServerError    = "can't get album"
+	albumsGetServerError   = "can't get albums"
+	albumDeleteServerError = "can't delete album"
+
+	albumDeletedSuccessfully = "ok"
+)
+
 // Create
 type albumCreateInput struct {
 	Name        string   `json:"name" valid:"required"`
