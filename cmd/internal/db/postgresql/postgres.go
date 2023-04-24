@@ -59,7 +59,7 @@ func InitPostgresDB() (*sqlx.DB, PostgreSQLTables, error) {
 
 	dbInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword, cfg.DBSSLMode)
-
+	
 	db, err := sqlx.Open("postgres", dbInfo)
 	if err != nil {
 		return nil, PostgreSQLTables{}, err

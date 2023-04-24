@@ -3,14 +3,34 @@ version: '3.8'
 services:
   api:
     depends_on:
+      - auth
+    build:
+      context: .
+      args:
+        APP: "api/main.go"
+        PORT: 4444
+      dockerfile: Dockerfile.Multistage
+    ports:
+      - "4444:4444"
+    env_file:
+      - .env
+    volumes:
+      - ${PWD}/.env:/out/.env
+      - type: bind
+        source: ${MEDIA_PATH}
+        target: ${MEDIA_PATH}
+
+  auth:
+    depends_on:
       - db
     build:
       context: .
+      args:
+        APP: "auth/auth.go"
+        PORT: 4443
       dockerfile: Dockerfile.Multistage
-    env_file:
-      - .env
     ports:
-      - "4444:4444"
+      - "4443:4443"
     volumes:
       - ${PWD}/.env:/out/.env
 

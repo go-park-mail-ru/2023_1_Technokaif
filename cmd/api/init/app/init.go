@@ -96,7 +96,8 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 }
 
 func makeAgents() (*Agents, error) {
-	grpcAuthConn, err := grpc.Dial(":"+os.Getenv(cmd.AuthPortParam), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpcAuthConn, err := grpc.Dial(os.Getenv(cmd.AuthHostParam)+":"+os.Getenv(cmd.AuthPortParam),
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to auth service: %v", err)
 	}
