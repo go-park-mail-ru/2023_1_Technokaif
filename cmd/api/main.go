@@ -62,7 +62,7 @@ func main() {
 	}
 
 	var srv server.Server
-	if err := srv.Init(os.Getenv("API_HOST"), os.Getenv("API_PORT"), router); err != nil {
+	if err := srv.Init(os.Getenv(cmd.ApiPortParam), router); err != nil {
 		logger.Errorf("error while launching server: %v", err)
 	}
 
@@ -75,7 +75,7 @@ func main() {
 	logger.Info("trying to launch server")
 
 	timer := time.AfterFunc(2*time.Second, func() {
-		logger.Infof("server launched at %s:%s", os.Getenv(cmd.ApiHostParam), os.Getenv(cmd.ApiPortParam))
+		logger.Infof("server launched at :%s", os.Getenv(cmd.ApiPortParam))
 	})
 	defer timer.Stop()
 

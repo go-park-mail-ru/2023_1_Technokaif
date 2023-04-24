@@ -35,7 +35,7 @@ func main() {
 	userRepo := userRepository.NewPostgreSQL(db, tables, logger)
 	authRepo := authRepository.NewPostgreSQL(db, tables, logger)
 
-	listener, err := net.Listen("tcp", cmd.AuthHostParam+":"+cmd.AuthPortParam)
+	listener, err := net.Listen("tcp", ":"+os.Getenv(cmd.AuthPortParam))
 	if err != nil {
 		logger.Errorf("Cant listen port: %v", err)
 		return

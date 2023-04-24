@@ -10,9 +10,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/router"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
 
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
 	artistRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/repository/postgresql"
@@ -96,8 +96,7 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 }
 
 func makeAgents() (*Agents, error) {
-	grpcAuthConn, err := grpc.Dial(fmt.Sprintf("%s:%s", os.Getenv(cmd.AuthHostParam), os.Getenv(cmd.AuthPortParam)),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	grpcAuthConn, err := grpc.Dial(":"+os.Getenv(cmd.AuthPortParam), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to auth service: %v", err)
 	}

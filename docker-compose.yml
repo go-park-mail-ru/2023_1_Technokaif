@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  api:
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile.Multistage
+    env_file:
+      - .env
+    ports:
+      - "4444:4444"
+    volumes:
+      - ${PWD}/.env:/out/.env
 
   db:
     image: postgres:latest
@@ -14,4 +26,5 @@ services:
     ports:
       - 5436:5432
     volumes:
-      - ./cmd/app/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d
+      - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d
+
