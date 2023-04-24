@@ -61,6 +61,7 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 		userId, userVersion, err := m.tokenServices.CheckAccessToken(token)
 		if err != nil {
 			m.logger.Infof("middleware: %v", err)
+			commonHttp.SetAccessTokenCookie(w, "")
 			commonHttp.ErrorResponse(w, tokenCheckFail, http.StatusBadRequest, m.logger) // token check failed
 			return
 		}
@@ -70,6 +71,7 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			var errNoSuchUser *models.NoSuchUserError
 			if errors.As(err, &errNoSuchUser) {
 				m.logger.Infof("middleware: %v", err)
+				commonHttp.SetAccessTokenCookie(w, "")
 				commonHttp.ErrorResponse(w, authDataCheckFail, http.StatusBadRequest, m.logger) // auth data check failed
 				return
 			}
