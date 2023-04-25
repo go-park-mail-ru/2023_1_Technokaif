@@ -120,7 +120,7 @@ func (p *PostgreSQL) UpdateInfo(u *models.User) error {
 			first_name = $3,
 			last_name = $4,
 			sex = $5,
-			birth_date = $6,
+			birth_date = $6
 		WHERE id = $1;`,
 		p.tables.Users())
 	if _, err := p.db.Exec(query, u.ID, u.Email, u.FirstName, u.LastName,
