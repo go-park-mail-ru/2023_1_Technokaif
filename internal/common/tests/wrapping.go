@@ -38,5 +38,3 @@ func WrapRequestWithUserNotNil(r *http.Request, user *models.User) *http.Request
 	}
 	return commonHttp.WrapUser(r, user)
 }
-
-

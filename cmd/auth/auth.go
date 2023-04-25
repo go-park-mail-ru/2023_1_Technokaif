@@ -11,10 +11,10 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	authProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/microservice/grpc/proto"
 	authService "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/microservice/grpc/service"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 
 	authRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/repository/postgresql"
 	userRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/repository/postgresql"

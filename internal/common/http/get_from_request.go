@@ -70,4 +70,3 @@ func convertID(idUrl string) (uint32, error) {
 
 	return uint32(id), nil
 }
-

@@ -4,7 +4,7 @@ import "net/http"
 
 //go:generate mockgen -source=logger.go -destination=mocks/mock.go
 
-type ReqIDGetter func (r *http.Request) (uint32, error)
+type ReqIDGetter func(r *http.Request) (uint32, error)
 
 type Logger interface {
 	Error(msg string)
