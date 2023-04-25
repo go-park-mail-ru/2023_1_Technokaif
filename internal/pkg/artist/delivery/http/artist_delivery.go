@@ -55,7 +55,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	artist := aci.ToArtist(&user.ID)
 
-	artistID, err := h.artistServices.Create(artist)
+	artistID, err := h.artistServices.Create(r.Context(), artist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, artistCreateServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -82,7 +82,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artist, err := h.artistServices.GetByID(artistID)
+	artist, err := h.artistServices.GetByID(r.Context(), artistID)
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
@@ -100,7 +100,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ar, err := models.ArtistTransferFromEntry(*artist, user, h.artistServices.IsLiked)
+	ar, err := models.ArtistTransferFromEntry(r.Context(), *artist, user, h.artistServices.IsLiked)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, artistGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -133,7 +133,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.artistServices.Delete(artistID, user.ID)
+	err = h.artistServices.Delete(r.Context(), artistID, user.ID)
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
@@ -164,7 +164,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error				"Server error"
 // @Router		/api/artists/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
-	artists, err := h.artistServices.GetFeed()
+	artists, err := h.artistServices.GetFeed(r.Context())
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -176,7 +176,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistsTransfer, err := models.ArtistTransferFromQuery(artists, user, h.artistServices.IsLiked)
+	artistsTransfer, err := models.ArtistTransferFromQuery(r.Context(), artists, user, h.artistServices.IsLiked)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -202,13 +202,13 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artists, err := h.artistServices.GetLikedByUser(user.ID)
+	artists, err := h.artistServices.GetLikedByUser(r.Context(), user.ID)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	at, err := models.ArtistTransferFromQuery(artists, user, h.artistServices.IsLiked)
+	at, err := models.ArtistTransferFromQuery(r.Context(), artists, user, h.artistServices.IsLiked)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -240,7 +240,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExisted, err := h.artistServices.SetLike(artistID, user.ID)
+	notExisted, err := h.artistServices.SetLike(r.Context(), artistID, user.ID)
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
@@ -282,7 +282,7 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExisted, err := h.artistServices.UnLike(artistID, user.ID)
+	notExisted, err := h.artistServices.UnLike(r.Context(), artistID, user.ID)
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {

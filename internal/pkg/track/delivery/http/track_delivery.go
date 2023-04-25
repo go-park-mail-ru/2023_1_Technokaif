@@ -60,7 +60,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	track := tci.ToTrack()
 
-	trackID, err := h.trackServices.Create(track, tci.ArtistsID, user.ID)
+	trackID, err := h.trackServices.Create(r.Context(), track, tci.ArtistsID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
@@ -94,7 +94,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	track, err := h.trackServices.GetByID(trackID)
+	track, err := h.trackServices.GetByID(r.Context(), trackID)
 	if err != nil {
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {
@@ -112,7 +112,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromEntry(*track, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromEntry(r.Context(), *track, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, trackGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -146,7 +146,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.trackServices.Delete(trackID, user.ID)
+	err = h.trackServices.Delete(r.Context(), trackID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
@@ -185,7 +185,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tracks, err := h.trackServices.GetByArtist(artistID)
+	tracks, err := h.trackServices.GetByArtist(r.Context(), artistID)
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
@@ -203,7 +203,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromQuery(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -229,7 +229,7 @@ func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tracks, err := h.trackServices.GetByPlaylist(playlistID)
+	tracks, err := h.trackServices.GetByPlaylist(r.Context(), playlistID)
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
@@ -247,7 +247,7 @@ func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromQuery(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -273,7 +273,7 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tracks, err := h.trackServices.GetByAlbum(albumID)
+	tracks, err := h.trackServices.GetByAlbum(r.Context(), albumID)
 	if err != nil {
 		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {
@@ -291,7 +291,7 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromQuery(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -309,7 +309,7 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/tracks/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
-	tracks, err := h.trackServices.GetFeed()
+	tracks, err := h.trackServices.GetFeed(r.Context())
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -321,7 +321,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromQuery(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -348,13 +348,13 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	favTracks, err := h.trackServices.GetLikedByUser(user.ID)
+	favTracks, err := h.trackServices.GetLikedByUser(r.Context(), user.ID)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(favTracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromQuery(r.Context(), favTracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -387,7 +387,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExisted, err := h.trackServices.SetLike(trackID, user.ID)
+	notExisted, err := h.trackServices.SetLike(r.Context(), trackID, user.ID)
 	if err != nil {
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {
@@ -429,7 +429,7 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExisted, err := h.trackServices.UnLike(trackID, user.ID)
+	notExisted, err := h.trackServices.UnLike(r.Context(), trackID, user.ID)
 	if err != nil {
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {

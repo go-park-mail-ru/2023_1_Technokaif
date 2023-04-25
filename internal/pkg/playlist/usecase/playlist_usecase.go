@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -31,10 +32,10 @@ func NewUsecase(pr playlist.Repository, tr track.Repository, ur user.Repository,
 		logger: l}
 }
 
-func (u *Usecase) Create(playlist models.Playlist, usersID []uint32, userID uint32) (uint32, error) {
+func (u *Usecase) Create(ctx context.Context, playlist models.Playlist, usersID []uint32, userID uint32) (uint32, error) {
 	userInAuthors := false
 	for _, uid := range usersID {
-		user, err := u.userRepo.GetByID(uid)
+		user, err := u.userRepo.GetByID(ctx, uid)
 		if err != nil {
 			return 0, fmt.Errorf("(usecase) can't get user with id #%d: %w", uid, err)
 		}
@@ -47,7 +48,7 @@ func (u *Usecase) Create(playlist models.Playlist, usersID []uint32, userID uint
 		return 0, fmt.Errorf("(usecase) playlist can't be created by user: %w", &models.ForbiddenUserError{})
 	}
 
-	playlistID, err := u.playlistRepo.Insert(playlist, usersID)
+	playlistID, err := u.playlistRepo.Insert(ctx, playlist, usersID)
 	if err != nil {
 		return 0, fmt.Errorf("(usecase) can't insert playlist into repository: %w", err)
 	}
@@ -55,8 +56,8 @@ func (u *Usecase) Create(playlist models.Playlist, usersID []uint32, userID uint
 	return playlistID, nil
 }
 
-func (u *Usecase) GetByID(playlistID uint32) (*models.Playlist, error) {
-	playlist, err := u.playlistRepo.GetByID(playlistID)
+func (u *Usecase) GetByID(ctx context.Context, playlistID uint32) (*models.Playlist, error) {
+	playlist, err := u.playlistRepo.GetByID(ctx, playlistID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get playlist from repository: %w", err)
 	}
@@ -64,14 +65,14 @@ func (u *Usecase) GetByID(playlistID uint32) (*models.Playlist, error) {
 	return playlist, nil
 }
 
-func (u *Usecase) UpdateInfoAndMembers(playlist models.Playlist, usersID []uint32, userID uint32) error {
-	pl, err := u.playlistRepo.GetByID(playlist.ID)
+func (u *Usecase) UpdateInfoAndMembers(ctx context.Context, playlist models.Playlist, usersID []uint32, userID uint32) error {
+	pl, err := u.playlistRepo.GetByID(ctx, playlist.ID)
 	if err != nil {
 		return fmt.Errorf("(usecase) can't find playlist in repository: %w", err)
 	}
 	playlist.CoverSrc = pl.CoverSrc
 
-	userInAuthors, err := u.checkUserInAuthors(playlist.ID, userID)
+	userInAuthors, err := u.checkUserInAuthors(ctx, playlist.ID, userID)
 	if err != nil {
 		return err
 	}
@@ -79,7 +80,7 @@ func (u *Usecase) UpdateInfoAndMembers(playlist models.Playlist, usersID []uint3
 		return fmt.Errorf("(usecase) playlist can't be deleted by user: %w", &models.ForbiddenUserError{})
 	}
 
-	authors, err := u.userRepo.GetByPlaylist(playlist.ID)
+	authors, err := u.userRepo.GetByPlaylist(ctx, playlist.ID)
 	if err != nil {
 		return fmt.Errorf("(usecase) can't get authors of playlist: %w", err)
 	}
@@ -95,7 +96,7 @@ func (u *Usecase) UpdateInfoAndMembers(playlist models.Playlist, usersID []uint3
 		}
 	}
 
-	if err := u.playlistRepo.UpdateWithMembers(playlist, newAuthorsID); err != nil {
+	if err := u.playlistRepo.UpdateWithMembers(ctx, playlist, newAuthorsID); err != nil {
 		return fmt.Errorf("(usecase) can't update playlist in repository: %w", err)
 	}
 
@@ -110,13 +111,13 @@ func (u *Usecase) UploadCoverWrongFormatError() error {
 	return ErrCoverWrongFormat
 }
 
-func (u *Usecase) UploadCover(playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error {
-	playlist, err := u.playlistRepo.GetByID(playlistID)
+func (u *Usecase) UploadCover(ctx context.Context, playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error {
+	playlist, err := u.playlistRepo.GetByID(ctx, playlistID)
 	if err != nil {
 		return fmt.Errorf("(usecase) can't find playlist: %w", err)
 	}
 
-	userInAuthors, err := u.checkUserInAuthors(playlistID, userID)
+	userInAuthors, err := u.checkUserInAuthors(ctx, playlistID, userID)
 	if err != nil {
 		return err
 	}
@@ -138,18 +139,18 @@ func (u *Usecase) UploadCover(playlistID uint32, userID uint32, file io.ReadSeek
 	}
 
 	playlist.CoverSrc = filepath.Join(commonFile.PlaylistCoverFolder(), filenameWithExtension)
-	if err := u.playlistRepo.Update(*playlist); err != nil {
+	if err := u.playlistRepo.Update(ctx, *playlist); err != nil {
 		return fmt.Errorf("(usecase) can't update playlist: %w", err)
 	}
 	return nil
 }
 
-func (u *Usecase) Delete(playlistID uint32, userID uint32) error {
-	if _, err := u.playlistRepo.GetByID(playlistID); err != nil {
+func (u *Usecase) Delete(ctx context.Context, playlistID uint32, userID uint32) error {
+	if _, err := u.playlistRepo.GetByID(ctx, playlistID); err != nil {
 		return fmt.Errorf("(usecase) can't find playlist in repository: %w", err)
 	}
 
-	userInAuthors, err := u.checkUserInAuthors(playlistID, userID)
+	userInAuthors, err := u.checkUserInAuthors(ctx, playlistID, userID)
 	if err != nil {
 		return err
 	}
@@ -157,23 +158,23 @@ func (u *Usecase) Delete(playlistID uint32, userID uint32) error {
 		return fmt.Errorf("(usecase) playlist can't be deleted by user: %w", &models.ForbiddenUserError{})
 	}
 
-	if err := u.playlistRepo.DeleteByID(playlistID); err != nil {
+	if err := u.playlistRepo.DeleteByID(ctx, playlistID); err != nil {
 		return fmt.Errorf("(usecase) can't delete playlist from repository: %w", err)
 	}
 
 	return nil
 }
 
-func (u *Usecase) AddTrack(trackID, playlistID, userID uint32) error {
-	if _, err := u.playlistRepo.GetByID(playlistID); err != nil {
+func (u *Usecase) AddTrack(ctx context.Context, trackID, playlistID, userID uint32) error {
+	if _, err := u.playlistRepo.GetByID(ctx, playlistID); err != nil {
 		return fmt.Errorf("(usecase) can't find playlist in repository: %w", err)
 	}
 
-	if _, err := u.trackRepo.GetByID(trackID); err != nil {
+	if _, err := u.trackRepo.GetByID(ctx, trackID); err != nil {
 		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
 	}
 
-	userInAuthors, err := u.checkUserInAuthors(playlistID, userID)
+	userInAuthors, err := u.checkUserInAuthors(ctx, playlistID, userID)
 	if err != nil {
 		return err
 	}
@@ -181,23 +182,23 @@ func (u *Usecase) AddTrack(trackID, playlistID, userID uint32) error {
 		return fmt.Errorf("(usecase) playlist can't be updated by user: %w", &models.ForbiddenUserError{})
 	}
 
-	if err := u.playlistRepo.AddTrack(trackID, playlistID); err != nil {
+	if err := u.playlistRepo.AddTrack(ctx, trackID, playlistID); err != nil {
 		return fmt.Errorf("(usecase) can't add track into playlist in repository: %w", err)
 	}
 
 	return nil
 }
 
-func (u *Usecase) DeleteTrack(trackID, playlistID, userID uint32) error {
-	if _, err := u.playlistRepo.GetByID(playlistID); err != nil {
+func (u *Usecase) DeleteTrack(ctx context.Context, trackID, playlistID, userID uint32) error {
+	if _, err := u.playlistRepo.GetByID(ctx, playlistID); err != nil {
 		return fmt.Errorf("(usecase) can't find playlist in repository: %w", err)
 	}
 
-	if _, err := u.trackRepo.GetByID(trackID); err != nil {
+	if _, err := u.trackRepo.GetByID(ctx, trackID); err != nil {
 		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
 	}
 
-	userInAuthors, err := u.checkUserInAuthors(playlistID, userID)
+	userInAuthors, err := u.checkUserInAuthors(ctx, playlistID, userID)
 	if err != nil {
 		return err
 	}
@@ -205,15 +206,15 @@ func (u *Usecase) DeleteTrack(trackID, playlistID, userID uint32) error {
 		return fmt.Errorf("(usecase) playlist can't be updated by user: %w", &models.ForbiddenUserError{})
 	}
 
-	if err := u.playlistRepo.DeleteTrack(trackID, playlistID); err != nil {
+	if err := u.playlistRepo.DeleteTrack(ctx, trackID, playlistID); err != nil {
 		return fmt.Errorf("(usecase) can't delete track of playlist in repository: %w", err)
 	}
 
 	return nil
 }
 
-func (u *Usecase) GetFeed() ([]models.Playlist, error) {
-	playlists, err := u.playlistRepo.GetFeed()
+func (u *Usecase) GetFeed(ctx context.Context) ([]models.Playlist, error) {
+	playlists, err := u.playlistRepo.GetFeed(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get feed playlists from repository: %w", err)
 	}
@@ -221,13 +222,13 @@ func (u *Usecase) GetFeed() ([]models.Playlist, error) {
 	return playlists, nil
 }
 
-func (u *Usecase) GetByUser(userID uint32) ([]models.Playlist, error) {
-	_, err := u.playlistRepo.GetByID(userID)
+func (u *Usecase) GetByUser(ctx context.Context, userID uint32) ([]models.Playlist, error) {
+	_, err := u.playlistRepo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get authors from repository: %w", err)
 	}
 
-	playlists, err := u.playlistRepo.GetByUser(userID)
+	playlists, err := u.playlistRepo.GetByUser(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get playlists from repository: %w", err)
 	}
@@ -235,8 +236,8 @@ func (u *Usecase) GetByUser(userID uint32) ([]models.Playlist, error) {
 	return playlists, nil
 }
 
-func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Playlist, error) {
-	playlists, err := u.playlistRepo.GetLikedByUser(userID)
+func (u *Usecase) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Playlist, error) {
+	playlists, err := u.playlistRepo.GetLikedByUser(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get playlists from repository: %w", err)
 	}
@@ -244,12 +245,12 @@ func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Playlist, error) {
 	return playlists, nil
 }
 
-func (u *Usecase) SetLike(playlistID, userID uint32) (bool, error) {
-	if _, err := u.playlistRepo.GetByID(playlistID); err != nil {
+func (u *Usecase) SetLike(ctx context.Context, playlistID, userID uint32) (bool, error) {
+	if _, err := u.playlistRepo.GetByID(ctx, playlistID); err != nil {
 		return false, fmt.Errorf("(usecase) can't get playlist: %w", err)
 	}
 
-	isInserted, err := u.playlistRepo.InsertLike(playlistID, userID)
+	isInserted, err := u.playlistRepo.InsertLike(ctx, playlistID, userID)
 	if err != nil {
 		return false, fmt.Errorf("(usecase) failed to set like: %w", err)
 	}
@@ -257,12 +258,12 @@ func (u *Usecase) SetLike(playlistID, userID uint32) (bool, error) {
 	return isInserted, nil
 }
 
-func (u *Usecase) UnLike(playlistID, userID uint32) (bool, error) {
-	if _, err := u.playlistRepo.GetByID(playlistID); err != nil {
+func (u *Usecase) UnLike(ctx context.Context, playlistID, userID uint32) (bool, error) {
+	if _, err := u.playlistRepo.GetByID(ctx, playlistID); err != nil {
 		return false, fmt.Errorf("(usecase) can't get playlist: %w", err)
 	}
 
-	isDeleted, err := u.playlistRepo.DeleteLike(playlistID, userID)
+	isDeleted, err := u.playlistRepo.DeleteLike(ctx, playlistID, userID)
 	if err != nil {
 		return false, fmt.Errorf("(usecase) failed to unset like: %w", err)
 	}
@@ -270,9 +271,9 @@ func (u *Usecase) UnLike(playlistID, userID uint32) (bool, error) {
 	return isDeleted, nil
 }
 
-func (u *Usecase) checkUserInAuthors(playlistID, userID uint32) (bool, error) {
+func (u *Usecase) checkUserInAuthors(ctx context.Context, playlistID, userID uint32) (bool, error) {
 	userInAuthors := false
-	users, err := u.userRepo.GetByPlaylist(playlistID)
+	users, err := u.userRepo.GetByPlaylist(ctx, playlistID)
 	if err != nil {
 		return false, fmt.Errorf("(usecase) can't get authors of playlist: %w", err)
 	}
@@ -286,8 +287,8 @@ func (u *Usecase) checkUserInAuthors(playlistID, userID uint32) (bool, error) {
 	return userInAuthors, nil
 }
 
-func (u *Usecase) IsLiked(albumID, userID uint32) (bool, error) {
-	isLiked, err := u.playlistRepo.IsLiked(albumID, userID)
+func (u *Usecase) IsLiked(ctx context.Context, albumID, userID uint32) (bool, error) {
+	isLiked, err := u.playlistRepo.IsLiked(ctx, albumID, userID)
 	if err != nil {
 		return false, fmt.Errorf("(usecase) can't check in repository if playlist is liked: %w", err)
 	}

@@ -83,7 +83,7 @@ func (e *UnathorizedError) Error() string {
 	return "unathorized"
 }
 
-const (  // Not used
+const ( // Not used
 	NoSuchTrackStatusCode uint32 = iota
 	NoSuchAlbumStatusCode
 	NoSuchPlaylistStatusCode

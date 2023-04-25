@@ -35,7 +35,7 @@ func (p *PostgreSQL) GetUserByAuthData(ctx context.Context, userID, userVersion 
 		FROM %s
 		WHERE id = $1 AND version = $2;`,
 		p.tables.Users())
-	row := p.db.QueryRow(query, userID, userVersion)
+	row := p.db.QueryRowContext(ctx, query, userID, userVersion)
 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
@@ -59,7 +59,7 @@ func (p *PostgreSQL) IncreaseUserVersion(ctx context.Context, userID uint32) err
 		WHERE id = $1
 		RETURNING id;`,
 		p.tables.Users())
-	row := p.db.QueryRow(query, userID)
+	row := p.db.QueryRowContext(ctx, query, userID)
 
 	err := row.Scan(&userID)
 
@@ -82,7 +82,7 @@ func (p *PostgreSQL) UpdatePassword(ctx context.Context, userID uint32, password
 		WHERE id = $3
 		RETURNING id;`,
 		p.tables.Users())
-	row := p.db.QueryRow(query, passwordHash, salt, userID)
+	row := p.db.QueryRowContext(ctx, query, passwordHash, salt, userID)
 
 	if err := row.Scan(&userID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

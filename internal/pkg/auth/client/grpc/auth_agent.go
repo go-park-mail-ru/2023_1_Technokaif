@@ -80,7 +80,7 @@ func (a *AuthAgent) GetUserByCreds(ctx context.Context, username, plainPassword 
 
 func (a *AuthAgent) GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error) {
 	msg := &proto.AuthData{
-		Id: userID,
+		Id:      userID,
 		Version: userVersion,
 	}
 
@@ -124,7 +124,7 @@ func (a *AuthAgent) IncreaseUserVersion(ctx context.Context, userID uint32) erro
 
 func (a *AuthAgent) ChangePassword(ctx context.Context, userID uint32, password string) error {
 	msg := &proto.ChangePassMsg{
-		UserId: userID,
+		UserId:        userID,
 		PlainPassword: password,
 	}
 

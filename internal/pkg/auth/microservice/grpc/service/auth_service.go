@@ -21,7 +21,7 @@ import (
 type AuthService struct {
 	authRepo auth.Repository
 	userRepo user.Repository
-	logger logger.Logger
+	logger   logger.Logger
 
 	proto.UnimplementedAuthorizationServer
 }
@@ -30,7 +30,7 @@ func NewAuthService(userRepo user.Repository, authRepo auth.Repository, l logger
 	return &AuthService{
 		authRepo: authRepo,
 		userRepo: userRepo,
-		logger: l,
+		logger:   l,
 	}
 }
 
@@ -55,7 +55,7 @@ func (a *AuthService) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*pr
 
 	user.Password = hashPassword(msg.Password, salt)
 
-	userId, err := a.userRepo.CreateUser(user)
+	userId, err := a.userRepo.CreateUser(ctx, user)
 
 	if err != nil {
 		var errUserAlreadyExists *models.UserAlreadyExistsError
@@ -70,7 +70,7 @@ func (a *AuthService) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*pr
 }
 
 func (a *AuthService) GetUserByCreds(ctx context.Context, msg *proto.Creds) (*proto.UserResponse, error) {
-	user, err := a.userRepo.GetUserByUsername(msg.Username)
+	user, err := a.userRepo.GetUserByUsername(ctx, msg.Username)
 	if err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {

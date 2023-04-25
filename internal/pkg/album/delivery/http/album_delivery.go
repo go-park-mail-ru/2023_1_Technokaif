@@ -60,7 +60,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	album := aci.ToAlbum()
 
-	albumID, err := h.albumServices.Create(album, aci.ArtistsID, user.ID)
+	albumID, err := h.albumServices.Create(r.Context(), album, aci.ArtistsID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
@@ -94,7 +94,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	album, err := h.albumServices.GetByID(albumID)
+	album, err := h.albumServices.GetByID(r.Context(), albumID)
 	if err != nil {
 		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {
@@ -112,7 +112,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromEntry(*album, user, h.albumServices.IsLiked,
+	resp, err := models.AlbumTransferFromEntry(r.Context(), *album, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, albumGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -146,7 +146,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.albumServices.Delete(albumID, user.ID)
+	err = h.albumServices.Delete(r.Context(), albumID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
@@ -185,7 +185,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	albums, err := h.albumServices.GetByArtist(artistID)
+	albums, err := h.albumServices.GetByArtist(r.Context(), artistID)
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
@@ -203,7 +203,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromQuery(albums, user, h.albumServices.IsLiked,
+	resp, err := models.AlbumTransferFromQuery(r.Context(), albums, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, albumsGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -221,7 +221,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error "Server error"
 // @Router		/api/albums/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
-	albums, err := h.albumServices.GetFeed()
+	albums, err := h.albumServices.GetFeed(r.Context())
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, albumsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -233,7 +233,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromQuery(albums, user, h.albumServices.IsLiked,
+	resp, err := models.AlbumTransferFromQuery(r.Context(), albums, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, albumsGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -260,13 +260,13 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	favAlbums, err := h.albumServices.GetLikedByUser(user.ID)
+	favAlbums, err := h.albumServices.GetLikedByUser(r.Context(), user.ID)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, albumsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	at, err := models.AlbumTransferFromQuery(favAlbums, user, h.albumServices.IsLiked,
+	at, err := models.AlbumTransferFromQuery(r.Context(), favAlbums, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, albumsGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -299,7 +299,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExisted, err := h.albumServices.SetLike(albumID, user.ID)
+	notExisted, err := h.albumServices.SetLike(r.Context(), albumID, user.ID)
 	if err != nil {
 		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {
@@ -341,7 +341,7 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExisted, err := h.albumServices.UnLike(albumID, user.ID)
+	notExisted, err := h.albumServices.UnLike(r.Context(), albumID, user.ID)
 	if err != nil {
 		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {

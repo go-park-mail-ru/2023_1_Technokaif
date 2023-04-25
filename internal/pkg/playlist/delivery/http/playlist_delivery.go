@@ -64,7 +64,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	playlist := pci.ToPlaylist()
 
-	playlistID, err := h.playlistServices.Create(playlist, pci.UsersID, user.ID)
+	playlistID, err := h.playlistServices.Create(r.Context(), playlist, pci.UsersID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
@@ -98,7 +98,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playlist, err := h.playlistServices.GetByID(playlistID)
+	playlist, err := h.playlistServices.GetByID(r.Context(), playlistID)
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
@@ -116,7 +116,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.PlaylistTransferFromEntry(*playlist, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
+	resp, err := models.PlaylistTransferFromEntry(r.Context(), *playlist, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, playlistGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -165,7 +165,7 @@ func (h *Handler) UploadCover(w http.ResponseWriter, r *http.Request) {
 
 	extension := filepath.Ext(coverHeader.Filename)
 
-	err = h.playlistServices.UploadCover(playlistRequestID, user.ID, coverFile, extension)
+	err = h.playlistServices.UploadCover(r.Context(), playlistRequestID, user.ID, coverFile, extension)
 	if err != nil {
 		if errors.Is(err, h.playlistServices.UploadCoverWrongFormatError()) {
 			commonHttp.ErrorResponseWithErrLogging(w, playlistCoverInvalidDataType, http.StatusBadRequest, h.logger, err)
@@ -234,7 +234,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	playlist := pui.ToPlaylist(playlistRequestID)
 
-	err = h.playlistServices.UpdateInfoAndMembers(playlist, pui.UsersID, user.ID)
+	err = h.playlistServices.UpdateInfoAndMembers(r.Context(), playlist, pui.UsersID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
@@ -281,7 +281,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.playlistServices.Delete(playlistID, user.ID)
+	err = h.playlistServices.Delete(r.Context(), playlistID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
@@ -320,7 +320,7 @@ func (h *Handler) GetByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	playlists, err := h.playlistServices.GetByUser(userID)
+	playlists, err := h.playlistServices.GetByUser(r.Context(), userID)
 	if err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
@@ -338,7 +338,7 @@ func (h *Handler) GetByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, err := models.PlaylistTransferFromQuery(playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
+	pt, err := models.PlaylistTransferFromQuery(r.Context(), playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -378,7 +378,7 @@ func (h *Handler) AddTrack(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.playlistServices.AddTrack(trackID, playlistID, user.ID); err != nil {
+	if err := h.playlistServices.AddTrack(r.Context(), trackID, playlistID, user.ID); err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, playlistAddTrackNoRights,
@@ -441,7 +441,7 @@ func (h *Handler) DeleteTrack(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.playlistServices.DeleteTrack(trackID, playlistID, user.ID); err != nil {
+	if err := h.playlistServices.DeleteTrack(r.Context(), trackID, playlistID, user.ID); err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, playlistDeleteTrackNoRights,
@@ -481,7 +481,7 @@ func (h *Handler) DeleteTrack(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error "Server error"
 // @Router		/api/playlists/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
-	playlists, err := h.playlistServices.GetFeed()
+	playlists, err := h.playlistServices.GetFeed(r.Context())
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -493,7 +493,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.PlaylistTransferFromQuery(playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
+	resp, err := models.PlaylistTransferFromQuery(r.Context(), playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -519,13 +519,13 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	favPlaylists, err := h.playlistServices.GetLikedByUser(user.ID)
+	favPlaylists, err := h.playlistServices.GetLikedByUser(r.Context(), user.ID)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	at, err := models.PlaylistTransferFromQuery(favPlaylists, user, h.trackServices.IsLiked, h.userServices.GetByPlaylist)
+	at, err := models.PlaylistTransferFromQuery(r.Context(), favPlaylists, user, h.trackServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
@@ -557,7 +557,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExisted, err := h.playlistServices.SetLike(playlistID, user.ID)
+	notExisted, err := h.playlistServices.SetLike(r.Context(), playlistID, user.ID)
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
@@ -599,7 +599,7 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	notExisted, err := h.playlistServices.UnLike(playlistID, user.ID)
+	notExisted, err := h.playlistServices.UnLike(r.Context(), playlistID, user.ID)
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {

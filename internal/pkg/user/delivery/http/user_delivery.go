@@ -77,7 +77,7 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.userServices.UpdateInfo(userInfo.ToUser(user)); err != nil {
+	if err := h.userServices.UpdateInfo(r.Context(), userInfo.ToUser(user)); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
 			commonHttp.ErrorResponseWithErrLogging(w, userNotFound, http.StatusBadRequest, h.logger, err)
@@ -125,7 +125,7 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	defer avatarFile.Close()
 
 	extension := filepath.Ext(avatarHeader.Filename)
-	err = h.userServices.UploadAvatar(user.ID, avatarFile, extension)
+	err = h.userServices.UploadAvatar(r.Context(), user.ID, avatarFile, extension)
 	if err != nil {
 		if errors.Is(err, h.userServices.UploadAvatarWrongFormatError()) {
 			commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadInvalidDataType, http.StatusBadRequest, h.logger, err)

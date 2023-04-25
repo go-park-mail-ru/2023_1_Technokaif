@@ -47,4 +47,3 @@ services:
       - 5436:5432
     volumes:
       - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d
-
