@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
@@ -81,9 +80,9 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			return
 		}
 
-		m.logger.Infof("user version : %d", user.Version)
+		m.logger.InfofReqID(r, "user version : %d", user.Version)
 
-		ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
-		next.ServeHTTP(w, r.WithContext(ctx)) // token check successed
+		reqWithUser := commonHttp.WrapUser(r, user)
+		next.ServeHTTP(w, reqWithUser) // token check successed
 	})
 }

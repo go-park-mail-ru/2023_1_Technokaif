@@ -14,13 +14,14 @@ import (
 	authProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/microservice/grpc/proto"
 	authService "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/microservice/grpc/service"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 
 	authRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/repository/postgresql"
 	userRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/repository/postgresql"
 )
 
 func main() {
-	logger, err := logger.NewLogger()
+	logger, err := logger.NewLogger(commonHttp.GetReqIDFromRequest)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "logger can not be defined: %v\n", err)
 		return

@@ -22,7 +22,7 @@ var ErrUnauthorized = &models.UnathorizedError{}
 
 // GetUserFromRequest returns error if authentication failed
 func GetUserFromRequest(r *http.Request) (*models.User, error) {
-	user, ok := r.Context().Value(models.ContextKeyUserType{}).(*models.User)
+	user, ok := r.Context().Value(contextKeyUserType{}).(*models.User)
 	if !ok {
 		return nil, ErrUnauthorized
 	}
@@ -31,6 +31,15 @@ func GetUserFromRequest(r *http.Request) (*models.User, error) {
 	}
 
 	return user, nil
+}
+
+func GetReqIDFromRequest(r *http.Request) (uint32, error) {
+	reqID, ok := r.Context().Value(contextKeyReqIDType{}).(uint32)
+	if !ok {
+		return 0, errors.New("no reqID in request")
+	}
+
+	return reqID, nil
 }
 
 func GetTrackIDFromRequest(r *http.Request) (uint32, error) {
@@ -61,3 +70,4 @@ func convertID(idUrl string) (uint32, error) {
 
 	return uint32(id), nil
 }
+
