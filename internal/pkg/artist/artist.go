@@ -20,6 +20,9 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with artists
 type Repository interface {
+	// Check returns models.NoSuchArtistError if album-entry with given ID exists in DB
+	Check(artistID uint32) error
+
 	// Insert creates new entry of artist in DB with given model
 	Insert(artist models.Artist) (uint32, error)
 
@@ -30,7 +33,7 @@ type Repository interface {
 	DeleteByID(artistID uint32) error
 
 	// GetFeed returns artist entries with biggest amount of likes per some duration
-	GetFeed() ([]models.Artist, error)
+	GetFeed(amountLimit int) ([]models.Artist, error)
 
 	// GetByAlbum returns all artist entries related with album entry with given ID
 	GetByAlbum(albumID uint32) ([]models.Artist, error)

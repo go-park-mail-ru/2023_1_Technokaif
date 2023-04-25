@@ -27,6 +27,8 @@ type Usecase interface {
 }
 
 type Repository interface {
+	// Check returns models.NoSuchPlaylistError if playlist-entry with given ID exists in DB
+	Check(playlistID uint32) error
 	Insert(playlist models.Playlist, usersID []uint32) (uint32, error)
 	GetByID(playlistID uint32) (*models.Playlist, error)
 	Update(playlist models.Playlist) error
@@ -36,7 +38,7 @@ type Repository interface {
 	AddTrack(trackID, playlistID uint32) error
 	DeleteTrack(trackID, playlistID uint32) error
 
-	GetFeed() ([]models.Playlist, error)
+	GetFeed(amountLimit int) ([]models.Playlist, error)
 	GetByUser(userID uint32) ([]models.Playlist, error)
 	GetLikedByUser(userID uint32) ([]models.Playlist, error)
 	InsertLike(playlistID, userID uint32) (bool, error)

@@ -225,20 +225,6 @@ func (mr *MockUsecaseMockRecorder) UploadCover(playlistID, userID, file, fileExt
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCover", reflect.TypeOf((*MockUsecase)(nil).UploadCover), playlistID, userID, file, fileExtension)
 }
 
-// UploadCoverWrongFormatError mocks base method.
-func (m *MockUsecase) UploadCoverWrongFormatError() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadCoverWrongFormatError")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UploadCoverWrongFormatError indicates an expected call of UploadCoverWrongFormatError.
-func (mr *MockUsecaseMockRecorder) UploadCoverWrongFormatError() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCoverWrongFormatError", reflect.TypeOf((*MockUsecase)(nil).UploadCoverWrongFormatError))
-}
-
 // MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
@@ -274,6 +260,20 @@ func (m *MockRepository) AddTrack(trackID, playlistID uint32) error {
 func (mr *MockRepositoryMockRecorder) AddTrack(trackID, playlistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrack", reflect.TypeOf((*MockRepository)(nil).AddTrack), trackID, playlistID)
+}
+
+// Check mocks base method.
+func (m *MockRepository) Check(playlistID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Check", playlistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Check indicates an expected call of Check.
+func (mr *MockRepositoryMockRecorder) Check(playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockRepository)(nil).Check), playlistID)
 }
 
 // DeleteByID mocks base method.
@@ -350,18 +350,18 @@ func (mr *MockRepositoryMockRecorder) GetByUser(userID interface{}) *gomock.Call
 }
 
 // GetFeed mocks base method.
-func (m *MockRepository) GetFeed() ([]models.Playlist, error) {
+func (m *MockRepository) GetFeed(amountLimit int) ([]models.Playlist, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed")
+	ret := m.ctrl.Call(m, "GetFeed", amountLimit)
 	ret0, _ := ret[0].([]models.Playlist)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockRepositoryMockRecorder) GetFeed() *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetFeed(amountLimit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), amountLimit)
 }
 
 // GetLikedByUser mocks base method.

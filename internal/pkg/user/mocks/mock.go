@@ -93,20 +93,6 @@ func (mr *MockUsecaseMockRecorder) UploadAvatar(userID, file, fileExtension inte
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockUsecase)(nil).UploadAvatar), userID, file, fileExtension)
 }
 
-// UploadAvatarWrongFormatError mocks base method.
-func (m *MockUsecase) UploadAvatarWrongFormatError() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadAvatarWrongFormatError")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UploadAvatarWrongFormatError indicates an expected call of UploadAvatarWrongFormatError.
-func (mr *MockUsecaseMockRecorder) UploadAvatarWrongFormatError() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatarWrongFormatError", reflect.TypeOf((*MockUsecase)(nil).UploadAvatarWrongFormatError))
-}
-
 // MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller

@@ -28,6 +28,28 @@ func NewPostgreSQL(db *sqlx.DB, t track.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
+func (p *PostgreSQL) Check(trackID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Tracks())
+
+	var exists bool
+	err := p.db.Get(&exists, query, trackID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchTrackError{TrackID: trackID}, err)
+	}
+
+	return nil
+}
+
 func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, err error) {
 	tx, err := p.db.Begin()
 	if err != nil {
@@ -110,12 +132,12 @@ func (p *PostgreSQL) DeleteByID(trackID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed() ([]models.Track, error) {
+func (p *PostgreSQL) GetFeed(amountLimit int) ([]models.Track, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, album_id, cover_src, record_src, listens
 		FROM %s 
-		LIMIT 100;`,
-		p.tables.Tracks())
+		LIMIT %d;`,
+		p.tables.Tracks(), amountLimit)
 
 	var tracks []models.Track
 	if err := p.db.Select(&tracks, query); err != nil {

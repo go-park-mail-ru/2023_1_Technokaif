@@ -28,6 +28,28 @@ func NewPostgreSQL(db *sqlx.DB, t artist.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
+func (p *PostgreSQL) Check(artistID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Artists())
+
+	var exists bool
+	err := p.db.Get(&exists, query, artistID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchArtistError{ArtistID: artistID}, err)
+	}
+
+	return nil
+}
+
 func (p *PostgreSQL) Insert(artist models.Artist) (uint32, error) {
 	query := fmt.Sprintf(
 		`INSERT INTO %s (user_id, name, avatar_src) 
@@ -87,12 +109,12 @@ func (p *PostgreSQL) DeleteByID(artistID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed() ([]models.Artist, error) {
+func (p *PostgreSQL) GetFeed(amountLimit int) ([]models.Artist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, avatar_src  
 		FROM %s 
-		LIMIT 100;`,
-		p.tables.Artists())
+		LIMIT %d;`,
+		p.tables.Artists(), amountLimit)
 
 	var artists []models.Artist
 	if err := p.db.Select(&artists, query); err != nil {

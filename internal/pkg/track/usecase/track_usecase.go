@@ -11,6 +11,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
+const feedTracksAmountLimit = 100
+
 // Usecase implements track.Usecase
 type Usecase struct {
 	trackRepo    track.Repository
@@ -61,15 +63,15 @@ func (u *Usecase) Create(track models.Track, artistsID []uint32, userID uint32) 
 func (u *Usecase) GetByID(trackID uint32) (*models.Track, error) {
 	track, err := u.trackRepo.GetByID(trackID)
 	if err != nil {
-		return &models.Track{}, fmt.Errorf("(usecase) can't get track from repository: %w", err)
+		return &models.Track{}, fmt.Errorf("(usecase) can't get track with id #%d: %w", trackID, err)
 	}
 
 	return track, nil
 }
 
 func (u *Usecase) Delete(trackID uint32, userID uint32) error {
-	if _, err := u.trackRepo.GetByID(trackID); err != nil {
-		return fmt.Errorf("(usecase) can't find track in repository: %w", err)
+	if err := u.trackRepo.Check(trackID); err != nil {
+		return fmt.Errorf("(usecase) can't find track with id #%d: %w", trackID, err)
 	}
 
 	userInArtists := false
@@ -94,7 +96,7 @@ func (u *Usecase) Delete(trackID uint32, userID uint32) error {
 }
 
 func (u *Usecase) GetFeed() ([]models.Track, error) {
-	tracks, err := u.trackRepo.GetFeed()
+	tracks, err := u.trackRepo.GetFeed(feedTracksAmountLimit)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get feed tracks from repository: %w", err)
 	}
@@ -103,9 +105,8 @@ func (u *Usecase) GetFeed() ([]models.Track, error) {
 }
 
 func (u *Usecase) GetByAlbum(albumID uint32) ([]models.Track, error) {
-	_, err := u.albumRepo.GetByID(albumID)
-	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get album with id #%d: %w", albumID, err)
+	if err := u.albumRepo.Check(albumID); err != nil {
+		return nil, fmt.Errorf("(usecase) can't find album with id #%d: %w", albumID, err)
 	}
 
 	tracks, err := u.trackRepo.GetByAlbum(albumID)
@@ -117,9 +118,8 @@ func (u *Usecase) GetByAlbum(albumID uint32) ([]models.Track, error) {
 }
 
 func (u *Usecase) GetByPlaylist(playlistID uint32) ([]models.Track, error) {
-	_, err := u.playlistRepo.GetByID(playlistID)
-	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get playlist with id #%d: %w", playlistID, err)
+	if err := u.playlistRepo.Check(playlistID); err != nil {
+		return nil, fmt.Errorf("(usecase) can't find playlist with id #%d: %w", playlistID, err)
 	}
 
 	tracks, err := u.trackRepo.GetByPlaylist(playlistID)
@@ -131,9 +131,8 @@ func (u *Usecase) GetByPlaylist(playlistID uint32) ([]models.Track, error) {
 }
 
 func (u *Usecase) GetByArtist(artistID uint32) ([]models.Track, error) {
-	_, err := u.artistRepo.GetByID(artistID)
-	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get artist with id #%d: %w", artistID, err)
+	if err := u.artistRepo.Check(artistID); err != nil {
+		return nil, fmt.Errorf("(usecase) can't find artist with id #%d: %w", artistID, err)
 	}
 
 	tracks, err := u.trackRepo.GetByArtist(artistID)
@@ -154,21 +153,21 @@ func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Track, error) {
 }
 
 func (u *Usecase) SetLike(trackID, userID uint32) (bool, error) {
-	if _, err := u.trackRepo.GetByID(trackID); err != nil {
-		return false, fmt.Errorf("(usecase) can't get track: %w", err)
+	if err := u.trackRepo.Check(trackID); err != nil {
+		return false, fmt.Errorf("(usecase) can't find track with id #%d: %w", trackID, err)
 	}
 
-	iSinserted, err := u.trackRepo.InsertLike(trackID, userID)
+	isInserted, err := u.trackRepo.InsertLike(trackID, userID)
 	if err != nil {
 		return false, fmt.Errorf("(usecase) failed to set like: %w", err)
 	}
 
-	return iSinserted, nil
+	return isInserted, nil
 }
 
 func (u *Usecase) UnLike(trackID, userID uint32) (bool, error) {
-	if _, err := u.trackRepo.GetByID(trackID); err != nil {
-		return false, fmt.Errorf("(usecase) can't get track: %w", err)
+	if err := u.trackRepo.Check(trackID); err != nil {
+		return false, fmt.Errorf("(usecase) can't find track with id #%d: %w", trackID, err)
 	}
 
 	isDeleted, err := u.trackRepo.DeleteLike(trackID, userID)

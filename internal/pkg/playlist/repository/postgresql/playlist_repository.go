@@ -41,6 +41,28 @@ func checkTransaction(tx *sql.Tx, repoError *error) {
 	}
 }
 
+func (p *PostgreSQL) Check(playlistID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Playlists())
+
+	var exists bool
+	err := p.db.Get(&exists, query, playlistID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchPlaylistError{PlaylistID: playlistID}, err)
+	}
+
+	return nil
+}
+
 const errorAlreadyExists = "unique_violation"
 
 func (p *PostgreSQL) Insert(playlist models.Playlist, usersID []uint32) (_ uint32, repoErr error) {
@@ -213,12 +235,12 @@ func (p *PostgreSQL) DeleteTrack(trackID, playlistID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed() ([]models.Playlist, error) {
+func (p *PostgreSQL) GetFeed(amountLimit int) ([]models.Playlist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src  
 		FROM %s 
-		LIMIT 100;`,
-		p.tables.Playlists())
+		LIMIT %d;`,
+		p.tables.Playlists(), amountLimit)
 
 	var playlists []models.Playlist
 	if err := p.db.Select(&playlists, query); err != nil {

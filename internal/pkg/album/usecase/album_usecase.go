@@ -9,6 +9,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
+const feedAlbumsAmountLimit = 100
+
 // Usecase implements album.Usecase
 type Usecase struct {
 	albumRepo  album.Repository
@@ -54,8 +56,8 @@ func (u *Usecase) GetByID(albumID uint32) (*models.Album, error) {
 }
 
 func (u *Usecase) Delete(albumID uint32, userID uint32) error {
-	if _, err := u.albumRepo.GetByID(albumID); err != nil {
-		return fmt.Errorf("(usecase) can't find album in repository: %w", err)
+	if err := u.albumRepo.Check(albumID); err != nil {
+		return fmt.Errorf("(usecase) can't find album with id #%d: %w", albumID, err)
 	}
 
 	userInArtists := false
@@ -81,7 +83,7 @@ func (u *Usecase) Delete(albumID uint32, userID uint32) error {
 }
 
 func (u *Usecase) GetFeed() ([]models.Album, error) {
-	albums, err := u.albumRepo.GetFeed()
+	albums, err := u.albumRepo.GetFeed(feedAlbumsAmountLimit)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get feed albums from repository: %w", err)
 	}
@@ -90,9 +92,8 @@ func (u *Usecase) GetFeed() ([]models.Album, error) {
 }
 
 func (u *Usecase) GetByArtist(artistID uint32) ([]models.Album, error) {
-	_, err := u.artistRepo.GetByID(artistID)
-	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get artist from repository: %w", err)
+	if err := u.artistRepo.Check(artistID); err != nil {
+		return nil, fmt.Errorf("(usecase) can't find artist with id #%d: %w", artistID, err)
 	}
 
 	albums, err := u.albumRepo.GetByArtist(artistID)
@@ -122,8 +123,8 @@ func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Album, error) {
 }
 
 func (u *Usecase) SetLike(albumID, userID uint32) (bool, error) {
-	if _, err := u.albumRepo.GetByID(albumID); err != nil {
-		return false, fmt.Errorf("(usecase) can't get album: %w", err)
+	if err := u.albumRepo.Check(albumID); err != nil {
+		return false, fmt.Errorf("(usecase) can't find album with id #%d: %w", albumID, err)
 	}
 
 	isInserted, err := u.albumRepo.InsertLike(albumID, userID)
@@ -135,8 +136,8 @@ func (u *Usecase) SetLike(albumID, userID uint32) (bool, error) {
 }
 
 func (u *Usecase) UnLike(albumID, userID uint32) (bool, error) {
-	if _, err := u.albumRepo.GetByID(albumID); err != nil {
-		return false, fmt.Errorf("(usecase) can't get album: %w", err)
+	if err := u.albumRepo.Check(albumID); err != nil {
+		return false, fmt.Errorf("(usecase) can't find album with id #%d: %w", albumID, err)
 	}
 
 	isDeleted, err := u.albumRepo.DeleteLike(albumID, userID)
