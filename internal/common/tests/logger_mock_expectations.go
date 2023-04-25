@@ -13,5 +13,10 @@ func MockLogger(c *gomock.Controller) *logMocks.MockLogger {
 	l.EXPECT().Errorf(gomock.Any(), gomock.Any()).AnyTimes()
 	l.EXPECT().Infof(gomock.Any(), gomock.Any()).AnyTimes()
 
+	l.EXPECT().ErrorReqID(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().InfoReqID(gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().ErrorfReqID(gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes()
+	l.EXPECT().InfofReqID(gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes()
+
 	return l
 }
