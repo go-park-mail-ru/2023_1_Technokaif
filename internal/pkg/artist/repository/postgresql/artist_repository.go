@@ -99,7 +99,7 @@ func (p *PostgreSQL) DeleteByID(artistID uint32) error {
 	}
 	deleted, err := resExec.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
+		return fmt.Errorf("(repo) failed to check affected rows: %w", err)
 	}
 
 	if deleted == 0 {

@@ -28,14 +28,18 @@ func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecas
 }
 
 func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
-	salt := generateRandomSalt()
+	salt, err := generateRandomSalt()
+	if err != nil {
+		return 0, fmt.Errorf("(usecase) failed to generate salt: %w", err)
+	}
+
 	user.Salt = hex.EncodeToString(salt)
 
 	user.Password = hashPassword(user.Password, salt)
 
 	userId, err := u.userRepo.CreateUser(user)
 	if err != nil {
-		return 0, fmt.Errorf("(usecase) cannot create user: %w", err)
+		return 0, fmt.Errorf("(usecase) can't create user: %w", err)
 	}
 	return userId, nil
 }
@@ -43,7 +47,7 @@ func (u *Usecase) SignUpUser(user models.User) (uint32, error) {
 func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error) {
 	user, err := u.userRepo.GetUserByUsername(username)
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) cannot find user: %w", err)
+		return nil, fmt.Errorf("(usecase) can't find user: %w", err)
 	}
 
 	salt, err := hex.DecodeString(user.Salt)
@@ -62,7 +66,7 @@ func (u *Usecase) GetUserByCreds(username, password string) (*models.User, error
 func (u *Usecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
 	user, err := u.authRepo.GetUserByAuthData(userID, userVersion)
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) cannot find user by userId and userVersion: %w", err)
+		return nil, fmt.Errorf("(usecase) can't find user by userId and userVersion: %w", err)
 	}
 	return user, nil
 }
@@ -76,7 +80,10 @@ func (u *Usecase) IncreaseUserVersion(userID uint32) error {
 }
 
 func (u *Usecase) ChangePassword(userID uint32, password string) error {
-	salt := generateRandomSalt()
+	salt, err := generateRandomSalt()
+	if err != nil {
+		return fmt.Errorf("(usecase) failed to generate new salt: %w", err)
+	}
 	passHash := hashPassword(password, salt)
 	if err := u.authRepo.UpdatePassword(userID, passHash, hex.EncodeToString(salt)); err != nil {
 		return fmt.Errorf("(usecase) failed to update password: %w", err)
@@ -90,8 +97,11 @@ func hashPassword(plainPassword string, salt []byte) string {
 	return hex.EncodeToString(hashedPassword)
 }
 
-func generateRandomSalt() []byte {
+func generateRandomSalt() ([]byte, error) {
 	salt := make([]byte, 8)
-	rand.Read(salt)
-	return salt
+	if _, err := rand.Read(salt); err != nil {
+		return nil, err
+	}
+
+	return salt, nil
 }

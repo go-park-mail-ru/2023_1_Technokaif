@@ -63,7 +63,8 @@ func InitPaths() error {
 }
 
 func init() {
-	godotenv.Load()
+	_ = godotenv.Load()
+
 	paths.MediaPath = os.Getenv(mediaPathParam)
 	paths.AvatarsFolder = os.Getenv(avatarFolderParam)
 	paths.RecordsFolder = os.Getenv(recordsFolderParam)

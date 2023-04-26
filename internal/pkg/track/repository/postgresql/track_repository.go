@@ -11,6 +11,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+
+	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
 
 // PostgreSQL implements track.Repository
@@ -50,18 +52,12 @@ func (p *PostgreSQL) Check(trackID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, err error) {
+func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, repoErr error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	insertTrackQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, album_id, album_position, cover_src, record_src) 

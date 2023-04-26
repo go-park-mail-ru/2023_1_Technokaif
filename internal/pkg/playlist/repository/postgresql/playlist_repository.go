@@ -11,6 +11,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+
+	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
 
 // PostgreSQL implements album.Repository
@@ -25,19 +27,6 @@ func NewPostgreSQL(db *sqlx.DB, t playlist.Tables, l logger.Logger) *PostgreSQL 
 		db:     db,
 		tables: t,
 		logger: l,
-	}
-}
-
-func checkTransaction(tx *sql.Tx, repoError *error) {
-	if *repoError != nil {
-		if err := tx.Rollback(); err != nil {
-			*repoError = fmt.Errorf("(repo) failed to Rollback: %w: %w", err, *repoError)
-		}
-
-	} else {
-		if err := tx.Commit(); err != nil {
-			*repoError = fmt.Errorf("(repo) failed to Commit: %w: %w", err, *repoError)
-		}
 	}
 }
 
@@ -70,7 +59,7 @@ func (p *PostgreSQL) Insert(playlist models.Playlist, usersID []uint32) (_ uint3
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer checkTransaction(tx, &repoErr)
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	insertAlbumQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
@@ -121,7 +110,7 @@ func (p *PostgreSQL) UpdateWithMembers(pl models.Playlist, usersID []uint32) (re
 	if err != nil {
 		return fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer checkTransaction(tx, &repoErr)
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	updatePlaylistQuery := fmt.Sprintf(
 		`UPDATE %s
