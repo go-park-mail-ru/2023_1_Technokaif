@@ -18,6 +18,9 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with users
 type Repository interface {
+	// Check returns models.NoSuchUserError if user-entry with given ID doesn't exist in DB
+	Check(userID uint32) error
+
 	// GetByID returns models.User of user-entry in DB with given ID
 	GetByID(userID uint32) (*models.User, error)
 

@@ -214,7 +214,7 @@ func (u *Usecase) GetFeed() ([]models.Playlist, error) {
 }
 
 func (u *Usecase) GetByUser(userID uint32) ([]models.Playlist, error) {
-	if _, err := u.userRepo.GetByID(userID); err != nil {
+	if err := u.userRepo.Check(userID); err != nil {
 		return nil, fmt.Errorf("(usecase) can't find user with id #%d: %w", userID, err)
 	}
 

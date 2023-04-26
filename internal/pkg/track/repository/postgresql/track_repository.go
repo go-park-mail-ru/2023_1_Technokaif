@@ -136,11 +136,11 @@ func (p *PostgreSQL) GetFeed(amountLimit int) ([]models.Track, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, album_id, cover_src, record_src, listens
 		FROM %s 
-		LIMIT %d;`,
-		p.tables.Tracks(), amountLimit)
+		LIMIT $1;`,
+		p.tables.Tracks())
 
 	var tracks []models.Track
-	if err := p.db.Select(&tracks, query); err != nil {
+	if err := p.db.Select(&tracks, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

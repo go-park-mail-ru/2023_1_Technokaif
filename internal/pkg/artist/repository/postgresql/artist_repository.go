@@ -113,11 +113,11 @@ func (p *PostgreSQL) GetFeed(amountLimit int) ([]models.Artist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, avatar_src  
 		FROM %s 
-		LIMIT %d;`,
-		p.tables.Artists(), amountLimit)
+		LIMIT $1;`,
+		p.tables.Artists())
 
 	var artists []models.Artist
-	if err := p.db.Select(&artists, query); err != nil {
+	if err := p.db.Select(&artists, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

@@ -27,7 +27,7 @@ type Usecase interface {
 }
 
 type Repository interface {
-	// Check returns models.NoSuchPlaylistError if playlist-entry with given ID exists in DB
+	// Check returns models.NoSuchPlaylistError if playlist-entry with given ID doesn't exist in DB
 	Check(playlistID uint32) error
 	Insert(playlist models.Playlist, usersID []uint32) (uint32, error)
 	GetByID(playlistID uint32) (*models.Playlist, error)

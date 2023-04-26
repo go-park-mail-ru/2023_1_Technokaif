@@ -38,8 +38,8 @@ func (u *Usecase) GetByPlaylist(playlistID uint32) ([]models.User, error) {
 }
 
 func (u *Usecase) UpdateInfo(user *models.User) error {
-	if _, err := u.repo.GetByID(user.ID); err != nil {
-		return fmt.Errorf("(usecase) can't get user: %w", err)
+	if err := u.repo.Check(user.ID); err != nil {
+		return fmt.Errorf("(usecase) can't find user with id #%d: %w", user.ID, err)
 	}
 
 	if err := u.repo.UpdateInfo(user); err != nil {
@@ -52,8 +52,8 @@ func (u *Usecase) UpdateInfo(user *models.User) error {
 var dirForUserAvatar = filepath.Join(commonFile.MediaPath(), commonFile.AvatarFolder())
 
 func (u *Usecase) UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension string) error {
-	if _, err := u.repo.GetByID(userID); err != nil {
-		return fmt.Errorf("(usecase) can't get user: %w", err)
+	if err := u.repo.Check(userID); err != nil {
+		return fmt.Errorf("(usecase) can't find user with id #%d: %w", userID, err)
 	}
 
 	// Check format

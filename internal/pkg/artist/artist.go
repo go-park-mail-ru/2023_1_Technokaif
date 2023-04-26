@@ -20,7 +20,7 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with artists
 type Repository interface {
-	// Check returns models.NoSuchArtistError if album-entry with given ID exists in DB
+	// Check returns models.NoSuchArtistError if album-entry with given ID doesn't exist in DB
 	Check(artistID uint32) error
 
 	// Insert creates new entry of artist in DB with given model
