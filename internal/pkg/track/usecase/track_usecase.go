@@ -12,7 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-const feedTracksAmountLimit = 100
+const feedTracksAmountLimit uint32 = 100
 
 // Usecase implements track.Usecase
 type Usecase struct {

@@ -399,7 +399,7 @@ func TestAlbumRepositoryGetFeed(t *testing.T) {
 		},
 	}
 
-	feedAmountLimit := 100
+	var feedAmountLimit uint32 = 100
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock

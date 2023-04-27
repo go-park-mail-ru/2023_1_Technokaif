@@ -130,7 +130,7 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, trackID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Track, error) {
+func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, album_id, cover_src, record_src, listens, duration
 		FROM %s 
@@ -138,7 +138,7 @@ func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Tra
 		p.tables.Tracks())
 
 	var tracks []models.Track
-	if err := p.db.SelectContext(ctx, &tracks, query, amountLimit); err != nil {
+	if err := p.db.SelectContext(ctx, &tracks, query, limit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

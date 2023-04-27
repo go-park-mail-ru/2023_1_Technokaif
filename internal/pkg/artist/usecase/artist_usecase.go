@@ -9,7 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-const feedArtistsAmountLimit = 100
+const feedArtistsAmountLimit uint32 = 100
 
 // Usecase implements artist.Usecase
 type Usecase struct {

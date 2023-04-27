@@ -151,21 +151,23 @@ ALTER TABLE Playlists ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regc
 
 CREATE INDEX idx_gin_artists
 ON Artists
-USING gin (to_tsvector(lang, name));
+USING gin (to_tsvector(lang, name), name varchar_pattern_ops);
 
 CREATE INDEX idx_gin_albums
 ON Albums
-USING gin (to_tsvector(lang, name));
+USING gin (to_tsvector(lang, name), name varchar_pattern_ops);
 
 CREATE INDEX idx_gin_tracks
 ON Tracks
-USING gin (to_tsvector(lang, name));
+USING gin (to_tsvector(lang, name), name varchar_pattern_ops);
 
 CREATE INDEX idx_gin_playlists
 ON Playlists
-USING gin (to_tsvector(lang, name));
+USING gin (to_tsvector(lang, name), name varchar_pattern_ops);
 
--- SELECT *       
--- FROM Artists                            
--- WHERE 'SALUKI' @@ plainto_tsquery(name);
-
+-- Select example
+-- SELECT *
+-- FROM Tracks
+-- WHERE to_tsvector(lang, name) @@ plainto_tsquery('<ftsQuery>')
+-- ORDER BY ts_rank(to_tsvector(lang, name), plainto_tsquery('<ftsQuery>')) DESC
+-- LIMIT 5;

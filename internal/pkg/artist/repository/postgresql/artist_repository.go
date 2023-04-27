@@ -110,7 +110,7 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, artistID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Artist, error) {
+func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, avatar_src  
 		FROM %s 
@@ -118,7 +118,7 @@ func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Art
 		p.tables.Artists())
 
 	var artists []models.Artist
-	if err := p.db.SelectContext(ctx, &artists, query, amountLimit); err != nil {
+	if err := p.db.SelectContext(ctx, &artists, query, limit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

@@ -225,7 +225,7 @@ func (p *PostgreSQL) DeleteTrack(ctx context.Context, trackID, playlistID uint32
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Playlist, error) {
+func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Playlist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src  
 		FROM %s 
@@ -233,7 +233,7 @@ func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Pla
 		p.tables.Playlists())
 
 	var playlists []models.Playlist
-	if err := p.db.SelectContext(ctx, &playlists, query, amountLimit); err != nil {
+	if err := p.db.SelectContext(ctx, &playlists, query, limit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

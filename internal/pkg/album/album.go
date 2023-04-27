@@ -29,7 +29,7 @@ type Repository interface {
 	Insert(ctx context.Context, album models.Album, artistsID []uint32) (uint32, error)
 	GetByID(ctx context.Context, albumID uint32) (*models.Album, error)
 	DeleteByID(ctx context.Context, albumID uint32) error
-	GetFeed(ctx context.Context, amountLimit int) ([]models.Album, error)
+	GetFeed(ctx context.Context, limit uint32) ([]models.Album, error)
 	GetByArtist(ctx context.Context, artistID uint32) ([]models.Album, error)
 	GetByTrack(ctx context.Context, trackID uint32) (*models.Album, error)
 	GetLikedByUser(ctx context.Context, userID uint32) ([]models.Album, error)

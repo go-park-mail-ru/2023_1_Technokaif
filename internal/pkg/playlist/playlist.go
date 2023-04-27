@@ -40,7 +40,7 @@ type Repository interface {
 	AddTrack(ctx context.Context, trackID, playlistID uint32) error
 	DeleteTrack(ctx context.Context, trackID, playlistID uint32) error
 
-	GetFeed(ctx context.Context, amountLimit int) ([]models.Playlist, error)
+	GetFeed(ctx context.Context, limit uint32) ([]models.Playlist, error)
 	GetByUser(ctx context.Context, userID uint32) ([]models.Playlist, error)
 	GetLikedByUser(ctx context.Context, userID uint32) ([]models.Playlist, error)
 	InsertLike(ctx context.Context, playlistID, userID uint32) (bool, error)
