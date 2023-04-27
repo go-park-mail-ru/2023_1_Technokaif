@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"os"
 
@@ -51,7 +50,5 @@ func main() {
 }
 
 func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error while loading environment: %v", err)
-	}
+	_ = godotenv.Load()
 }

@@ -37,7 +37,7 @@ VALUES ('Не с начала', 1, 1, '/tracks/gorgorod.jpg', '/records/1.mp3', 
         ('Улыбка', 2, 14, '/tracks/vlkol.jpg', '/records/25.mp3', 254),
         ('Ilford XP2 Super', 2, 15, '/tracks/vlkol.jpg', '/records/26.mp3', 204);
 
-INSERT INTO Tracks (name, cover_src, record_src)
+INSERT INTO Tracks (name, cover_src, record_src, duration)
 VALUES ('LAGG OUT', '/tracks/laggOut.jpeg', '/records/27.mp3', 279),
        ('Город под подошвой', '/tracks/gorodPodPod.png', '/records/28.mp3', 229),
        ('За деньги да', '/tracks/zadengida.png', '/records/29.mp3', 119),

@@ -129,3 +129,43 @@ CREATE TABLE Liked_playlists
 
     PRIMARY KEY(user_id, playlist_id)
 );
+
+
+-- Text Search
+
+-- -- Russian dict (just in case)
+-- CREATE TEXT SEARCH DICTIONARY russian_ispell (
+--     TEMPLATE = ispell,
+--     DictFile = russian,
+--     AffFile = russian,
+--     StopWords = russian
+-- );
+
+-- CREATE TEXT SEARCH CONFIGURATION ru (COPY=russian);
+
+ALTER TABLE Artists   ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
+ALTER TABLE Albums    ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
+ALTER TABLE Tracks    ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
+ALTER TABLE Playlists ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
+-- With this columns indeces has to be created like USING gin (to_tsvector(lang, name))
+
+CREATE INDEX idx_gin_artists
+ON Artists
+USING gin (to_tsvector(lang, name));
+
+CREATE INDEX idx_gin_albums
+ON Albums
+USING gin (to_tsvector(lang, name));
+
+CREATE INDEX idx_gin_tracks
+ON Tracks
+USING gin (to_tsvector(lang, name));
+
+CREATE INDEX idx_gin_playlists
+ON Playlists
+USING gin (to_tsvector(lang, name));
+
+-- SELECT *       
+-- FROM Artists                            
+-- WHERE 'SALUKI' @@ plainto_tsquery(name);
+
