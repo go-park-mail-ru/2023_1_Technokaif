@@ -12,6 +12,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+
+	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
 
 // PostgreSQL implements album.Repository
@@ -29,18 +31,26 @@ func NewPostgreSQL(db *sqlx.DB, t playlist.Tables, l logger.Logger) *PostgreSQL 
 	}
 }
 
-func checkTransaction(tx *sql.Tx, repoError *error) {
-	if *repoError != nil {
-		if err := tx.Rollback(); err != nil {
-			*repoError = fmt.Errorf("(repo) failed to Rollback: %w: %w", err, *repoError)
-		}
+func (p *PostgreSQL) Check(ctx context.Context, playlistID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Playlists())
 
-	} else {
-		if err := tx.Commit(); err != nil {
-			_ = tx.Rollback()
-			*repoError = fmt.Errorf("(repo) failed to Commit: %w: %w", err, *repoError)
-		}
+	var exists bool
+	err := p.db.GetContext(ctx, &exists, query, playlistID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchPlaylistError{PlaylistID: playlistID}, err)
+	}
+
+	return nil
 }
 
 const errorAlreadyExists = "unique_violation"
@@ -50,7 +60,7 @@ func (p *PostgreSQL) Insert(ctx context.Context, playlist models.Playlist, users
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer checkTransaction(tx, &repoErr)
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	insertAlbumQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
@@ -101,7 +111,7 @@ func (p *PostgreSQL) UpdateWithMembers(ctx context.Context, pl models.Playlist, 
 	if err != nil {
 		return fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer checkTransaction(tx, &repoErr)
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	updatePlaylistQuery := fmt.Sprintf(
 		`UPDATE %s
@@ -215,15 +225,15 @@ func (p *PostgreSQL) DeleteTrack(ctx context.Context, trackID, playlistID uint32
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed(ctx context.Context) ([]models.Playlist, error) {
+func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Playlist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src  
 		FROM %s 
-		LIMIT 100;`,
+		LIMIT $1;`,
 		p.tables.Playlists())
 
 	var playlists []models.Playlist
-	if err := p.db.SelectContext(ctx, &playlists, query); err != nil {
+	if err := p.db.SelectContext(ctx, &playlists, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

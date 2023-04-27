@@ -3,7 +3,7 @@ package tests
 import (
 	"net/http"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
@@ -29,12 +29,12 @@ func WrapRequestWithUser(r *http.Request, user *models.User, doWrap bool) *http.
 	if !doWrap {
 		return r
 	}
-	return commonHttp.WrapUser(r, user)
+	return commonHTTP.WrapUser(r, user)
 }
 
 func WrapRequestWithUserNotNil(r *http.Request, user *models.User) *http.Request {
 	if user == nil {
 		return r
 	}
-	return commonHttp.WrapUser(r, user)
+	return commonHTTP.WrapUser(r, user)
 }

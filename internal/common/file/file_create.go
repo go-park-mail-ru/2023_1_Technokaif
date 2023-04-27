@@ -32,7 +32,7 @@ func CreateFile(file io.ReadSeeker, extension string, dirPath string) (filename 
 
 	_, err = os.Stat(path)
 	if os.IsNotExist(err) {
-		newFD, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0600)
+		newFD, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			return "", "", fmt.Errorf("can't create file to save avatar: %w", err)
 		}
@@ -41,7 +41,7 @@ func CreateFile(file io.ReadSeeker, extension string, dirPath string) (filename 
 		if _, err := io.Copy(newFD, file); err != nil {
 			return "", "", fmt.Errorf("can't write sent avatar to file: %w", err)
 		}
-	} else {
+	} else if err != nil {
 		return "", "", fmt.Errorf("can't check file stat: %w", err)
 	}
 

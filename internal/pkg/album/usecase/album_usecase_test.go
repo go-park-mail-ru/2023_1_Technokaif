@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
+
+var ctx = context.Background()
 
 func TestAlbumUsecaseCreate(t *testing.T) {
 	type mockBehavior func(alr *albumMocks.MockRepository, arr *artistMocks.MockRepository,
@@ -59,9 +62,9 @@ func TestAlbumUsecaseCreate(t *testing.T) {
 				album models.Album, artistsID []uint32, userID uint32) {
 
 				for ind, id := range artistsID {
-					arr.EXPECT().GetByID(id).Return(&correctArtists[ind], nil)
+					arr.EXPECT().GetByID(ctx, id).Return(&correctArtists[ind], nil)
 				}
-				alr.EXPECT().Insert(album, artistsID).Return(correctAlbum.ID, nil)
+				alr.EXPECT().Insert(ctx, album, artistsID).Return(correctAlbum.ID, nil)
 			},
 		},
 		{
@@ -73,7 +76,7 @@ func TestAlbumUsecaseCreate(t *testing.T) {
 				album models.Album, artistsID []uint32, userID uint32) {
 
 				for ind, id := range artistsID {
-					arr.EXPECT().GetByID(id).Return(&correctArtists[ind], nil)
+					arr.EXPECT().GetByID(ctx, id).Return(&correctArtists[ind], nil)
 				}
 			},
 			expectError:      true,
@@ -88,7 +91,7 @@ func TestAlbumUsecaseCreate(t *testing.T) {
 				album models.Album, artistsID []uint32, userID uint32) {
 
 				for _, id := range artistsID {
-					arr.EXPECT().GetByID(id).Return(nil, errors.New(""))
+					arr.EXPECT().GetByID(ctx, id).Return(nil, errors.New(""))
 				}
 			},
 			expectError:      true,
@@ -103,9 +106,9 @@ func TestAlbumUsecaseCreate(t *testing.T) {
 				album models.Album, artistsID []uint32, userID uint32) {
 
 				for ind, id := range artistsID {
-					arr.EXPECT().GetByID(id).Return(&correctArtists[ind], nil)
+					arr.EXPECT().GetByID(ctx, id).Return(&correctArtists[ind], nil)
 				}
-				alr.EXPECT().Insert(album, artistsID).Return(uint32(0), errors.New(""))
+				alr.EXPECT().Insert(ctx, album, artistsID).Return(uint32(0), errors.New(""))
 			},
 			expectError:      true,
 			expectedErrorMsg: "can't insert album",
@@ -116,7 +119,7 @@ func TestAlbumUsecaseCreate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockBehavior(alr, arr, tc.album, tc.artistsID, tc.userID)
 
-			albumID, err := u.Create(tc.album, tc.artistsID, tc.userID)
+			albumID, err := u.Create(ctx, tc.album, tc.artistsID, tc.userID)
 
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedErrorMsg)

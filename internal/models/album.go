@@ -42,7 +42,7 @@ func AlbumTransferFromEntry(ctx context.Context, a Album, user *User, likeChecke
 
 	at, err := ArtistTransferFromQuery(ctx, artists, user, artistLikeChecker)
 	if err != nil {
-		return AlbumTransfer{}, nil
+		return AlbumTransfer{}, err
 	}
 
 	return AlbumTransfer{

@@ -24,10 +24,12 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with albums
 type Repository interface {
+	// Check returns models.NoSuchAlbumError if album-entry with given ID doesn't exist in DB
+	Check(ctx context.Context, albumID uint32) error
 	Insert(ctx context.Context, album models.Album, artistsID []uint32) (uint32, error)
 	GetByID(ctx context.Context, albumID uint32) (*models.Album, error)
 	DeleteByID(ctx context.Context, albumID uint32) error
-	GetFeed(ctx context.Context) ([]models.Album, error)
+	GetFeed(ctx context.Context, amountLimit int) ([]models.Album, error)
 	GetByArtist(ctx context.Context, artistID uint32) ([]models.Album, error)
 	GetByTrack(ctx context.Context, trackID uint32) (*models.Album, error)
 	GetLikedByUser(ctx context.Context, userID uint32) ([]models.Album, error)

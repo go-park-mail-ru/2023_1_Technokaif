@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"context"
 	"database/sql"
 	"database/sql/driver"
 	"errors"
@@ -16,6 +17,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
 )
+
+var ctx = context.Background()
 
 const albumTable = "Albums"
 const trackTable = "Track"
@@ -133,7 +136,7 @@ func TestAlbumRepositoryInsert(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.album, tc.artistsID, tc.expectedID)
 
-			id, err := repo.Insert(tc.album, tc.artistsID)
+			id, err := repo.Insert(ctx, tc.album, tc.artistsID)
 
 			// Test
 			if tc.expectError {
@@ -230,7 +233,7 @@ func TestAlbumRepositoryGetByID(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.albumToGetID, tc.expectedAlbum)
 
-			a, err := repo.GetByID(tc.albumToGetID)
+			a, err := repo.GetByID(ctx, tc.albumToGetID)
 
 			// Test
 			if tc.expectError {
@@ -315,7 +318,7 @@ func TestAlbumRepositoryDeleteByID(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.albumToDeleteID)
 
-			err := repo.DeleteByID(tc.albumToDeleteID)
+			err := repo.DeleteByID(ctx, tc.albumToDeleteID)
 
 			// Test
 			if tc.expectError {
@@ -396,12 +399,13 @@ func TestAlbumRepositoryGetFeed(t *testing.T) {
 		},
 	}
 
+	feedAmountLimit := 100
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.expectedAlbums)
 
-			a, err := repo.GetFeed()
+			a, err := repo.GetFeed(ctx, feedAmountLimit)
 
 			// Test
 			if tc.expectError {
@@ -514,7 +518,7 @@ func TestAlbumRepositoryGetByArtist(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.artistID, tc.expectedAlbums)
 
-			a, err := repo.GetByArtist(tc.artistID)
+			a, err := repo.GetByArtist(ctx, tc.artistID)
 
 			// Test
 			if tc.expectError {
@@ -617,7 +621,7 @@ func TestAlbumRepositoryGetByTrack(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.trackID, tc.expectedAlbum)
 
-			a, err := repo.GetByTrack(tc.trackID)
+			a, err := repo.GetByTrack(ctx, tc.trackID)
 
 			// Test
 			if tc.expectError {
@@ -730,7 +734,7 @@ func TestAlbumRepositoryGetLikedByUser(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.userID, tc.expectedAlbums)
 
-			a, err := repo.GetLikedByUser(tc.userID)
+			a, err := repo.GetLikedByUser(ctx, tc.userID)
 
 			// Test
 			if tc.expectError {
@@ -828,7 +832,7 @@ func TestAlbumRepositoryLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.likeInfo.albumID, tc.likeInfo.userID)
 
-			inserted, err := repo.InsertLike(tc.likeInfo.albumID, tc.likeInfo.userID)
+			inserted, err := repo.InsertLike(ctx, tc.likeInfo.albumID, tc.likeInfo.userID)
 
 			// Test
 			if tc.expectError {
@@ -922,7 +926,7 @@ func TestAlbumRepositoryDeleteLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.likeInfo.albumID, tc.likeInfo.userID)
 
-			inserted, err := repo.DeleteLike(tc.likeInfo.albumID, tc.likeInfo.userID)
+			inserted, err := repo.DeleteLike(ctx, tc.likeInfo.albumID, tc.likeInfo.userID)
 
 			// Test
 			if tc.expectError {

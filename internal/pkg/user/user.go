@@ -14,12 +14,14 @@ type Usecase interface {
 	GetByID(ctx context.Context, userID uint32) (*models.User, error)
 	UpdateInfo(ctx context.Context, user *models.User) error
 	UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, fileExtension string) error
-	UploadAvatarWrongFormatError() error
 	GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.User, error)
 }
 
 // Repository includes DBMS-relatable methods to work with users
 type Repository interface {
+	// Check returns models.NoSuchUserError if user-entry with given ID doesn't exist in DB
+	Check(ctx context.Context, userID uint32) error
+
 	// GetByID returns models.User of user-entry in DB with given ID
 	GetByID(ctx context.Context, userID uint32) (*models.User, error)
 

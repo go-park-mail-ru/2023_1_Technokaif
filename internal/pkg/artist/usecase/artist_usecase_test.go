@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -10,6 +11,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
+
+var ctx = context.Background()
 
 func TestArtistUsecaseCreate(t *testing.T) {
 	type mockBehavior func(ar *artistMocks.MockRepository, artist models.Artist)
@@ -40,14 +43,14 @@ func TestArtistUsecaseCreate(t *testing.T) {
 			name:   "Common",
 			artist: correctArtist,
 			mockBehavior: func(ar *artistMocks.MockRepository, artist models.Artist) {
-				ar.EXPECT().Insert(artist).Return(correctArtist.ID, nil)
+				ar.EXPECT().Insert(ctx, artist).Return(correctArtist.ID, nil)
 			},
 		},
 		{
 			name:   "Insert Error",
 			artist: correctArtist,
 			mockBehavior: func(ar *artistMocks.MockRepository, artist models.Artist) {
-				ar.EXPECT().Insert(artist).Return(uint32(0), errors.New(""))
+				ar.EXPECT().Insert(ctx, artist).Return(uint32(0), errors.New(""))
 			},
 			expectError: true,
 		},
@@ -57,7 +60,7 @@ func TestArtistUsecaseCreate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockBehavior(au, tc.artist)
 
-			artistID, err := u.Create(tc.artist)
+			artistID, err := u.Create(ctx, tc.artist)
 
 			if tc.expectError {
 				assert.Error(t, err)

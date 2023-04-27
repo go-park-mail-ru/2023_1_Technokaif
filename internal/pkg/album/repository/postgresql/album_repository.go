@@ -12,6 +12,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+
+	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
 
 // PostgreSQL implements album.Repository
@@ -29,18 +31,34 @@ func NewPostgreSQL(db *sqlx.DB, t album.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(ctx context.Context, album models.Album, artistsID []uint32) (_ uint32, err error) {
+func (p *PostgreSQL) Check(ctx context.Context, albumID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Albums())
+
+	var exists bool
+	err := p.db.GetContext(ctx, &exists, query, albumID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) Insert(ctx context.Context, album models.Album, artistsID []uint32) (_ uint32, repoErr error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	insertAlbumQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
@@ -110,15 +128,15 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, albumID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed(ctx context.Context) ([]models.Album, error) {
+func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src  
 		FROM %s 
-		LIMIT 100;`,
+		LIMIT $1;`,
 		p.tables.Albums())
 
 	var albums []models.Album
-	if err := p.db.SelectContext(ctx, &albums, query); err != nil {
+	if err := p.db.SelectContext(ctx, &albums, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

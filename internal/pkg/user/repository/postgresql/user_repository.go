@@ -32,6 +32,28 @@ func NewPostgreSQL(db *sqlx.DB, t user.Tables, l logger.Logger) *PostgreSQL {
 
 const errorUserExists = "unique_violation"
 
+func (p *PostgreSQL) Check(ctx context.Context, userID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Users())
+
+	var exists bool
+	err := p.db.Get(&exists, query, userID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchUserError{UserID: userID}, err)
+	}
+
+	return nil
+}
+
 func (p *PostgreSQL) GetByID(ctx context.Context, userID uint32) (*models.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, 
@@ -121,7 +143,7 @@ func (p *PostgreSQL) UpdateInfo(ctx context.Context, u *models.User) error {
 			first_name = $3,
 			last_name = $4,
 			sex = $5,
-			birth_date = $6,
+			birth_date = $6
 		WHERE id = $1;`,
 		p.tables.Users())
 	if _, err := p.db.ExecContext(ctx, query, u.ID, u.Email, u.FirstName, u.LastName,

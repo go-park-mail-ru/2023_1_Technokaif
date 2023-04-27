@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -17,6 +18,8 @@ import (
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
 )
+
+var ctx = context.Background()
 
 func getCorrectUser(t *testing.T) *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
@@ -158,7 +161,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
-				uu.EXPECT().UpdateInfo(user).Return(nil)
+				uu.EXPECT().UpdateInfo(ctx, user).Return(nil)
 			},
 			expectedStatus:   http.StatusOK,
 			expectedResponse: commonTests.OKResponse(userUpdatedInfoSuccessfully),
@@ -178,7 +181,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
-				uu.EXPECT().UpdateInfo(user).Return(&models.NoSuchUserError{})
+				uu.EXPECT().UpdateInfo(ctx, user).Return(&models.NoSuchUserError{})
 			},
 			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: commonTests.ErrorResponse(userNotFound),
@@ -189,7 +192,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
-				uu.EXPECT().UpdateInfo(user).Return(errors.New(""))
+				uu.EXPECT().UpdateInfo(ctx, user).Return(errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: commonTests.ErrorResponse(userUpdateInfoServerError),

@@ -83,15 +83,18 @@ func (e *UnathorizedError) Error() string {
 	return "unathorized"
 }
 
-const ( // Not used
-	NoSuchTrackStatusCode uint32 = iota
-	NoSuchAlbumStatusCode
-	NoSuchPlaylistStatusCode
-	NoSuchArtistStatusCode
-	ForbiddenUserStatusCode
-	UserAlreadyExistsStatusCode
-	NoSuchUserStatusCode
-	IncorrectPasswordStatusCode
-	UnathorizedStatusCode
-	OtherStatusCode
-)
+type AvatarWrongFormatError struct {
+	FileType string
+}
+
+func (e *AvatarWrongFormatError) Error() string {
+	return fmt.Sprintf("avatar wrong format: %s", e.FileType)
+}
+
+type CoverWrongFormatError struct {
+	FileType string
+}
+
+func (e *CoverWrongFormatError) Error() string {
+	return fmt.Sprintf("acover wrong format: %s", e.FileType)
+}

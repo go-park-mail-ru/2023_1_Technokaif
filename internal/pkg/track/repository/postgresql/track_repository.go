@@ -12,6 +12,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+
+	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
 
 // PostgreSQL implements track.Repository
@@ -29,18 +31,34 @@ func NewPostgreSQL(db *sqlx.DB, t track.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(ctx context.Context, track models.Track, artistsID []uint32) (_ uint32, err error) {
+func (p *PostgreSQL) Check(ctx context.Context, trackID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Tracks())
+
+	var exists bool
+	err := p.db.GetContext(ctx, &exists, query, trackID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchTrackError{TrackID: trackID}, err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) Insert(ctx context.Context, track models.Track, artistsID []uint32) (_ uint32, repoErr error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	insertTrackQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, album_id, album_position, cover_src, record_src) 
@@ -48,7 +66,8 @@ func (p *PostgreSQL) Insert(ctx context.Context, track models.Track, artistsID [
 		p.tables.Tracks())
 
 	var trackID uint32
-	row := tx.QueryRowContext(ctx, insertTrackQuery, track.Name, track.AlbumID, track.AlbumPosition, track.CoverSrc, track.RecordSrc)
+	row := tx.QueryRowContext(ctx, insertTrackQuery, track.Name, track.AlbumID,
+		track.AlbumPosition, track.CoverSrc, track.RecordSrc)
 	if err := row.Scan(&trackID); err != nil {
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
@@ -111,15 +130,15 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, trackID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed(ctx context.Context) ([]models.Track, error) {
+func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Track, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, album_id, cover_src, record_src, listens
 		FROM %s 
-		LIMIT 100;`,
+		LIMIT $1;`,
 		p.tables.Tracks())
 
 	var tracks []models.Track
-	if err := p.db.SelectContext(ctx, &tracks, query); err != nil {
+	if err := p.db.SelectContext(ctx, &tracks, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

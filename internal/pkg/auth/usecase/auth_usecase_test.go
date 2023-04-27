@@ -58,7 +58,7 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 			},
 			mockBehavior: func(r *userMocks.MockRepository, u models.User) {
 				// random salt, can't predict :(
-				r.EXPECT().CreateUser(gomock.Any()).Return(uint32(1), nil)
+				r.EXPECT().CreateUser(ctx, gomock.Any()).Return(uint32(1), nil)
 			},
 			expected: result{
 				Id:  1,

@@ -25,10 +25,12 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with tracks
 type Repository interface {
+	// Check returns models.NoSuchTrackError if track-entry with given ID doesn't exist in DB
+	Check(ctx context.Context, trackID uint32) error
 	Insert(ctx context.Context, track models.Track, artistsID []uint32) (uint32, error)
 	GetByID(ctx context.Context, trackID uint32) (*models.Track, error)
 	DeleteByID(ctx context.Context, trackID uint32) error
-	GetFeed(ctx context.Context) ([]models.Track, error)
+	GetFeed(ctx context.Context, amountLimit int) ([]models.Track, error)
 	GetByAlbum(ctx context.Context, albumID uint32) ([]models.Track, error)
 	GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.Track, error)
 	GetByArtist(ctx context.Context, artistID uint32) ([]models.Track, error)

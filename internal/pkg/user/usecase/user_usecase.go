@@ -40,8 +40,8 @@ func (u *Usecase) GetByPlaylist(ctx context.Context, playlistID uint32) ([]model
 }
 
 func (u *Usecase) UpdateInfo(ctx context.Context, user *models.User) error {
-	if _, err := u.repo.GetByID(ctx, user.ID); err != nil {
-		return fmt.Errorf("(usecase) can't get user: %w", err)
+	if err := u.repo.Check(ctx, user.ID); err != nil {
+		return fmt.Errorf("(usecase) can't find user with id #%d: %w", user.ID, err)
 	}
 
 	if err := u.repo.UpdateInfo(ctx, user); err != nil {
@@ -56,13 +56,13 @@ var dirForUserAvatar = filepath.Join(commonFile.MediaPath(), commonFile.AvatarFo
 var ErrAvatarWrongFormat = errors.New("wrong avatar file fromat")
 
 func (u *Usecase) UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, fileExtension string) error {
-	if _, err := u.repo.GetByID(ctx, userID); err != nil {
-		return fmt.Errorf("(usecase) can't get user: %w", err)
+	if err := u.repo.Check(ctx, userID); err != nil {
+		return fmt.Errorf("(usecase) can't find user with id #%d: %w", userID, err)
 	}
 
 	// Check format
 	if fileType, err := commonFile.CheckMimeType(file, "image/png", "image/jpeg"); err != nil {
-		return fmt.Errorf("(usecase) file format %s: %w", fileType, ErrAvatarWrongFormat)
+		return fmt.Errorf("(usecase) file format %s: %w", fileType, &models.AvatarWrongFormatError{FileType: fileType})
 	}
 
 	filenameWithExtension, _, err := commonFile.CreateFile(file, fileExtension, dirForUserAvatar)
@@ -75,8 +75,4 @@ func (u *Usecase) UploadAvatar(ctx context.Context, userID uint32, file io.ReadS
 		return fmt.Errorf("(usecase) can't update avatarSrc: %w", err)
 	}
 	return nil
-}
-
-func (u *Usecase) UploadAvatarWrongFormatError() error {
-	return ErrAvatarWrongFormat
 }

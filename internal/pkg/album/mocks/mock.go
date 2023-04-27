@@ -207,6 +207,20 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Check mocks base method.
+func (m *MockRepository) Check(ctx context.Context, albumID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Check", ctx, albumID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Check indicates an expected call of Check.
+func (mr *MockRepositoryMockRecorder) Check(ctx, albumID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockRepository)(nil).Check), ctx, albumID)
+}
+
 // DeleteByID mocks base method.
 func (m *MockRepository) DeleteByID(ctx context.Context, albumID uint32) error {
 	m.ctrl.T.Helper()
@@ -282,18 +296,18 @@ func (mr *MockRepositoryMockRecorder) GetByTrack(ctx, trackID interface{}) *gomo
 }
 
 // GetFeed mocks base method.
-func (m *MockRepository) GetFeed(ctx context.Context) ([]models.Album, error) {
+func (m *MockRepository) GetFeed(ctx context.Context, amountLimit int) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed", ctx)
+	ret := m.ctrl.Call(m, "GetFeed", ctx, amountLimit)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockRepositoryMockRecorder) GetFeed(ctx interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetFeed(ctx, amountLimit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx, amountLimit)
 }
 
 // GetLikedByUser mocks base method.

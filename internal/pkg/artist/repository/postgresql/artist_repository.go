@@ -29,6 +29,28 @@ func NewPostgreSQL(db *sqlx.DB, t artist.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
+func (p *PostgreSQL) Check(ctx context.Context, artistID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Artists())
+
+	var exists bool
+	err := p.db.GetContext(ctx, &exists, query, artistID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchArtistError{ArtistID: artistID}, err)
+	}
+
+	return nil
+}
+
 func (p *PostgreSQL) Insert(ctx context.Context, artist models.Artist) (uint32, error) {
 	query := fmt.Sprintf(
 		`INSERT INTO %s (user_id, name, avatar_src) 
@@ -78,7 +100,7 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, artistID uint32) error {
 	}
 	deleted, err := resExec.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
+		return fmt.Errorf("(repo) failed to check affected rows: %w", err)
 	}
 
 	if deleted == 0 {
@@ -88,15 +110,15 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, artistID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed(ctx context.Context) ([]models.Artist, error) {
+func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Artist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, avatar_src  
 		FROM %s 
-		LIMIT 100;`,
+		LIMIT $1;`,
 		p.tables.Artists())
 
 	var artists []models.Artist
-	if err := p.db.SelectContext(ctx, &artists, query); err != nil {
+	if err := p.db.SelectContext(ctx, &artists, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 

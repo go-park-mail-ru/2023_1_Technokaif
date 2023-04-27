@@ -277,6 +277,20 @@ func (mr *MockRepositoryMockRecorder) AddTrack(ctx, trackID, playlistID interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTrack", reflect.TypeOf((*MockRepository)(nil).AddTrack), ctx, trackID, playlistID)
 }
 
+// Check mocks base method.
+func (m *MockRepository) Check(ctx context.Context, playlistID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Check", ctx, playlistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Check indicates an expected call of Check.
+func (mr *MockRepositoryMockRecorder) Check(ctx, playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockRepository)(nil).Check), ctx, playlistID)
+}
+
 // DeleteByID mocks base method.
 func (m *MockRepository) DeleteByID(ctx context.Context, playlistID uint32) error {
 	m.ctrl.T.Helper()
@@ -351,18 +365,18 @@ func (mr *MockRepositoryMockRecorder) GetByUser(ctx, userID interface{}) *gomock
 }
 
 // GetFeed mocks base method.
-func (m *MockRepository) GetFeed(ctx context.Context) ([]models.Playlist, error) {
+func (m *MockRepository) GetFeed(ctx context.Context, amountLimit int) ([]models.Playlist, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed", ctx)
+	ret := m.ctrl.Call(m, "GetFeed", ctx, amountLimit)
 	ret0, _ := ret[0].([]models.Playlist)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockRepositoryMockRecorder) GetFeed(ctx interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetFeed(ctx, amountLimit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx, amountLimit)
 }
 
 // GetLikedByUser mocks base method.
