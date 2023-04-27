@@ -11,6 +11,7 @@ type Track struct {
 	AlbumPosition *uint32 `db:"album_position"`
 	CoverSrc      string  `db:"cover_src"`
 	RecordSrc     string  `db:"record_src"`
+	Duration      uint32  `db:"duration"`
 	Listens       uint32  `db:"listens"`
 }
 
@@ -21,6 +22,7 @@ type TrackTransfer struct {
 	AlbumPosition *uint32          `json:"albumPosition,omitempty"`
 	Artists       []ArtistTransfer `json:"artists"`
 	CoverSrc      string           `json:"cover"`
+	Duration      uint32           `json:"duration"`
 	Listens       uint32           `json:"listens"`
 	IsLiked       bool             `json:"isLiked"`
 	RecordSrc     string           `json:"recordSrc"`
@@ -58,6 +60,7 @@ func TrackTransferFromEntry(ctx context.Context, t Track, user *User, likeChecke
 		AlbumPosition: t.AlbumPosition,
 		Artists:       at,
 		CoverSrc:      t.CoverSrc,
+		Duration:      t.Duration,
 		Listens:       t.Listens,
 		IsLiked:       isLiked,
 		RecordSrc:     t.RecordSrc,

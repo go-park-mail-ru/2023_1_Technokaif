@@ -188,7 +188,8 @@ func (p *PostgreSQL) GetLikedByUser(ctx context.Context, userID uint32) ([]model
 		`SELECT a.id, a.name, a.description, a.cover_src
 		FROM %s a 
 			INNER JOIN %s ua ON a.id = ua.album_id 
-		WHERE ua.user_id = $1;`,
+		WHERE ua.user_id = $1
+		ORDER BY liked_at DESC;`,
 		p.tables.Albums(), p.tables.LikedAlbums())
 
 	var albums []models.Album
@@ -252,11 +253,11 @@ func (p *PostgreSQL) DeleteLike(ctx context.Context, albumID, userID uint32) (bo
 
 func (p *PostgreSQL) IsLiked(ctx context.Context, albumID, userID uint32) (bool, error) {
 	query := fmt.Sprintf(
-		`SELECT CASE WHEN 
-			EXISTS(SELECT *
-				FROM %s
-				WHERE album_id = $1 AND user_id = $2
-			) THEN TRUE ELSE FALSE END;`,
+		`SELECT EXISTS(
+			SELECT album_id
+			FROM %s
+			WHERE album_id = $1 AND user_id = $2
+		);`,
 		p.tables.LikedAlbums())
 
 	var isLiked bool

@@ -61,13 +61,13 @@ func (p *PostgreSQL) Insert(ctx context.Context, track models.Track, artistsID [
 	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	insertTrackQuery := fmt.Sprintf(
-		`INSERT INTO %s (name, album_id, album_position, cover_src, record_src) 
-		VALUES ($1, $2, $3, $4, $5) RETURNING id;`,
+		`INSERT INTO %s (name, album_id, album_position, cover_src, record_src, duration) 
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;`,
 		p.tables.Tracks())
 
 	var trackID uint32
 	row := tx.QueryRowContext(ctx, insertTrackQuery, track.Name, track.AlbumID,
-		track.AlbumPosition, track.CoverSrc, track.RecordSrc)
+		track.AlbumPosition, track.CoverSrc, track.RecordSrc, track.Duration)
 	if err := row.Scan(&trackID); err != nil {
 		return 0, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
@@ -88,7 +88,7 @@ func (p *PostgreSQL) Insert(ctx context.Context, track models.Track, artistsID [
 
 func (p *PostgreSQL) GetByID(ctx context.Context, trackID uint32) (*models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, album_id, cover_src, record_src, listens
+		`SELECT id, name, album_id, cover_src, record_src, listens, duration
 		FROM %s 
 		WHERE id = $1;`,
 		p.tables.Tracks())
@@ -132,7 +132,7 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, trackID uint32) error {
 
 func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, album_id, cover_src, record_src, listens
+		`SELECT id, name, album_id, cover_src, record_src, listens, duration
 		FROM %s 
 		LIMIT $1;`,
 		p.tables.Tracks())
@@ -147,7 +147,7 @@ func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Tra
 
 func (p *PostgreSQL) GetByAlbum(ctx context.Context, albumID uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, album_id, album_position, cover_src, record_src, listens
+		`SELECT id, name, album_id, album_position, cover_src, record_src, listens, duration
 		FROM %s
 		WHERE album_id = $1
 		ORDER BY album_position;`,
@@ -167,11 +167,11 @@ func (p *PostgreSQL) GetByAlbum(ctx context.Context, albumID uint32) ([]models.T
 
 func (p *PostgreSQL) GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens
+		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens, t.duration
 		FROM %s t
 			INNER JOIN %s pt ON t.id = pt.track_id 
 		WHERE pt.playlist_id = $1
-		ORDER BY pt.added_at;`,
+		ORDER BY pt.added_at DESC;`,
 		p.tables.Tracks(), p.tables.PlaylistsTracks())
 
 	var tracks []models.Track
@@ -188,7 +188,7 @@ func (p *PostgreSQL) GetByPlaylist(ctx context.Context, playlistID uint32) ([]mo
 
 func (p *PostgreSQL) GetByArtist(ctx context.Context, artistID uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens
+		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens, t.duration
 		FROM %s t
 			INNER JOIN %s at ON t.id = at.track_id 
 		WHERE at.artist_id = $1;`,
@@ -208,10 +208,11 @@ func (p *PostgreSQL) GetByArtist(ctx context.Context, artistID uint32) ([]models
 
 func (p *PostgreSQL) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
-		`SELECT t.id, name, t.album_id, t.cover_src, t.record_src, t.listens
+		`SELECT t.id, name, t.album_id, t.cover_src, t.record_src, t.listens, t.duration
 		FROM %s t 
 			INNER JOIN %s ut ON t.id = ut.track_id 
-		WHERE ut.user_id = $1;`,
+		WHERE ut.user_id = $1
+		ORDER BY liked_at DESC;`,
 		p.tables.Tracks(), p.tables.LikedTracks())
 
 	var tracks []models.Track
@@ -276,11 +277,11 @@ func (p *PostgreSQL) DeleteLike(ctx context.Context, trackID, userID uint32) (bo
 
 func (p *PostgreSQL) IsLiked(ctx context.Context, trackID, userID uint32) (bool, error) {
 	query := fmt.Sprintf(
-		`SELECT CASE WHEN 
-			EXISTS(SELECT *
-				FROM %s
-				WHERE track_id = $1 AND user_id = $2
-			) THEN TRUE ELSE FALSE END;`,
+		`SELECT EXISTS(
+			SELECT track_id
+			FROM %s
+			WHERE track_id = $1 AND user_id = $2
+		);`,
 		p.tables.LikedTracks())
 
 	var isLiked bool
