@@ -8,6 +8,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
+const feedArtistsAmountLimit = 100
+
 // Usecase implements artist.Usecase
 type Usecase struct {
 	repo   artist.Repository
@@ -58,7 +60,7 @@ func (u *Usecase) Delete(artistID uint32, userID uint32) error {
 }
 
 func (u *Usecase) GetFeed() ([]models.Artist, error) {
-	artists, err := u.repo.GetFeed()
+	artists, err := u.repo.GetFeed(feedArtistsAmountLimit)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get feed artists from repository: %w", err)
 	}
@@ -94,8 +96,8 @@ func (u *Usecase) GetLikedByUser(userID uint32) ([]models.Artist, error) {
 }
 
 func (u *Usecase) SetLike(artistID, userID uint32) (bool, error) {
-	if _, err := u.repo.GetByID(artistID); err != nil {
-		return false, fmt.Errorf("(usecase) can't get artist: %w", err)
+	if err := u.repo.Check(artistID); err != nil {
+		return false, fmt.Errorf("(usecase) can't find artist with id #%d: %w", artistID, err)
 	}
 
 	iSinserted, err := u.repo.InsertLike(artistID, userID)
@@ -107,8 +109,8 @@ func (u *Usecase) SetLike(artistID, userID uint32) (bool, error) {
 }
 
 func (u *Usecase) UnLike(artistID, userID uint32) (bool, error) {
-	if _, err := u.repo.GetByID(artistID); err != nil {
-		return false, fmt.Errorf("(usecase) can't get artist: %w", err)
+	if err := u.repo.Check(artistID); err != nil {
+		return false, fmt.Errorf("(usecase) can't find artist with id #%d: %w", artistID, err)
 	}
 
 	isDeleted, err := u.repo.DeleteLike(artistID, userID)
@@ -117,4 +119,13 @@ func (u *Usecase) UnLike(artistID, userID uint32) (bool, error) {
 	}
 
 	return isDeleted, nil
+}
+
+func (u *Usecase) IsLiked(artistID, userID uint32) (bool, error) {
+	isLiked, err := u.repo.IsLiked(artistID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(usecase) can't check in repository if artist is liked: %w", err)
+	}
+
+	return isLiked, nil
 }

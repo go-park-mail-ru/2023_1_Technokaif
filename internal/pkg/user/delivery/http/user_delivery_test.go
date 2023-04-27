@@ -13,10 +13,8 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
+	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
-	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
-	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
-	trackMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/mocks"
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
 )
 
@@ -41,7 +39,7 @@ func getCorrectUser(t *testing.T) *models.User {
 func getCorrectUserInfo(t *testing.T) *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	require.NoError(t, err, "can't Parse birth date")
-	
+
 	birthDate := models.Date{Time: birthTime}
 
 	return &models.User{
@@ -60,13 +58,10 @@ func TestUserDeliveryGet(t *testing.T) {
 	c := gomock.NewController(t)
 
 	uu := userMocks.NewMockUsecase(c)
-	tu := trackMocks.NewMockUsecase(c)
-	alu := albumMocks.NewMockUsecase(c)
-	aru := artistMocks.NewMockUsecase(c)
 
 	l := commonTests.MockLogger(c)
 
-	h := NewHandler(uu, tu, alu, aru, l)
+	h := NewHandler(uu, l)
 
 	// Routing
 	r := chi.NewRouter()
@@ -106,7 +101,7 @@ func TestUserDeliveryGet(t *testing.T) {
 			userIDPath:       correctUserIDPath,
 			user:             nil,
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't get user"}`,
+			expectedResponse: commonTests.ErrorResponse(userGetServerError),
 		},
 	}
 
@@ -125,13 +120,10 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 	c := gomock.NewController(t)
 
 	uu := userMocks.NewMockUsecase(c)
-	tu := trackMocks.NewMockUsecase(c)
-	alu := albumMocks.NewMockUsecase(c)
-	aru := artistMocks.NewMockUsecase(c)
 
 	l := commonTests.MockLogger(c)
 
-	h := NewHandler(uu, tu, alu, aru, l)
+	h := NewHandler(uu, l)
 
 	// Routing
 	r := chi.NewRouter()
@@ -169,7 +161,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 				uu.EXPECT().UpdateInfo(user).Return(nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: `{"status": "ok"}`,
+			expectedResponse: commonTests.OKResponse(userUpdatedInfoSuccessfully),
 		},
 		{
 			name:             "Incorrect Body",
@@ -178,7 +170,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			requestBody:      `{"id": 1`,
 			mockBehavior:     func(uu *userMocks.MockUsecase, user *models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "incorrect input body"}`,
+			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
 		},
 		{
 			name:        "No Such User",
@@ -189,7 +181,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 				uu.EXPECT().UpdateInfo(user).Return(&models.NoSuchUserError{})
 			},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: `{"message": "no user to update"}`,
+			expectedResponse: commonTests.ErrorResponse(userNotFound),
 		},
 		{
 			name:        "Server Error",
@@ -200,7 +192,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 				uu.EXPECT().UpdateInfo(user).Return(errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't change user info"}`,
+			expectedResponse: commonTests.ErrorResponse(userUpdateInfoServerError),
 		},
 	}
 
@@ -210,372 +202,6 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			tc.mockBehavior(uu, tc.user)
 
 			commonTests.DeliveryTestPost(t, r, "/api/users/"+tc.userIDPath+"/update", tc.requestBody, tc.expectedStatus, tc.expectedResponse,
-				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
-		})
-	}
-}
-
-func TestUserDeliveryGetFavoriteTracks(t *testing.T) {
-	type mockBehavior func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32)
-
-	c := gomock.NewController(t)
-
-	uu := userMocks.NewMockUsecase(c)
-	tu := trackMocks.NewMockUsecase(c)
-	alu := albumMocks.NewMockUsecase(c)
-	aru := artistMocks.NewMockUsecase(c)
-
-	l := commonTests.MockLogger(c)
-
-	h := NewHandler(uu, tu, alu, aru, l)
-
-	// Routing
-	r := chi.NewRouter()
-	r.Get("/api/users/{userID}/tracks", h.GetFavouriteTracks)
-
-	// Test filling
-	const correctUserID uint32 = 1
-	correctUserIDPath := fmt.Sprint(correctUserID)
-
-	expectedReturnTracks := []models.Track{
-		{
-			ID:        1,
-			Name:      "Накануне",
-			CoverSrc:  "/tracks/covers/1.png",
-			Listens:   2700000,
-			RecordSrc: "/tracks/records/1.wav",
-		},
-		{
-			ID:        2,
-			Name:      "LAGG OUT",
-			CoverSrc:  "/tracks/covers/2.png",
-			Listens:   4500000,
-			RecordSrc: "/tracks/records/2.wav",
-		},
-	}
-
-	expectedReturnArtists := []models.Artist{
-		{
-			ID:        1,
-			Name:      "Oxxxymiron",
-			AvatarSrc: "/artists/avatars/1.png",
-		},
-		{
-			ID:        2,
-			Name:      "SALUKI",
-			AvatarSrc: "/artists/avatars/2.png",
-		},
-	}
-
-	correctResponse := `[
-		{
-			"id": 1,
-			"name": "Накануне",
-			"artists": [
-				{
-					"id": 1,
-					"name": "Oxxxymiron",
-					"cover": "/artists/avatars/1.png"
-				}
-			],
-			"cover": "/tracks/covers/1.png",
-			"listens": 2700000,
-			"isLiked": true,
-			"recordSrc": "/tracks/records/1.wav"
-		},
-		{
-			"id": 2,
-			"name": "LAGG OUT",
-			"artists": [
-				{
-					"id": 2,
-					"name": "SALUKI",
-					"cover": "/artists/avatars/2.png"
-				}
-			],
-			"cover": "/tracks/covers/2.png",
-			"listens": 4500000,
-			"isLiked": true,
-			"recordSrc": "/tracks/records/2.wav"
-		}
-	]`
-
-	testTable := []struct {
-		name             string
-		user             *models.User
-		mockBehavior     mockBehavior
-		expectedStatus   int
-		expectedResponse string
-	}{
-		{
-			name: "Common",
-			user: getCorrectUser(t),
-			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
-				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
-				for ind, track := range expectedReturnTracks {
-					au.EXPECT().GetByTrack(track.ID).Return(expectedReturnArtists[ind:ind+1], nil)
-					tu.EXPECT().IsLiked(track.ID, userID).Return(true, nil)
-				}
-			},
-			expectedStatus:   http.StatusOK,
-			expectedResponse: correctResponse,
-		},
-		{
-			name: "Tracks Issue",
-			user: getCorrectUser(t),
-			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
-				tu.EXPECT().GetLikedByUser(userID).Return(nil, errors.New(""))
-			},
-			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't get favorite tracks"}`,
-		},
-		{
-			name: "Artists Issue",
-			user: getCorrectUser(t),
-			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
-				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
-				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(nil, errors.New(""))
-			},
-			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't get favorite tracks"}`,
-		},
-		{
-			name: "Likes Issue",
-			user: getCorrectUser(t),
-			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
-				tu.EXPECT().GetLikedByUser(userID).Return(expectedReturnTracks, nil)
-				au.EXPECT().GetByTrack(expectedReturnTracks[0].ID).Return(expectedReturnArtists[0:1], nil)
-				tu.EXPECT().IsLiked(expectedReturnTracks[0].ID, userID).Return(false, errors.New(""))
-			},
-			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't get favorite tracks"}`,
-		},
-	}
-
-	for _, tc := range testTable {
-		t.Run(tc.name, func(t *testing.T) {
-			// Call mock
-			tc.mockBehavior(tu, aru, tc.user.ID)
-
-			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/tracks", tc.expectedStatus, tc.expectedResponse,
-				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
-		})
-	}
-}
-
-func TestUserDeliveryGetFavoriteAlbums(t *testing.T) {
-	type mockBehavior func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase, userID uint32)
-
-	c := gomock.NewController(t)
-
-	uu := userMocks.NewMockUsecase(c)
-	tu := trackMocks.NewMockUsecase(c)
-	alu := albumMocks.NewMockUsecase(c)
-	aru := artistMocks.NewMockUsecase(c)
-
-	l := commonTests.MockLogger(c)
-
-	h := NewHandler(uu, tu, alu, aru, l)
-
-	// Routing
-	r := chi.NewRouter()
-	r.Get("/api/users/{userID}/albums", h.GetFavouriteAlbums)
-
-	// Test filling
-	const correctUserID uint32 = 1
-	correctUserIDPath := fmt.Sprint(correctUserID)
-
-	descriptionID1 := "Антиутопия"
-	descriptionID2 := "Стиль"
-	expectedReturnAlbums := []models.Album{
-		{
-			ID:          1,
-			Name:        "Горгород",
-			Description: &descriptionID1,
-			CoverSrc:    "/albums/covers/gorgorod.png",
-		},
-		{
-			ID:          2,
-			Name:        "Властелин Калек",
-			Description: &descriptionID2,
-			CoverSrc:    "/albums/covers/vlkal.png",
-		},
-	}
-
-	expectedReturnArtists := []models.Artist{
-		{
-			ID:        1,
-			Name:      "Oxxxymiron",
-			AvatarSrc: "/artists/avatars/oxxxymiron.png",
-		},
-		{
-			ID:        2,
-			Name:      "SALUKI",
-			AvatarSrc: "/artists/avatars/saluki.png",
-		},
-	}
-
-	correctResponse := `[
-		{
-			"id": 1,
-			"name": "Горгород",
-			"artists": [
-				{
-					"id": 1,
-					"name": "Oxxxymiron",
-					"cover": "/artists/avatars/oxxxymiron.png"
-				}
-			],
-			"description": "Антиутопия",
-			"cover": "/albums/covers/gorgorod.png"
-		},
-		{
-			"id": 2,
-			"name": "Властелин Калек",
-			"artists": [
-				{
-					"id": 2,
-					"name": "SALUKI",
-					"cover": "/artists/avatars/saluki.png"
-				}
-			],
-			"description": "Стиль",
-			"cover": "/albums/covers/vlkal.png"
-		}
-	]`
-
-	testTable := []struct {
-		name             string
-		user             *models.User
-		mockBehavior     mockBehavior
-		expectedStatus   int
-		expectedResponse string
-	}{
-		{
-			name: "Common",
-			user: getCorrectUser(t),
-			mockBehavior: func(alu *albumMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
-				alu.EXPECT().GetLikedByUser(userID).Return(expectedReturnAlbums, nil)
-				for ind, track := range expectedReturnAlbums {
-					au.EXPECT().GetByAlbum(track.ID).Return(expectedReturnArtists[ind:ind+1], nil)
-				}
-			},
-			expectedStatus:   http.StatusOK,
-			expectedResponse: correctResponse,
-		},
-		{
-			name: "Albums Issue",
-			user: getCorrectUser(t),
-			mockBehavior: func(alu *albumMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
-				alu.EXPECT().GetLikedByUser(userID).Return(nil, errors.New(""))
-			},
-			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't get favorite albums"}`,
-		},
-		{
-			name: "Artists Issue",
-			user: getCorrectUser(t),
-			mockBehavior: func(alu *albumMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32) {
-				alu.EXPECT().GetLikedByUser(userID).Return(expectedReturnAlbums, nil)
-				au.EXPECT().GetByAlbum(expectedReturnAlbums[0].ID).Return(nil, errors.New(""))
-			},
-			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't get favorite albums"}`,
-		},
-	}
-
-	for _, tc := range testTable {
-		t.Run(tc.name, func(t *testing.T) {
-			// Call mock
-			tc.mockBehavior(alu, aru, tc.user.ID)
-
-			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/albums", tc.expectedStatus, tc.expectedResponse,
-				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
-		})
-	}
-}
-
-func TestUserDeliveryGetFavoriteArtists(t *testing.T) {
-	type mockBehavior func(aru *artistMocks.MockUsecase, userID uint32)
-
-	c := gomock.NewController(t)
-
-	uu := userMocks.NewMockUsecase(c)
-	tu := trackMocks.NewMockUsecase(c)
-	alu := albumMocks.NewMockUsecase(c)
-	aru := artistMocks.NewMockUsecase(c)
-
-	l := commonTests.MockLogger(c)
-
-	h := NewHandler(uu, tu, alu, aru, l)
-
-	// Routing
-	r := chi.NewRouter()
-	r.Get("/api/users/{userID}/artists", h.GetFavouriteArtists)
-
-	// Test filling
-	const correctUserID uint32 = 1
-	correctUserIDPath := fmt.Sprint(correctUserID)
-
-	expectedReturnArtists := []models.Artist{
-		{
-			ID:        1,
-			Name:      "Oxxxymiron",
-			AvatarSrc: "/artists/avatars/oxxxymiron.png",
-		},
-		{
-			ID:        2,
-			Name:      "SALUKI",
-			AvatarSrc: "/artists/avatars/saluki.png",
-		},
-	}
-
-	correctResponse := `[
-		{
-			"id": 1,
-			"name": "Oxxxymiron",
-			"cover": "/artists/avatars/oxxxymiron.png"
-		},
-		{
-			"id": 2,
-			"name": "SALUKI",
-			"cover": "/artists/avatars/saluki.png"
-		}
-	]`
-
-	testTable := []struct {
-		name             string
-		user             *models.User
-		mockBehavior     mockBehavior
-		expectedStatus   int
-		expectedResponse string
-	}{
-		{
-			name: "Common",
-			user: getCorrectUser(t),
-			mockBehavior: func(au *artistMocks.MockUsecase, userID uint32) {
-				au.EXPECT().GetLikedByUser(userID).Return(expectedReturnArtists, nil)
-			},
-			expectedStatus:   http.StatusOK,
-			expectedResponse: correctResponse,
-		},
-		{
-			name: "Artists Issue",
-			user: getCorrectUser(t),
-			mockBehavior: func(au *artistMocks.MockUsecase, userID uint32) {
-				au.EXPECT().GetLikedByUser(userID).Return(nil, errors.New(""))
-			},
-			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "can't get favorite artists"}`,
-		},
-	}
-
-	for _, tc := range testTable {
-		t.Run(tc.name, func(t *testing.T) {
-			// Call mock
-			tc.mockBehavior(aru, tc.user.ID)
-
-			commonTests.DeliveryTestGet(t, r, "/api/users/"+correctUserIDPath+"/artists", tc.expectedStatus, tc.expectedResponse,
 				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}

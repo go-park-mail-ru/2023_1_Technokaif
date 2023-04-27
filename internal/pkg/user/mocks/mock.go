@@ -50,6 +50,21 @@ func (mr *MockUsecaseMockRecorder) GetByID(userID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), userID)
 }
 
+// GetByPlaylist mocks base method.
+func (m *MockUsecase) GetByPlaylist(playlistID uint32) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByPlaylist", playlistID)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByPlaylist indicates an expected call of GetByPlaylist.
+func (mr *MockUsecaseMockRecorder) GetByPlaylist(playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPlaylist", reflect.TypeOf((*MockUsecase)(nil).GetByPlaylist), playlistID)
+}
+
 // UpdateInfo mocks base method.
 func (m *MockUsecase) UpdateInfo(user *models.User) error {
 	m.ctrl.T.Helper()
@@ -65,31 +80,17 @@ func (mr *MockUsecaseMockRecorder) UpdateInfo(user interface{}) *gomock.Call {
 }
 
 // UploadAvatar mocks base method.
-func (m *MockUsecase) UploadAvatar(user *models.User, file io.ReadSeeker, fileExtension string) error {
+func (m *MockUsecase) UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadAvatar", user, file, fileExtension)
+	ret := m.ctrl.Call(m, "UploadAvatar", userID, file, fileExtension)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadAvatar indicates an expected call of UploadAvatar.
-func (mr *MockUsecaseMockRecorder) UploadAvatar(user, file, fileExtension interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) UploadAvatar(userID, file, fileExtension interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockUsecase)(nil).UploadAvatar), user, file, fileExtension)
-}
-
-// UploadAvatarWrongFormatError mocks base method.
-func (m *MockUsecase) UploadAvatarWrongFormatError() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadAvatarWrongFormatError")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UploadAvatarWrongFormatError indicates an expected call of UploadAvatarWrongFormatError.
-func (mr *MockUsecaseMockRecorder) UploadAvatarWrongFormatError() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatarWrongFormatError", reflect.TypeOf((*MockUsecase)(nil).UploadAvatarWrongFormatError))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockUsecase)(nil).UploadAvatar), userID, file, fileExtension)
 }
 
 // MockRepository is a mock of Repository interface.
@@ -113,6 +114,20 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// Check mocks base method.
+func (m *MockRepository) Check(userID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Check", userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Check indicates an expected call of Check.
+func (mr *MockRepositoryMockRecorder) Check(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockRepository)(nil).Check), userID)
 }
 
 // CreateUser mocks base method.
@@ -145,6 +160,21 @@ func (mr *MockRepositoryMockRecorder) GetByID(userID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepository)(nil).GetByID), userID)
 }
 
+// GetByPlaylist mocks base method.
+func (m *MockRepository) GetByPlaylist(playlistID uint32) ([]models.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByPlaylist", playlistID)
+	ret0, _ := ret[0].([]models.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByPlaylist indicates an expected call of GetByPlaylist.
+func (mr *MockRepositoryMockRecorder) GetByPlaylist(playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPlaylist", reflect.TypeOf((*MockRepository)(nil).GetByPlaylist), playlistID)
+}
+
 // GetUserByUsername mocks base method.
 func (m *MockRepository) GetUserByUsername(username string) (*models.User, error) {
 	m.ctrl.T.Helper()
@@ -158,6 +188,20 @@ func (m *MockRepository) GetUserByUsername(username string) (*models.User, error
 func (mr *MockRepositoryMockRecorder) GetUserByUsername(username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByUsername", reflect.TypeOf((*MockRepository)(nil).GetUserByUsername), username)
+}
+
+// UpdateAvatarSrc mocks base method.
+func (m *MockRepository) UpdateAvatarSrc(userID uint32, avatarSrc string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAvatarSrc", userID, avatarSrc)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAvatarSrc indicates an expected call of UpdateAvatarSrc.
+func (mr *MockRepositoryMockRecorder) UpdateAvatarSrc(userID, avatarSrc interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAvatarSrc", reflect.TypeOf((*MockRepository)(nil).UpdateAvatarSrc), userID, avatarSrc)
 }
 
 // UpdateInfo mocks base method.
@@ -209,4 +253,18 @@ func (m *MockTables) Users() string {
 func (mr *MockTablesMockRecorder) Users() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Users", reflect.TypeOf((*MockTables)(nil).Users))
+}
+
+// UsersPlaylists mocks base method.
+func (m *MockTables) UsersPlaylists() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UsersPlaylists")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// UsersPlaylists indicates an expected call of UsersPlaylists.
+func (mr *MockTablesMockRecorder) UsersPlaylists() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UsersPlaylists", reflect.TypeOf((*MockTables)(nil).UsersPlaylists))
 }

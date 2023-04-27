@@ -15,11 +15,14 @@ type Usecase interface {
 	GetLikedByUser(userID uint32) ([]models.Artist, error)
 	SetLike(artistID, userID uint32) (bool, error)
 	UnLike(artistID, userID uint32) (bool, error)
-	// GetListens(artistID uint32) (uint32, error)
+	IsLiked(artistID, userID uint32) (bool, error)
 }
 
 // Repository includes DBMS-relatable methods to work with artists
 type Repository interface {
+	// Check returns models.NoSuchArtistError if album-entry with given ID doesn't exist in DB
+	Check(artistID uint32) error
+
 	// Insert creates new entry of artist in DB with given model
 	Insert(artist models.Artist) (uint32, error)
 
@@ -30,7 +33,7 @@ type Repository interface {
 	DeleteByID(artistID uint32) error
 
 	// GetFeed returns artist entries with biggest amount of likes per some duration
-	GetFeed() ([]models.Artist, error)
+	GetFeed(amountLimit int) ([]models.Artist, error)
 
 	// GetByAlbum returns all artist entries related with album entry with given ID
 	GetByAlbum(albumID uint32) ([]models.Artist, error)
@@ -45,11 +48,7 @@ type Repository interface {
 
 	DeleteLike(artistID, userID uint32) (bool, error)
 
-	// GetLikes returns total likes related with artist with given ID
-	// GetLikes(artistID uint 32) (uint32, error)
-
-	// GetListens returns total listens of all track entries related with artist with given ID
-	// GetListens(artistID uint32) (uint64, error)
+	IsLiked(artistID, userID uint32) (bool, error)
 }
 
 // Tables includes methods which return needed tables

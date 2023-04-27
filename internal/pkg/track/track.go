@@ -11,6 +11,7 @@ type Usecase interface {
 	Delete(trackID uint32, userID uint32) error
 	GetFeed() ([]models.Track, error)
 	GetByAlbum(albumID uint32) ([]models.Track, error)
+	GetByPlaylist(playlistID uint32) ([]models.Track, error)
 	GetByArtist(artistID uint32) ([]models.Track, error)
 	GetLikedByUser(userID uint32) ([]models.Track, error)
 	SetLike(trackID, userID uint32) (bool, error)
@@ -20,11 +21,14 @@ type Usecase interface {
 
 // Repository includes DBMS-relatable methods to work with tracks
 type Repository interface {
+	// Check returns models.NoSuchTrackError if track-entry with given ID doesn't exist in DB
+	Check(trackID uint32) error
 	Insert(track models.Track, artistsID []uint32) (uint32, error)
 	GetByID(trackID uint32) (*models.Track, error)
 	DeleteByID(trackID uint32) error
-	GetFeed() ([]models.Track, error)
+	GetFeed(amountLimit int) ([]models.Track, error)
 	GetByAlbum(albumID uint32) ([]models.Track, error)
+	GetByPlaylist(playlistID uint32) ([]models.Track, error)
 	GetByArtist(artistID uint32) ([]models.Track, error)
 	GetLikedByUser(userID uint32) ([]models.Track, error)
 	InsertLike(trackID, userID uint32) (bool, error)
@@ -37,5 +41,6 @@ type Repository interface {
 type Tables interface {
 	Tracks() string
 	ArtistsTracks() string
+	PlaylistsTracks() string
 	LikedTracks() string
 }

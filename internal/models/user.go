@@ -39,7 +39,7 @@ type UserTransfer struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Sex       Sex    `json:"sex"`
-	BirhDate  Date   `json:"birthDate"`
+	BirthDate Date   `json:"birthDate,omitempty"`
 	AvatarSrc string `json:"avatarSrc,omitempty"`
 }
 
@@ -54,7 +54,7 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 	return err
 }
 
-func UserTransferFromUser(user User) UserTransfer {
+func UserTransferFromEntry(user User) UserTransfer {
 	return UserTransfer{
 		ID:        user.ID,
 		Username:  user.Username,
@@ -62,7 +62,16 @@ func UserTransferFromUser(user User) UserTransfer {
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Sex:       user.Sex,
-		BirhDate:  user.BirthDate,
+		BirthDate: user.BirthDate,
 		AvatarSrc: user.AvatarSrc,
 	}
+}
+
+func UserTransferFromQuery(users []User) []UserTransfer {
+	userTransfers := make([]UserTransfer, 0, len(users))
+	for _, u := range users {
+		userTransfers = append(userTransfers, UserTransferFromEntry(u))
+	}
+
+	return userTransfers
 }

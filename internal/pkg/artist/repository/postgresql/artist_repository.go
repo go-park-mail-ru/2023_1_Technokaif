@@ -28,6 +28,28 @@ func NewPostgreSQL(db *sqlx.DB, t artist.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
+func (p *PostgreSQL) Check(artistID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Artists())
+
+	var exists bool
+	err := p.db.Get(&exists, query, artistID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchArtistError{ArtistID: artistID}, err)
+	}
+
+	return nil
+}
+
 func (p *PostgreSQL) Insert(artist models.Artist) (uint32, error) {
 	query := fmt.Sprintf(
 		`INSERT INTO %s (user_id, name, avatar_src) 
@@ -75,7 +97,11 @@ func (p *PostgreSQL) DeleteByID(artistID uint32) error {
 	if err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
-	deleted, _ := resExec.RowsAffected() // postgres 100% supports rowsAffected, so no error
+	deleted, err := resExec.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("(repo) failed to check affected rows: %w", err)
+	}
+
 	if deleted == 0 {
 		return fmt.Errorf("(repo): %w", &models.NoSuchArtistError{ArtistID: artistID})
 	}
@@ -83,15 +109,15 @@ func (p *PostgreSQL) DeleteByID(artistID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed() ([]models.Artist, error) {
+func (p *PostgreSQL) GetFeed(amountLimit int) ([]models.Artist, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, avatar_src  
 		FROM %s 
-		LIMIT 100;`,
+		LIMIT $1;`,
 		p.tables.Artists())
 
 	var artists []models.Artist
-	if err := p.db.Select(&artists, query); err != nil {
+	if err := p.db.Select(&artists, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -204,4 +230,22 @@ func (p *PostgreSQL) DeleteLike(artistID, userID uint32) (bool, error) {
 	} else {
 		return true, nil
 	}
+}
+
+func (p *PostgreSQL) IsLiked(artistID, userID uint32) (bool, error) {
+	query := fmt.Sprintf(
+		`SELECT CASE WHEN 
+			EXISTS(SELECT *
+				FROM %s
+				WHERE artist_id = $1 AND user_id = $2
+			) THEN TRUE ELSE FALSE END;`,
+		p.tables.LikedArtists())
+
+	var isLiked bool
+	err := p.db.Get(&isLiked, query, artistID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(repo) failed to check if artist is liked by user: %w", err)
+	}
+
+	return isLiked, nil
 }

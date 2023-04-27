@@ -1,4 +1,4 @@
-package common
+package file
 
 import (
 	"errors"
@@ -17,15 +17,15 @@ func CheckMimeType(file io.ReadSeeker, correctTypes ...string) (string, error) {
 		return "", err
 	}
 
+	if _, err = file.Seek(curPosition, io.SeekStart); err != nil { // go back to curPosition
+		return "", err
+	}
+
 	fileType := http.DetectContentType(fileHeader[:])
 	for _, correctType := range correctTypes {
 		if correctType == fileType {
 			return fileType, nil
 		}
-	}
-
-	if _, err = file.Seek(curPosition, io.SeekStart); err != nil { // go back to curPosition
-		return "", err
 	}
 
 	return fileType, errors.New("incorrect type")

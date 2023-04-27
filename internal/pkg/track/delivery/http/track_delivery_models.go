@@ -9,6 +9,24 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+// Response messages
+const (
+	albumNotFound    = "no such album"
+	artistNotFound   = "no such artist"
+	playlistNotFound = "no such playlist"
+	trackNotFound    = "no such track"
+
+	trackCreateNorights = "no rights to create track"
+	trackDeleteNoRights = "no rights to delete track"
+
+	trackCreateServerError = "can't create track"
+	trackGetServerError    = "can't get track"
+	tracksGetServerError   = "can't get tracks"
+	trackDeleteServerError = "can't delete track"
+
+	trackDeletedSuccessfully = "ok"
+)
+
 // Create
 type trackCreateInput struct {
 	Name          string   `json:"name" valid:"required"`
@@ -18,8 +36,8 @@ type trackCreateInput struct {
 	RecordSrc     string   `json:"record" valid:"required"`
 }
 
-func (t *trackCreateInput) validate() error {
-	t.Name = html.EscapeString(t.Name)
+func (t *trackCreateInput) validateAndEscape() error {
+	t.escapeHTML()
 
 	if (t.AlbumID == nil) != (t.AlbumPosition == nil) {
 		return errors.New("(delivery) albumID is nil while albumPosition isn't (or vice versa)")
@@ -28,6 +46,10 @@ func (t *trackCreateInput) validate() error {
 	_, err := valid.ValidateStruct(t)
 
 	return err
+}
+
+func (t *trackCreateInput) escapeHTML() {
+	t.Name = html.EscapeString(t.Name)
 }
 
 func (tci *trackCreateInput) ToTrack() models.Track {

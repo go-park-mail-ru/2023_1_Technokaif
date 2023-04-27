@@ -59,7 +59,7 @@ func TestDeliveryGetCSRF(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(t *tokenMocks.MockUsecase, u *models.User) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: `{"message": "invalid access token"}`,
+			expectedResponse: commonTests.ErrorResponse(invalidAccessToken),
 			doWrap:           false,
 		},
 		{
@@ -67,7 +67,7 @@ func TestDeliveryGetCSRF(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(t *tokenMocks.MockUsecase, u *models.User) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: `{"message": "invalid access token"}`,
+			expectedResponse: commonTests.ErrorResponse(invalidAccessToken),
 			doWrap:           true,
 		},
 		{
@@ -77,7 +77,7 @@ func TestDeliveryGetCSRF(t *testing.T) {
 				t.EXPECT().GenerateCSRFToken(u.ID).Return(expectedDefaultCSRF, errors.New("server token error"))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: `{"message": "failed to get CSRF-token"}`,
+			expectedResponse: commonTests.ErrorResponse(csrfGetError),
 			doWrap:           true,
 		},
 	}

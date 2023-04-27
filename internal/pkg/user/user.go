@@ -12,27 +12,38 @@ import (
 type Usecase interface {
 	GetByID(userID uint32) (*models.User, error)
 	UpdateInfo(user *models.User) error
-	UploadAvatar(user *models.User, file io.ReadSeeker, fileExtension string) error
-	UploadAvatarWrongFormatError() error
+	UploadAvatar(userID uint32, file io.ReadSeeker, fileExtension string) error
+	GetByPlaylist(playlistID uint32) ([]models.User, error)
 }
 
 // Repository includes DBMS-relatable methods to work with users
 type Repository interface {
+	// Check returns models.NoSuchUserError if user-entry with given ID doesn't exist in DB
+	Check(userID uint32) error
+
+	// GetByID returns models.User of user-entry in DB with given ID
 	GetByID(userID uint32) (*models.User, error)
 
 	// CreateUser inserts new user into DB and return it's id
 	// or error if it already exists
 	CreateUser(user models.User) (uint32, error)
 
-	// Update info updates non-sensetive user info by given User
+	// UpdateInfo updates non-sensetive user info by given User
 	UpdateInfo(user *models.User) error
+
+	// UpdateAvatarSrc updates
+	UpdateAvatarSrc(userID uint32, avatarSrc string) error
 
 	// GetUserByUsername returns models.User if it's entry in DB exists or error otherwise
 	GetUserByUsername(username string) (*models.User, error)
+
+	// GetUserByPlaylist returns []models.User of users who are authors of playlist
+	GetByPlaylist(playlistID uint32) ([]models.User, error)
 }
 
 // Tables includes methods which return needed tables
 // to work with users on repository-layer
 type Tables interface {
 	Users() string
+	UsersPlaylists() string
 }

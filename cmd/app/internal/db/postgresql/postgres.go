@@ -86,28 +86,40 @@ func (pt PostgreSQLTables) Users() string {
 	return "Users"
 }
 
-func (pt PostgreSQLTables) Tracks() string {
-	return "Tracks"
-}
-
 func (pt PostgreSQLTables) Artists() string {
 	return "Artists"
 }
 
-func (pt PostgreSQLTables) Albums() string {
-	return "Albums"
+func (pt PostgreSQLTables) Tracks() string {
+	return "Tracks"
+}
+
+func (pt PostgreSQLTables) ArtistsTracks() string {
+	return "Artists_Tracks"
 }
 
 func (pt PostgreSQLTables) Listens() string {
 	return "Listens"
 }
 
+func (pt PostgreSQLTables) Albums() string {
+	return "Albums"
+}
+
 func (pt PostgreSQLTables) ArtistsAlbums() string {
 	return "Artists_Albums"
 }
 
-func (pt PostgreSQLTables) ArtistsTracks() string {
-	return "Artists_Tracks"
+func (pt PostgreSQLTables) Playlists() string {
+	return "Playlists"
+}
+
+func (pt PostgreSQLTables) UsersPlaylists() string {
+	return "Users_Playlists"
+}
+
+func (pt PostgreSQLTables) PlaylistsTracks() string {
+	return "Playlists_Tracks"
 }
 
 func (pt PostgreSQLTables) LikedAlbums() string {
@@ -120,4 +132,8 @@ func (pt PostgreSQLTables) LikedArtists() string {
 
 func (pt PostgreSQLTables) LikedTracks() string {
 	return "Liked_tracks"
+}
+
+func (pt PostgreSQLTables) LikedPlaylists() string {
+	return "Liked_playlists"
 }

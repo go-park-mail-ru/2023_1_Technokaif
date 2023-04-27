@@ -408,12 +408,13 @@ func TestTrackRepositoryGetFeed(t *testing.T) {
 		},
 	}
 
+	feedAmountLimit := 100
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.expectedTracks)
 
-			tr, err := repo.GetFeed()
+			tr, err := repo.GetFeed(feedAmountLimit)
 
 			// Test
 			if tc.expectError {

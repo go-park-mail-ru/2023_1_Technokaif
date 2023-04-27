@@ -12,6 +12,20 @@ import (
 const MaxAvatarMemory = 5 << 20
 const avatarFormKey = "avatar"
 
+const (
+	userNotFound = "no such user"
+
+	userGetServerError          = "can't get user"
+	userUpdateInfoServerError   = "can't update user info"
+	userAvatarUploadServerError = "can't upload avatar"
+
+	userAvatarUploadInvalidData     = "invalid avatar data"
+	userAvatarUploadInvalidDataType = "invalid avatar data type"
+
+	userUpdatedInfoSuccessfully    = "ok"
+	userAvatarUploadedSuccessfully = "ok"
+)
+
 type userUploadAvatarResponse struct {
 	Status string `json:"status"`
 }
@@ -25,14 +39,18 @@ type userInfoInput struct {
 	BirthDate models.Date `json:"birthDate" valid:"required,born"`
 }
 
-func (ui *userInfoInput) validate() error {
-	ui.Email = html.EscapeString(ui.Email)
-	ui.FirstName = html.EscapeString(ui.FirstName)
-	ui.LastName = html.EscapeString(ui.LastName)
+func (ui *userInfoInput) validateAndEscape() error {
+	ui.escapeHtml()
 
 	_, err := valid.ValidateStruct(*ui)
 
 	return err
+}
+
+func (ui *userInfoInput) escapeHtml() {
+	ui.Email = html.EscapeString(ui.Email)
+	ui.FirstName = html.EscapeString(ui.FirstName)
+	ui.LastName = html.EscapeString(ui.LastName)
 }
 
 func (ui *userInfoInput) ToUser(user *models.User) *models.User {

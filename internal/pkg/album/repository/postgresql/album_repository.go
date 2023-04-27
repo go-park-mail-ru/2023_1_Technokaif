@@ -11,6 +11,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+
+	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
 
 // PostgreSQL implements album.Repository
@@ -28,18 +30,34 @@ func NewPostgreSQL(db *sqlx.DB, t album.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (_ uint32, err error) {
+func (p *PostgreSQL) Check(albumID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Albums())
+
+	var exists bool
+	err := p.db.Get(&exists, query, albumID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) Insert(album models.Album, artistsID []uint32) (_ uint32, repoErr error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	insertAlbumQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, description, cover_src)
@@ -97,7 +115,11 @@ func (p *PostgreSQL) DeleteByID(albumID uint32) error {
 	if err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
-	deleted, _ := resExec.RowsAffected() // postgres 100% supports rowsAffected, so no error
+	deleted, err := resExec.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
+	}
+
 	if deleted == 0 {
 		return fmt.Errorf("(repo): %w", &models.NoSuchAlbumError{AlbumID: albumID})
 	}
@@ -105,15 +127,15 @@ func (p *PostgreSQL) DeleteByID(albumID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed() ([]models.Album, error) {
+func (p *PostgreSQL) GetFeed(amountLimit int) ([]models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src  
 		FROM %s 
-		LIMIT 100;`,
+		LIMIT $1;`,
 		p.tables.Albums())
 
 	var albums []models.Album
-	if err := p.db.Select(&albums, query); err != nil {
+	if err := p.db.Select(&albums, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -225,4 +247,22 @@ func (p *PostgreSQL) DeleteLike(albumID, userID uint32) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func (p *PostgreSQL) IsLiked(albumID, userID uint32) (bool, error) {
+	query := fmt.Sprintf(
+		`SELECT CASE WHEN 
+			EXISTS(SELECT *
+				FROM %s
+				WHERE album_id = $1 AND user_id = $2
+			) THEN TRUE ELSE FALSE END;`,
+		p.tables.LikedAlbums())
+
+	var isLiked bool
+	err := p.db.Get(&isLiked, query, albumID, userID)
+	if err != nil {
+		return false, fmt.Errorf("(repo) failed to check if album is liked by user: %w", err)
+	}
+
+	return isLiked, nil
 }

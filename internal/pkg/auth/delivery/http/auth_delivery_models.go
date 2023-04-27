@@ -7,6 +7,26 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+// Response messages
+const (
+	userNotFound = "no such user"
+
+	userAlreadyExists = "user already exists"
+	passwordMismatch  = "incorrect password"
+	invalidToken      = "invalidToken"
+	userForbidden     = "forbidden"
+
+	userSignUpServerError    = "can't sign up user"
+	userLoginServerError     = "can't login user"
+	userLogoutServerError    = "can't log out user"
+	userGetServerError       = "can't get user"
+	userChangePasswordError  = "can't change password"
+	tokenGenerateServerError = "can't generate new token"
+
+	userLogedOutSuccessfully        = "ok"
+	userChangedPasswordSuccessfully = "ok"
+)
+
 // Signup
 type signUpResponse struct {
 	ID uint32 `json:"id"`
@@ -18,13 +38,17 @@ type loginInput struct {
 	Password string `json:"password" valid:"required"`
 }
 
-func (li *loginInput) validate() error {
-	li.Username = html.EscapeString(li.Username)
-	li.Password = html.EscapeString(li.Password)
+func (li *loginInput) validateAndEscape() error {
+	li.escapeHtml()
 
 	_, err := valid.ValidateStruct(*li)
 
 	return err
+}
+
+func (li *loginInput) escapeHtml() {
+	li.Username = html.EscapeString(li.Username)
+	li.Password = html.EscapeString(li.Password)
 }
 
 type loginResponse struct {

@@ -108,6 +108,21 @@ func (mr *MockUsecaseMockRecorder) GetByID(trackID interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), trackID)
 }
 
+// GetByPlaylist mocks base method.
+func (m *MockUsecase) GetByPlaylist(playlistID uint32) ([]models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByPlaylist", playlistID)
+	ret0, _ := ret[0].([]models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByPlaylist indicates an expected call of GetByPlaylist.
+func (mr *MockUsecaseMockRecorder) GetByPlaylist(playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPlaylist", reflect.TypeOf((*MockUsecase)(nil).GetByPlaylist), playlistID)
+}
+
 // GetFeed mocks base method.
 func (m *MockUsecase) GetFeed() ([]models.Track, error) {
 	m.ctrl.T.Helper()
@@ -206,6 +221,20 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Check mocks base method.
+func (m *MockRepository) Check(trackID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Check", trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Check indicates an expected call of Check.
+func (mr *MockRepositoryMockRecorder) Check(trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockRepository)(nil).Check), trackID)
+}
+
 // DeleteByID mocks base method.
 func (m *MockRepository) DeleteByID(trackID uint32) error {
 	m.ctrl.T.Helper()
@@ -280,19 +309,34 @@ func (mr *MockRepositoryMockRecorder) GetByID(trackID interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepository)(nil).GetByID), trackID)
 }
 
-// GetFeed mocks base method.
-func (m *MockRepository) GetFeed() ([]models.Track, error) {
+// GetByPlaylist mocks base method.
+func (m *MockRepository) GetByPlaylist(playlistID uint32) ([]models.Track, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed")
+	ret := m.ctrl.Call(m, "GetByPlaylist", playlistID)
+	ret0, _ := ret[0].([]models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByPlaylist indicates an expected call of GetByPlaylist.
+func (mr *MockRepositoryMockRecorder) GetByPlaylist(playlistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByPlaylist", reflect.TypeOf((*MockRepository)(nil).GetByPlaylist), playlistID)
+}
+
+// GetFeed mocks base method.
+func (m *MockRepository) GetFeed(amountLimit int) ([]models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFeed", amountLimit)
 	ret0, _ := ret[0].([]models.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockRepositoryMockRecorder) GetFeed() *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetFeed(amountLimit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), amountLimit)
 }
 
 // GetLikedByUser mocks base method.
@@ -404,6 +448,20 @@ func (m *MockTables) LikedTracks() string {
 func (mr *MockTablesMockRecorder) LikedTracks() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LikedTracks", reflect.TypeOf((*MockTables)(nil).LikedTracks))
+}
+
+// PlaylistsTracks mocks base method.
+func (m *MockTables) PlaylistsTracks() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PlaylistsTracks")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// PlaylistsTracks indicates an expected call of PlaylistsTracks.
+func (mr *MockTablesMockRecorder) PlaylistsTracks() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlaylistsTracks", reflect.TypeOf((*MockTables)(nil).PlaylistsTracks))
 }
 
 // Tracks mocks base method.

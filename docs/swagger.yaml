@@ -7,7 +7,7 @@ definitions:
     type: object
   http.albumCreateInput:
     properties:
-      artistsID:
+      artists:
         items:
           type: integer
         type: array
@@ -55,6 +55,11 @@ definitions:
       status:
         type: string
     type: object
+  http.defaultResponse:
+    properties:
+      status:
+        type: string
+    type: object
   http.loginInput:
     properties:
       password:
@@ -64,13 +69,40 @@ definitions:
     type: object
   http.loginResponse:
     properties:
-      jwt:
-        type: string
+      id:
+        type: integer
     type: object
   http.logoutResponse:
     properties:
       status:
         type: string
+    type: object
+  http.playlistCreateInput:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      users:
+        items:
+          type: integer
+        type: array
+    type: object
+  http.playlistCreateResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  http.playlistUpdateInput:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      users:
+        items:
+          type: integer
+        type: array
     type: object
   http.signUpResponse:
     properties:
@@ -87,8 +119,6 @@ definitions:
         items:
           type: integer
         type: array
-      cover:
-        type: string
       name:
         type: string
       record:
@@ -139,6 +169,8 @@ definitions:
         type: string
       id:
         type: integer
+      isLiked:
+        type: boolean
       name:
         type: string
     type: object
@@ -148,6 +180,8 @@ definitions:
         type: string
       id:
         type: integer
+      isLiked:
+        type: boolean
       name:
         type: string
     type: object
@@ -155,6 +189,23 @@ definitions:
     properties:
       time.Time:
         type: string
+    type: object
+  models.PlaylistTransfer:
+    properties:
+      cover:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      isLiked:
+        type: boolean
+      name:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/models.UserTransfer'
+        type: array
     type: object
   models.Sex:
     enum:
@@ -180,15 +231,19 @@ definitions:
         type: string
       id:
         type: integer
+      isLiked:
+        type: boolean
       listens:
         type: integer
       name:
         type: string
-      record:
+      recordSrc:
         type: string
     type: object
   models.User:
     properties:
+      avatarSrc:
+        type: string
       birthDate:
         $ref: '#/definitions/models.Date'
       email:
@@ -206,7 +261,7 @@ definitions:
     type: object
   models.UserTransfer:
     properties:
-      avatar:
+      avatarSrc:
         type: string
       birthDate:
         $ref: '#/definitions/models.Date'
@@ -696,6 +751,321 @@ paths:
       summary: Sign Up
       tags:
       - Auth
+  /api/playlists/:
+    post:
+      consumes:
+      - application/json
+      description: Create new playlist by sent object
+      parameters:
+      - description: Playlist info
+        in: body
+        name: playlist
+        required: true
+        schema:
+          $ref: '#/definitions/http.playlistCreateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlist created
+          schema:
+            $ref: '#/definitions/http.playlistCreateResponse'
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Create Playlist
+      tags:
+      - Playlist
+  /api/playlists/{playlistID}/:
+    delete:
+      description: Delete playlist with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlist deleted
+          schema:
+            $ref: '#/definitions/http.defaultResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Delete Playlist
+      tags:
+      - Playlist
+    get:
+      description: Get playlist with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlist got
+          schema:
+            $ref: '#/definitions/models.PlaylistTransfer'
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Get Playlist
+      tags:
+      - Playlist
+  /api/playlists/{playlistID}/cover:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Update playlist cover
+      parameters:
+      - description: Cover file
+        in: formData
+        name: cover
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Cover updated
+          schema:
+            $ref: '#/definitions/http.defaultResponse'
+        "400":
+          description: Invalid form data
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User Unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Upload Cover
+      tags:
+      - Playlist
+  /api/playlists/{playlistID}/like:
+    post:
+      description: Set like by user to chosen playlist (add to favorite)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like set
+          schema:
+            $ref: '#/definitions/http.defaultResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Set like
+      tags:
+      - Playlist
+  /api/playlists/{playlistID}/tracks:
+    get:
+      description: All tracks of playlist with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Show tracks
+          schema:
+            items:
+              $ref: '#/definitions/models.TrackTransfer'
+            type: array
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Tracks of Playlist
+      tags:
+      - Playlist
+  /api/playlists/{playlistID}/tracks/{trackID}:
+    delete:
+      description: Delete track from playlist
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Track deleted
+          schema:
+            $ref: '#/definitions/http.playlistCreateResponse'
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Delete Track
+      tags:
+      - Playlist
+    post:
+      description: Add track into playlist
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Track added
+          schema:
+            $ref: '#/definitions/http.playlistCreateResponse'
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Add Track
+      tags:
+      - Playlist
+  /api/playlists/{playlistID}/unlike:
+    post:
+      description: Remove like by user from chosen playlist (remove from favorite)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like removed
+          schema:
+            $ref: '#/definitions/http.defaultResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Remove like
+      tags:
+      - Playlist
+  /api/playlists/{playlistID}/update:
+    post:
+      consumes:
+      - application/json
+      description: Update playlist
+      parameters:
+      - description: Playlist info
+        in: body
+        name: playlist
+        required: true
+        schema:
+          $ref: '#/definitions/http.playlistUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlist updated
+          schema:
+            $ref: '#/definitions/http.defaultResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: User hasn't rights
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Update Playlist
+      tags:
+      - Playlist
+  /api/playlists/feed:
+    get:
+      description: Feed playlists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlist feed
+          schema:
+            items:
+              $ref: '#/definitions/models.PlaylistTransfer'
+            type: array
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Playlist Feed
+      tags:
+      - Feed
   /api/tracks/:
     post:
       consumes:
@@ -879,72 +1249,10 @@ paths:
           schema:
             $ref: '#/definitions/http.Error'
         "500":
-          description: Server error
+          description: Can't get user
           schema:
             $ref: '#/definitions/http.Error'
       summary: Get User
-      tags:
-      - User
-  /api/users/{userID}/albums:
-    get:
-      description: Get user's favorite albums
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Albums got
-          schema:
-            items:
-              $ref: '#/definitions/models.AlbumTransfer'
-            type: array
-        "400":
-          description: Incorrect input
-          schema:
-            $ref: '#/definitions/http.Error'
-        "401":
-          description: Unauthorized user
-          schema:
-            $ref: '#/definitions/http.Error'
-        "403":
-          description: Forbidden user
-          schema:
-            $ref: '#/definitions/http.Error'
-        "500":
-          description: Server error
-          schema:
-            $ref: '#/definitions/http.Error'
-      summary: Favorite Albums
-      tags:
-      - User
-  /api/users/{userID}/artists:
-    get:
-      description: Get user's favorite artists
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Artists got
-          schema:
-            items:
-              $ref: '#/definitions/models.ArtistTransfer'
-            type: array
-        "400":
-          description: Incorrect input
-          schema:
-            $ref: '#/definitions/http.Error'
-        "401":
-          description: Unauthorized user
-          schema:
-            $ref: '#/definitions/http.Error'
-        "403":
-          description: Forbidden user
-          schema:
-            $ref: '#/definitions/http.Error'
-        "500":
-          description: Server error
-          schema:
-            $ref: '#/definitions/http.Error'
-      summary: Favorite Artists
       tags:
       - User
   /api/users/{userID}/avatar:
@@ -984,9 +1292,102 @@ paths:
       summary: Upload Avatar
       tags:
       - User
-  /api/users/{userID}/tracks:
+  /api/users/{userID}/favorite/albums:
     get:
-      description: Get ser's avorite racks
+      description: Get user's favorite albums
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Albums got
+          schema:
+            items:
+              $ref: '#/definitions/models.AlbumTransfer'
+            type: array
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: Forbidden user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Favorite Albums
+      tags:
+      - Favorite
+  /api/users/{userID}/favorite/artists:
+    get:
+      description: Get user's favorite artists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Artists got
+          schema:
+            items:
+              $ref: '#/definitions/models.ArtistTransfer'
+            type: array
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: Forbidden user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Favorite Artists
+      tags:
+      - Favorite
+  /api/users/{userID}/favorite/playlists:
+    get:
+      description: Get user's favorite playlists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlists got
+          schema:
+            items:
+              $ref: '#/definitions/models.PlaylistTransfer'
+            type: array
+        "400":
+          description: Incorrect input
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: Unauthorized user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "403":
+          description: Forbidden user
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Favorite Playlists
+      tags:
+      - Favorite
+  /api/users/{userID}/favorite/tracks:
+    get:
+      description: Get ser's avorite tracks
       produces:
       - application/json
       responses:
@@ -1013,6 +1414,29 @@ paths:
           schema:
             $ref: '#/definitions/http.Error'
       summary: Favorite Tracks
+      tags:
+      - Favorite
+  /api/users/{userID}/playlists:
+    get:
+      description: All playlists of user with chosen ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Show playlists
+          schema:
+            items:
+              $ref: '#/definitions/models.PlaylistTransfer'
+            type: array
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Playlists of User
       tags:
       - User
   /api/users/{userID}/update:
@@ -1047,7 +1471,7 @@ paths:
           schema:
             $ref: '#/definitions/http.Error'
         "500":
-          description: Server error
+          description: Can't change user info
           schema:
             $ref: '#/definitions/http.Error'
       summary: Update Info

@@ -138,6 +138,21 @@ func (mr *MockUsecaseMockRecorder) GetLikedByUser(userID interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockUsecase)(nil).GetLikedByUser), userID)
 }
 
+// IsLiked mocks base method.
+func (m *MockUsecase) IsLiked(artistID, userID uint32) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsLiked", artistID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsLiked indicates an expected call of IsLiked.
+func (mr *MockUsecaseMockRecorder) IsLiked(artistID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockUsecase)(nil).IsLiked), artistID, userID)
+}
+
 // SetLike mocks base method.
 func (m *MockUsecase) SetLike(artistID, userID uint32) (bool, error) {
 	m.ctrl.T.Helper()
@@ -189,6 +204,20 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// Check mocks base method.
+func (m *MockRepository) Check(artistID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Check", artistID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Check indicates an expected call of Check.
+func (mr *MockRepositoryMockRecorder) Check(artistID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockRepository)(nil).Check), artistID)
 }
 
 // DeleteByID mocks base method.
@@ -266,18 +295,18 @@ func (mr *MockRepositoryMockRecorder) GetByTrack(trackID interface{}) *gomock.Ca
 }
 
 // GetFeed mocks base method.
-func (m *MockRepository) GetFeed() ([]models.Artist, error) {
+func (m *MockRepository) GetFeed(amountLimit int) ([]models.Artist, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed")
+	ret := m.ctrl.Call(m, "GetFeed", amountLimit)
 	ret0, _ := ret[0].([]models.Artist)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockRepositoryMockRecorder) GetFeed() *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetFeed(amountLimit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), amountLimit)
 }
 
 // GetLikedByUser mocks base method.
@@ -323,6 +352,21 @@ func (m *MockRepository) InsertLike(artistID, userID uint32) (bool, error) {
 func (mr *MockRepositoryMockRecorder) InsertLike(artistID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertLike", reflect.TypeOf((*MockRepository)(nil).InsertLike), artistID, userID)
+}
+
+// IsLiked mocks base method.
+func (m *MockRepository) IsLiked(artistID, userID uint32) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsLiked", artistID, userID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IsLiked indicates an expected call of IsLiked.
+func (mr *MockRepositoryMockRecorder) IsLiked(artistID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockRepository)(nil).IsLiked), artistID, userID)
 }
 
 // MockTables is a mock of Tables interface.

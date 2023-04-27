@@ -11,6 +11,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+
+	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
 
 // PostgreSQL implements track.Repository
@@ -28,18 +30,34 @@ func NewPostgreSQL(db *sqlx.DB, t track.Tables, l logger.Logger) *PostgreSQL {
 	}
 }
 
-func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, err error) {
+func (p *PostgreSQL) Check(trackID uint32) error {
+	query := fmt.Sprintf(
+		`SELECT EXISTS(
+			SELECT id
+			FROM %s
+			WHERE id = $1
+		);`,
+		p.tables.Tracks())
+
+	var exists bool
+	err := p.db.Get(&exists, query, trackID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	if !exists {
+		return fmt.Errorf("(repo) %w: %w", &models.NoSuchTrackError{TrackID: trackID}, err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) Insert(track models.Track, artistsID []uint32) (_ uint32, repoErr error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("(repo) failed to begin transaction: %w", err)
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
+	defer commonSQL.CheckTransaction(tx, &repoErr)
 
 	insertTrackQuery := fmt.Sprintf(
 		`INSERT INTO %s (name, album_id, album_position, cover_src, record_src) 
@@ -98,7 +116,11 @@ func (p *PostgreSQL) DeleteByID(trackID uint32) error {
 	if err != nil {
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
-	deleted, _ := resExec.RowsAffected() // postgres 100% supports rowsAffected, so no error
+	deleted, err := resExec.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("(repo) failed to check RowsAffected: %w", err)
+	}
+
 	if deleted == 0 {
 		return fmt.Errorf("(repo): %w", &models.NoSuchTrackError{TrackID: trackID})
 	}
@@ -106,15 +128,15 @@ func (p *PostgreSQL) DeleteByID(trackID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed() ([]models.Track, error) {
+func (p *PostgreSQL) GetFeed(amountLimit int) ([]models.Track, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, album_id, cover_src, record_src, listens
 		FROM %s 
-		LIMIT 100;`,
+		LIMIT $1;`,
 		p.tables.Tracks())
 
 	var tracks []models.Track
-	if err := p.db.Select(&tracks, query); err != nil {
+	if err := p.db.Select(&tracks, query, amountLimit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -133,6 +155,26 @@ func (p *PostgreSQL) GetByAlbum(albumID uint32) ([]models.Track, error) {
 	if err := p.db.Select(&tracks, query, albumID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchAlbumError{AlbumID: albumID}, err)
+		}
+
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return tracks, nil
+}
+func (p *PostgreSQL) GetByPlaylist(playlistID uint32) ([]models.Track, error) {
+	query := fmt.Sprintf(
+		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens
+		FROM %s t
+			INNER JOIN %s pt ON t.id = pt.track_id 
+		WHERE pt.playlist_id = $1
+		ORDER BY pt.added_at;`,
+		p.tables.Tracks(), p.tables.PlaylistsTracks())
+
+	var tracks []models.Track
+	if err := p.db.Select(&tracks, query, playlistID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("(repo) %w: %w", &models.NoSuchPlaylistError{PlaylistID: playlistID}, err)
 		}
 
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)

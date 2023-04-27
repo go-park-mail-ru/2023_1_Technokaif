@@ -396,12 +396,13 @@ func TestAlbumRepositoryGetFeed(t *testing.T) {
 		},
 	}
 
+	feedAmountLimit := 100
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.expectedAlbums)
 
-			a, err := repo.GetFeed()
+			a, err := repo.GetFeed(feedAmountLimit)
 
 			// Test
 			if tc.expectError {
