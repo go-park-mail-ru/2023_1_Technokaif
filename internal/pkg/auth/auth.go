@@ -25,15 +25,6 @@ type Usecase interface {
 	ChangePassword(ctx context.Context, userID uint32, password string) error
 }
 
-// Agent ...
-type Agent interface {
-	SignUpUser(ctx context.Context, user models.User) (uint32, error)
-	GetUserByCreds(ctx context.Context, username, plainPassword string) (*models.User, error)
-	GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error)
-	IncreaseUserVersion(ctx context.Context, userID uint32) error
-	ChangePassword(ctx context.Context, userID uint32, password string) error
-}
-
 // Repository includes DBMS-relatable methods to work with authentication
 type Repository interface {
 	GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error)

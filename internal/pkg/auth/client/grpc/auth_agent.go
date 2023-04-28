@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/microservice/grpc/proto"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/auth/proto/generated"
 )
 
 type AuthAgent struct {
