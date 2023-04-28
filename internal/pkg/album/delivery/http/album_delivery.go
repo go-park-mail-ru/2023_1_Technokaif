@@ -98,6 +98,13 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			albumGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
 	album, err := h.albumServices.GetByID(r.Context(), albumID)
 	if err != nil {
 		var errNoSuchAlbum *models.NoSuchAlbumError
@@ -107,13 +114,6 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		commonHTTP.ErrorResponseWithErrLogging(w, r,
-			albumGetServerError, http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	user, err := commonHTTP.GetUserFromRequest(r)
-	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			albumGetServerError, http.StatusInternalServerError, h.logger, err)
 		return

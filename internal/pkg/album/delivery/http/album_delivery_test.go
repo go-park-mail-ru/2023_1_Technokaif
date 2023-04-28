@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
@@ -80,7 +80,7 @@ func TestAlbumDeliveryHTTP_Create(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name: "Incorrect JSON",
@@ -93,7 +93,7 @@ func TestAlbumDeliveryHTTP_Create(t *testing.T) {
 			}`,
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
 		},
 		{
 			name: "Incorrect Body (no name)",
@@ -105,7 +105,7 @@ func TestAlbumDeliveryHTTP_Create(t *testing.T) {
 			}`,
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
 		},
 		{
 			name:        "User Has No Rights",
@@ -225,7 +225,7 @@ func TestAlbumDeliveryHTTP_Get(t *testing.T) {
 			albumIDPath:      "incorrect",
 			mockBehavior:     func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:        "No Album To Get",
@@ -317,7 +317,7 @@ func TestAlbumDeliveryHTTP_Delete(t *testing.T) {
 			albumIDPath:      "incorrect",
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:             "No User",
@@ -325,7 +325,7 @@ func TestAlbumDeliveryHTTP_Delete(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name:        "User Has No Rights",
@@ -698,7 +698,7 @@ func TestAlbumDeliveryHTTP_Like(t *testing.T) {
 				au.EXPECT().SetLike(gomock.Any(), correctAlbumID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: commonTests.OKResponse(commonHttp.LikeSuccess),
+			expectedResponse: commonTests.OKResponse(commonHTTP.LikeSuccess),
 		},
 		{
 			name:        "Already liked (Anyway Success)",
@@ -708,7 +708,7 @@ func TestAlbumDeliveryHTTP_Like(t *testing.T) {
 				au.EXPECT().SetLike(gomock.Any(), correctAlbumID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: commonTests.OKResponse(commonHttp.LikeAlreadyExists),
+			expectedResponse: commonTests.OKResponse(commonHTTP.LikeAlreadyExists),
 		},
 		{
 			name:             "Incorrect ID In Path",
@@ -716,7 +716,7 @@ func TestAlbumDeliveryHTTP_Like(t *testing.T) {
 			user:             &correctUser,
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:             "No User",
@@ -724,7 +724,7 @@ func TestAlbumDeliveryHTTP_Like(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name:        "No Album To Like",
@@ -748,7 +748,7 @@ func TestAlbumDeliveryHTTP_Like(t *testing.T) {
 				).Return(false, errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.SetLikeServerError),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.SetLikeServerError),
 		},
 	}
 
@@ -800,7 +800,7 @@ func TestAlbumDeliveryHTTP_UnLike(t *testing.T) {
 				au.EXPECT().UnLike(gomock.Any(), correctAlbumID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: commonTests.OKResponse(commonHttp.UnLikeSuccess),
+			expectedResponse: commonTests.OKResponse(commonHTTP.UnLikeSuccess),
 		},
 		{
 			name:        "Wasn't Liked (Anyway Success)",
@@ -810,7 +810,7 @@ func TestAlbumDeliveryHTTP_UnLike(t *testing.T) {
 				au.EXPECT().UnLike(gomock.Any(), correctAlbumID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: commonTests.OKResponse(commonHttp.LikeDoesntExist),
+			expectedResponse: commonTests.OKResponse(commonHTTP.LikeDoesntExist),
 		},
 		{
 			name:             "Incorrect ID In Path",
@@ -818,7 +818,7 @@ func TestAlbumDeliveryHTTP_UnLike(t *testing.T) {
 			user:             &correctUser,
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:             "No User",
@@ -826,7 +826,7 @@ func TestAlbumDeliveryHTTP_UnLike(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(au *albumMocks.MockUsecase) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name:        "No Album To Unlike",
@@ -850,7 +850,7 @@ func TestAlbumDeliveryHTTP_UnLike(t *testing.T) {
 				).Return(false, errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.DeleteLikeServerError),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.DeleteLikeServerError),
 		},
 	}
 

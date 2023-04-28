@@ -36,63 +36,63 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 }
 
 // FindAlbums mocks base method.
-func (m *MockUsecase) FindAlbums(ctx context.Context, query string) ([]models.Album, error) {
+func (m *MockUsecase) FindAlbums(ctx context.Context, query string, amount uint32) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAlbums", ctx, query)
+	ret := m.ctrl.Call(m, "FindAlbums", ctx, query, amount)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindAlbums indicates an expected call of FindAlbums.
-func (mr *MockUsecaseMockRecorder) FindAlbums(ctx, query interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) FindAlbums(ctx, query, amount interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAlbums", reflect.TypeOf((*MockUsecase)(nil).FindAlbums), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAlbums", reflect.TypeOf((*MockUsecase)(nil).FindAlbums), ctx, query, amount)
 }
 
 // FindArtists mocks base method.
-func (m *MockUsecase) FindArtists(ctx context.Context, query string) ([]models.Artist, error) {
+func (m *MockUsecase) FindArtists(ctx context.Context, query string, amount uint32) ([]models.Artist, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindArtists", ctx, query)
+	ret := m.ctrl.Call(m, "FindArtists", ctx, query, amount)
 	ret0, _ := ret[0].([]models.Artist)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindArtists indicates an expected call of FindArtists.
-func (mr *MockUsecaseMockRecorder) FindArtists(ctx, query interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) FindArtists(ctx, query, amount interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindArtists", reflect.TypeOf((*MockUsecase)(nil).FindArtists), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindArtists", reflect.TypeOf((*MockUsecase)(nil).FindArtists), ctx, query, amount)
 }
 
 // FindPlaylists mocks base method.
-func (m *MockUsecase) FindPlaylists(ctx context.Context, query string) ([]models.Playlist, error) {
+func (m *MockUsecase) FindPlaylists(ctx context.Context, query string, amount uint32) ([]models.Playlist, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindPlaylists", ctx, query)
+	ret := m.ctrl.Call(m, "FindPlaylists", ctx, query, amount)
 	ret0, _ := ret[0].([]models.Playlist)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindPlaylists indicates an expected call of FindPlaylists.
-func (mr *MockUsecaseMockRecorder) FindPlaylists(ctx, query interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) FindPlaylists(ctx, query, amount interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPlaylists", reflect.TypeOf((*MockUsecase)(nil).FindPlaylists), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPlaylists", reflect.TypeOf((*MockUsecase)(nil).FindPlaylists), ctx, query, amount)
 }
 
 // FindTracks mocks base method.
-func (m *MockUsecase) FindTracks(ctx context.Context, query string) ([]models.Track, error) {
+func (m *MockUsecase) FindTracks(ctx context.Context, query string, amount uint32) ([]models.Track, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindTracks", ctx, query)
+	ret := m.ctrl.Call(m, "FindTracks", ctx, query, amount)
 	ret0, _ := ret[0].([]models.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindTracks indicates an expected call of FindTracks.
-func (mr *MockUsecaseMockRecorder) FindTracks(ctx, query interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) FindTracks(ctx, query, amount interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindTracks", reflect.TypeOf((*MockUsecase)(nil).FindTracks), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindTracks", reflect.TypeOf((*MockUsecase)(nil).FindTracks), ctx, query, amount)
 }
 
 // MockRepository is a mock of Repository interface.
@@ -119,63 +119,63 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // FullTextSearchAlbums mocks base method.
-func (m *MockRepository) FullTextSearchAlbums(ctx context.Context, query string) ([]models.Album, error) {
+func (m *MockRepository) FullTextSearchAlbums(ctx context.Context, query string, limit uint32) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FullTextSearchAlbums", ctx, query)
+	ret := m.ctrl.Call(m, "FullTextSearchAlbums", ctx, query, limit)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FullTextSearchAlbums indicates an expected call of FullTextSearchAlbums.
-func (mr *MockRepositoryMockRecorder) FullTextSearchAlbums(ctx, query interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FullTextSearchAlbums(ctx, query, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullTextSearchAlbums", reflect.TypeOf((*MockRepository)(nil).FullTextSearchAlbums), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullTextSearchAlbums", reflect.TypeOf((*MockRepository)(nil).FullTextSearchAlbums), ctx, query, limit)
 }
 
 // FullTextSearchArtists mocks base method.
-func (m *MockRepository) FullTextSearchArtists(ctx context.Context, query string) ([]models.Artist, error) {
+func (m *MockRepository) FullTextSearchArtists(ctx context.Context, query string, limit uint32) ([]models.Artist, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FullTextSearchArtists", ctx, query)
+	ret := m.ctrl.Call(m, "FullTextSearchArtists", ctx, query, limit)
 	ret0, _ := ret[0].([]models.Artist)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FullTextSearchArtists indicates an expected call of FullTextSearchArtists.
-func (mr *MockRepositoryMockRecorder) FullTextSearchArtists(ctx, query interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FullTextSearchArtists(ctx, query, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullTextSearchArtists", reflect.TypeOf((*MockRepository)(nil).FullTextSearchArtists), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullTextSearchArtists", reflect.TypeOf((*MockRepository)(nil).FullTextSearchArtists), ctx, query, limit)
 }
 
 // FullTextSearchPlaylists mocks base method.
-func (m *MockRepository) FullTextSearchPlaylists(ctx context.Context, query string) ([]models.Playlist, error) {
+func (m *MockRepository) FullTextSearchPlaylists(ctx context.Context, query string, limit uint32) ([]models.Playlist, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FullTextSearchPlaylists", ctx, query)
+	ret := m.ctrl.Call(m, "FullTextSearchPlaylists", ctx, query, limit)
 	ret0, _ := ret[0].([]models.Playlist)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FullTextSearchPlaylists indicates an expected call of FullTextSearchPlaylists.
-func (mr *MockRepositoryMockRecorder) FullTextSearchPlaylists(ctx, query interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FullTextSearchPlaylists(ctx, query, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullTextSearchPlaylists", reflect.TypeOf((*MockRepository)(nil).FullTextSearchPlaylists), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullTextSearchPlaylists", reflect.TypeOf((*MockRepository)(nil).FullTextSearchPlaylists), ctx, query, limit)
 }
 
 // FullTextSearchTracks mocks base method.
-func (m *MockRepository) FullTextSearchTracks(ctx context.Context, query string) ([]models.Track, error) {
+func (m *MockRepository) FullTextSearchTracks(ctx context.Context, query string, limit uint32) ([]models.Track, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FullTextSearchTracks", ctx, query)
+	ret := m.ctrl.Call(m, "FullTextSearchTracks", ctx, query, limit)
 	ret0, _ := ret[0].([]models.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FullTextSearchTracks indicates an expected call of FullTextSearchTracks.
-func (mr *MockRepositoryMockRecorder) FullTextSearchTracks(ctx, query interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FullTextSearchTracks(ctx, query, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullTextSearchTracks", reflect.TypeOf((*MockRepository)(nil).FullTextSearchTracks), ctx, query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FullTextSearchTracks", reflect.TypeOf((*MockRepository)(nil).FullTextSearchTracks), ctx, query, limit)
 }
 
 // MockTables is a mock of Tables interface.

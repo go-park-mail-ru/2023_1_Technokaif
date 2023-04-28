@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
@@ -35,16 +35,16 @@ func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
 // @Failure     500    	{object}  	http.Error  		"Can't get user"
 // @Router	    /api/users/{userID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := commonHTTP.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, r,
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			userGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	ut := models.UserTransferFromEntry(*user)
 
-	commonHttp.SuccessResponse(w, ut, h.logger)
+	commonHTTP.SuccessResponse(w, ut, h.logger)
 }
 
 // @Summary      Update Info
@@ -60,42 +60,42 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  http.Error  			   	"Can't change user info"
 // @Router       /api/users/{userID}/update [post]
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := commonHTTP.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, r,
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			userUpdateInfoServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	var userInfo userInfoInput
 	if err := json.NewDecoder(r.Body).Decode(&userInfo); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, r,
-			commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := userInfo.validateAndEscape(); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, r,
-			commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := h.userServices.UpdateInfo(r.Context(), userInfo.ToUser(user)); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
 				userNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, r,
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			userUpdateInfoServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	uuir := userChangeInfoResponse{Status: userUpdatedInfoSuccessfully}
 
-	commonHttp.SuccessResponse(w, uuir, h.logger)
+	commonHTTP.SuccessResponse(w, uuir, h.logger)
 }
 
 // @Summary      Upload Avatar
@@ -111,22 +111,22 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  http.Error  			   "Server error"
 // @Router       /api/users/{userID}/avatar [post]
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := commonHTTP.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, r,
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			userAvatarUploadServerError, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	if err := r.ParseMultipartForm(MaxAvatarMemory); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, r,
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			userAvatarUploadInvalidData, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	avatarFile, avatarHeader, err := r.FormFile(avatarFormKey)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, r,
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			userAvatarUploadInvalidData, http.StatusBadRequest, h.logger, err)
 		return
 	}
@@ -137,17 +137,17 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errAvatarWrongFormat *models.AvatarWrongFormatError
 		if errors.As(err, &errAvatarWrongFormat) {
-			commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
 				userAvatarUploadInvalidDataType, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, r,
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			userAvatarUploadServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	uuar := userUploadAvatarResponse{Status: userAvatarUploadedSuccessfully}
 
-	commonHttp.SuccessResponse(w, uuar, h.logger)
+	commonHTTP.SuccessResponse(w, uuar, h.logger)
 }

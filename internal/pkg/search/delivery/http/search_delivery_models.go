@@ -1,6 +1,9 @@
 package delivery
 
-import "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+import (
+	valid "github.com/asaskevich/govalidator"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+)
 
 // Response messages
 const (
@@ -16,8 +19,13 @@ const (
 )
 
 type SearchRequest struct {
-	Query string `json:"query" valid:"required"`
-	Limit uint32 `json:"limit" valid:"required,range(1|100)"`
+	Query  string `json:"query" valid:"required"`
+	Amount uint32 `json:"amount" valid:"required,range(1|100)"`
+}
+
+func (sr *SearchRequest) validate() error {
+	_, err := valid.ValidateStruct(sr)
+	return err
 }
 
 type SearchAlbumsResponse struct {

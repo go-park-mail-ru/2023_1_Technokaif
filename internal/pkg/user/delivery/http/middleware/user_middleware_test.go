@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/golang/mock/gomock"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -39,14 +39,14 @@ func TestUserDeliveryHTTP_CheckUserAuthAndResponse(t *testing.T) {
 			userIDPath:       "0",
 			user:             &correctUser,
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:             "No User",
 			userIDPath:       correctUserIDPath,
 			user:             nil,
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name:             "Mismatched IDs",

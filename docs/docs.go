@@ -2184,6 +2184,9 @@ const docTemplate = `{
                 "cover": {
                     "type": "string"
                 },
+                "duration": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },

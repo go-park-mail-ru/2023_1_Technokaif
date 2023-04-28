@@ -12,7 +12,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
@@ -84,7 +84,7 @@ func TestDeliverySignUp(t *testing.T) {
 			userFromBody:     correctTestUser,
 			mockBehavior:     func(a *authMocks.MockUsecase, u models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
 		},
 		{
 			// These tests aren't tests of validation but delivery-layer
@@ -97,7 +97,7 @@ func TestDeliverySignUp(t *testing.T) {
 			userFromBody:     models.User{},
 			mockBehavior:     func(a *authMocks.MockUsecase, u models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
 		},
 		{
 			name:         "Creating existing user Error",
@@ -156,7 +156,7 @@ func TestDeliveryLogin(t *testing.T) {
 		Password: "Love1234",
 	}
 
-	correctCookieName := commonHttp.AccessTokenCookieName
+	correctCookieName := commonHTTP.AccessTokenCookieName
 	randomUserID := uint32(rand.Intn(100))
 
 	testTable := []struct {
@@ -191,7 +191,7 @@ func TestDeliveryLogin(t *testing.T) {
 			loginFromBody:    correctTestLogin,
 			mockBehavior:     func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
 			expectingCookie:  false,
 		},
 		{
@@ -203,7 +203,7 @@ func TestDeliveryLogin(t *testing.T) {
 			loginFromBody:    loginInput{},
 			mockBehavior:     func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
 			expectingCookie:  false,
 		},
 		{
@@ -355,7 +355,7 @@ func TestDeliveryLogout(t *testing.T) {
 				commonTests.WrapRequestWithUserFunc(tc.user, tc.doWrap))
 
 			if tc.expectingCookieReset {
-				assert.Equal(t, commonHttp.AccessTokenCookieName, w.Result().Cookies()[0].Name)
+				assert.Equal(t, commonHTTP.AccessTokenCookieName, w.Result().Cookies()[0].Name)
 				assert.Equal(t, "", w.Result().Cookies()[0].Value)
 			}
 		})

@@ -10,10 +10,10 @@ import (
 
 // Usecase includes bussiness logics methods to work with search
 type Usecase interface {
-	FindAlbums(ctx context.Context, query string) ([]models.Album, error)
-	FindArtists(ctx context.Context, query string) ([]models.Artist, error)
-	FindTracks(ctx context.Context, query string) ([]models.Track, error)
-	FindPlaylists(ctx context.Context, query string) ([]models.Playlist, error)
+	FindAlbums(ctx context.Context, query string, amount uint32) ([]models.Album, error)
+	FindArtists(ctx context.Context, query string, amount uint32) ([]models.Artist, error)
+	FindTracks(ctx context.Context, query string, amount uint32) ([]models.Track, error)
+	FindPlaylists(ctx context.Context, query string, amount uint32) ([]models.Playlist, error)
 }
 
 // Repository includes DBMS-relatable methods to work with search

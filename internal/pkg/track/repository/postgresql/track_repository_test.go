@@ -573,7 +573,7 @@ func TestTrackRepositoryPostgreSQL_GetByAlbum(t *testing.T) {
 					[]string{"id", "name", "album_id", "album_position",
 						"cover_src", "record_src", "listens", "duration"})
 				for ind := range t {
-					rows.AddRow(t[ind].ID, t[ind].Name, t[ind].AlbumID,
+					rows.AddRow(t[ind].ID, t[ind].Name, t[ind].AlbumID, t[ind].AlbumPosition,
 						t[ind].CoverSrc, t[ind].RecordSrc, t[ind].Listens, t[ind].Duration)
 				}
 				sqlxMock.ExpectQuery(fmt.Sprintf("SELECT (.+) FROM %s", trackTable)).

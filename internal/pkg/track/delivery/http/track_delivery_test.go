@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
 	trackMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/mocks"
@@ -81,7 +81,7 @@ func TestTrackDeliveryHTTP_Create(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name: "Incorrect JSON",
@@ -239,7 +239,7 @@ func TestTrackDeliveryHTTP_Get(t *testing.T) {
 			trackIDPath:      "-5",
 			mockBehavior:     func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:        "No Track To Get",
@@ -327,7 +327,7 @@ func TestTrackDeliveryHTTP_Delete(t *testing.T) {
 			trackIDPath:      "incorrect",
 			mockBehavior:     func(au *trackMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:             "No User",
@@ -335,7 +335,7 @@ func TestTrackDeliveryHTTP_Delete(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(au *trackMocks.MockUsecase) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name:        "User Has No Rights",
@@ -730,7 +730,7 @@ func TestTrackDeliveryHTTP_Like(t *testing.T) {
 				tu.EXPECT().SetLike(gomock.Any(), correctTrackID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: commonTests.OKResponse(commonHttp.LikeSuccess),
+			expectedResponse: commonTests.OKResponse(commonHTTP.LikeSuccess),
 		},
 		{
 			name:        "Already Liked (Anyway Success)",
@@ -740,7 +740,7 @@ func TestTrackDeliveryHTTP_Like(t *testing.T) {
 				tu.EXPECT().SetLike(gomock.Any(), correctTrackID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: commonTests.OKResponse(commonHttp.LikeAlreadyExists),
+			expectedResponse: commonTests.OKResponse(commonHTTP.LikeAlreadyExists),
 		},
 		{
 			name:             "Incorrect ID In Path",
@@ -748,7 +748,7 @@ func TestTrackDeliveryHTTP_Like(t *testing.T) {
 			user:             &correctUser,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:             "No User",
@@ -756,7 +756,7 @@ func TestTrackDeliveryHTTP_Like(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name:        "No Track To Like",
@@ -778,7 +778,7 @@ func TestTrackDeliveryHTTP_Like(t *testing.T) {
 					Return(false, errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.SetLikeServerError),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.SetLikeServerError),
 		},
 	}
 
@@ -828,7 +828,7 @@ func TestTrackDeliveryHTTP_UnLike(t *testing.T) {
 				tu.EXPECT().UnLike(gomock.Any(), correctTrackID, correctUser.ID).Return(true, nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: commonTests.OKResponse(commonHttp.UnLikeSuccess),
+			expectedResponse: commonTests.OKResponse(commonHTTP.UnLikeSuccess),
 		},
 		{
 			name:        "Wasn't Liked (Anyway Success)",
@@ -838,7 +838,7 @@ func TestTrackDeliveryHTTP_UnLike(t *testing.T) {
 				tu.EXPECT().UnLike(gomock.Any(), correctTrackID, correctUser.ID).Return(false, nil)
 			},
 			expectedStatus:   http.StatusOK,
-			expectedResponse: commonTests.OKResponse(commonHttp.LikeDoesntExist),
+			expectedResponse: commonTests.OKResponse(commonHTTP.LikeDoesntExist),
 		},
 		{
 			name:             "Incorrect ID In Path",
@@ -846,7 +846,7 @@ func TestTrackDeliveryHTTP_UnLike(t *testing.T) {
 			user:             &correctUser,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.InvalidURLParameter),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.InvalidURLParameter),
 		},
 		{
 			name:             "No User",
@@ -854,7 +854,7 @@ func TestTrackDeliveryHTTP_UnLike(t *testing.T) {
 			user:             nil,
 			mockBehavior:     func(tu *trackMocks.MockUsecase) {},
 			expectedStatus:   http.StatusUnauthorized,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.UnathorizedUser),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.UnathorizedUser),
 		},
 		{
 			name:        "No Track To Unlike",
@@ -876,7 +876,7 @@ func TestTrackDeliveryHTTP_UnLike(t *testing.T) {
 					Return(false, errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.DeleteLikeServerError),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.DeleteLikeServerError),
 		},
 	}
 

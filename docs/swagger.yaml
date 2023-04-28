@@ -229,6 +229,8 @@ definitions:
         type: array
       cover:
         type: string
+      duration:
+        type: integer
       id:
         type: integer
       isLiked:

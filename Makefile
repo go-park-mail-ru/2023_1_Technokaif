@@ -23,7 +23,7 @@ check_html_coverage:
 	&& go tool cover -html=purified_coverage.out 
 
 generate_api_docs:
-	swag init -g cmd/app/main.go
+	swag init -g cmd/api/main.go
 
 generate_mocks:
 	go generate ./...
