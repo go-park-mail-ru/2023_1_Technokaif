@@ -2,49 +2,72 @@ package usecase
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+
+	"golang.org/x/crypto/argon2"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 )
 
 // Usecase implements auth.Usecase
 type Usecase struct {
-	authAgent auth.Agent
+	authRepo auth.Repository
+	userRepo user.Repository
 }
 
-func NewUsecase(aa auth.Agent) *Usecase {
+func NewUsecase(ar auth.Repository, ur user.Repository) *Usecase {
 	return &Usecase{
-		authAgent: aa,
+		authRepo: ar,
+		userRepo: ur,
 	}
 }
 
 func (u *Usecase) SignUpUser(ctx context.Context, user models.User) (uint32, error) {
-	userId, err := u.authAgent.SignUpUser(context.Background(), user) // TODO request context
+	salt := generateRandomSalt()
+	user.Salt = hex.EncodeToString(salt)
+
+	user.Password = hashPassword(user.Password, salt)
+
+	userId, err := u.userRepo.CreateUser(ctx, user)
 	if err != nil {
-		return 0, fmt.Errorf("(usecase) can't sign up user: %w", err)
+		return 0, fmt.Errorf("(usecase) cannot create user: %w", err)
 	}
 	return userId, nil
 }
 
 func (u *Usecase) GetUserByCreds(ctx context.Context, username, password string) (*models.User, error) {
-	user, err := u.authAgent.GetUserByCreds(context.Background(), username, password)
+	user, err := u.userRepo.GetUserByUsername(ctx, username)
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get user: %w", err)
+		return nil, fmt.Errorf("(usecase) cannot find user: %w", err)
 	}
-	return user, err
+
+	salt, err := hex.DecodeString(user.Salt)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) invalid salt: %w", err)
+	}
+
+	hashedPassword := hashPassword(password, salt)
+	if hashedPassword != user.Password {
+		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w", &models.IncorrectPasswordError{UserID: user.ID})
+	}
+
+	return user, nil
 }
 
 func (u *Usecase) GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error) {
-	user, err := u.authAgent.GetUserByAuthData(context.Background(), userID, userVersion)
+	user, err := u.authRepo.GetUserByAuthData(ctx, userID, userVersion)
 	if err != nil {
-		return nil, fmt.Errorf("(usecase) can't get user: %w", err)
+		return nil, fmt.Errorf("(usecase) cannot find user by userId and userVersion: %w", err)
 	}
-	return user, err
+	return user, nil
 }
 
 func (u *Usecase) IncreaseUserVersion(ctx context.Context, userID uint32) error {
-	if err := u.authAgent.IncreaseUserVersion(context.Background(), userID); err != nil {
+	if err := u.authRepo.IncreaseUserVersion(ctx, userID); err != nil {
 		return fmt.Errorf("(usecase) failed to update user version: %w", err)
 	}
 
@@ -52,9 +75,22 @@ func (u *Usecase) IncreaseUserVersion(ctx context.Context, userID uint32) error 
 }
 
 func (u *Usecase) ChangePassword(ctx context.Context, userID uint32, password string) error {
-	if err := u.authAgent.ChangePassword(context.Background(), userID, password); err != nil {
-		return fmt.Errorf("(usecase) failed to cahnge password: %w", err)
+	salt := generateRandomSalt()
+	passHash := hashPassword(password, salt)
+	if err := u.authRepo.UpdatePassword(ctx, userID, passHash, hex.EncodeToString(salt)); err != nil {
+		return fmt.Errorf("(usecase) failed to update password: %w", err)
 	}
 
 	return nil
+}
+
+func hashPassword(plainPassword string, salt []byte) string {
+	hashedPassword := argon2.IDKey([]byte(plainPassword), []byte(salt), 1, 64*1024, 4, 32)
+	return hex.EncodeToString(hashedPassword)
+}
+
+func generateRandomSalt() []byte {
+	salt := make([]byte, 8)
+	rand.Read(salt)
+	return salt
 }

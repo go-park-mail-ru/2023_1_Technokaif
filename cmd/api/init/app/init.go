@@ -22,11 +22,11 @@ import (
 	userRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/repository/postgresql"
 
 	authAgent "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/client/grpc"
-	authProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/microservice/grpc/proto"
+	authProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/auth/proto/generated"
 
 	albumUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/usecase"
 	artistUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/usecase"
-	authUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/usecase"
+	// authUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/usecase"
 	playlistUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/usecase"
 	searchUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/usecase"
 	tokenUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/usecase"
@@ -76,14 +76,14 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)
 	playlistHandler := playlistDelivery.NewHandler(playlistUsecase, trackUsecase, userUsecase, logger)
 	artistHandler := artistDelivery.NewHandler(artistUsecase, logger)
-	authHandler := authDelivery.NewHandler(authUsecase, tokenUsecase, logger)
+	authHandler := authDelivery.NewHandler(agents.AuthAgent, tokenUsecase, logger)
 	trackHandler := trackDelivery.NewHandler(trackUsecase, artistUsecase, logger)
 	userHandler := userDelivery.NewHandler(userUsecase, logger)
 	searchHandler := searchDelivery.NewHandler(searchUsecase,
 		albumUsecase, artistUsecase, trackUsecase, playlistUsecase, userUsecase, logger)
 	csrfHandler := csrfDelivery.NewHandler(tokenUsecase, logger)
 
-	authMiddlware := authMiddlware.NewMiddleware(authUsecase, tokenUsecase, logger)
+	authMiddlware := authMiddlware.NewMiddleware(agents.AuthAgent, tokenUsecase, logger)
 	userMiddleware := userMiddlware.NewMiddleware(logger)
 	csrfMiddlware := csrfMiddlware.NewMiddleware(tokenUsecase, logger)
 
