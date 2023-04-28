@@ -12,29 +12,28 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
-const feedPlaylistsAmountLimit = 100
+const feedPlaylistsAmountLimit uint32 = 100
 
 // Usecase implements album.Usecase
 type Usecase struct {
 	playlistRepo playlist.Repository
 	trackRepo    track.Repository
 	userRepo     user.Repository
-	logger       logger.Logger
 }
 
-func NewUsecase(pr playlist.Repository, tr track.Repository, ur user.Repository, l logger.Logger) *Usecase {
+func NewUsecase(pr playlist.Repository, tr track.Repository, ur user.Repository) *Usecase {
 	return &Usecase{
 		playlistRepo: pr,
 		trackRepo:    tr,
 		userRepo:     ur,
-
-		logger: l}
+	}
 }
 
-func (u *Usecase) Create(ctx context.Context, playlist models.Playlist, usersID []uint32, userID uint32) (uint32, error) {
+func (u *Usecase) Create(ctx context.Context,
+	playlist models.Playlist, usersID []uint32, userID uint32) (uint32, error) {
+
 	userInAuthors := false
 	for _, uid := range usersID {
 		user, err := u.userRepo.GetByID(ctx, uid)
@@ -67,7 +66,9 @@ func (u *Usecase) GetByID(ctx context.Context, playlistID uint32) (*models.Playl
 	return playlist, nil
 }
 
-func (u *Usecase) UpdateInfoAndMembers(ctx context.Context, playlist models.Playlist, usersID []uint32, userID uint32) error {
+func (u *Usecase) UpdateInfoAndMembers(ctx context.Context,
+	playlist models.Playlist, usersID []uint32, userID uint32) error {
+
 	pl, err := u.playlistRepo.GetByID(ctx, playlist.ID)
 	if err != nil {
 		return fmt.Errorf("(usecase) can't find playlist in repository: %w", err)
@@ -112,7 +113,9 @@ func (u *Usecase) UploadCoverWrongFormatError() error {
 	return ErrCoverWrongFormat
 }
 
-func (u *Usecase) UploadCover(ctx context.Context, playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error {
+func (u *Usecase) UploadCover(ctx context.Context,
+	playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error {
+
 	playlist, err := u.playlistRepo.GetByID(ctx, playlistID)
 	if err != nil {
 		return fmt.Errorf("(usecase) can't find playlist: %w", err)

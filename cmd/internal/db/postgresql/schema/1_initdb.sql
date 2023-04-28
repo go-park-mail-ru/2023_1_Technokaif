@@ -46,6 +46,7 @@ CREATE TABLE Tracks
     album_position INT,
     cover_src      TEXT                                                 NOT NULL,
     record_src     TEXT                                                 NOT NULL,
+    duration       INT                                                  NOT NULL,
     listens        INT         DEFAULT 0                                NOT NULL,
 
     UNIQUE(album_id, album_position)
@@ -79,6 +80,7 @@ CREATE TABLE Users_Playlists
 (
     user_id     INT REFERENCES Users(id)     ON DELETE SET NULL,
     playlist_id INT REFERENCES Playlists(id) ON DELETE CASCADE,
+    created_at  TIMESTAMPTZ DEFAULT NOW()                       NOT NULL,
 
     PRIMARY KEY(user_id, playlist_id)
 );
@@ -96,6 +98,7 @@ CREATE TABLE Liked_albums
 (
     user_id   INT REFERENCES Users(id)  ON DELETE CASCADE NOT NULL,
     album_id  INT REFERENCES Albums(id) ON DELETE CASCADE NOT NULL,
+    liked_at  TIMESTAMPTZ DEFAULT NOW()                   NOT NULL,
 
     PRIMARY KEY(user_id, album_id)
 );
@@ -104,6 +107,7 @@ CREATE TABLE Liked_artists
 (
     user_id    INT REFERENCES Users(id)   ON DELETE CASCADE NOT NULL,
     artist_id  INT REFERENCES Artists(id) ON DELETE CASCADE NOT NULL,
+    liked_at   TIMESTAMPTZ DEFAULT NOW()                    NOT NULL,
 
     PRIMARY KEY(user_id, artist_id)
 );
@@ -112,6 +116,7 @@ CREATE TABLE Liked_tracks
 (
     user_id   INT REFERENCES Users(id)  ON DELETE CASCADE NOT NULL,
     track_id  INT REFERENCES Tracks(id) ON DELETE CASCADE NOT NULL,
+    liked_at  TIMESTAMPTZ DEFAULT NOW()                   NOT NULL,
 
     PRIMARY KEY(user_id, track_id)
 );
@@ -120,6 +125,45 @@ CREATE TABLE Liked_playlists
 (
     user_id     INT REFERENCES Users(id)     ON DELETE CASCADE NOT NULL,
     playlist_id INT REFERENCES Playlists(id) ON DELETE CASCADE NOT NULL,
+    liked_at    TIMESTAMPTZ DEFAULT NOW()                      NOT NULL,
 
     PRIMARY KEY(user_id, playlist_id)
 );
+
+
+-- Text Search
+
+-- -- Russian dict (just in case)
+-- CREATE TEXT SEARCH DICTIONARY russian_ispell (
+--     TEMPLATE = ispell,
+--     DictFile = russian,
+--     AffFile = russian,
+--     StopWords = russian
+-- );
+
+-- CREATE TEXT SEARCH CONFIGURATION ru (COPY=russian);
+
+ALTER TABLE Artists   ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
+ALTER TABLE Albums    ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
+ALTER TABLE Tracks    ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
+ALTER TABLE Playlists ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
+-- With this columns indeces has to be created like USING gin (to_tsvector(lang, name))
+
+CREATE INDEX idx_gin_artists ON Artists USING gin (to_tsvector(lang, name));
+CREATE INDEX idx_btree_artists ON Artists USING btree (name varchar_pattern_ops);
+
+CREATE INDEX idx_gin_albums ON Albums USING gin (to_tsvector(lang, name));
+CREATE INDEX idx_btree_albums ON Albums USING btree (name varchar_pattern_ops);
+
+CREATE INDEX idx_gin_tracks ON Tracks USING gin (to_tsvector(lang, name));
+CREATE INDEX idx_btree_tracks ON Tracks USING btree (name varchar_pattern_ops);
+
+CREATE INDEX idx_gin_playlists ON Playlists USING gin (to_tsvector(lang, name));
+CREATE INDEX idx_btree_playlists ON Playlists USING btree (name varchar_pattern_ops);
+
+-- Select example
+-- SELECT *
+-- FROM Tracks
+-- WHERE to_tsvector(lang, name) @@ plainto_tsquery('<ftsQuery>')
+-- ORDER BY ts_rank(to_tsvector(lang, name), plainto_tsquery('<ftsQuery>')) DESC
+-- LIMIT 5;

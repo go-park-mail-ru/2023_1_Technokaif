@@ -40,7 +40,7 @@ func AlbumTransferFromEntry(ctx context.Context, a Album, user *User, likeChecke
 		}
 	}
 
-	at, err := ArtistTransferFromQuery(ctx, artists, user, artistLikeChecker)
+	at, err := ArtistTransferFromList(ctx, artists, user, artistLikeChecker)
 	if err != nil {
 		return AlbumTransfer{}, err
 	}
@@ -55,8 +55,8 @@ func AlbumTransferFromEntry(ctx context.Context, a Album, user *User, likeChecke
 	}, nil
 }
 
-// AlbumTransferFromQuery converts []Album to []AlbumTransfer
-func AlbumTransferFromQuery(ctx context.Context, albums []Album, user *User, likeChecker albumLikeChecker,
+// AlbumTransferFromList converts []Album to []AlbumTransfer
+func AlbumTransferFromList(ctx context.Context, albums []Album, user *User, likeChecker albumLikeChecker,
 	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
 
 	albumTransfers := make([]AlbumTransfer, 0, len(albums))

@@ -37,7 +37,7 @@ type Repository interface {
 	DeleteByID(ctx context.Context, artistID uint32) error
 
 	// GetFeed returns artist entries with biggest amount of likes per some duration
-	GetFeed(ctx context.Context, amountLimit int) ([]models.Artist, error)
+	GetFeed(ctx context.Context, limit uint32) ([]models.Artist, error)
 
 	// GetByAlbum returns all artist entries related with album entry with given ID
 	GetByAlbum(ctx context.Context, albumID uint32) ([]models.Artist, error)
@@ -56,7 +56,7 @@ type Repository interface {
 }
 
 // Tables includes methods which return needed tables
-// to work with artists on repository-layer
+// to work with artists on repository layer
 type Tables interface {
 	Artists() string
 	ArtistsAlbums() string

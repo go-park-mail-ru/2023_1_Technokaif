@@ -9,17 +9,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
-	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
 )
 
 var ctx = context.Background()
 
-func TestUsecaseAuthCreateUser(t *testing.T) {
+func TestAuthUsecase_CreateUser(t *testing.T) {
 	// Init
-	type mockBehavior func(r *userMocks.MockRepository, u models.User)
+	type mockBehavior func(a *authMocks.MockAgent, u models.User)
 	type result struct {
 		Id  uint32
 		Err error
@@ -28,11 +26,8 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 	c := gomock.NewController(t)
 
 	authMocksAgent := authMocks.NewMockAgent(c)
-	userMocksRepo := userMocks.NewMockRepository(c)
 
-	l := commonTests.MockLogger(c)
-
-	u := NewUsecase(authMocksAgent, l)
+	u := NewUsecase(authMocksAgent)
 
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	require.NoError(t, err, "can't Parse birth date")
@@ -56,9 +51,8 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 				BirthDate: birthDate,
 				Sex:       models.Male,
 			},
-			mockBehavior: func(r *userMocks.MockRepository, u models.User) {
-				// random salt, can't predict :(
-				r.EXPECT().CreateUser(ctx, gomock.Any()).Return(uint32(1), nil)
+			mockBehavior: func(a *authMocks.MockAgent, u models.User) {
+				a.EXPECT().SignUpUser(ctx, u).Return(uint32(1), nil)
 			},
 			expected: result{
 				Id:  1,
@@ -69,7 +63,7 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			tc.mockBehavior(userMocksRepo, tc.user)
+			tc.mockBehavior(authMocksAgent, tc.user)
 			id, err := u.SignUpUser(ctx, tc.user)
 
 			assert.Equal(t, tc.expected.Id, id)

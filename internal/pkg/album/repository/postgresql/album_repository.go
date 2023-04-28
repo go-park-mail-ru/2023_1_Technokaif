@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 
 	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
@@ -20,14 +19,12 @@ import (
 type PostgreSQL struct {
 	db     *sqlx.DB
 	tables album.Tables
-	logger logger.Logger
 }
 
-func NewPostgreSQL(db *sqlx.DB, t album.Tables, l logger.Logger) *PostgreSQL {
+func NewPostgreSQL(db *sqlx.DB, t album.Tables) *PostgreSQL {
 	return &PostgreSQL{
 		db:     db,
 		tables: t,
-		logger: l,
 	}
 }
 
@@ -128,7 +125,7 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, albumID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Album, error) {
+func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Album, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, description, cover_src  
 		FROM %s 
@@ -136,7 +133,7 @@ func (p *PostgreSQL) GetFeed(ctx context.Context, amountLimit int) ([]models.Alb
 		p.tables.Albums())
 
 	var albums []models.Album
-	if err := p.db.SelectContext(ctx, &albums, query, amountLimit); err != nil {
+	if err := p.db.SelectContext(ctx, &albums, query, limit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -188,7 +185,8 @@ func (p *PostgreSQL) GetLikedByUser(ctx context.Context, userID uint32) ([]model
 		`SELECT a.id, a.name, a.description, a.cover_src
 		FROM %s a 
 			INNER JOIN %s ua ON a.id = ua.album_id 
-		WHERE ua.user_id = $1;`,
+		WHERE ua.user_id = $1
+		ORDER BY liked_at DESC;`,
 		p.tables.Albums(), p.tables.LikedAlbums())
 
 	var albums []models.Album
@@ -252,11 +250,11 @@ func (p *PostgreSQL) DeleteLike(ctx context.Context, albumID, userID uint32) (bo
 
 func (p *PostgreSQL) IsLiked(ctx context.Context, albumID, userID uint32) (bool, error) {
 	query := fmt.Sprintf(
-		`SELECT CASE WHEN 
-			EXISTS(SELECT *
-				FROM %s
-				WHERE album_id = $1 AND user_id = $2
-			) THEN TRUE ELSE FALSE END;`,
+		`SELECT EXISTS(
+			SELECT album_id
+			FROM %s
+			WHERE album_id = $1 AND user_id = $2
+		);`,
 		p.tables.LikedAlbums())
 
 	var isLiked bool

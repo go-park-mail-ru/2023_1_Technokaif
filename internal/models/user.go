@@ -65,7 +65,7 @@ func UserTransferFromEntry(user User) UserTransfer {
 	}
 }
 
-func UserTransferFromQuery(users []User) []UserTransfer {
+func UserTransferFromList(users []User) []UserTransfer {
 	userTransfers := make([]UserTransfer, 0, len(users))
 	for _, u := range users {
 		userTransfers = append(userTransfers, UserTransferFromEntry(u))

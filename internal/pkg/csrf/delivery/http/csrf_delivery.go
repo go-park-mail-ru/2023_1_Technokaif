@@ -24,15 +24,15 @@ func NewHandler(tu token.Usecase, l logger.Logger) *Handler {
 func (h *Handler) GetCSRF(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		h.logger.Infof("failed to get CSRF: %s", err.Error())
-		commonHttp.ErrorResponse(w, invalidAccessToken, http.StatusUnauthorized, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			invalidAccessToken, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	token, err := h.tokenServices.GenerateCSRFToken(user.ID)
 	if err != nil {
-		h.logger.Errorf("failed to get CSRF: %s", err.Error())
-		commonHttp.ErrorResponse(w, csrfGetError, http.StatusInternalServerError, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			csrfGetError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 

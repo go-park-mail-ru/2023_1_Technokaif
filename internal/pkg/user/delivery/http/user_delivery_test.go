@@ -1,7 +1,6 @@
 package http
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -14,12 +13,10 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
 )
-
-var ctx = context.Background()
 
 func getCorrectUser(t *testing.T) *models.User {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
@@ -56,7 +53,7 @@ func getCorrectUserInfo(t *testing.T) *models.User {
 	}
 }
 
-func TestUserDeliveryGet(t *testing.T) {
+func TestUserDeliveryHTTP_Get(t *testing.T) {
 	// Init
 	c := gomock.NewController(t)
 
@@ -116,7 +113,7 @@ func TestUserDeliveryGet(t *testing.T) {
 	}
 }
 
-func TestUserDeliveryUpdateInfo(t *testing.T) {
+func TestUserDeliveryHTTP_UpdateInfo(t *testing.T) {
 	// Init
 	type mockBehavior func(uu *userMocks.MockUsecase, user *models.User)
 
@@ -161,7 +158,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
-				uu.EXPECT().UpdateInfo(ctx, user).Return(nil)
+				uu.EXPECT().UpdateInfo(gomock.Any(), user).Return(nil)
 			},
 			expectedStatus:   http.StatusOK,
 			expectedResponse: commonTests.OKResponse(userUpdatedInfoSuccessfully),
@@ -173,7 +170,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			requestBody:      `{"id": 1`,
 			mockBehavior:     func(uu *userMocks.MockUsecase, user *models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHttp.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
 		},
 		{
 			name:        "No Such User",
@@ -181,7 +178,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
-				uu.EXPECT().UpdateInfo(ctx, user).Return(&models.NoSuchUserError{})
+				uu.EXPECT().UpdateInfo(gomock.Any(), user).Return(&models.NoSuchUserError{})
 			},
 			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: commonTests.ErrorResponse(userNotFound),
@@ -192,7 +189,7 @@ func TestUserDeliveryUpdateInfo(t *testing.T) {
 			user:        getCorrectUserInfo(t),
 			requestBody: correctBody,
 			mockBehavior: func(uu *userMocks.MockUsecase, user *models.User) {
-				uu.EXPECT().UpdateInfo(ctx, user).Return(errors.New(""))
+				uu.EXPECT().UpdateInfo(gomock.Any(), user).Return(errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: commonTests.ErrorResponse(userUpdateInfoServerError),

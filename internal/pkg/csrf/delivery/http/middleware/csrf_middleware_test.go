@@ -16,7 +16,7 @@ import (
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
 )
 
-func TestAuthDeliveryCheckCSRFToken(t *testing.T) {
+func TestAuthDeliveryHTTP_CheckCSRFToken(t *testing.T) {
 	type mockBehavior func(t *tokenMocks.MockUsecase, token string)
 
 	correctTestUser := &models.User{

@@ -33,7 +33,7 @@ type Repository interface {
 }
 
 // Tables includes methods which return needed tables
-// to work with auth on repository-layer
+// to work with auth on repository layer
 type Tables interface {
 	Users() string
 }

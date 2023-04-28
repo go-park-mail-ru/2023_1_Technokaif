@@ -11,21 +11,19 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 // Usecase implements auth.Usecase
 type Usecase struct {
 	authRepo auth.Repository
 	userRepo user.Repository
-	logger   logger.Logger
 }
 
-func NewUsecase(ar auth.Repository, ur user.Repository, l logger.Logger) *Usecase {
+func NewUsecase(ar auth.Repository, ur user.Repository) *Usecase {
 	return &Usecase{
 		authRepo: ar,
 		userRepo: ur,
-		logger:   l}
+	}
 }
 
 func (u *Usecase) SignUpUser(ctx context.Context, user models.User) (uint32, error) {
