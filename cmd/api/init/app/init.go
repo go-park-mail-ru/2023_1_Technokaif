@@ -26,7 +26,6 @@ import (
 
 	albumUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/usecase"
 	artistUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/usecase"
-	// authUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/usecase"
 	playlistUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/usecase"
 	searchUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/usecase"
 	tokenUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/usecase"
@@ -67,7 +66,6 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	albumUsecase := albumUsecase.NewUsecase(albumRepo, artistRepo)
 	playlistUsecase := playlistUsecase.NewUsecase(playlistRepo, trackRepo, userRepo)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo)
-	authUsecase := authUsecase.NewUsecase(agents.AuthAgent)
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, playlistRepo)
 	userUsecase := userUsecase.NewUsecase(userRepo)
 	searchUsecase := searchUsecase.NewUsecase(searchRepo)
