@@ -12,14 +12,13 @@ import (
 	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
-	userMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/mocks"
 )
 
 var ctx = context.Background()
 
 func TestUsecaseAuthCreateUser(t *testing.T) {
 	// Init
-	type mockBehavior func(r *userMocks.MockRepository, u models.User)
+	type mockBehavior func(a *authMocks.MockAgent, u models.User)
 	type result struct {
 		Id  uint32
 		Err error
@@ -28,7 +27,6 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 	c := gomock.NewController(t)
 
 	authMocksAgent := authMocks.NewMockAgent(c)
-	userMocksRepo := userMocks.NewMockRepository(c)
 
 	l := commonTests.MockLogger(c)
 
@@ -56,9 +54,8 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 				BirthDate: birthDate,
 				Sex:       models.Male,
 			},
-			mockBehavior: func(r *userMocks.MockRepository, u models.User) {
-				// random salt, can't predict :(
-				r.EXPECT().CreateUser(ctx, gomock.Any()).Return(uint32(1), nil)
+			mockBehavior: func(a *authMocks.MockAgent, u models.User) {
+				a.EXPECT().SignUpUser(ctx, u).Return(uint32(1), nil)
 			},
 			expected: result{
 				Id:  1,
@@ -69,7 +66,7 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
-			tc.mockBehavior(userMocksRepo, tc.user)
+			tc.mockBehavior(authMocksAgent, tc.user)
 			id, err := u.SignUpUser(ctx, tc.user)
 
 			assert.Equal(t, tc.expected.Id, id)

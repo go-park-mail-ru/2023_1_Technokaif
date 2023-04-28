@@ -35,6 +35,7 @@ var defaultTracks = []models.Track{
 		AlbumID:   &defaultTrackAlbumID1,
 		CoverSrc:  "/tracks/covers/laggout.png",
 		RecordSrc: "/tracks/records/laggout.wav",
+		Duration:  180,
 		Listens:   9999999,
 	},
 	{
@@ -43,6 +44,7 @@ var defaultTracks = []models.Track{
 		AlbumID:   &defaultTrackAlbumID2,
 		CoverSrc:  "/tracks/covers/nakanune.png",
 		RecordSrc: "/tracks/records/nakanune.wav",
+		Duration:  180,
 		Listens:   10000000,
 	},
 }
@@ -73,6 +75,7 @@ func TestTrackRepositoryInsert(t *testing.T) {
 		Name:          "LAGG OUT",
 		AlbumID:       &albumID,
 		AlbumPosition: &AlbumPosition,
+		Duration:      180,
 		CoverSrc:      "/tracks/covers/laggout.png",
 		RecordSrc:     "/tracks/records/laggout.png",
 	}
@@ -100,7 +103,7 @@ func TestTrackRepositoryInsert(t *testing.T) {
 
 				row := sqlxMock.NewRows([]string{"id"}).AddRow(id)
 				sqlxMock.ExpectQuery("INSERT INTO "+trackTable).
-					WithArgs(t.Name, t.AlbumID, t.AlbumPosition, t.CoverSrc, t.RecordSrc).
+					WithArgs(t.Name, t.AlbumID, t.AlbumPosition, t.CoverSrc, t.RecordSrc, t.Duration).
 					WillReturnRows(row)
 
 				for _, artistID := range artistsID {
@@ -125,7 +128,7 @@ func TestTrackRepositoryInsert(t *testing.T) {
 
 				row := sqlxMock.NewRows([]string{"id"}).AddRow(id)
 				sqlxMock.ExpectQuery("INSERT INTO "+trackTable).
-					WithArgs(t.Name, t.AlbumID, t.AlbumPosition, t.CoverSrc, t.RecordSrc).
+					WithArgs(t.Name, t.AlbumID, t.AlbumPosition, t.CoverSrc, t.RecordSrc, t.Duration).
 					WillReturnRows(row)
 
 				sqlxMock.ExpectExec("INSERT INTO "+artistsTracksTable).
@@ -148,7 +151,7 @@ func TestTrackRepositoryInsert(t *testing.T) {
 				sqlxMock.ExpectBegin()
 
 				sqlxMock.ExpectQuery("INSERT INTO "+trackTable).
-					WithArgs(t.Name, t.AlbumID, t.AlbumPosition, t.CoverSrc, t.RecordSrc).
+					WithArgs(t.Name, t.AlbumID, t.AlbumPosition, t.CoverSrc, t.RecordSrc, t.Duration).
 					WillReturnError(errPqInternal)
 
 				sqlxMock.ExpectRollback()
@@ -204,6 +207,7 @@ func TestTrackRepositoryGetByID(t *testing.T) {
 		AlbumID:   &defaultTrackAlbumID,
 		CoverSrc:  "/tracks/covers/laggout.png",
 		RecordSrc: "/tracks/records/laggout.wav",
+		Duration:  180,
 		Listens:   9999999,
 	}
 
@@ -221,8 +225,9 @@ func TestTrackRepositoryGetByID(t *testing.T) {
 			mockBehavior: func(trackID uint32, t models.Track) {
 				tablesMock.EXPECT().Tracks().Return(trackTable)
 
-				row := sqlxMock.NewRows([]string{"id", "name", "album_id", "cover_src", "record_src", "listens"}).
-					AddRow(t.ID, t.Name, t.AlbumID, t.CoverSrc, t.RecordSrc, t.Listens)
+				row := sqlxMock.NewRows(
+					[]string{"id", "name", "album_id", "cover_src", "record_src", "listens", "duration"}).
+					AddRow(t.ID, t.Name, t.AlbumID, t.CoverSrc, t.RecordSrc, t.Listens, t.Duration)
 				sqlxMock.ExpectQuery("SELECT (.+) FROM " + trackTable).
 					WithArgs(trackID).
 					WillReturnRows(row)
@@ -390,9 +395,10 @@ func TestTrackRepositoryGetFeed(t *testing.T) {
 			mockBehavior: func(t []models.Track) {
 				tablesMock.EXPECT().Tracks().Return(trackTable)
 
-				rows := sqlxMock.NewRows([]string{"id", "name", "album_id", "cover_src", "record_src", "listens"}).
-					AddRow(t[0].ID, t[0].Name, t[0].AlbumID, t[0].CoverSrc, t[0].RecordSrc, t[0].Listens).
-					AddRow(t[1].ID, t[1].Name, t[1].AlbumID, t[1].CoverSrc, t[1].RecordSrc, t[1].Listens)
+				rows := sqlxMock.NewRows([]string{
+					"id", "name", "album_id", "cover_src", "record_src", "listens", "duration"}).
+					AddRow(t[0].ID, t[0].Name, t[0].AlbumID, t[0].CoverSrc, t[0].RecordSrc, t[0].Listens, t[0].Duration).
+					AddRow(t[1].ID, t[1].Name, t[1].AlbumID, t[1].CoverSrc, t[1].RecordSrc, t[1].Listens, t[1].Duration)
 				sqlxMock.ExpectQuery("SELECT (.+) FROM " + trackTable).
 					WillReturnRows(rows)
 			},
@@ -466,9 +472,10 @@ func TestTrackRepositoryGetByArtist(t *testing.T) {
 				tablesMock.EXPECT().Tracks().Return(trackTable)
 				tablesMock.EXPECT().ArtistsTracks().Return(artistsTracksTable)
 
-				rows := sqlxMock.NewRows([]string{"id", "name", "album_id", "cover_src", "record_src", "listens"}).
-					AddRow(t[0].ID, t[0].Name, t[0].AlbumID, t[0].CoverSrc, t[0].RecordSrc, t[0].Listens).
-					AddRow(t[1].ID, t[1].Name, t[1].AlbumID, t[1].CoverSrc, t[1].RecordSrc, t[1].Listens)
+				rows := sqlxMock.NewRows(
+					[]string{"id", "name", "album_id", "cover_src", "record_src", "listens", "duration"}).
+					AddRow(t[0].ID, t[0].Name, t[0].AlbumID, t[0].CoverSrc, t[0].RecordSrc, t[0].Listens, t[0].Duration).
+					AddRow(t[1].ID, t[1].Name, t[1].AlbumID, t[1].CoverSrc, t[1].RecordSrc, t[1].Listens, t[1].Duration)
 				sqlxMock.ExpectQuery(fmt.Sprintf("SELECT (.+) FROM %s t INNER JOIN %s",
 					trackTable, artistsTracksTable)).
 					WithArgs(artistID).
@@ -571,9 +578,10 @@ func TestTrackRepositoryGetByAlbum(t *testing.T) {
 			mockBehavior: func(albumID uint32, t []models.Track) {
 				tablesMock.EXPECT().Tracks().Return(trackTable)
 
-				rows := sqlxMock.NewRows([]string{"id", "name", "album_id", "album_position", "cover_src", "record_src", "listens"}).
-					AddRow(t[0].ID, t[0].Name, t[0].AlbumID, t[0].AlbumPosition, t[0].CoverSrc, t[0].RecordSrc, t[0].Listens).
-					AddRow(t[1].ID, t[1].Name, t[1].AlbumID, t[1].AlbumPosition, t[1].CoverSrc, t[1].RecordSrc, t[1].Listens)
+				rows := sqlxMock.NewRows(
+					[]string{"id", "name", "album_id", "album_position", "cover_src", "record_src", "listens", "duration"}).
+					AddRow(t[0].ID, t[0].Name, t[0].AlbumID, t[0].AlbumPosition, t[0].CoverSrc, t[0].RecordSrc, t[0].Listens, t[0].Duration).
+					AddRow(t[1].ID, t[1].Name, t[1].AlbumID, t[1].AlbumPosition, t[1].CoverSrc, t[1].RecordSrc, t[1].Listens, t[1].Duration)
 				sqlxMock.ExpectQuery(fmt.Sprintf("SELECT (.+) FROM %s", trackTable)).
 					WithArgs(albumID).
 					WillReturnRows(rows)
@@ -661,9 +669,10 @@ func TestTrackRepositoryGetLikedByUser(t *testing.T) {
 				tablesMock.EXPECT().Tracks().Return(trackTable)
 				tablesMock.EXPECT().LikedTracks().Return(likedTracksTable)
 
-				rows := sqlxMock.NewRows([]string{"id", "name", "album_id", "cover_src", "record_src", "listens"}).
-					AddRow(t[0].ID, t[0].Name, t[0].AlbumID, t[0].CoverSrc, t[0].RecordSrc, t[0].Listens).
-					AddRow(t[1].ID, t[1].Name, t[1].AlbumID, t[1].CoverSrc, t[1].RecordSrc, t[1].Listens)
+				rows := sqlxMock.NewRows(
+					[]string{"id", "name", "album_id", "cover_src", "record_src", "listens", "duration"}).
+					AddRow(t[0].ID, t[0].Name, t[0].AlbumID, t[0].CoverSrc, t[0].RecordSrc, t[0].Listens, t[0].Duration).
+					AddRow(t[1].ID, t[1].Name, t[1].AlbumID, t[1].CoverSrc, t[1].RecordSrc, t[1].Listens, t[1].Duration)
 				sqlxMock.ExpectQuery(fmt.Sprintf("SELECT (.+) FROM %s t INNER JOIN %s",
 					trackTable, likedTracksTable)).
 					WithArgs(userID).

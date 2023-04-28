@@ -527,7 +527,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	at, err := models.PlaylistTransferFromQuery(r.Context(), favPlaylists, user,
-		h.trackServices.IsLiked, h.userServices.GetByPlaylist)
+		h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHttp.ErrorResponseWithErrLogging(w, playlistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return

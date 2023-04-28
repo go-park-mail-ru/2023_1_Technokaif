@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -19,8 +18,6 @@ import (
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
 )
-
-var ctx = context.Background()
 
 func TestAuthDeliveryAuthorization(t *testing.T) {
 	type mockBehavior func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User)
@@ -43,7 +40,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 			cookieValue: "token",
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, token string, user models.User) {
 				t.EXPECT().CheckAccessToken(token).Return(user.ID, user.Version, nil)
-				a.EXPECT().GetUserByAuthData(ctx, user.ID, user.Version).Return(&user, nil)
+				a.EXPECT().GetUserByAuthData(gomock.Any(), user.ID, user.Version).Return(&user, nil)
 			},
 			expectingUserInContext: true,
 			expectedUser:           models.User{ID: uint32(rand.Intn(100)), Version: uint32(rand.Intn(100))},
@@ -85,7 +82,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 				randVal := uint32(rand.Intn(100))
 
 				t.EXPECT().CheckAccessToken(token).Return(randVal, randVal, nil)
-				a.EXPECT().GetUserByAuthData(ctx, randVal, randVal).Return(&user, &models.NoSuchUserError{})
+				a.EXPECT().GetUserByAuthData(gomock.Any(), randVal, randVal).Return(&user, &models.NoSuchUserError{})
 			},
 			expectingUserInContext: false,
 			expectingResponse:      true,
@@ -100,7 +97,7 @@ func TestAuthDeliveryAuthorization(t *testing.T) {
 				randVal := uint32(rand.Intn(100))
 
 				t.EXPECT().CheckAccessToken(token).Return(randVal, randVal, nil)
-				a.EXPECT().GetUserByAuthData(ctx, randVal, randVal).Return(&user, errors.New("server error"))
+				a.EXPECT().GetUserByAuthData(gomock.Any(), randVal, randVal).Return(&user, errors.New("server error"))
 			},
 			expectingUserInContext: false,
 			expectingResponse:      true,
