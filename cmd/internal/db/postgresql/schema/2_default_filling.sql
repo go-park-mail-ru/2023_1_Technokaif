@@ -42,10 +42,7 @@ VALUES ('LAGG OUT', '/tracks/laggOut.jpeg', '/records/27.mp3', 279),
        ('Город под подошвой', '/tracks/gorodPodPod.png', '/records/28.mp3', 229),
        ('За деньги да', '/tracks/zadengida.png', '/records/29.mp3', 119),
        ('Mommy', '/tracks/mommy.png', '/records/30.mp3', 93),
-       ('Juicy', '/tracks/juicy.png', '/records/31.mp3', 123),
-       ('Mother', '', '', 0),
-       ('Me and Mother', '', '', 0),
-       ('MomLol', '', '', 0);
+       ('Juicy', '/tracks/juicy.png', '/records/31.mp3', 123);
 
 INSERT INTO Artists_Albums (artist_id, album_id)
 VALUES (1, 1),
