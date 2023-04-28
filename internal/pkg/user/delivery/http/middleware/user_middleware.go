@@ -21,21 +21,21 @@ func (m *Middleware) CheckUserAuthAndResponce(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		urlID, err := commonHttp.GetUserIDFromRequest(r)
 		if err != nil {
-			m.logger.Infof("invalid url parameter: %v", err.Error())
-			commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, m.logger)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				commonHttp.InvalidURLParameter, http.StatusBadRequest, m.logger, err)
 			return
 		}
 
 		user, err := commonHttp.GetUserFromRequest(r)
 		if err != nil {
-			m.logger.Infof("unathorized user: %v", err)
-			commonHttp.ErrorResponse(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, m.logger)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				commonHttp.UnathorizedUser, http.StatusUnauthorized, m.logger, err)
 			return
 		}
 
 		if urlID != user.ID {
-			m.logger.Infof("forbidden user with id #%d", urlID)
-			commonHttp.ErrorResponse(w, "user has no rights", http.StatusForbidden, m.logger)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				commonHttp.ForbiddenUser, http.StatusForbidden, m.logger, err)
 			return
 		}
 

@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 
 	commonSQL "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/db"
 )
@@ -20,14 +19,12 @@ import (
 type PostgreSQL struct {
 	db     *sqlx.DB
 	tables playlist.Tables
-	logger logger.Logger
 }
 
-func NewPostgreSQL(db *sqlx.DB, t playlist.Tables, l logger.Logger) *PostgreSQL {
+func NewPostgreSQL(db *sqlx.DB, t playlist.Tables) *PostgreSQL {
 	return &PostgreSQL{
 		db:     db,
 		tables: t,
-		logger: l,
 	}
 }
 

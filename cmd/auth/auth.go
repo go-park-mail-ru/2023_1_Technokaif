@@ -32,8 +32,8 @@ func main() {
 		return
 	}
 
-	userRepo := userRepository.NewPostgreSQL(db, tables, logger)
-	authRepo := authRepository.NewPostgreSQL(db, tables, logger)
+	userRepo := userRepository.NewPostgreSQL(db, tables)
+	authRepo := authRepository.NewPostgreSQL(db, tables)
 
 	listener, err := net.Listen("tcp", ":"+os.Getenv(cmd.AuthPortParam))
 	if err != nil {

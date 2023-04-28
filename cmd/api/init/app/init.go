@@ -17,6 +17,7 @@ import (
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
 	artistRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/repository/postgresql"
 	playlistRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/repository/postgresql"
+	searchRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/repository/postgresql"
 	trackRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/repository/postgresql"
 	userRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/repository/postgresql"
 
@@ -27,6 +28,7 @@ import (
 	artistUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/usecase"
 	authUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/usecase"
 	playlistUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/usecase"
+	searchUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/usecase"
 	tokenUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/usecase"
 	trackUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/usecase"
 	userUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/usecase"
@@ -36,6 +38,7 @@ import (
 	authDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/delivery/http"
 	csrfDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/csrf/delivery/http"
 	playlistDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/delivery/http"
+	searchDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/delivery/http"
 	trackDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
 	userDelivery "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/delivery/http"
 
@@ -49,24 +52,26 @@ type Agents struct {
 }
 
 func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger) (*chi.Mux, error) {
-	albumRepo := albumRepository.NewPostgreSQL(db, tables, logger)
-	playlistRepo := playlistRepository.NewPostgreSQL(db, tables, logger)
-	artistRepo := artistRepository.NewPostgreSQL(db, tables, logger)
-	trackRepo := trackRepository.NewPostgreSQL(db, tables, logger)
-	userRepo := userRepository.NewPostgreSQL(db, tables, logger)
+	albumRepo := albumRepository.NewPostgreSQL(db, tables)
+	playlistRepo := playlistRepository.NewPostgreSQL(db, tables)
+	artistRepo := artistRepository.NewPostgreSQL(db, tables)
+	trackRepo := trackRepository.NewPostgreSQL(db, tables)
+	userRepo := userRepository.NewPostgreSQL(db, tables)
+	searchRepo := searchRepository.NewPostgreSQL(db, tables)
 
 	agents, err := makeAgents()
 	if err != nil {
 		return nil, err
 	}
 
-	albumUsecase := albumUsecase.NewUsecase(albumRepo, artistRepo, logger)
-	playlistUsecase := playlistUsecase.NewUsecase(playlistRepo, trackRepo, userRepo, logger)
-	artistUsecase := artistUsecase.NewUsecase(artistRepo, logger)
-	authUsecase := authUsecase.NewUsecase(agents.AuthAgent, logger)
-	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, playlistRepo, logger)
-	userUsecase := userUsecase.NewUsecase(userRepo, logger)
-	tokenUsecase := tokenUsecase.NewUsecase(logger)
+	albumUsecase := albumUsecase.NewUsecase(albumRepo, artistRepo)
+	playlistUsecase := playlistUsecase.NewUsecase(playlistRepo, trackRepo, userRepo)
+	artistUsecase := artistUsecase.NewUsecase(artistRepo)
+	authUsecase := authUsecase.NewUsecase(agents.AuthAgent)
+	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, playlistRepo)
+	userUsecase := userUsecase.NewUsecase(userRepo)
+	searchUsecase := searchUsecase.NewUsecase(searchRepo)
+	tokenUsecase := tokenUsecase.NewUsecase()
 
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)
 	playlistHandler := playlistDelivery.NewHandler(playlistUsecase, trackUsecase, userUsecase, logger)
@@ -74,6 +79,7 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	authHandler := authDelivery.NewHandler(authUsecase, tokenUsecase, logger)
 	trackHandler := trackDelivery.NewHandler(trackUsecase, artistUsecase, logger)
 	userHandler := userDelivery.NewHandler(userUsecase, logger)
+	searchHandler := searchDelivery.NewHandler(searchUsecase, logger)
 	csrfHandler := csrfDelivery.NewHandler(tokenUsecase, logger)
 
 	authMiddlware := authMiddlware.NewMiddleware(authUsecase, tokenUsecase, logger)
@@ -91,6 +97,7 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 		authMiddlware,
 		csrfHandler,
 		csrfMiddlware,
+		searchHandler,
 		logger,
 	), nil
 }

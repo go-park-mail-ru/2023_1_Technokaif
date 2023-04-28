@@ -53,7 +53,7 @@ func getCorrectUserInfo(t *testing.T) *models.User {
 	}
 }
 
-func TestUserDeliveryGet(t *testing.T) {
+func TestUserDeliveryHTTP_Get(t *testing.T) {
 	// Init
 	c := gomock.NewController(t)
 
@@ -113,7 +113,7 @@ func TestUserDeliveryGet(t *testing.T) {
 	}
 }
 
-func TestUserDeliveryUpdateInfo(t *testing.T) {
+func TestUserDeliveryHTTP_UpdateInfo(t *testing.T) {
 	// Init
 	type mockBehavior func(uu *userMocks.MockUsecase, user *models.User)
 

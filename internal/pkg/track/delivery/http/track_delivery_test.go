@@ -25,7 +25,7 @@ const correctTrackID uint32 = 1
 
 var correctTrackIDPath = fmt.Sprint(correctTrackID)
 
-func TestTrackDeliveryCreate(t *testing.T) {
+func TestTrackDeliveryHTTP_Create(t *testing.T) {
 	// Init
 	type mockBehavior func(tu *trackMocks.MockUsecase)
 
@@ -158,7 +158,7 @@ func TestTrackDeliveryCreate(t *testing.T) {
 	}
 }
 
-func TestTrackDeliveryGet(t *testing.T) {
+func TestTrackDeliveryHTTP_Get(t *testing.T) {
 	// Init
 	type mockBehavior func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
 
@@ -286,7 +286,7 @@ func TestTrackDeliveryGet(t *testing.T) {
 	}
 }
 
-func TestTrackDeliveryDelete(t *testing.T) {
+func TestTrackDeliveryHTTP_Delete(t *testing.T) {
 	// Init
 	type mockBehavior func(au *trackMocks.MockUsecase)
 
@@ -387,7 +387,7 @@ func TestTrackDeliveryDelete(t *testing.T) {
 	}
 }
 
-func TestTrackDeliveryFeed(t *testing.T) {
+func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 	// Init
 	type mockBehavior func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase)
 
@@ -540,7 +540,7 @@ func TestTrackDeliveryFeed(t *testing.T) {
 	}
 }
 
-func TestTrackDeliveryGetFavorite(t *testing.T) {
+func TestTrackDeliveryHTTP_GetFavorite(t *testing.T) {
 	type mockBehavior func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase, userID uint32)
 
 	c := gomock.NewController(t)
@@ -696,7 +696,7 @@ func TestTrackDeliveryGetFavorite(t *testing.T) {
 	}
 }
 
-func TestTrackDeliveryLike(t *testing.T) {
+func TestTrackDeliveryHTTP_Like(t *testing.T) {
 	// Init
 	type mockBehavior func(tu *trackMocks.MockUsecase)
 
@@ -794,7 +794,7 @@ func TestTrackDeliveryLike(t *testing.T) {
 	}
 }
 
-func TestTrackDeliveryUnLike(t *testing.T) {
+func TestTrackDeliveryHTTP_UnLike(t *testing.T) {
 	// Init
 	type mockBehavior func(tu *trackMocks.MockUsecase)
 

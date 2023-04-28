@@ -12,21 +12,18 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 // PostgreSQL implements user.Repository
 type PostgreSQL struct {
 	db     *sqlx.DB
 	tables user.Tables
-	logger logger.Logger
 }
 
-func NewPostgreSQL(db *sqlx.DB, t user.Tables, l logger.Logger) *PostgreSQL {
+func NewPostgreSQL(db *sqlx.DB, t user.Tables) *PostgreSQL {
 	return &PostgreSQL{
 		db:     db,
 		tables: t,
-		logger: l,
 	}
 }
 

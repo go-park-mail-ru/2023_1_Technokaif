@@ -14,8 +14,7 @@ import (
 
 type Handler struct {
 	userServices user.Usecase
-
-	logger logger.Logger
+	logger       logger.Logger
 }
 
 func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
@@ -38,7 +37,8 @@ func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, userGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			userGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -62,29 +62,34 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, userUpdateInfoServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			userUpdateInfoServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	var userInfo userInfoInput
 	if err := json.NewDecoder(r.Body).Decode(&userInfo); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := userInfo.validateAndEscape(); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := h.userServices.UpdateInfo(r.Context(), userInfo.ToUser(user)); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, userNotFound, http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				userNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, userUpdateInfoServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			userUpdateInfoServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -108,18 +113,21 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadServerError, http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			userAvatarUploadServerError, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	if err := r.ParseMultipartForm(MaxAvatarMemory); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadInvalidData, http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			userAvatarUploadInvalidData, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	avatarFile, avatarHeader, err := r.FormFile(avatarFormKey)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadInvalidData, http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			userAvatarUploadInvalidData, http.StatusBadRequest, h.logger, err)
 		return
 	}
 	defer avatarFile.Close()
@@ -129,11 +137,13 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errAvatarWrongFormat *models.AvatarWrongFormatError
 		if errors.As(err, &errAvatarWrongFormat) {
-			commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadInvalidDataType, http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				userAvatarUploadInvalidDataType, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, userAvatarUploadServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			userAvatarUploadServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 

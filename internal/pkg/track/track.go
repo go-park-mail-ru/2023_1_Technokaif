@@ -41,7 +41,7 @@ type Repository interface {
 }
 
 // Tables includes methods which return needed tables
-// to work with tracks on repository-layer
+// to work with tracks on repository layer
 type Tables interface {
 	Tracks() string
 	ArtistsTracks() string

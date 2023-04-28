@@ -9,14 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 )
 
 var ctx = context.Background()
 
-func TestUsecaseAuthCreateUser(t *testing.T) {
+func TestAuthUsecase_CreateUser(t *testing.T) {
 	// Init
 	type mockBehavior func(a *authMocks.MockAgent, u models.User)
 	type result struct {
@@ -28,9 +27,7 @@ func TestUsecaseAuthCreateUser(t *testing.T) {
 
 	authMocksAgent := authMocks.NewMockAgent(c)
 
-	l := commonTests.MockLogger(c)
-
-	u := NewUsecase(authMocksAgent, l)
+	u := NewUsecase(authMocksAgent)
 
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	require.NoError(t, err, "can't Parse birth date")

@@ -41,7 +41,7 @@ func getCorrectUser(t *testing.T) *models.User {
 	}
 }
 
-func TestPlaylistDeliveryCreate(t *testing.T) {
+func TestPlaylistDeliveryHTTP_Create(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase)
 
@@ -161,7 +161,7 @@ func TestPlaylistDeliveryCreate(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryGet(t *testing.T) {
+func TestPlaylistDeliveryHTTP_Get(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase, uu *userMocks.MockUsecase)
 
@@ -285,7 +285,7 @@ func TestPlaylistDeliveryGet(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryUpdate(t *testing.T) {
+func TestPlaylistDeliveryHTTP_Update(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase)
 
@@ -425,7 +425,7 @@ func TestPlaylistDeliveryUpdate(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryDelete(t *testing.T) {
+func TestPlaylistDeliveryHTTP_Delete(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase)
 
@@ -531,7 +531,7 @@ func TestPlaylistDeliveryDelete(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryAddTrack(t *testing.T) {
+func TestPlaylistDeliveryHTTP_AddTrack(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase)
 
@@ -668,7 +668,7 @@ func TestPlaylistDeliveryAddTrack(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryDeleteTrack(t *testing.T) {
+func TestPlaylistDeliveryHTTP_DeleteTrack(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase)
 
@@ -805,7 +805,7 @@ func TestPlaylistDeliveryDeleteTrack(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryFeed(t *testing.T) {
+func TestPlaylistDeliveryHTTP_Feed(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase, uu *userMocks.MockUsecase)
 
@@ -940,7 +940,7 @@ func TestPlaylistDeliveryFeed(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryGetFavorite(t *testing.T) {
+func TestPlaylistDeliveryHTTP_GetFavorite(t *testing.T) {
 	type mockBehavior func(pu *playlistMocks.MockUsecase, uu *userMocks.MockUsecase, userID uint32)
 
 	c := gomock.NewController(t)
@@ -1075,7 +1075,7 @@ func TestPlaylistDeliveryGetFavorite(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryLike(t *testing.T) {
+func TestPlaylistDeliveryHTTP_Like(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase)
 
@@ -1174,7 +1174,7 @@ func TestPlaylistDeliveryLike(t *testing.T) {
 	}
 }
 
-func TestPlaylistDeliveryUnLike(t *testing.T) {
+func TestPlaylistDeliveryHTTP_UnLike(t *testing.T) {
 	// Init
 	type mockBehavior func(pu *playlistMocks.MockUsecase)
 

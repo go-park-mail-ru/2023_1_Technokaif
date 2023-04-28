@@ -49,7 +49,7 @@ type Repository interface {
 }
 
 // Tables includes methods which return needed tables
-// to work with playlists on repository-layer
+// to work with playlists on repository layer
 type Tables interface {
 	Playlists() string
 	UsersPlaylists() string

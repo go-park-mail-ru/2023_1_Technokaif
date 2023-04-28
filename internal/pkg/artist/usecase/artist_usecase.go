@@ -6,19 +6,17 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 const feedArtistsAmountLimit uint32 = 100
 
 // Usecase implements artist.Usecase
 type Usecase struct {
-	repo   artist.Repository
-	logger logger.Logger
+	repo artist.Repository
 }
 
-func NewUsecase(ar artist.Repository, l logger.Logger) *Usecase {
-	return &Usecase{repo: ar, logger: l}
+func NewUsecase(ar artist.Repository) *Usecase {
+	return &Usecase{repo: ar}
 }
 
 func (u *Usecase) Create(ctx context.Context, artist models.Artist) (uint32, error) {

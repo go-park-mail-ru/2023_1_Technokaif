@@ -37,19 +37,21 @@ func NewHandler(au artist.Usecase, logger logger.Logger) *Handler {
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	var aci artistCreateInput
 	if err := json.NewDecoder(r.Body).Decode(&aci); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := aci.validateAndEscape(); err != nil {
-		h.logger.Infof("Creating artist input validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
@@ -57,7 +59,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	artistID, err := h.artistServices.Create(r.Context(), artist)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, artistCreateServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistCreateServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -77,8 +80,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get artist by id: %v", err.Error())
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
@@ -86,23 +89,27 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
-			commonHttp.ErrorResponseWithErrLogging(w, artistNotFound, http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				artistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, artistGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, artistGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	ar, err := models.ArtistTransferFromEntry(r.Context(), *artist, user, h.artistServices.IsLiked)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, artistGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -122,14 +129,15 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get artist by id: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
@@ -137,17 +145,20 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
-			commonHttp.ErrorResponseWithErrLogging(w, artistNotFound, http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				artistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, artistDeleteNoRights, http.StatusForbidden, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				artistDeleteNoRights, http.StatusForbidden, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, artistDeleteServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistDeleteServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -166,19 +177,22 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 	artists, err := h.artistServices.GetFeed(r.Context())
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	artistsTransfer, err := models.ArtistTransferFromQuery(r.Context(), artists, user, h.artistServices.IsLiked)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -198,19 +212,22 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	artists, err := h.artistServices.GetLikedByUser(r.Context(), user.ID)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	at, err := models.ArtistTransferFromQuery(r.Context(), artists, user, h.artistServices.IsLiked)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -229,14 +246,15 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get artist by id: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
@@ -244,11 +262,13 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
-			commonHttp.ErrorResponseWithErrLogging(w, artistNotFound, http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				artistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.SetLikeServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.SetLikeServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -271,14 +291,15 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHttp.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	artistID, err := commonHttp.GetArtistIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get artist by id: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
@@ -286,11 +307,13 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
-			commonHttp.ErrorResponseWithErrLogging(w, artistNotFound, http.StatusBadRequest, h.logger, err)
+			commonHttp.ErrorResponseWithErrLogging(w, r,
+				artistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.DeleteLikeServerError, http.StatusInternalServerError, h.logger, err)
+		commonHttp.ErrorResponseWithErrLogging(w, r,
+			commonHttp.DeleteLikeServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 

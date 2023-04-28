@@ -6,21 +6,16 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 // Usecase implements auth.Usecase
 type Usecase struct {
 	authAgent auth.Agent
-
-	logger logger.Logger
 }
 
-func NewUsecase(aa auth.Agent, l logger.Logger) *Usecase {
+func NewUsecase(aa auth.Agent) *Usecase {
 	return &Usecase{
 		authAgent: aa,
-
-		logger: l,
 	}
 }
 

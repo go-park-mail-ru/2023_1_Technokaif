@@ -20,7 +20,7 @@ var correctUser = models.User{
 	ID: 1,
 }
 
-func TestArtistDeliveryCreate(t *testing.T) {
+func TestArtistDeliveryHTTP_Create(t *testing.T) {
 	// Init
 	type mockBehavior func(au *artistMocks.MockUsecase)
 
@@ -116,7 +116,7 @@ func TestArtistDeliveryCreate(t *testing.T) {
 	}
 }
 
-func TestArtistDeliveryGet(t *testing.T) {
+func TestArtistDeliveryHTTP_Get(t *testing.T) {
 	// Init
 	type mockBehavior func(au *artistMocks.MockUsecase)
 
@@ -209,7 +209,7 @@ func TestArtistDeliveryGet(t *testing.T) {
 	}
 }
 
-func TestArtistDeliveryDelete(t *testing.T) {
+func TestArtistDeliveryHTTP_Delete(t *testing.T) {
 	// Init
 	type mockBehavior func(au *artistMocks.MockUsecase)
 
@@ -309,7 +309,7 @@ func TestArtistDeliveryDelete(t *testing.T) {
 	}
 }
 
-func TestArtistDeliveryFeed(t *testing.T) {
+func TestArtistDeliveryHTTP_Feed(t *testing.T) {
 	// Init
 	type mockBehavior func(au *artistMocks.MockUsecase)
 
@@ -420,7 +420,7 @@ func TestArtistDeliveryFeed(t *testing.T) {
 	}
 }
 
-func TestArtistDeliveryGetFavorite(t *testing.T) {
+func TestArtistDeliveryHTTP_GetFavorite(t *testing.T) {
 	type mockBehavior func(aru *artistMocks.MockUsecase, userID uint32)
 
 	c := gomock.NewController(t)
@@ -509,7 +509,7 @@ func TestArtistDeliveryGetFavorite(t *testing.T) {
 	}
 }
 
-func TestArtistDeliveryLike(t *testing.T) {
+func TestArtistDeliveryHTTP_Like(t *testing.T) {
 	// Init
 	type mockBehavior func(au *artistMocks.MockUsecase)
 
@@ -609,7 +609,7 @@ func TestArtistDeliveryLike(t *testing.T) {
 	}
 }
 
-func TestArtistDeliveryUnLike(t *testing.T) {
+func TestArtistDeliveryHTTP_UnLike(t *testing.T) {
 	// Init
 	type mockBehavior func(au *artistMocks.MockUsecase)
 

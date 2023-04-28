@@ -5,19 +5,13 @@ import (
 	mathRand "math/rand"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 )
 
-func TestUsecaseTokenGenerateAndCheckAccessToken(t *testing.T) {
+func TestUsecaseToken_GenerateAndCheckAccessToken(t *testing.T) {
 	const iterations = 100
 
-	c := gomock.NewController(t)
-
-	l := commonTests.MockLogger(c)
-	u := NewUsecase(l)
+	u := NewUsecase()
 
 	for i := 0; i < iterations; i++ {
 		t.Run(fmt.Sprintf("Success Token test %d", i), func(t *testing.T) {
@@ -35,13 +29,10 @@ func TestUsecaseTokenGenerateAndCheckAccessToken(t *testing.T) {
 	}
 }
 
-func TestUsecaseTokenGenerateAndCheckCSRFToken(t *testing.T) {
+func TestUsecaseToken_GenerateAndCheckCSRFToken(t *testing.T) {
 	const iterations = 100
 
-	c := gomock.NewController(t)
-
-	l := commonTests.MockLogger(c)
-	u := NewUsecase(l)
+	u := NewUsecase()
 
 	for i := 0; i < iterations; i++ {
 		t.Run(fmt.Sprintf("Success Token test %d", i), func(t *testing.T) {

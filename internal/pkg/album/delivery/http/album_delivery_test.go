@@ -20,7 +20,7 @@ var correctUser = models.User{
 	ID: 1,
 }
 
-func TestAlbumDeliveryCreate(t *testing.T) {
+func TestAlbumDeliveryHTTP_Create(t *testing.T) {
 	// Init
 	type mockBehavior func(au *albumMocks.MockUsecase)
 
@@ -144,7 +144,7 @@ func TestAlbumDeliveryCreate(t *testing.T) {
 	}
 }
 
-func TestAlbumDeliveryGet(t *testing.T) {
+func TestAlbumDeliveryHTTP_Get(t *testing.T) {
 	// Init
 	type mockBehavior func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
 
@@ -272,7 +272,7 @@ func TestAlbumDeliveryGet(t *testing.T) {
 	}
 }
 
-func TestAlbumDeliveryDelete(t *testing.T) {
+func TestAlbumDeliveryHTTP_Delete(t *testing.T) {
 	// Init
 	type mockBehavior func(au *albumMocks.MockUsecase)
 
@@ -377,7 +377,7 @@ func TestAlbumDeliveryDelete(t *testing.T) {
 	}
 }
 
-func TestAlbumDeliveryFeed(t *testing.T) {
+func TestAlbumDeliveryHTTP_Feed(t *testing.T) {
 	// Init
 	type mockBehavior func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase)
 
@@ -523,7 +523,7 @@ func TestAlbumDeliveryFeed(t *testing.T) {
 	}
 }
 
-func TestAlbumDeliveryGetFavorite(t *testing.T) {
+func TestAlbumDeliveryHTTP_GetFavorite(t *testing.T) {
 	type mockBehavior func(alu *albumMocks.MockUsecase, aru *artistMocks.MockUsecase, userID uint32)
 
 	c := gomock.NewController(t)
@@ -662,7 +662,7 @@ func TestAlbumDeliveryGetFavorite(t *testing.T) {
 	}
 }
 
-func TestAlbumDeliveryLike(t *testing.T) {
+func TestAlbumDeliveryHTTP_Like(t *testing.T) {
 	// Init
 	type mockBehavior func(au *albumMocks.MockUsecase)
 
@@ -764,7 +764,7 @@ func TestAlbumDeliveryLike(t *testing.T) {
 	}
 }
 
-func TestAlbumDeliveryUnLike(t *testing.T) {
+func TestAlbumDeliveryHTTP_UnLike(t *testing.T) {
 	// Init
 	type mockBehavior func(au *albumMocks.MockUsecase)
 

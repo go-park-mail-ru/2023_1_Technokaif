@@ -10,17 +10,17 @@ import (
 	commonFile "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/file"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 // Usecase implements user.Usecase
 type Usecase struct {
-	repo   user.Repository
-	logger logger.Logger
+	repo user.Repository
 }
 
-func NewUsecase(r user.Repository, l logger.Logger) *Usecase {
-	return &Usecase{repo: r, logger: l}
+func NewUsecase(r user.Repository) *Usecase {
+	return &Usecase{
+		repo: r,
+	}
 }
 
 func (u *Usecase) GetByID(ctx context.Context, userID uint32) (*models.User, error) {

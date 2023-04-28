@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -14,14 +13,12 @@ import (
 type PostgreSQL struct {
 	db     *sqlx.DB
 	tables search.Tables
-	logger logger.Logger
 }
 
-func NewPostgreSQL(db *sqlx.DB, t search.Tables, l logger.Logger) *PostgreSQL {
+func NewPostgreSQL(db *sqlx.DB, t search.Tables) *PostgreSQL {
 	return &PostgreSQL{
 		db:     db,
 		tables: t,
-		logger: l,
 	}
 }
 

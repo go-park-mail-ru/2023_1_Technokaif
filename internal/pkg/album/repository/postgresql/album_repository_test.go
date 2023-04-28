@@ -13,7 +13,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
 )
@@ -27,7 +26,7 @@ const likedAlbumsTable = "Liked_albums"
 
 var errPqInternal = errors.New("postgres is dead")
 
-func TestAlbumRepositoryInsert(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_Insert(t *testing.T) {
 	// Init
 	type mockBehavior func(album models.Album, artistsID []uint32, id uint32)
 
@@ -39,11 +38,9 @@ func TestAlbumRepositoryInsert(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	defaultAlbumToIsert := models.Album{
 		Name:     "Горгород",
@@ -149,7 +146,7 @@ func TestAlbumRepositoryInsert(t *testing.T) {
 	}
 }
 
-func TestAlbumRepositoryGetByID(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_GetByID(t *testing.T) {
 	// Init
 	type mockBehavior func(albumID uint32, a models.Album)
 
@@ -161,11 +158,9 @@ func TestAlbumRepositoryGetByID(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultAlbumToGetID uint32 = 1
@@ -246,7 +241,7 @@ func TestAlbumRepositoryGetByID(t *testing.T) {
 	}
 }
 
-func TestAlbumRepositoryDeleteByID(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_DeleteByID(t *testing.T) {
 	// Init
 	type mockBehavior func(albumID uint32)
 
@@ -258,11 +253,9 @@ func TestAlbumRepositoryDeleteByID(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultAlbumToDeleteID uint32 = 1
@@ -330,7 +323,7 @@ func TestAlbumRepositoryDeleteByID(t *testing.T) {
 	}
 }
 
-func TestAlbumRepositoryGetFeed(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_GetFeed(t *testing.T) {
 	// Init
 	type mockBehavior func(albums []models.Album)
 
@@ -342,11 +335,9 @@ func TestAlbumRepositoryGetFeed(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	descriptionID1 := "Антиутопия"
@@ -418,7 +409,7 @@ func TestAlbumRepositoryGetFeed(t *testing.T) {
 	}
 }
 
-func TestAlbumRepositoryGetByArtist(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_GetByArtist(t *testing.T) {
 	// Init
 	type mockBehavior func(artistID uint32, albums []models.Album)
 
@@ -430,11 +421,9 @@ func TestAlbumRepositoryGetByArtist(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultArtistID uint32 = 1
@@ -531,7 +520,7 @@ func TestAlbumRepositoryGetByArtist(t *testing.T) {
 	}
 }
 
-func TestAlbumRepositoryGetByTrack(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_GetByTrack(t *testing.T) {
 	// Init
 	type mockBehavior func(trackID uint32, album models.Album)
 
@@ -543,11 +532,9 @@ func TestAlbumRepositoryGetByTrack(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultTrackID uint32 = 1
@@ -634,7 +621,7 @@ func TestAlbumRepositoryGetByTrack(t *testing.T) {
 	}
 }
 
-func TestAlbumRepositoryGetLikedByUser(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_GetLikedByUser(t *testing.T) {
 	// Init
 	type mockBehavior func(userID uint32, albums []models.Album)
 
@@ -646,11 +633,9 @@ func TestAlbumRepositoryGetLikedByUser(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultUserID uint32 = 1
@@ -747,7 +732,7 @@ func TestAlbumRepositoryGetLikedByUser(t *testing.T) {
 	}
 }
 
-func TestAlbumRepositoryLike(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_Like(t *testing.T) {
 	// Init
 	type mockBehavior func(albumID uint32, userID uint32)
 
@@ -764,11 +749,9 @@ func TestAlbumRepositoryLike(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultAlbumToLikeID uint32 = 1
@@ -845,7 +828,7 @@ func TestAlbumRepositoryLike(t *testing.T) {
 	}
 }
 
-func TestAlbumRepositoryDeleteLike(t *testing.T) {
+func TestAlbumRepositoryPostgreSQL_DeleteLike(t *testing.T) {
 	// Init
 	type mockBehavior func(albumID uint32, userID uint32)
 
@@ -862,11 +845,9 @@ func TestAlbumRepositoryDeleteLike(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := albumMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	defaultLikeInfo := LikeInfo{
