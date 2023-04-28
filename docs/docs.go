@@ -106,6 +106,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/albums/search": {
+            "post": {
+                "description": "Find amount of albums by search-query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Find Albums",
+                "parameters": [
+                    {
+                        "description": "Query for search",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/delivery.searchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Albums found",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.searchAlbumsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect body",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/api/albums/{albumID}/": {
             "get": {
                 "description": "Get album with chosen ID",
@@ -367,6 +419,58 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.ArtistTransfer"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/artists/search": {
+            "post": {
+                "description": "Find amount of artists by search-query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Find Artists",
+                "parameters": [
+                    {
+                        "description": "Query for search",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/delivery.searchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Artists found",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.searchArtistsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect body",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
@@ -801,6 +905,58 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.PlaylistTransfer"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/playlists/search": {
+            "post": {
+                "description": "Find amount of playlists by search-query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Find Playlists",
+                "parameters": [
+                    {
+                        "description": "Query for search",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/delivery.searchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Playlists found",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.searchPlaylistsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect body",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
@@ -1279,6 +1435,58 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.TrackTransfer"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tracks/search": {
+            "post": {
+                "description": "Find amount of tracks by search-query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "summary": "Find Tracks",
+                "parameters": [
+                    {
+                        "description": "Query for search",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/delivery.searchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tracks found",
+                        "schema": {
+                            "$ref": "#/definitions/delivery.searchTracksResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Incorrect body",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
                         }
                     },
                     "500": {
@@ -1829,6 +2037,61 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "delivery.searchAlbumsResponse": {
+            "type": "object",
+            "properties": {
+                "albums": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AlbumTransfer"
+                    }
+                }
+            }
+        },
+        "delivery.searchArtistsResponse": {
+            "type": "object",
+            "properties": {
+                "artists": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ArtistTransfer"
+                    }
+                }
+            }
+        },
+        "delivery.searchPlaylistsResponse": {
+            "type": "object",
+            "properties": {
+                "playlists": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.PlaylistTransfer"
+                    }
+                }
+            }
+        },
+        "delivery.searchRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "query": {
+                    "type": "string"
+                }
+            }
+        },
+        "delivery.searchTracksResponse": {
+            "type": "object",
+            "properties": {
+                "tracks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.TrackTransfer"
+                    }
+                }
+            }
+        },
         "http.Error": {
             "type": "object",
             "properties": {

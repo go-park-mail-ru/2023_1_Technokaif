@@ -79,7 +79,8 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	authHandler := authDelivery.NewHandler(authUsecase, tokenUsecase, logger)
 	trackHandler := trackDelivery.NewHandler(trackUsecase, artistUsecase, logger)
 	userHandler := userDelivery.NewHandler(userUsecase, logger)
-	searchHandler := searchDelivery.NewHandler(searchUsecase, logger)
+	searchHandler := searchDelivery.NewHandler(searchUsecase,
+		albumUsecase, artistUsecase, trackUsecase, playlistUsecase, userUsecase, logger)
 	csrfHandler := csrfDelivery.NewHandler(tokenUsecase, logger)
 
 	authMiddlware := authMiddlware.NewMiddleware(authUsecase, tokenUsecase, logger)

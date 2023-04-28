@@ -48,7 +48,7 @@ func TrackTransferFromEntry(ctx context.Context, t Track, user *User, likeChecke
 		}
 	}
 
-	at, err := ArtistTransferFromQuery(ctx, artists, user, artistLikeChecker)
+	at, err := ArtistTransferFromList(ctx, artists, user, artistLikeChecker)
 	if err != nil {
 		return TrackTransfer{}, err
 	}
@@ -67,8 +67,8 @@ func TrackTransferFromEntry(ctx context.Context, t Track, user *User, likeChecke
 	}, nil
 }
 
-// TrackTransferFromQuery converts []Track to []TrackTransfer
-func TrackTransferFromQuery(ctx context.Context, tracks []Track, user *User, likeChecker trackLikeChecker,
+// TrackTransferFromList converts []Track to []TrackTransfer
+func TrackTransferFromList(ctx context.Context, tracks []Track, user *User, likeChecker trackLikeChecker,
 	artistLikeChecker artistLikeChecker, artistsGetter artistsByTrackGetter) ([]TrackTransfer, error) {
 
 	trackTransfers := make([]TrackTransfer, 0, len(tracks))

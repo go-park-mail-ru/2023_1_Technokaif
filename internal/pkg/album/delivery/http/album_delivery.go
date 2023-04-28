@@ -218,7 +218,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromQuery(r.Context(), albums, user,
+	resp, err := models.AlbumTransferFromList(r.Context(), albums, user,
 		h.albumServices.IsLiked, h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -251,7 +251,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromQuery(r.Context(), albums, user, h.albumServices.IsLiked,
+	resp, err := models.AlbumTransferFromList(r.Context(), albums, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -287,7 +287,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := models.AlbumTransferFromQuery(r.Context(), favAlbums, user, h.albumServices.IsLiked,
+	at, err := models.AlbumTransferFromList(r.Context(), favAlbums, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,

@@ -42,8 +42,8 @@ func ArtistTransferFromEntry(ctx context.Context, a Artist, user *User,
 	}, nil
 }
 
-// ArtistTransferFromQuery converts []Artist to []ArtistTransfer
-func ArtistTransferFromQuery(ctx context.Context, artists []Artist, user *User,
+// ArtistTransferFromList converts []Artist to []ArtistTransfer
+func ArtistTransferFromList(ctx context.Context, artists []Artist, user *User,
 	likeChecker artistLikeChecker) ([]ArtistTransfer, error) {
 
 	artistTransfers := make([]ArtistTransfer, 0, len(artists))

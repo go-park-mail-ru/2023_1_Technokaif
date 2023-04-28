@@ -189,7 +189,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistsTransfer, err := models.ArtistTransferFromQuery(r.Context(), artists, user, h.artistServices.IsLiked)
+	artistsTransfer, err := models.ArtistTransferFromList(r.Context(), artists, user, h.artistServices.IsLiked)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
@@ -224,7 +224,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := models.ArtistTransferFromQuery(r.Context(), artists, user, h.artistServices.IsLiked)
+	at, err := models.ArtistTransferFromList(r.Context(), artists, user, h.artistServices.IsLiked)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			artistsGetServerError, http.StatusInternalServerError, h.logger, err)

@@ -366,7 +366,7 @@ func (h *Handler) GetByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, err := models.PlaylistTransferFromQuery(r.Context(),
+	pt, err := models.PlaylistTransferFromList(r.Context(),
 		playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -527,7 +527,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.PlaylistTransferFromQuery(r.Context(),
+	resp, err := models.PlaylistTransferFromList(r.Context(),
 		playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -563,7 +563,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := models.PlaylistTransferFromQuery(r.Context(), favPlaylists, user,
+	at, err := models.PlaylistTransferFromList(r.Context(), favPlaylists, user,
 		h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,

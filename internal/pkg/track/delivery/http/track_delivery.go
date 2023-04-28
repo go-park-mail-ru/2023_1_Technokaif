@@ -218,7 +218,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(r.Context(), tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -266,7 +266,7 @@ func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(r.Context(), tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -314,7 +314,7 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(r.Context(), tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -347,7 +347,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(r.Context(), tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -383,7 +383,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(r.Context(), favTracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), favTracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,

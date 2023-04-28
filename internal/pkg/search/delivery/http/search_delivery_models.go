@@ -7,39 +7,34 @@ import (
 
 // Response messages
 const (
-	albumsFindNoRights    = "no rights to find albums"
-	artistsFindNoRights   = "no rights to find artists"
-	tracksFindNoRights    = "no rights to find tracks"
-	playlistsFindNoRights = "no rights to find playlists"
-
 	albumsFindServerError    = "can't find albums"
 	artistsFindServerError   = "can't find artists"
 	tracksFindServerError    = "can't find tracks"
 	playlistsFindServerError = "can't find playlists"
 )
 
-type SearchRequest struct {
+type searchRequest struct {
 	Query  string `json:"query" valid:"required"`
 	Amount uint32 `json:"amount" valid:"required,range(1|100)"`
 }
 
-func (sr *SearchRequest) validate() error {
+func (sr *searchRequest) validate() error {
 	_, err := valid.ValidateStruct(sr)
 	return err
 }
 
-type SearchAlbumsResponse struct {
+type searchAlbumsResponse struct {
 	Albums []models.AlbumTransfer `json:"albums"`
 }
 
-type SearchArtistsResponse struct {
+type searchArtistsResponse struct {
 	Artists []models.ArtistTransfer `json:"artists"`
 }
 
-type SearchTracksResponse struct {
-	Tracks []models.Track `json:"tracks"`
+type searchTracksResponse struct {
+	Tracks []models.TrackTransfer `json:"tracks"`
 }
 
-type SearchPlaylistsResponse struct {
-	Playlists []models.Playlist `json:"playlists"`
+type searchPlaylistsResponse struct {
+	Playlists []models.PlaylistTransfer `json:"playlists"`
 }
