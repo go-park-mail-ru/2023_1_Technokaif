@@ -36,7 +36,7 @@ func main() {
 	userRepo := userRepository.NewPostgreSQL(db, tables)
 	authRepo := authRepository.NewPostgreSQL(db, tables)
 
-	authUsecase := authUsecase.NewUsecase(authRepo, userRepo, logger)
+	authUsecase := authUsecase.NewUsecase(authRepo, userRepo)
 
 
 	listener, err := net.Listen("tcp", ":"+os.Getenv(cmd.AuthPortParam))

@@ -10,13 +10,13 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+	proto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/auth/proto/generated"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/auth/proto/generated"
 )
 
 type authGRPC struct {
 	authServices auth.Usecase
-	logger   logger.Logger
+	logger       logger.Logger
 
 	proto.UnimplementedAuthorizationServer
 }
@@ -24,7 +24,7 @@ type authGRPC struct {
 func NewAuthGRPC(authServices auth.Usecase, l logger.Logger) proto.AuthorizationServer {
 	return &authGRPC{
 		authServices: authServices,
-		logger:   l,
+		logger:       l,
 	}
 }
 
@@ -41,9 +41,9 @@ func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto
 		FirstName: msg.FirstName,
 		LastName:  msg.LastName,
 		Sex:       models.Sex(msg.Sex),
+		Password:  msg.Password,
 	}
 	user.BirthDate.Time = time
-
 
 	userId, err := a.authServices.SignUpUser(ctx, user)
 
@@ -65,6 +65,11 @@ func (a *authGRPC) GetUserByCreds(ctx context.Context, msg *proto.Creds) (*proto
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
 			return nil, status.Error(codes.NotFound, err.Error())
+		}
+
+		var errIncorrectPassword *models.IncorrectPasswordError
+		if errors.As(err, &errIncorrectPassword) {
+			return nil, status.Error(codes.PermissionDenied, err.Error())
 		}
 
 		return nil, status.Error(codes.Internal, err.Error())

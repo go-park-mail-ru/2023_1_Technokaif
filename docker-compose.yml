@@ -9,13 +9,13 @@ services:
       args:
         APP: "api/main.go"
         PORT: 4444
-      dockerfile: Dockerfile.Multistage
+      dockerfile: Dockerfile.application
     ports:
       - "4444:4444"
     env_file:
       - .env
     volumes:
-      - ${PWD}/.env:/out/.env
+      - .env:/out/.env
       - type: bind
         source: ${MEDIA_PATH}
         target: ${MEDIA_PATH}
@@ -28,14 +28,16 @@ services:
       args:
         APP: "auth/auth.go"
         PORT: 4443
-      dockerfile: Dockerfile.Multistage
+      dockerfile: Dockerfile.application
     ports:
       - "4443:4443"
     volumes:
-      - ${PWD}/.env:/out/.env
+      - .env:/out/.env
 
   db:
-    image: postgres:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile.postgres
     restart: always
     env_file:
       - .env
@@ -43,7 +45,10 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
     ports:
       - 5436:5432
     volumes:
       - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d
+      - .:/var/lib/postgresql/data
+    command: ["postgres", "-c", "logging_collector=on", "-c", "log_statement=all"]

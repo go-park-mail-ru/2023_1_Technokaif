@@ -40,7 +40,7 @@ func (a *AuthAgent) SignUpUser(ctx context.Context, u models.User) (uint32, erro
 			case codes.AlreadyExists:
 				return 0, fmt.Errorf("%w: %v", &models.UserAlreadyExistsError{}, err)
 			case codes.Internal, codes.InvalidArgument:
-				return 0, fmt.Errorf("%s: %v", st.Message(), err)
+				return 0, err
 			}
 		}
 		return 0, err
@@ -64,7 +64,7 @@ func (a *AuthAgent) GetUserByCreds(ctx context.Context, username, plainPassword 
 			case codes.PermissionDenied:
 				return nil, fmt.Errorf("%w: %v", &models.IncorrectPasswordError{}, err)
 			case codes.Internal:
-				return nil, fmt.Errorf("%s: %v", st.Message(), err)
+				return nil, err
 			}
 		}
 		return nil, err
@@ -91,7 +91,7 @@ func (a *AuthAgent) GetUserByAuthData(ctx context.Context, userID, userVersion u
 			case codes.NotFound:
 				return nil, fmt.Errorf("%w: %v", &models.NoSuchUserError{}, err)
 			case codes.Internal:
-				return nil, fmt.Errorf("%s: %v", st.Message(), err)
+				return nil, err
 			}
 		}
 		return nil, err
@@ -113,7 +113,7 @@ func (a *AuthAgent) IncreaseUserVersion(ctx context.Context, userID uint32) erro
 			case codes.NotFound:
 				return fmt.Errorf("%w: %v", &models.NoSuchUserError{}, err)
 			case codes.Internal:
-				return fmt.Errorf("%s: %v", st.Message(), err)
+				return err
 			}
 		}
 		return err
@@ -135,7 +135,7 @@ func (a *AuthAgent) ChangePassword(ctx context.Context, userID uint32, password 
 			case codes.NotFound:
 				return fmt.Errorf("%w: %v", &models.NoSuchUserError{}, err)
 			case codes.Internal:
-				return fmt.Errorf("%s: %v", st.Message(), err)
+				return err
 			}
 		}
 		return err

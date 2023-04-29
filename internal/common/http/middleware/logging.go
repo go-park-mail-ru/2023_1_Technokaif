@@ -25,9 +25,9 @@ func Logging(logger logger.Logger) func(next http.Handler) http.Handler {
 
 				realIP := r.Header.Get(realIPHeaderName)
 				if realIP != "" {
-					logger.Infof("RID:%s, %s %s from RealIP: %s IP: %s - %s", reqId.String(), r.Method, r.URL.Path, realIP, r.RemoteAddr, respTime.String())
+					logger.Infof("RID:%d, %s %s from RealIP: %s IP: %s - %s", reqId.ID(), r.Method, r.URL.Path, realIP, r.RemoteAddr, respTime.String())
 				} else {
-					logger.Infof("RID:%s, %s %s from IP: %s - %s", reqId.String(), r.Method, r.URL.Path, r.RemoteAddr, respTime.String())
+					logger.Infof("RID:%d, %s %s from IP: %s - %s", reqId.ID(), r.Method, r.URL.Path, r.RemoteAddr, respTime.String())
 				}
 			}()
 
