@@ -87,7 +87,7 @@ func (a *authGRPC) GetUserByAuthData(ctx context.Context, msg *proto.AuthData) (
 	return userToProto(user), nil
 }
 
-func (a *authGRPC) IncreaseUserVersion(ctx context.Context, msg *proto.IncreaseUserVersionMsg) (*proto.Void, error) {
+func (a *authGRPC) IncreaseUserVersion(ctx context.Context, msg *proto.IncreaseUserVersionMsg) (*proto.IncreaseUserVersionResponse, error) {
 	if err := a.authServices.IncreaseUserVersion(ctx, msg.UserId); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
@@ -97,10 +97,10 @@ func (a *authGRPC) IncreaseUserVersion(ctx context.Context, msg *proto.IncreaseU
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return nil, nil
+	return &proto.IncreaseUserVersionResponse{}, nil
 }
 
-func (a *authGRPC) ChangePassword(ctx context.Context, msg *proto.ChangePassMsg) (*proto.Void, error) {
+func (a *authGRPC) ChangePassword(ctx context.Context, msg *proto.ChangePassMsg) (*proto.ChangePassResponse, error) {
 	if err := a.authServices.ChangePassword(ctx, msg.UserId, msg.PlainPassword); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {
@@ -110,7 +110,7 @@ func (a *authGRPC) ChangePassword(ctx context.Context, msg *proto.ChangePassMsg)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return nil, nil
+	return &proto.ChangePassResponse{}, nil
 }
 
 func userToProto(user *models.User) *proto.UserResponse {

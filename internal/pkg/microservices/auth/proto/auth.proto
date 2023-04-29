@@ -3,8 +3,6 @@ syntax = "proto3";
 package auth;
 option go_package = "microservices/auth/proto";
 
-message Void {}
-
 message Error {
 	uint32 code = 1; 
 }
@@ -54,15 +52,19 @@ message IncreaseUserVersionMsg {
 	uint32 userId = 1;
 }
 
+message IncreaseUserVersionResponse {}
+
 message ChangePassMsg {
 	uint32 userId = 1;
 	string plainPassword = 2;
 }
 
+message ChangePassResponse {}
+
 service Authorization {
     rpc SignUpUser(SignUpMsg) returns (SignUpResponse) {};
 	rpc GetUserByCreds(Creds) returns (UserResponse) {};
 	rpc GetUserByAuthData(AuthData) returns (UserResponse) {};
-	rpc IncreaseUserVersion(IncreaseUserVersionMsg) returns (Void) {};
-	rpc ChangePassword(ChangePassMsg) returns (Void) {};
+	rpc IncreaseUserVersion(IncreaseUserVersionMsg) returns (IncreaseUserVersionResponse) {};
+	rpc ChangePassword(ChangePassMsg) returns (ChangePassResponse) {};
 }

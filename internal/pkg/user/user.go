@@ -42,11 +42,6 @@ type Repository interface {
 	GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.User, error)
 }
 
-// Agent ...
-type Agent interface {
-	CreateUser(user models.User)
-}
-
 // Tables includes methods which return needed tables
 // to work with users on repository-layer
 type Tables interface {
