@@ -133,7 +133,7 @@ CREATE TABLE Liked_playlists
 
 -- Text Search
 
--- -- Russian dict (just in case)
+-- Russian dict (just in case)
 -- CREATE TEXT SEARCH DICTIONARY russian_ispell (
 --     TEMPLATE = ispell,
 --     DictFile = russian,
@@ -147,19 +147,18 @@ ALTER TABLE Artists   ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regc
 ALTER TABLE Albums    ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
 ALTER TABLE Tracks    ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
 ALTER TABLE Playlists ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
--- With this columns indeces has to be created like USING gin (to_tsvector(lang, name))
 
 CREATE INDEX idx_gin_artists ON Artists USING gin (to_tsvector(lang, name));
-CREATE INDEX idx_btree_artists ON Artists USING btree (name varchar_pattern_ops);
+CREATE INDEX idx_btree_artists ON Artists USING btree (LOWER(name) varchar_pattern_ops);
 
 CREATE INDEX idx_gin_albums ON Albums USING gin (to_tsvector(lang, name));
-CREATE INDEX idx_btree_albums ON Albums USING btree (name varchar_pattern_ops);
+CREATE INDEX idx_btree_albums ON Albums USING btree (LOWER(name) varchar_pattern_ops);
 
 CREATE INDEX idx_gin_tracks ON Tracks USING gin (to_tsvector(lang, name));
-CREATE INDEX idx_btree_tracks ON Tracks USING btree (name varchar_pattern_ops);
+CREATE INDEX idx_btree_tracks ON Tracks USING btree (LOWER(name) varchar_pattern_ops);
 
 CREATE INDEX idx_gin_playlists ON Playlists USING gin (to_tsvector(lang, name));
-CREATE INDEX idx_btree_playlists ON Playlists USING btree (name varchar_pattern_ops);
+CREATE INDEX idx_btree_playlists ON Playlists USING btree (LOWER(name) varchar_pattern_ops);
 
 -- Select example
 -- SELECT *

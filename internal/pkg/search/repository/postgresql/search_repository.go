@@ -29,7 +29,7 @@ func (p *PostgreSQL) FullTextSearchAlbums(
 		`SELECT id, name, description, cover_src
 		FROM %s
 		WHERE to_tsvector(lang, name) @@ plainto_tsquery($1)
-			OR name LIKE '%%$1%%'
+			OR LOWER(name) LIKE LOWER('%%$1%%')
 		ORDER BY ts_rank(to_tsvector(lang, name), plainto_tsquery($1)) DESC
 		LIMIT $2;`,
 		p.tables.Albums(),
@@ -50,7 +50,7 @@ func (p *PostgreSQL) FullTextSearchArtists(
 		`SELECT id, name, avatar_src
 		FROM %s
 		WHERE to_tsvector(lang, name) @@ plainto_tsquery($1)
-			OR name LIKE '%%$1%%'
+			OR LOWER(name) LIKE LOWER('%%$1%%')
 		ORDER BY ts_rank(to_tsvector(lang, name), plainto_tsquery($1)) DESC
 		LIMIT $2;`,
 		p.tables.Artists(),
@@ -71,7 +71,7 @@ func (p *PostgreSQL) FullTextSearchTracks(
 		`SELECT id, name, cover_src, record_src, duration, listens
 		FROM %s
 		WHERE to_tsvector(lang, name) @@ plainto_tsquery($1)
-			OR name LIKE '%%$1%%'
+		OR LOWER(name) LIKE LOWER('%%$1%%')
 		ORDER BY ts_rank(to_tsvector(lang, name), plainto_tsquery($1)) DESC
 		LIMIT $2;`,
 		p.tables.Tracks(),
@@ -92,7 +92,7 @@ func (p *PostgreSQL) FullTextSearchPlaylists(
 		`SELECT id, name, description, cover_src
 		FROM %s
 		WHERE to_tsvector(lang, name) @@ plainto_tsquery($1)
-			OR name LIKE '%%$1%%'
+			OR LOWER(name) LIKE LOWER('%%$1%%')
 		ORDER BY ts_rank(to_tsvector(lang, name), plainto_tsquery($1)) DESC
 		LIMIT $2;`,
 		p.tables.Playlists(),
