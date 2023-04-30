@@ -55,6 +55,8 @@ func InitRouter(
 
 		r.Route("/users", func(r chi.Router) {
 			r.With(authM.Authorization, userM.CheckUserAuthAndResponce).Route(userIdRoute, func(r chi.Router) {
+				r.Get("/playlists", playlistH.GetByUser)
+
 				r.Get("/", userH.Get)
 
 				r.With(csrfM.CheckCSRFToken).Group(func(r chi.Router) {
