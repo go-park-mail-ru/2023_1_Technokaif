@@ -9,19 +9,19 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-var responseMetrics = promauto.NewSummaryVec(
+var responseTimeMetrics = promauto.NewSummaryVec(
 	prometheus.SummaryOpts{
 		Namespace:  "fluire",
 		Subsystem:  "http",
 		Name:       "response_time",
-		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.01},
+		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01},
 	},
 	[]string{"method", "path"},
 )
 
 func observeResponseTime(duration time.Duration, method, path string) {
-	responseMetrics.WithLabelValues(method, path).
-		Observe(float64(duration.Milliseconds()))
+	responseTimeMetrics.WithLabelValues(method, path).
+		Observe(float64(duration.Microseconds()))
 }
 
 func Metrics() func(next http.Handler) http.Handler {

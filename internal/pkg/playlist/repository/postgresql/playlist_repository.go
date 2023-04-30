@@ -262,7 +262,7 @@ func (p *PostgreSQL) GetLikedByUser(ctx context.Context, userID uint32) ([]model
 	query := fmt.Sprintf(
 		`SELECT p.id, p.name, p.description, p.cover_src
 		FROM %s p 
-			INNER JOIN %s ua ON p.id = up.playlist_id 
+			INNER JOIN %s up ON p.id = up.playlist_id 
 		WHERE up.user_id = $1
 		ORDER BY liked_at DESC;`,
 		p.tables.Playlists(), p.tables.LikedPlaylists())

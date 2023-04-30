@@ -42,9 +42,7 @@ services:
       - "9090:9090"
 
   db:
-    build: 
-      context: .
-      dockerfile: Dockerfile.postgres
+    image: postgres:latest
     restart: always
     env_file:
       - .env
