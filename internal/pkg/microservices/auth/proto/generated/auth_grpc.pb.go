@@ -25,8 +25,8 @@ type AuthorizationClient interface {
 	SignUpUser(ctx context.Context, in *SignUpMsg, opts ...grpc.CallOption) (*SignUpResponse, error)
 	GetUserByCreds(ctx context.Context, in *Creds, opts ...grpc.CallOption) (*UserResponse, error)
 	GetUserByAuthData(ctx context.Context, in *AuthData, opts ...grpc.CallOption) (*UserResponse, error)
-	IncreaseUserVersion(ctx context.Context, in *IncreaseUserVersionMsg, opts ...grpc.CallOption) (*Void, error)
-	ChangePassword(ctx context.Context, in *ChangePassMsg, opts ...grpc.CallOption) (*Void, error)
+	IncreaseUserVersion(ctx context.Context, in *IncreaseUserVersionMsg, opts ...grpc.CallOption) (*IncreaseUserVersionResponse, error)
+	ChangePassword(ctx context.Context, in *ChangePassMsg, opts ...grpc.CallOption) (*ChangePassResponse, error)
 }
 
 type authorizationClient struct {
@@ -64,8 +64,8 @@ func (c *authorizationClient) GetUserByAuthData(ctx context.Context, in *AuthDat
 	return out, nil
 }
 
-func (c *authorizationClient) IncreaseUserVersion(ctx context.Context, in *IncreaseUserVersionMsg, opts ...grpc.CallOption) (*Void, error) {
-	out := new(Void)
+func (c *authorizationClient) IncreaseUserVersion(ctx context.Context, in *IncreaseUserVersionMsg, opts ...grpc.CallOption) (*IncreaseUserVersionResponse, error) {
+	out := new(IncreaseUserVersionResponse)
 	err := c.cc.Invoke(ctx, "/auth.Authorization/IncreaseUserVersion", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -73,8 +73,8 @@ func (c *authorizationClient) IncreaseUserVersion(ctx context.Context, in *Incre
 	return out, nil
 }
 
-func (c *authorizationClient) ChangePassword(ctx context.Context, in *ChangePassMsg, opts ...grpc.CallOption) (*Void, error) {
-	out := new(Void)
+func (c *authorizationClient) ChangePassword(ctx context.Context, in *ChangePassMsg, opts ...grpc.CallOption) (*ChangePassResponse, error) {
+	out := new(ChangePassResponse)
 	err := c.cc.Invoke(ctx, "/auth.Authorization/ChangePassword", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -89,8 +89,8 @@ type AuthorizationServer interface {
 	SignUpUser(context.Context, *SignUpMsg) (*SignUpResponse, error)
 	GetUserByCreds(context.Context, *Creds) (*UserResponse, error)
 	GetUserByAuthData(context.Context, *AuthData) (*UserResponse, error)
-	IncreaseUserVersion(context.Context, *IncreaseUserVersionMsg) (*Void, error)
-	ChangePassword(context.Context, *ChangePassMsg) (*Void, error)
+	IncreaseUserVersion(context.Context, *IncreaseUserVersionMsg) (*IncreaseUserVersionResponse, error)
+	ChangePassword(context.Context, *ChangePassMsg) (*ChangePassResponse, error)
 	mustEmbedUnimplementedAuthorizationServer()
 }
 
@@ -107,10 +107,10 @@ func (UnimplementedAuthorizationServer) GetUserByCreds(context.Context, *Creds) 
 func (UnimplementedAuthorizationServer) GetUserByAuthData(context.Context, *AuthData) (*UserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByAuthData not implemented")
 }
-func (UnimplementedAuthorizationServer) IncreaseUserVersion(context.Context, *IncreaseUserVersionMsg) (*Void, error) {
+func (UnimplementedAuthorizationServer) IncreaseUserVersion(context.Context, *IncreaseUserVersionMsg) (*IncreaseUserVersionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IncreaseUserVersion not implemented")
 }
-func (UnimplementedAuthorizationServer) ChangePassword(context.Context, *ChangePassMsg) (*Void, error) {
+func (UnimplementedAuthorizationServer) ChangePassword(context.Context, *ChangePassMsg) (*ChangePassResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
 }
 func (UnimplementedAuthorizationServer) mustEmbedUnimplementedAuthorizationServer() {}

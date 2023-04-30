@@ -1,0 +1,5 @@
+FROM postgres:14
+
+COPY ./scripts/db/install_ru_dict.sh .
+RUN ./install_ru_dict.sh
+
