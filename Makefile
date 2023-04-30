@@ -1,9 +1,21 @@
 .PHONY: all
 
-all: clear_media server_start
+# all: clear_media server_start
+
+build:
+	docker-compose down
+	docker-compose build
+
+start:
+	docker-compose down
+	docker-compose up -d
+	docker-compose up
 
 drop_db:
-	sudo rm -r ./pgdata
+	rm -r ./pgdata
+
+clean_containers:
+	docker system prune
 
 api_start:
 	go run ./cmd/api/main.go
@@ -13,6 +25,9 @@ auth_start:
 
 clear_media:
 	rm -r ./img ./covers ./records ./avatars
+
+lint:
+	go vet ./... && golangci-lint run
 
 check_coverage:
 	go test -coverpkg=./... -coverprofile=coverage.out ./... \
