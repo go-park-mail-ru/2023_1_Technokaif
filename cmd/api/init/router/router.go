@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/go-park-mail-ru/2023_1_Technokaif/docs"
@@ -48,8 +49,10 @@ func InitRouter(
 	r := chi.NewRouter()
 	r.Use(middleware.Panic(loggger))
 	r.Use(middleware.Logging(loggger))
+	r.Use(middleware.Metrics())
 
 	r.Get("/swagger/*", swagger.WrapHandler)
+	r.Get("/metrics", promhttp.Handler().ServeHTTP)
 
 	r.Route("/api", func(r chi.Router) {
 

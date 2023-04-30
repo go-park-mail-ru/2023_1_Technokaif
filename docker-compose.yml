@@ -34,6 +34,13 @@ services:
     volumes:
       - .env:/out/.env
 
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./metrics/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
   db:
     build: 
       context: .
