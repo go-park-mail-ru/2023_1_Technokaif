@@ -51,7 +51,7 @@ func (u *Usecase) GetUserByCreds(ctx context.Context, username, password string)
 	}
 
 	hashedPassword := hashPassword(password, salt)
-	
+
 	if hashedPassword != user.Password {
 		return nil, fmt.Errorf("(usecase) password hash doesn't match the real one: %w", &models.IncorrectPasswordError{UserID: user.ID})
 	}

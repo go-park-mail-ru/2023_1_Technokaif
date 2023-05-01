@@ -159,8 +159,8 @@ func protoToUser(userProto *proto.UserResponse) (*models.User, error) {
 		LastName:  userProto.LastName,
 		Sex:       models.Sex(userProto.Sex),
 		AvatarSrc: userProto.AvatarSrc,
+		BirthDate: models.Date{Time: time},
 	}
-	user.BirthDate.Time = time
 
 	return user, nil
 }

@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"io"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -24,13 +23,17 @@ func (s *SearchAgent) FindAlbums(ctx context.Context, query string, amount uint3
 		Query:  query,
 		Amount: amount,
 	}
-	stream, err := s.client.FindAlbums(ctx, msg)
+
+	grpcCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	stream, err := s.client.FindAlbums(grpcCtx, msg)
 	if err != nil {
 		return nil, err
 	}
 
 	albums := make([]models.Album, 0, amount)
-	for {
+	for i := 0; uint32(i) < amount; i++ {
 		albumProto, err := stream.Recv()
 		if err == io.EOF {
 			break
@@ -49,9 +52,6 @@ func (s *SearchAgent) FindAlbums(ctx context.Context, query string, amount uint3
 		albums = append(albums, album)
 	}
 
-	if len(albums) != int(amount) {
-		return nil, errors.New("(usecase) amount of albums isn't right")
-	}
 	return albums, nil
 }
 
@@ -60,13 +60,17 @@ func (s *SearchAgent) FindArtists(ctx context.Context, query string, amount uint
 		Query:  query,
 		Amount: amount,
 	}
-	stream, err := s.client.FindArtists(ctx, msg)
+
+	grpcCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	stream, err := s.client.FindArtists(grpcCtx, msg)
 	if err != nil {
 		return nil, err
 	}
 
 	artists := make([]models.Artist, 0, amount)
-	for {
+	for i := 0; uint32(i) < amount; i++ {
 		artistProto, err := stream.Recv()
 		if err == io.EOF {
 			break
@@ -85,9 +89,6 @@ func (s *SearchAgent) FindArtists(ctx context.Context, query string, amount uint
 		artists = append(artists, artist)
 	}
 
-	if len(artists) != int(amount) {
-		return nil, errors.New("(usecase) amount of artists isn't right")
-	}
 	return artists, nil
 }
 
@@ -96,13 +97,17 @@ func (s *SearchAgent) FindTracks(ctx context.Context, query string, amount uint3
 		Query:  query,
 		Amount: amount,
 	}
-	stream, err := s.client.FindTracks(ctx, msg)
+
+	grpcCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	stream, err := s.client.FindTracks(grpcCtx, msg)
 	if err != nil {
 		return nil, err
 	}
 
 	tracks := make([]models.Track, 0, amount)
-	for {
+	for i := 0; uint32(i) < amount; i++ {
 		trackProto, err := stream.Recv()
 		if err == io.EOF {
 			break
@@ -125,9 +130,6 @@ func (s *SearchAgent) FindTracks(ctx context.Context, query string, amount uint3
 		tracks = append(tracks, track)
 	}
 
-	if len(tracks) != int(amount) {
-		return nil, errors.New("(usecase) amount of tracks isn't right")
-	}
 	return tracks, nil
 }
 
@@ -136,13 +138,17 @@ func (s *SearchAgent) FindPlaylists(ctx context.Context, query string, amount ui
 		Query:  query,
 		Amount: amount,
 	}
-	stream, err := s.client.FindPlaylists(ctx, msg)
+
+	grpcCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	stream, err := s.client.FindPlaylists(grpcCtx, msg)
 	if err != nil {
 		return nil, err
 	}
 
 	playlists := make([]models.Playlist, 0, amount)
-	for {
+	for i := 0; uint32(i) < amount; i++ {
 		playlistProto, err := stream.Recv()
 		if err == io.EOF {
 			break
@@ -161,9 +167,6 @@ func (s *SearchAgent) FindPlaylists(ctx context.Context, query string, amount ui
 		playlists = append(playlists, playlist)
 	}
 
-	if len(playlists) != int(amount) {
-		return nil, errors.New("(usecase) amount of playlists isn't right")
-	}
 	return playlists, nil
 }
 

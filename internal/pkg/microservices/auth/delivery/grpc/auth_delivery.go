@@ -21,7 +21,7 @@ type authGRPC struct {
 	proto.UnimplementedAuthorizationServer
 }
 
-func NewAuthGRPC(authServices auth.Usecase, l logger.Logger) proto.AuthorizationServer {
+func NewAuthGRPC(authServices auth.Usecase, l logger.Logger) *authGRPC {
 	return &authGRPC{
 		authServices: authServices,
 		logger:       l,
@@ -42,8 +42,8 @@ func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto
 		LastName:  msg.LastName,
 		Sex:       models.Sex(msg.Sex),
 		Password:  msg.Password,
+		BirthDate: models.Date{Time: time},
 	}
-	user.BirthDate.Time = time
 
 	userId, err := a.authServices.SignUpUser(ctx, user)
 

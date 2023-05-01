@@ -4,6 +4,7 @@ services:
   api:
     depends_on:
       - auth
+      - search
     build:
       context: .
       args:
@@ -20,6 +21,20 @@ services:
         source: ${MEDIA_PATH}
         target: ${MEDIA_PATH}
 
+  search:
+    depends_on:
+      - db
+    build:
+      context: .
+      args:
+        APP: "search/search.go"
+        PORT: 4442
+      dockerfile: Dockerfile.application
+    ports:
+      - "4442:4442"
+    volumes:
+      - .env:/out/.env
+
   auth:
     depends_on:
       - db
@@ -33,6 +48,23 @@ services:
       - "4443:4443"
     volumes:
       - .env:/out/.env
+
+  user:
+    depends_on:
+      - db
+    build:
+      context: .
+      args:
+        APP: "user/user.go"
+        PORT: 4441
+      dockerfile: Dockerfile.application
+    ports:
+      - "4441:4441"
+    volumes:
+      - .env:/out/.env
+      - type: bind
+        source: ${MEDIA_PATH}
+        target: ${MEDIA_PATH}
 
   db:
     build: 
@@ -50,5 +82,5 @@ services:
       - 5436:5432
     volumes:
       - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d # isn't used if pgdata exists
-      - ./.pgdata:/var/lib/postgresql/data
+      - ${DB_PATH}:/var/lib/postgresql/data
     command: ["postgres"] # "-c", "logging_collector=on", "-c", "log_statement=all"]

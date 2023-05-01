@@ -16,7 +16,7 @@ type searchGRPC struct {
 	proto.UnimplementedSearchServer
 }
 
-func NewAuthGRPC(searchServices search.Usecase, l logger.Logger) proto.SearchServer {
+func NewSearchGRPC(searchServices search.Usecase, l logger.Logger) proto.SearchServer {
 	return &searchGRPC{
 		searchServices: searchServices,
 		logger:         l,
