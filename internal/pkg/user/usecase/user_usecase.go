@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -52,8 +51,6 @@ func (u *Usecase) UpdateInfo(ctx context.Context, user *models.User) error {
 }
 
 var dirForUserAvatar = filepath.Join(commonFile.MediaPath(), commonFile.AvatarFolder())
-
-var ErrAvatarWrongFormat = errors.New("wrong avatar file fromat")
 
 func (u *Usecase) UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, fileExtension string) error {
 	if err := u.repo.Check(ctx, userID); err != nil {

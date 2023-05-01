@@ -17,6 +17,20 @@ services:
         target: ${MEDIA_PATH}
     restart: always
 
+  search:
+    depends_on:
+      - db
+    build:
+      context: .
+      args:
+        APP: "search/search.go"
+        PORT: 4442
+      dockerfile: Dockerfile.application
+    ports:
+      - "4442:4442"
+    volumes:
+      - .env:/out/.env
+
   auth:
     container_name: auth
     image: yariktri/fluire_auth:latest
@@ -27,6 +41,23 @@ services:
     volumes:
       - .env:/out/.env
     restart: always
+    
+  user:
+    depends_on:
+      - db
+    build:
+      context: .
+      args:
+        APP: "user/user.go"
+        PORT: 4441
+      dockerfile: Dockerfile.application
+    ports:
+      - "4441:4441"
+    volumes:
+      - .env:/out/.env
+      - type: bind
+        source: ${MEDIA_PATH}
+        target: ${MEDIA_PATH}
 
   prometheus:
     container_name: prometheus
@@ -73,7 +104,7 @@ services:
       - 5436:5432
     volumes:
       - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d # isn't used if pgdata exists
-      - ./.pgdata:/var/lib/postgresql/data
+      - ${DB_PATH}:/var/lib/postgresql/data
     command: ["postgres"] # "-c", "logging_collector=on", "-c", "log_statement=all"]
 
 volumes:

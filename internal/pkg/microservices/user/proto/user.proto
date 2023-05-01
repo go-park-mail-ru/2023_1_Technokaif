@@ -3,33 +3,61 @@ syntax = "proto3";
 package user;
 option go_package = "microservices/user/proto";
 
-
-
-message UserResponse {
-    uint32 id = 1; // @gotags: json:"id"
-	uint32 version = 2;
-    string username = 3; // @gotags: json:"username"
-	string email = 4; // @gotags: json:"email"
-	string passwordHash = 5; // @gotags: json:"password"
-	string firstName = 6; // @gotags: json:"firstName"
-	string lastName = 7; // @gotags: json:"lastName"
-	string sex = 8; // @gotags: json:"sex"
-	string birthDate = 9; // @gotags: json:"birthDate"
-	string avatarSrc = 10; // @gotags: json:"avatarSrc"
+message Id {
+	uint32 id = 1; 
 }
 
+message UpdateInfoMsg {
+	uint32 id = 1;
+	string email = 2;
+	string firstName = 3;
+	string lastName = 4;
+	string sex = 5; 
+	string birthDate = 6; 
+}
 
-/* GetByID(ctx context.Context, userID uint32) (*models.User, error)
-UpdateInfo(ctx context.Context, user *models.User) error
-UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, fileExtension string) error
-GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.User, error) */
+message UpdateInfoResponse {}
 
-service Authorization {
-    rpc GetByID(SignUpMsg) returns (SignUpResponse) {};
-	rpc GetUserByCreds(Creds) returns (UserResponse) {};
-	rpc GetUserByAuthData(AuthData) returns (UserResponse) {};
-	rpc IncreaseUserVersion(IncreaseUserVersionMsg) returns (IncreaseUserVersionResponse) {};
-	rpc ChangePassword(ChangePassMsg) returns (ChangePassResponse) {};
+message UploadAvatarMsg {
+	oneof data {
+		UploadAvatarExtra extra = 1;
+		bytes fileChunk = 2;
+	}
+}
+
+message UploadAvatarExtra {
+	uint32 userId = 1;
+	string fileExtension = 2;
+}
+
+message UploadAvatarResponse {}
+
+message GetByPlaylistMsg {
+	uint32 playlistId = 1;
+}
+
+message GetByPlaylistResponse {
+	repeated UserResponse users = 1;
+}
+
+message UserResponse {
+    uint32 id = 1; 
+	uint32 version = 2;
+    string username = 3; 
+	string email = 4; 
+	string passwordHash = 5; 
+	string firstName = 6; 
+	string lastName = 7; 
+	string sex = 8;
+	string birthDate = 9; 
+	string avatarSrc = 10; 
+}
+
+service User {
+    rpc GetByID(Id) returns (UserResponse) {};
+	rpc UpdateInfo(UpdateInfoMsg) returns (UpdateInfoResponse) {};
+	rpc UploadAvatar(stream UploadAvatarMsg) returns (UploadAvatarResponse) {}
+	rpc GetByPlaylist(GetByPlaylistMsg) returns (GetByPlaylistResponse) {}
 }
 
 
