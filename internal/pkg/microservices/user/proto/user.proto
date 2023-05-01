@@ -5,7 +5,7 @@ option go_package = "microservices/user/proto";
 
 
 
-message UserResponse {
+/* message UserResponse {
     uint32 id = 1; // @gotags: json:"id"
 	uint32 version = 2;
     string username = 3; // @gotags: json:"username"
@@ -19,10 +19,10 @@ message UserResponse {
 }
 
 
-/* GetByID(ctx context.Context, userID uint32) (*models.User, error)
+GetByID(ctx context.Context, userID uint32) (*models.User, error)
 UpdateInfo(ctx context.Context, user *models.User) error
 UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, fileExtension string) error
-GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.User, error) */
+GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.User, error)
 
 service Authorization {
     rpc GetByID(SignUpMsg) returns (SignUpResponse) {};
@@ -30,6 +30,6 @@ service Authorization {
 	rpc GetUserByAuthData(AuthData) returns (UserResponse) {};
 	rpc IncreaseUserVersion(IncreaseUserVersionMsg) returns (IncreaseUserVersionResponse) {};
 	rpc ChangePassword(ChangePassMsg) returns (ChangePassResponse) {};
-}
+} */
 
 

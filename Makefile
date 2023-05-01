@@ -12,7 +12,7 @@ start:
 	docker-compose up
 
 drop_db:
-	rm -r ./pgdata
+	rm -r ./.pgdata
 
 clean_containers:
 	docker system prune
