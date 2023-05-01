@@ -75,7 +75,7 @@ func (p *PostgreSQL) GetByID(ctx context.Context, userID uint32) (*models.User, 
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return &models.User{}, fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{}, err)
+			return &models.User{}, fmt.Errorf("(repo) %w: %v", &models.NoSuchUserError{UserID: userID}, err)
 		}
 
 		return &models.User{}, fmt.Errorf("(repo) failed to exec query: %w", err)
@@ -113,14 +113,14 @@ func (p *PostgreSQL) CreateUser(ctx context.Context, u models.User) (uint32, err
 func (p *PostgreSQL) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, version, username, email, password_hash, salt, 
-			first_name, last_name, sex, birth_date 
+			first_name, last_name, sex, birth_date, avatar_src
 		FROM %s WHERE (username=$1 OR email=$1);`,
 		p.tables.Users())
 	row := p.db.QueryRowContext(ctx, query, username)
 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
-		&u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time)
+		&u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time, &u.AvatarSrc)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -174,7 +174,8 @@ func (p *PostgreSQL) GetByPlaylist(ctx context.Context, playlistID uint32) ([]mo
 				first_name,
 				last_name,
 				sex,
-				birth_date
+				birth_date,
+				avatar_src
 		FROM %s u
 			INNER JOIN %s up ON u.ID = up.user_id
 		WHERE up.playlist_id = $1;`,
@@ -189,7 +190,8 @@ func (p *PostgreSQL) GetByPlaylist(ctx context.Context, playlistID uint32) ([]mo
 	var users []models.User
 	for rows.Next() {
 		var u models.User
-		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time)
+		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.FirstName,
+			&u.LastName, &u.Sex, &u.BirthDate.Time, &u.AvatarSrc)
 
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {

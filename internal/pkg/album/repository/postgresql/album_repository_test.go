@@ -26,6 +26,90 @@ const likedAlbumsTable = "Liked_albums"
 
 var errPqInternal = errors.New("postgres is dead")
 
+func TestAlbumRepositoryPostgreSQL_Check(t *testing.T) {
+	// Init
+	type mockBehavior func(albumID uint32)
+
+	dbMock, sqlxMock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	defer dbMock.Close()
+
+	c := gomock.NewController(t)
+
+	tablesMock := albumMocks.NewMockTables(c)
+
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
+
+	// Test filling
+	const defaultAlbumToCheckID uint32 = 1
+
+	testTable := []struct {
+		name           string
+		albumToCheckID uint32
+		mockBehavior   mockBehavior
+		expectError    bool
+		expectedError  error
+	}{
+		{
+			name:           "Common",
+			albumToCheckID: defaultAlbumToCheckID,
+			mockBehavior: func(artistID uint32) {
+				tablesMock.EXPECT().Albums().Return(albumTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(true)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID).
+					WillReturnRows(row)
+			},
+		},
+		{
+			name:           "No Such Album",
+			albumToCheckID: defaultAlbumToCheckID,
+			mockBehavior: func(artistID uint32) {
+				tablesMock.EXPECT().Albums().Return(albumTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(false)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID).
+					WillReturnRows(row)
+			},
+			expectError:   true,
+			expectedError: &models.NoSuchAlbumError{AlbumID: defaultAlbumToCheckID},
+		},
+		{
+			name:           "Internal PostgreSQL Error",
+			albumToCheckID: defaultAlbumToCheckID,
+			mockBehavior: func(artistID uint32) {
+				tablesMock.EXPECT().Albums().Return(albumTable)
+
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID).
+					WillReturnError(errPqInternal)
+			},
+			expectError:   true,
+			expectedError: errPqInternal,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(tc.albumToCheckID)
+
+			err := repo.Check(ctx, tc.albumToCheckID)
+
+			// Test
+			if tc.expectError {
+				assert.ErrorContains(t, err, tc.expectedError.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestAlbumRepositoryPostgreSQL_Insert(t *testing.T) {
 	// Init
 	type mockBehavior func(album models.Album, artistsID []uint32, id uint32)
@@ -369,9 +453,10 @@ func TestAlbumRepositoryPostgreSQL_GetFeed(t *testing.T) {
 			mockBehavior: func(a []models.Album) {
 				tablesMock.EXPECT().Albums().Return(albumTable)
 
-				rows := sqlxMock.NewRows([]string{"id", "name", "description", "cover_src"}).
-					AddRow(a[0].ID, a[0].Name, a[0].Description, a[0].CoverSrc).
-					AddRow(a[1].ID, a[1].Name, a[1].Description, a[1].CoverSrc)
+				rows := sqlxMock.NewRows([]string{"id", "name", "description", "cover_src"})
+				for ind := range a {
+					rows.AddRow(a[ind].ID, a[ind].Name, a[ind].Description, a[ind].CoverSrc)
+				}
 				sqlxMock.ExpectQuery("SELECT (.+) FROM " + albumTable).
 					WillReturnRows(rows)
 			},
@@ -460,9 +545,10 @@ func TestAlbumRepositoryPostgreSQL_GetByArtist(t *testing.T) {
 				tablesMock.EXPECT().Albums().Return(albumTable)
 				tablesMock.EXPECT().ArtistsAlbums().Return(artistsAlbumsTable)
 
-				rows := sqlxMock.NewRows([]string{"id", "name", "description", "cover_src"}).
-					AddRow(a[0].ID, a[0].Name, a[0].Description, a[0].CoverSrc).
-					AddRow(a[1].ID, a[1].Name, a[1].Description, a[1].CoverSrc)
+				rows := sqlxMock.NewRows([]string{"id", "name", "description", "cover_src"})
+				for ind := range a {
+					rows.AddRow(a[ind].ID, a[ind].Name, a[ind].Description, a[ind].CoverSrc)
+				}
 				sqlxMock.ExpectQuery(fmt.Sprintf("SELECT (.+) FROM %s a INNER JOIN %s",
 					albumTable, artistsAlbumsTable)).
 					WithArgs(artistID).
@@ -672,9 +758,10 @@ func TestAlbumRepositoryPostgreSQL_GetLikedByUser(t *testing.T) {
 				tablesMock.EXPECT().Albums().Return(albumTable)
 				tablesMock.EXPECT().LikedAlbums().Return(likedAlbumsTable)
 
-				rows := sqlxMock.NewRows([]string{"id", "name", "description", "cover_src"}).
-					AddRow(a[0].ID, a[0].Name, a[0].Description, a[0].CoverSrc).
-					AddRow(a[1].ID, a[1].Name, a[1].Description, a[1].CoverSrc)
+				rows := sqlxMock.NewRows([]string{"id", "name", "description", "cover_src"})
+				for ind := range a {
+					rows.AddRow(a[ind].ID, a[ind].Name, a[ind].Description, a[ind].CoverSrc)
+				}
 				sqlxMock.ExpectQuery(fmt.Sprintf("SELECT (.+) FROM %s a INNER JOIN %s",
 					albumTable, likedAlbumsTable)).
 					WithArgs(userID).
@@ -915,6 +1002,96 @@ func TestAlbumRepositoryPostgreSQL_DeleteLike(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, inserted, tc.expectInserted)
+			}
+		})
+	}
+}
+
+func TestAlbumRepositoryPostgreSQL_IsLiked(t *testing.T) {
+	// Init
+	type mockBehavior func(trackID, userID uint32)
+
+	dbMock, sqlxMock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	defer dbMock.Close()
+
+	c := gomock.NewController(t)
+
+	tablesMock := albumMocks.NewMockTables(c)
+
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
+
+	// Test filling
+	const defaultAlbumID uint32 = 1
+	const defaultUserID uint32 = 1
+
+	testTable := []struct {
+		name          string
+		albumID       uint32
+		userID        uint32
+		mockBehavior  mockBehavior
+		expectError   bool
+		expectedError error
+		isLiked       bool
+	}{
+		{
+			name:    "Liked",
+			albumID: defaultAlbumID,
+			userID:  defaultUserID,
+			mockBehavior: func(albumID, userID uint32) {
+				tablesMock.EXPECT().LikedAlbums().Return(likedAlbumsTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(true)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(albumID, userID).
+					WillReturnRows(row)
+			},
+			isLiked: true,
+		},
+		{
+			name:    "Isn't liked",
+			albumID: defaultAlbumID,
+			userID:  defaultUserID,
+			mockBehavior: func(albumID, userID uint32) {
+				tablesMock.EXPECT().LikedAlbums().Return(likedAlbumsTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(false)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(albumID, userID).
+					WillReturnRows(row)
+			},
+		},
+		{
+			name:    "Internal PostgreSQL Error",
+			albumID: defaultAlbumID,
+			userID:  defaultUserID,
+			mockBehavior: func(albumID, userID uint32) {
+				tablesMock.EXPECT().LikedAlbums().Return(likedAlbumsTable)
+
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(albumID, userID).
+					WillReturnError(errPqInternal)
+			},
+			expectError:   true,
+			expectedError: errPqInternal,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(tc.albumID, tc.userID)
+
+			isLiked, err := repo.IsLiked(ctx, tc.albumID, tc.userID)
+
+			// Test
+			if tc.expectError {
+				assert.ErrorContains(t, err, tc.expectedError.Error())
+			} else {
+				assert.Equal(t, tc.isLiked, isLiked)
+				assert.NoError(t, err)
 			}
 		})
 	}

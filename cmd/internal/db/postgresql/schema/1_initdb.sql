@@ -134,14 +134,14 @@ CREATE TABLE Liked_playlists
 -- Text Search
 
 -- Russian dict (just in case)
-CREATE TEXT SEARCH DICTIONARY russian_ispell (
-    TEMPLATE = ispell,
-    DictFile = russian,
-    AffFile = russian,
-    StopWords = russian
-);
+-- CREATE TEXT SEARCH DICTIONARY russian_ispell (
+--     TEMPLATE = ispell,
+--     DictFile = russian,
+--     AffFile = russian,
+--     StopWords = russian
+-- );
 
-CREATE TEXT SEARCH CONFIGURATION ru (COPY=russian);
+-- CREATE TEXT SEARCH CONFIGURATION ru (COPY=russian);
 
 ALTER TABLE Artists   ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;
 ALTER TABLE Albums    ADD COLUMN lang REGCONFIG NOT NULL DEFAULT 'english'::regconfig;

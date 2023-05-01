@@ -19,6 +19,11 @@ import (
 	tokenMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token/mocks"
 )
 
+var correctUser = models.User{
+	ID:       1,
+	Username: "yarik_tri",
+}
+
 func TestDeliverySignUp(t *testing.T) {
 	// Init
 	type mockBehavior func(a *authMocks.MockUsecase, u models.User)
@@ -219,12 +224,24 @@ func TestDeliveryLogin(t *testing.T) {
 			expectingCookie:  false,
 		},
 		{
-			name:          "Incorrect Password",
+			name:          "Incorrect Password (UserID == 0)",
 			requestBody:   correctTestRequestBody,
 			loginFromBody: correctTestLogin,
 			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {
 				a.EXPECT().GetUserByCreds(gomock.Any(), l.Username, l.Password).
 					Return(&models.User{}, &models.IncorrectPasswordError{})
+			},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(passwordMismatch),
+			expectingCookie:  false,
+		},
+		{
+			name:          "Incorrect Password (UserID != 0)",
+			requestBody:   correctTestRequestBody,
+			loginFromBody: correctTestLogin,
+			mockBehavior: func(a *authMocks.MockUsecase, t *tokenMocks.MockUsecase, l loginInput) {
+				a.EXPECT().GetUserByCreds(gomock.Any(), l.Username, l.Password).
+					Return(&models.User{}, &models.IncorrectPasswordError{UserID: 1})
 			},
 			expectedStatus:   http.StatusBadRequest,
 			expectedResponse: commonTests.ErrorResponse(passwordMismatch),
@@ -358,6 +375,255 @@ func TestDeliveryLogout(t *testing.T) {
 				assert.Equal(t, commonHTTP.AccessTokenCookieName, w.Result().Cookies()[0].Name)
 				assert.Equal(t, "", w.Result().Cookies()[0].Value)
 			}
+		})
+	}
+}
+
+func TestAuthDeliveryHTTP_ChangePassword(t *testing.T) {
+	// Init
+	type mockBehavior func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User)
+
+	c := gomock.NewController(t)
+
+	au := authMocks.NewMockUsecase(c)
+	tu := tokenMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(au, tu, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Post("/api/auth/changepass", h.ChangePassword)
+
+	// Test filling
+	correctRequestBody := `{
+		"oldPassword": "Hate1234",
+		"newPassword": "Love1234"
+	}`
+
+	pci := changePassInput{
+		OldPassword: "Hate1234",
+		NewPassword: "Love1234",
+	}
+
+	testTable := []struct {
+		name             string
+		user             *models.User
+		requestBody      string
+		mockBehavior     mockBehavior
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:        "Common",
+			user:        &correctUser,
+			requestBody: correctRequestBody,
+			mockBehavior: func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {
+				au.EXPECT().GetUserByCreds(gomock.Any(), u.Username, pci.OldPassword).Return(nil, nil)
+				au.EXPECT().ChangePassword(gomock.Any(), u.ID, pci.NewPassword).Return(nil)
+				au.EXPECT().IncreaseUserVersion(gomock.Any(), u.ID).Return(nil)
+				tu.EXPECT().GenerateAccessToken(gomock.Any(), u.Version+1).Return(gomock.Any().String(), nil)
+			},
+			expectedStatus:   http.StatusOK,
+			expectedResponse: commonTests.OKResponse(userChangedPasswordSuccessfully),
+		},
+		{
+			name:             "No User",
+			user:             nil,
+			requestBody:      correctRequestBody,
+			mockBehavior:     func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {},
+			expectedStatus:   http.StatusUnauthorized,
+			expectedResponse: commonTests.ErrorResponse(invalidToken),
+		},
+		{
+			name:             "Incorrect JSON",
+			user:             &correctUser,
+			requestBody:      `{}`,
+			mockBehavior:     func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
+		},
+		{
+			name: "Validation Failed",
+			user: &correctUser,
+			requestBody: `{
+				"oldPassword": Hate1234,
+				"newPassword": Love	
+			}`,
+			mockBehavior:     func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
+		},
+		{
+			name:        "Get User By Creds Issue",
+			user:        &correctUser,
+			requestBody: correctRequestBody,
+			mockBehavior: func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {
+				au.EXPECT().GetUserByCreds(gomock.Any(), u.Username, pci.OldPassword).
+					Return(nil, &models.IncorrectPasswordError{})
+			},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(passwordMismatch),
+		},
+		{
+			name:        "Password Mismatch",
+			user:        &correctUser,
+			requestBody: correctRequestBody,
+			mockBehavior: func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {
+				au.EXPECT().GetUserByCreds(gomock.Any(), u.Username, pci.OldPassword).
+					Return(nil, &models.IncorrectPasswordError{})
+			},
+			expectedStatus:   http.StatusBadRequest,
+			expectedResponse: commonTests.ErrorResponse(passwordMismatch),
+		},
+		{
+			name:        "Get User By Creds Issue",
+			user:        &correctUser,
+			requestBody: correctRequestBody,
+			mockBehavior: func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {
+				au.EXPECT().GetUserByCreds(gomock.Any(), u.Username, pci.OldPassword).
+					Return(nil, errors.New("server error"))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(userGetServerError),
+		},
+		{
+			name:        "Change Password Issue",
+			user:        &correctUser,
+			requestBody: correctRequestBody,
+			mockBehavior: func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {
+				au.EXPECT().GetUserByCreds(gomock.Any(), u.Username, pci.OldPassword).Return(nil, nil)
+				au.EXPECT().ChangePassword(gomock.Any(), u.ID, pci.NewPassword).
+					Return(errors.New("server error"))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(userChangePasswordError),
+		},
+		{
+			name:        "Increase Version Issue",
+			user:        &correctUser,
+			requestBody: correctRequestBody,
+			mockBehavior: func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {
+				au.EXPECT().GetUserByCreds(gomock.Any(), u.Username, pci.OldPassword).Return(nil, nil)
+				au.EXPECT().ChangePassword(gomock.Any(), u.ID, pci.NewPassword).Return(nil)
+				au.EXPECT().IncreaseUserVersion(gomock.Any(), u.ID).Return(errors.New("server error"))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(userChangePasswordError),
+		},
+		{
+			name:        "Generate Token Issue",
+			user:        &correctUser,
+			requestBody: correctRequestBody,
+			mockBehavior: func(au *authMocks.MockUsecase, tu *tokenMocks.MockUsecase, u *models.User) {
+				au.EXPECT().GetUserByCreds(gomock.Any(), u.Username, pci.OldPassword).Return(nil, nil)
+				au.EXPECT().ChangePassword(gomock.Any(), u.ID, pci.NewPassword).Return(nil)
+				au.EXPECT().IncreaseUserVersion(gomock.Any(), u.ID).Return(nil)
+				tu.EXPECT().GenerateAccessToken(u.ID, u.Version+1).
+					Return("", errors.New("server error"))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(tokenGenerateServerError),
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(au, tu, tc.user)
+
+			commonTests.DeliveryTestPost(t, r, "/api/auth/changepass",
+				tc.requestBody, tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
+		})
+	}
+}
+
+func TestAuthDeliveryHTTP_IsAuthenticated(t *testing.T) {
+	// Init
+	c := gomock.NewController(t)
+
+	au := authMocks.NewMockUsecase(c)
+	tu := tokenMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(au, tu, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/auth/check", h.IsAuthenticated)
+
+	testTable := []struct {
+		name             string
+		user             *models.User
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:             "Common",
+			user:             &correctUser,
+			expectedStatus:   http.StatusOK,
+			expectedResponse: `{"auth": true}`,
+		},
+		{
+			name:             "No User",
+			user:             nil,
+			expectedStatus:   http.StatusOK,
+			expectedResponse: `{"auth": false}`,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			commonTests.DeliveryTestGet(t, r, "/api/auth/check",
+				tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
+		})
+	}
+}
+
+func TestAuthDeliveryHTTP_Auth(t *testing.T) {
+	// Init
+	c := gomock.NewController(t)
+
+	au := authMocks.NewMockUsecase(c)
+	tu := tokenMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(au, tu, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/auth/", h.Auth)
+
+	testTable := []struct {
+		name             string
+		user             *models.User
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name:             "Common",
+			user:             &correctUser,
+			expectedStatus:   http.StatusOK,
+			expectedResponse: `{"auth": true}`,
+		},
+		{
+			name:             "No User",
+			user:             nil,
+			expectedStatus:   http.StatusForbidden,
+			expectedResponse: commonTests.ErrorResponse(userForbidden),
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			commonTests.DeliveryTestGet(t, r, "/api/auth/",
+				tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
 		})
 	}
 }

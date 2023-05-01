@@ -55,6 +55,11 @@ func main() {
 		logger.Errorf("error while connecting to database: %v", err)
 		return
 	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			logger.Errorf("error while closing DB connection: %v", err)
+		}
+	}()
 
 	router, err := app.Init(db, tables, logger)
 	if err != nil {
@@ -88,10 +93,6 @@ func main() {
 
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Errorf("error while shutting down server: %v", err)
-	}
-
-	if err := db.Close(); err != nil {
-		logger.Errorf("error while closing DB connection: %v", err)
 	}
 }
 

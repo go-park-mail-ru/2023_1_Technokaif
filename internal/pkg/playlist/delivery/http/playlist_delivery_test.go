@@ -940,6 +940,141 @@ func TestPlaylistDeliveryHTTP_Feed(t *testing.T) {
 	}
 }
 
+func TestPlaylistDeliveryHTTP_GetByUser(t *testing.T) {
+	type mockBehavior func(pu *playlistMocks.MockUsecase, uu *userMocks.MockUsecase, userID uint32)
+
+	c := gomock.NewController(t)
+
+	pu := playlistMocks.NewMockUsecase(c)
+	tu := trackMocks.NewMockUsecase(c)
+	uu := userMocks.NewMockUsecase(c)
+
+	l := commonTests.MockLogger(c)
+
+	h := NewHandler(pu, tu, uu, l)
+
+	// Routing
+	r := chi.NewRouter()
+	r.Get("/api/users/{userID}/playlists", h.GetByUser)
+
+	// Test filling
+	const correctUserID uint32 = 1
+	correctUserIDPath := fmt.Sprint(correctUserID)
+
+	descriptionID1 := "Ожидайте 3 июня"
+	descriptionID2 := "Если вдруг решил отдохнуть"
+	expectedReturnPlaylists := []models.Playlist{
+		{
+			ID:          1,
+			Name:        "Музыка для эпичной защиты",
+			Description: &descriptionID1,
+			CoverSrc:    "/playlists/covers/epic.png",
+		},
+		{
+			ID:          2,
+			Name:        "Для чилла",
+			Description: &descriptionID2,
+			CoverSrc:    "/playlists/covers/chill.png",
+		},
+	}
+
+	expectedReturnUsers := []models.User{*getCorrectUser(t)}
+
+	correctResponse := `[
+		{
+			"id": 1,
+			"name": "Музыка для эпичной защиты",
+			"users": [
+				{
+					"id": 1,
+					"email": "yarik1448kuzmin@gmail.com",
+					"username": "yarik_tri",
+					"firstName": "Yaroslav",
+					"lastName": "Kuzmin",
+					"sex": "M",
+					"birthDate": "2003-08-23T00:00:00Z",
+					"avatarSrc": "/users/avatars/yarik_tri.png"
+				}
+			],
+			"description": "Ожидайте 3 июня",
+			"isLiked": true,
+			"cover": "/playlists/covers/epic.png"
+		},
+		{
+			"id": 2,
+			"name": "Для чилла",
+			"users": [
+				{
+					"id": 1,
+					"email": "yarik1448kuzmin@gmail.com",
+					"username": "yarik_tri",
+					"firstName": "Yaroslav",
+					"lastName": "Kuzmin",
+					"sex": "M",
+					"birthDate": "2003-08-23T00:00:00Z",
+					"avatarSrc": "/users/avatars/yarik_tri.png"
+				}
+			],
+			"description": "Если вдруг решил отдохнуть",
+			"isLiked": true,
+			"cover": "/playlists/covers/chill.png"
+		}
+	]`
+
+	testTable := []struct {
+		name             string
+		user             *models.User
+		mockBehavior     mockBehavior
+		expectedStatus   int
+		expectedResponse string
+	}{
+		{
+			name: "Common",
+			user: &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase, uu *userMocks.MockUsecase, userID uint32) {
+				pu.EXPECT().GetByUser(gomock.Any(), userID).Return(expectedReturnPlaylists, nil)
+				for _, playlist := range expectedReturnPlaylists {
+					pu.EXPECT().IsLiked(gomock.Any(), playlist.ID, correctUserID).Return(true, nil)
+					uu.EXPECT().GetByPlaylist(gomock.Any(), playlist.ID).Return(expectedReturnUsers, nil)
+				}
+			},
+			expectedStatus:   http.StatusOK,
+			expectedResponse: correctResponse,
+		},
+		{
+			name: "Playlists Issue",
+			user: &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase, uu *userMocks.MockUsecase, userID uint32) {
+				pu.EXPECT().GetByUser(gomock.Any(), userID).Return(nil, errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(playlistsGetServerError),
+		},
+		{
+			name: "Users Issue",
+			user: &correctUser,
+			mockBehavior: func(pu *playlistMocks.MockUsecase, uu *userMocks.MockUsecase, userID uint32) {
+				pu.EXPECT().GetByUser(gomock.Any(), userID).Return(expectedReturnPlaylists, nil)
+				uu.EXPECT().GetByPlaylist(gomock.Any(), expectedReturnPlaylists[0].ID).Return(nil, errors.New(""))
+			},
+			expectedStatus:   http.StatusInternalServerError,
+			expectedResponse: commonTests.ErrorResponse(playlistsGetServerError),
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(pu, uu, tc.user.ID)
+
+			commonTests.DeliveryTestGet(t, r,
+				"/api/users/"+correctUserIDPath+"/playlists",
+				tc.expectedStatus, tc.expectedResponse,
+				commonTests.WrapRequestWithUserNotNilFunc(tc.user))
+		})
+	}
+}
+
 func TestPlaylistDeliveryHTTP_GetFavorite(t *testing.T) {
 	type mockBehavior func(pu *playlistMocks.MockUsecase, uu *userMocks.MockUsecase, userID uint32)
 
