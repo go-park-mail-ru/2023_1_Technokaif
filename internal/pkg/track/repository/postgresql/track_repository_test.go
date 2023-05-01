@@ -48,6 +48,90 @@ var defaultTracks = []models.Track{
 	},
 }
 
+func TestTrackRepositoryPostgreSQL_Check(t *testing.T) {
+	// Init
+	type mockBehavior func(trackID uint32)
+
+	dbMock, sqlxMock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	defer dbMock.Close()
+
+	c := gomock.NewController(t)
+
+	tablesMock := trackMocks.NewMockTables(c)
+
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
+
+	// Test filling
+	const defaultTrackToCheckID uint32 = 1
+
+	testTable := []struct {
+		name           string
+		trackToCheckID uint32
+		mockBehavior   mockBehavior
+		expectError    bool
+		expectedError  error
+	}{
+		{
+			name:           "Common",
+			trackToCheckID: defaultTrackToCheckID,
+			mockBehavior: func(trackID uint32) {
+				tablesMock.EXPECT().Tracks().Return(trackTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(true)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(trackID).
+					WillReturnRows(row)
+			},
+		},
+		{
+			name:           "No Such Track",
+			trackToCheckID: defaultTrackToCheckID,
+			mockBehavior: func(trackID uint32) {
+				tablesMock.EXPECT().Tracks().Return(trackTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(false)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(trackID).
+					WillReturnRows(row)
+			},
+			expectError:   true,
+			expectedError: &models.NoSuchTrackError{TrackID: defaultTrackToCheckID},
+		},
+		{
+			name:           "Internal PostgreSQL Error",
+			trackToCheckID: defaultTrackToCheckID,
+			mockBehavior: func(trackID uint32) {
+				tablesMock.EXPECT().Tracks().Return(trackTable)
+
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(trackID).
+					WillReturnError(errPqInternal)
+			},
+			expectError:   true,
+			expectedError: errPqInternal,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(tc.trackToCheckID)
+
+			err := repo.Check(ctx, tc.trackToCheckID)
+
+			// Test
+			if tc.expectError {
+				assert.ErrorContains(t, err, tc.expectedError.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestTrackRepositoryPostgreSQL_Insert(t *testing.T) {
 	// Init
 	type mockBehavior func(track models.Track, artistsID []uint32, id uint32)
@@ -909,6 +993,96 @@ func TestTrackRepositoryPostgreSQL_DeleteLike(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, inserted, tc.expectInserted)
+			}
+		})
+	}
+}
+
+func TestTrackRepositoryPostgreSQL_IsLiked(t *testing.T) {
+	// Init
+	type mockBehavior func(trackID, userID uint32)
+
+	dbMock, sqlxMock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	defer dbMock.Close()
+
+	c := gomock.NewController(t)
+
+	tablesMock := trackMocks.NewMockTables(c)
+
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
+
+	// Test filling
+	const defaultTrackID uint32 = 1
+	const defaultUserID uint32 = 1
+
+	testTable := []struct {
+		name          string
+		trackID       uint32
+		userID        uint32
+		mockBehavior  mockBehavior
+		expectError   bool
+		expectedError error
+		isLiked       bool
+	}{
+		{
+			name:    "Liked",
+			trackID: defaultTrackID,
+			userID:  defaultUserID,
+			mockBehavior: func(trackID, userID uint32) {
+				tablesMock.EXPECT().LikedTracks().Return(likedTracksTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(true)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(trackID, userID).
+					WillReturnRows(row)
+			},
+			isLiked: true,
+		},
+		{
+			name:    "Isn't liked",
+			trackID: defaultTrackID,
+			userID:  defaultUserID,
+			mockBehavior: func(trackID, userID uint32) {
+				tablesMock.EXPECT().LikedTracks().Return(likedTracksTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(false)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(trackID, userID).
+					WillReturnRows(row)
+			},
+		},
+		{
+			name:    "Internal PostgreSQL Error",
+			trackID: defaultTrackID,
+			userID:  defaultUserID,
+			mockBehavior: func(trackID, userID uint32) {
+				tablesMock.EXPECT().LikedTracks().Return(likedTracksTable)
+
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(trackID, userID).
+					WillReturnError(errPqInternal)
+			},
+			expectError:   true,
+			expectedError: errPqInternal,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(tc.trackID, tc.userID)
+
+			isLiked, err := repo.IsLiked(ctx, tc.trackID, tc.userID)
+
+			// Test
+			if tc.expectError {
+				assert.ErrorContains(t, err, tc.expectedError.Error())
+			} else {
+				assert.Equal(t, tc.isLiked, isLiked)
+				assert.NoError(t, err)
 			}
 		})
 	}
