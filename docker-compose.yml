@@ -3,7 +3,7 @@ version: '3.8'
 services:
   api:
     container_name: api
-    image: yariktri/fluire:latest
+    image: yariktri/fluire_api:latest
     depends_on:
       - auth
     ports:
@@ -19,7 +19,7 @@ services:
 
   auth:
     container_name: auth
-    image: yariktri/fluire:latest
+    image: yariktri/fluire_auth:latest
     depends_on:
       - db
     ports:
