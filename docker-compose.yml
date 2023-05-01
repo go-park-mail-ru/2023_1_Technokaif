@@ -15,7 +15,6 @@ services:
       - type: bind
         source: ${MEDIA_PATH}
         target: ${MEDIA_PATH}
-    restart: always
 
   auth:
     container_name: auth
@@ -26,7 +25,6 @@ services:
       - "4443:4443"
     volumes:
       - .env:/out/.env
-    restart: always
 
   prometheus:
     container_name: prometheus
