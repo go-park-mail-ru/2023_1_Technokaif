@@ -23,3 +23,14 @@ scrape_configs:
           #container_name before port (host.docker.internal or localhost don't work)
         - api:4444
         - node_exporter:9100
+
+  
+  - job_name: 'auth_server'
+
+    scrape_interval: 5s
+    scrape_timeout: 5s
+
+    static_configs:
+      - targets:
+          #container_name before port (host.docker.internal or localhost don't work)
+        - auth:9043
