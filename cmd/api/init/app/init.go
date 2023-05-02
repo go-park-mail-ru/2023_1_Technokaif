@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/router"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/config"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
 
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
@@ -104,19 +104,19 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 }
 
 func makeAgents() (*Agents, error) {
-	grpcAuthConn, err := grpc.Dial(os.Getenv(cmd.AuthHostParam)+":"+os.Getenv(cmd.AuthPortParam),
+	grpcAuthConn, err := grpc.Dial(os.Getenv(config.AuthConnectParam),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to auth service: %v", err)
 	}
 
-	grpcSearchConn, err := grpc.Dial(os.Getenv(cmd.SearchHostParam)+":"+os.Getenv(cmd.SearchPortParam),
+	grpcSearchConn, err := grpc.Dial(os.Getenv(config.SearchConnectParam),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to search service: %v", err)
 	}
 
-	grpcUserConn, err := grpc.Dial(os.Getenv(cmd.UserHostParam)+":"+os.Getenv(cmd.UserPortParam),
+	grpcUserConn, err := grpc.Dial(os.Getenv(config.UserConnectParam),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to user service: %v", err)

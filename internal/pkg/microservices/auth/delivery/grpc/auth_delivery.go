@@ -3,14 +3,17 @@ package grpc
 import (
 	"context"
 	"errors"
-	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
+
 	proto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/auth/proto/generated"
+	commonProtoUtils "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common"
+	commonProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common/proto/generated"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
@@ -29,10 +32,8 @@ func NewAuthGRPC(authServices auth.Usecase, l logger.Logger) *authGRPC {
 }
 
 func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto.SignUpResponse, error) {
-
-	time, err := time.Parse("2006-01-02", msg.BirthDate)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "failed to parse date")
+	if err := msg.BirthDate.CheckValid(); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	user := models.User{
@@ -40,9 +41,8 @@ func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto
 		Email:     msg.Email,
 		FirstName: msg.FirstName,
 		LastName:  msg.LastName,
-		Sex:       models.Sex(msg.Sex),
 		Password:  msg.Password,
-		BirthDate: models.Date{Time: time},
+		BirthDate: models.Date{Time: msg.BirthDate.AsTime()},
 	}
 
 	userId, err := a.authServices.SignUpUser(ctx, user)
@@ -59,7 +59,7 @@ func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto
 	return &proto.SignUpResponse{UserID: userId}, nil
 }
 
-func (a *authGRPC) GetUserByCreds(ctx context.Context, msg *proto.Creds) (*proto.UserResponse, error) {
+func (a *authGRPC) GetUserByCreds(ctx context.Context, msg *proto.Creds) (*commonProto.UserResponse, error) {
 	user, err := a.authServices.GetUserByCreds(ctx, msg.Username, msg.Password)
 	if err != nil {
 		var errNoSuchUser *models.NoSuchUserError
@@ -75,10 +75,10 @@ func (a *authGRPC) GetUserByCreds(ctx context.Context, msg *proto.Creds) (*proto
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return userToProto(user), nil
+	return commonProtoUtils.UserToProto(user), nil
 }
 
-func (a *authGRPC) GetUserByAuthData(ctx context.Context, msg *proto.AuthData) (*proto.UserResponse, error) {
+func (a *authGRPC) GetUserByAuthData(ctx context.Context, msg *proto.AuthData) (*commonProto.UserResponse, error) {
 	user, err := a.authServices.GetUserByAuthData(ctx, msg.Id, msg.Version)
 	if err != nil {
 		var errNoSuchUser *models.NoSuchUserError
@@ -89,7 +89,7 @@ func (a *authGRPC) GetUserByAuthData(ctx context.Context, msg *proto.AuthData) (
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return userToProto(user), nil
+	return commonProtoUtils.UserToProto(user), nil
 }
 
 func (a *authGRPC) IncreaseUserVersion(ctx context.Context, msg *proto.IncreaseUserVersionMsg) (*proto.IncreaseUserVersionResponse, error) {
@@ -116,19 +116,4 @@ func (a *authGRPC) ChangePassword(ctx context.Context, msg *proto.ChangePassMsg)
 	}
 
 	return &proto.ChangePassResponse{}, nil
-}
-
-func userToProto(user *models.User) *proto.UserResponse {
-	return &proto.UserResponse{
-		Id:           user.ID,
-		Version:      user.Version,
-		Username:     user.Username,
-		Email:        user.Email,
-		PasswordHash: user.Password,
-		FirstName:    user.FirstName,
-		LastName:     user.LastName,
-		Sex:          string(user.Sex),
-		AvatarSrc:    user.AvatarSrc,
-		BirthDate:    user.BirthDate.Format("2006-01-02"),
-	}
 }

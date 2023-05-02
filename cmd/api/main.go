@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -11,9 +10,9 @@ import (
 
 	"github.com/joho/godotenv" // load environment
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/app"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/server"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/config"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/file"
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
@@ -41,8 +40,7 @@ func main() {
 
 	logger, err := logger.NewLogger(commonHttp.GetReqIDFromRequest)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "logger can not be defined: %v\n", err)
-		return
+		log.Fatalf("logger can not be defined: %v\n", err)
 	}
 
 	if err := file.InitPaths(); err != nil {
@@ -68,7 +66,7 @@ func main() {
 	}
 
 	var srv server.Server
-	if err := srv.Init(os.Getenv(cmd.ApiPortParam), router); err != nil {
+	if err := srv.Init(os.Getenv(config.ApiListenParam), router); err != nil {
 		logger.Errorf("error while launching server: %v", err)
 	}
 
@@ -81,7 +79,7 @@ func main() {
 	logger.Info("trying to launch server")
 
 	timer := time.AfterFunc(2*time.Second, func() {
-		logger.Infof("server launched at :%s", os.Getenv(cmd.ApiPortParam))
+		logger.Infof("server launched at :%s", os.Getenv(config.ApiListenParam))
 	})
 	defer timer.Stop()
 

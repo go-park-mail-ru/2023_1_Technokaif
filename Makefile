@@ -3,8 +3,10 @@
 # all: clear_media server_start
 
 build:
-	docker-compose down
-	docker-compose build
+	./scripts/deploy/build_all.sh
+
+deploy:
+	./scripts/deploy/deploy.sh
 
 start:
 	docker-compose down
@@ -13,12 +15,6 @@ start:
 
 clean_containers:
 	docker system prune
-
-api_start:
-	go run ./cmd/api/main.go
-
-auth_start:
-	go run ./cmd/auth/auth.go
 
 clear_media:
 	rm -r ./img ./covers ./records ./avatars
