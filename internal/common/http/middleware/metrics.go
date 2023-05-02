@@ -14,7 +14,7 @@ import (
 var responseTimeMetrics = promauto.NewSummaryVec(
 	prometheus.SummaryOpts{
 		Namespace:  "fluire",
-		Subsystem:  "http",
+		Subsystem:  "api",
 		Name:       "response_time",
 		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01},
 	},
