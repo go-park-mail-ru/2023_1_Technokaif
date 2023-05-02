@@ -17,20 +17,6 @@ services:
         target: ${MEDIA_PATH}
     restart: always
 
-  search:
-    depends_on:
-      - db
-    build:
-      context: .
-      args:
-        APP: "search/search.go"
-        PORT: 4442
-      dockerfile: Dockerfile.application
-    ports:
-      - "4442:4442"
-    volumes:
-      - .env:/out/.env
-
   auth:
     container_name: auth
     image: yariktri/fluire_auth:latest
@@ -41,16 +27,22 @@ services:
     volumes:
       - .env:/out/.env
     restart: always
-    
-  user:
+
+  search:
+    container_name: search
+    image: yariktri/fluire_search:latest
     depends_on:
       - db
-    build:
-      context: .
-      args:
-        APP: "user/user.go"
-        PORT: 4441
-      dockerfile: Dockerfile.application
+    ports:
+      - "4442:4442"
+    volumes:
+      - .env:/out/.env
+    
+  user:
+    container_name: user
+    image: yariktri/fluire_user:latest
+    depends_on:
+      - db
     ports:
       - "4441:4441"
     volumes:
