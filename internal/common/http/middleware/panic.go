@@ -15,7 +15,7 @@ func Panic(logger logger.Logger) func(next http.Handler) http.Handler {
 			defer func() {
 				if err := recover(); err != nil {
 					logger.Errorf("PANIC (recovered): %s\n stacktrace:\n%s", err, string(debug.Stack()))
-					commonHttp.ErrorResponse(w, "server unknown error", http.StatusInternalServerError, logger)
+					commonHttp.ErrorResponse(w, r, "server unknown error", http.StatusInternalServerError, logger)
 				}
 			}()
 

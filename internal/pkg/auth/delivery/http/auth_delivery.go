@@ -69,7 +69,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	sur := signUpResponse{ID: id}
 
-	commonHTTP.SuccessResponse(w, sur, h.logger)
+	commonHTTP.SuccessResponse(w, r, sur, h.logger)
 }
 
 // @Summary		Sign In
@@ -129,7 +129,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	lr := loginResponse{UserID: user.ID}
 
 	commonHTTP.SetAccessTokenCookie(w, token)
-	commonHTTP.SuccessResponse(w, lr, h.logger)
+	commonHTTP.SuccessResponse(w, r, lr, h.logger)
 }
 
 // @Summary		Log Out
@@ -158,7 +158,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	lr := logoutResponse{Status: userLogedOutSuccessfully}
 
 	commonHTTP.SetAccessTokenCookie(w, "")
-	commonHTTP.SuccessResponse(w, lr, h.logger)
+	commonHTTP.SuccessResponse(w, r, lr, h.logger)
 }
 
 // swaggermock
@@ -219,7 +219,7 @@ func (h *Handler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	resp := changePassResponse{Status: userChangedPasswordSuccessfully}
 
 	commonHTTP.SetAccessTokenCookie(w, token)
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // swaggermock
@@ -230,7 +230,7 @@ func (h *Handler) IsAuthenticated(w http.ResponseWriter, r *http.Request) {
 		iar.Authenticated = true
 	}
 
-	commonHTTP.SuccessResponse(w, iar, h.logger)
+	commonHTTP.SuccessResponse(w, r, iar, h.logger)
 }
 
 // swaggermock
@@ -240,5 +240,5 @@ func (h *Handler) Auth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, isAuthenticatedResponse{Authenticated: true}, h.logger)
+	commonHTTP.SuccessResponse(w, r, isAuthenticatedResponse{Authenticated: true}, h.logger)
 }

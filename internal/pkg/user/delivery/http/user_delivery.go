@@ -44,7 +44,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	ut := models.UserTransferFromEntry(*user)
 
-	commonHTTP.SuccessResponse(w, ut, h.logger)
+	commonHTTP.SuccessResponse(w, r, ut, h.logger)
 }
 
 // @Summary      Update Info
@@ -95,7 +95,7 @@ func (h *Handler) UpdateInfo(w http.ResponseWriter, r *http.Request) {
 
 	uuir := userChangeInfoResponse{Status: userUpdatedInfoSuccessfully}
 
-	commonHTTP.SuccessResponse(w, uuir, h.logger)
+	commonHTTP.SuccessResponse(w, r, uuir, h.logger)
 }
 
 // @Summary      Upload Avatar
@@ -149,5 +149,5 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 
 	uuar := userUploadAvatarResponse{Status: userAvatarUploadedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, uuar, h.logger)
+	commonHTTP.SuccessResponse(w, r, uuar, h.logger)
 }

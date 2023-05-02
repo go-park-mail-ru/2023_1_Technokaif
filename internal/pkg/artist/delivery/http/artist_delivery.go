@@ -66,7 +66,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	acr := artistCreateResponse{ID: artistID}
 
-	commonHTTP.SuccessResponse(w, acr, h.logger)
+	commonHTTP.SuccessResponse(w, r, acr, h.logger)
 }
 
 // @Summary		Get Artist
@@ -113,7 +113,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, ar, h.logger)
+	commonHTTP.SuccessResponse(w, r, ar, h.logger)
 }
 
 // @Summary		Delete Artist
@@ -164,7 +164,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	adr := artistDeleteResponse{Status: artistDeletedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, adr, h.logger)
+	commonHTTP.SuccessResponse(w, r, adr, h.logger)
 }
 
 // @Summary		Artist Feed
@@ -196,7 +196,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, artistsTransfer, h.logger)
+	commonHTTP.SuccessResponse(w, r, artistsTransfer, h.logger)
 }
 
 // @Summary      Favorite Artists
@@ -231,7 +231,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, at, h.logger)
+	commonHTTP.SuccessResponse(w, r, at, h.logger)
 }
 
 // @Summary		Set like
@@ -276,7 +276,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	if !notExisted {
 		alr.Status = commonHTTP.LikeAlreadyExists // "already liked"
 	}
-	commonHTTP.SuccessResponse(w, alr, h.logger)
+	commonHTTP.SuccessResponse(w, r, alr, h.logger)
 }
 
 // @Summary		Remove like
@@ -321,5 +321,5 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	if !notExisted {
 		alr.Status = commonHTTP.LikeDoesntExist
 	}
-	commonHTTP.SuccessResponse(w, alr, h.logger)
+	commonHTTP.SuccessResponse(w, r, alr, h.logger)
 }

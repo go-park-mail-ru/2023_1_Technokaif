@@ -33,6 +33,15 @@ func GetUserFromRequest(r *http.Request) (*models.User, error) {
 	return user, nil
 }
 
+func GetResponseCodeFromRequest(r *http.Request) int {
+	code, ok := r.Context().Value(ContextKeyResponseCodeType{}).(int)
+	// Might be simplified, of course (just return code)
+	if !ok {
+		return 0
+	}
+	return code
+}
+
 func GetReqIDFromRequest(r *http.Request) (uint32, error) {
 	reqID, ok := r.Context().Value(contextKeyReqIDType{}).(uint32)
 	if !ok {

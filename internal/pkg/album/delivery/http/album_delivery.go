@@ -78,7 +78,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	acr := albumCreateResponse{ID: albumID}
 
-	commonHTTP.SuccessResponse(w, acr, h.logger)
+	commonHTTP.SuccessResponse(w, r, acr, h.logger)
 }
 
 // @Summary		Get Album
@@ -127,7 +127,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // @Summary		Delete Album
@@ -178,7 +178,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	adr := albumDeleteResponse{Status: albumDeletedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, adr, h.logger)
+	commonHTTP.SuccessResponse(w, r, adr, h.logger)
 }
 
 // @Summary		Albums of Artist
@@ -226,7 +226,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // @Summary		Album Feed
@@ -259,7 +259,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // @Summary      Favorite Albums
@@ -295,7 +295,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, at, h.logger)
+	commonHTTP.SuccessResponse(w, r, at, h.logger)
 }
 
 // @Summary		Set like
@@ -340,7 +340,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	if !notExisted {
 		alr.Status = commonHTTP.LikeAlreadyExists
 	}
-	commonHTTP.SuccessResponse(w, alr, h.logger)
+	commonHTTP.SuccessResponse(w, r, alr, h.logger)
 }
 
 // @Summary		Remove like
@@ -385,5 +385,5 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	if !notExisted {
 		alr.Status = commonHTTP.LikeDoesntExist
 	}
-	commonHTTP.SuccessResponse(w, alr, h.logger)
+	commonHTTP.SuccessResponse(w, r, alr, h.logger)
 }

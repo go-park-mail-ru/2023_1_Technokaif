@@ -37,5 +37,5 @@ func (h *Handler) GetCSRF(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := getCSRFResponce{CSRF: token}
-	commonHttp.SuccessResponse(w, resp, h.logger)
+	commonHttp.SuccessResponse(w, r, resp, h.logger)
 }
