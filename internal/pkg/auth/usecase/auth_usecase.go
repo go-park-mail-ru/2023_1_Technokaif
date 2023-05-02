@@ -27,7 +27,10 @@ func NewUsecase(ar auth.Repository, ur user.Repository) *Usecase {
 }
 
 func (u *Usecase) SignUpUser(ctx context.Context, user models.User) (uint32, error) {
-	salt := generateRandomSalt()
+	salt, err := generateRandomSalt()
+	if err != nil {
+		return 0, fmt.Errorf("(usecase) cannot create user: %w", err)
+	}
 	user.Salt = hex.EncodeToString(salt)
 
 	user.Password = hashPassword(user.Password, salt)
@@ -76,7 +79,10 @@ func (u *Usecase) IncreaseUserVersion(ctx context.Context, userID uint32) error 
 }
 
 func (u *Usecase) ChangePassword(ctx context.Context, userID uint32, password string) error {
-	salt := generateRandomSalt()
+	salt, err := generateRandomSalt()
+	if err != nil {
+		return fmt.Errorf("(usecase) failed to update password: %w", err)
+	}
 	passHash := hashPassword(password, salt)
 	if err := u.authRepo.UpdatePassword(ctx, userID, passHash, hex.EncodeToString(salt)); err != nil {
 		return fmt.Errorf("(usecase) failed to update password: %w", err)
@@ -90,8 +96,10 @@ func hashPassword(plainPassword string, salt []byte) string {
 	return hex.EncodeToString(hashedPassword)
 }
 
-func generateRandomSalt() []byte {
+func generateRandomSalt() ([]byte, error) {
 	salt := make([]byte, 8)
-	rand.Read(salt)
-	return salt
+	if _, err := rand.Read(salt); err != nil {
+		return nil, err
+	}
+	return salt, nil
 }
