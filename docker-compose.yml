@@ -22,8 +22,6 @@ services:
     image: yariktri/fluire_auth:latest
     depends_on:
       - db
-    ports:
-      - "4443:4443"
     volumes:
       - .env:/out/.env
     restart: always
@@ -33,8 +31,6 @@ services:
     image: yariktri/fluire_search:latest
     depends_on:
       - db
-    ports:
-      - "4442:4442"
     volumes:
       - .env:/out/.env
     
@@ -43,8 +39,6 @@ services:
     image: yariktri/fluire_user:latest
     depends_on:
       - db
-    ports:
-      - "4441:4441"
     volumes:
       - .env:/out/.env
       - type: bind
