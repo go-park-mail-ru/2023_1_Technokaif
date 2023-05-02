@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
+	commonProtoUtils "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common"
 	proto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/user/proto/generated"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -36,7 +36,7 @@ func (u *UserAgent) GetByID(ctx context.Context, userID uint32) (*models.User, e
 		return nil, err
 	}
 
-	user, err := protoToUser(resp)
+	user, err := commonProtoUtils.ProtoToUser(resp)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) convert from proto to user: %w", err)
 	}
@@ -60,7 +60,7 @@ func (u *UserAgent) GetByPlaylist(ctx context.Context, playlistID uint32) ([]mod
 
 	users := make([]models.User, 0, len(resp.Users))
 	for _, protoUser := range resp.Users {
-		user, err := protoToUser(protoUser)
+		user, err := commonProtoUtils.ProtoToUser(protoUser)
 		if err != nil {
 			return nil, fmt.Errorf("(usecase) convert from proto to user: %w", err)
 		}
@@ -141,28 +141,6 @@ func (u *UserAgent) UploadAvatar(ctx context.Context, userID uint32, file io.Rea
 	}
 
 	return nil
-}
-
-func protoToUser(userProto *proto.UserResponse) (*models.User, error) {
-	time, err := time.Parse("2006-01-02", userProto.BirthDate)
-	if err != nil {
-		return nil, err
-	}
-
-	user := &models.User{
-		ID:        userProto.Id,
-		Version:   userProto.Version,
-		Username:  userProto.Username,
-		Email:     userProto.Email,
-		Password:  userProto.PasswordHash,
-		FirstName: userProto.FirstName,
-		LastName:  userProto.LastName,
-		Sex:       models.Sex(userProto.Sex),
-		AvatarSrc: userProto.AvatarSrc,
-		BirthDate: models.Date{Time: time},
-	}
-
-	return user, nil
 }
 
 func userToProtoUserInfo(user *models.User) *proto.UpdateInfoMsg {

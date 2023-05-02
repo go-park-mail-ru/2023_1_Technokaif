@@ -4,10 +4,11 @@
 // - protoc             v3.12.4
 // source: auth.proto
 
-package proto
+package generated
 
 import (
 	context "context"
+	generated "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common/proto/generated"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -23,8 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationClient interface {
 	SignUpUser(ctx context.Context, in *SignUpMsg, opts ...grpc.CallOption) (*SignUpResponse, error)
-	GetUserByCreds(ctx context.Context, in *Creds, opts ...grpc.CallOption) (*UserResponse, error)
-	GetUserByAuthData(ctx context.Context, in *AuthData, opts ...grpc.CallOption) (*UserResponse, error)
+	GetUserByCreds(ctx context.Context, in *Creds, opts ...grpc.CallOption) (*generated.UserResponse, error)
+	GetUserByAuthData(ctx context.Context, in *AuthData, opts ...grpc.CallOption) (*generated.UserResponse, error)
 	IncreaseUserVersion(ctx context.Context, in *IncreaseUserVersionMsg, opts ...grpc.CallOption) (*IncreaseUserVersionResponse, error)
 	ChangePassword(ctx context.Context, in *ChangePassMsg, opts ...grpc.CallOption) (*ChangePassResponse, error)
 }
@@ -46,8 +47,8 @@ func (c *authorizationClient) SignUpUser(ctx context.Context, in *SignUpMsg, opt
 	return out, nil
 }
 
-func (c *authorizationClient) GetUserByCreds(ctx context.Context, in *Creds, opts ...grpc.CallOption) (*UserResponse, error) {
-	out := new(UserResponse)
+func (c *authorizationClient) GetUserByCreds(ctx context.Context, in *Creds, opts ...grpc.CallOption) (*generated.UserResponse, error) {
+	out := new(generated.UserResponse)
 	err := c.cc.Invoke(ctx, "/auth.Authorization/GetUserByCreds", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -55,8 +56,8 @@ func (c *authorizationClient) GetUserByCreds(ctx context.Context, in *Creds, opt
 	return out, nil
 }
 
-func (c *authorizationClient) GetUserByAuthData(ctx context.Context, in *AuthData, opts ...grpc.CallOption) (*UserResponse, error) {
-	out := new(UserResponse)
+func (c *authorizationClient) GetUserByAuthData(ctx context.Context, in *AuthData, opts ...grpc.CallOption) (*generated.UserResponse, error) {
+	out := new(generated.UserResponse)
 	err := c.cc.Invoke(ctx, "/auth.Authorization/GetUserByAuthData", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -87,8 +88,8 @@ func (c *authorizationClient) ChangePassword(ctx context.Context, in *ChangePass
 // for forward compatibility
 type AuthorizationServer interface {
 	SignUpUser(context.Context, *SignUpMsg) (*SignUpResponse, error)
-	GetUserByCreds(context.Context, *Creds) (*UserResponse, error)
-	GetUserByAuthData(context.Context, *AuthData) (*UserResponse, error)
+	GetUserByCreds(context.Context, *Creds) (*generated.UserResponse, error)
+	GetUserByAuthData(context.Context, *AuthData) (*generated.UserResponse, error)
 	IncreaseUserVersion(context.Context, *IncreaseUserVersionMsg) (*IncreaseUserVersionResponse, error)
 	ChangePassword(context.Context, *ChangePassMsg) (*ChangePassResponse, error)
 	mustEmbedUnimplementedAuthorizationServer()
@@ -101,10 +102,10 @@ type UnimplementedAuthorizationServer struct {
 func (UnimplementedAuthorizationServer) SignUpUser(context.Context, *SignUpMsg) (*SignUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUpUser not implemented")
 }
-func (UnimplementedAuthorizationServer) GetUserByCreds(context.Context, *Creds) (*UserResponse, error) {
+func (UnimplementedAuthorizationServer) GetUserByCreds(context.Context, *Creds) (*generated.UserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByCreds not implemented")
 }
-func (UnimplementedAuthorizationServer) GetUserByAuthData(context.Context, *AuthData) (*UserResponse, error) {
+func (UnimplementedAuthorizationServer) GetUserByAuthData(context.Context, *AuthData) (*generated.UserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByAuthData not implemented")
 }
 func (UnimplementedAuthorizationServer) IncreaseUserVersion(context.Context, *IncreaseUserVersionMsg) (*IncreaseUserVersionResponse, error) {

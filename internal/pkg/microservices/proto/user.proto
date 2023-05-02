@@ -1,7 +1,9 @@
 syntax = "proto3";
 
 package user;
-option go_package = "microservices/user/proto";
+option go_package = "user/proto/generated";
+
+import "common.proto";
 
 message Id {
 	uint32 id = 1; 
@@ -37,27 +39,12 @@ message GetByPlaylistMsg {
 }
 
 message GetByPlaylistResponse {
-	repeated UserResponse users = 1;
-}
-
-message UserResponse {
-    uint32 id = 1; 
-	uint32 version = 2;
-    string username = 3; 
-	string email = 4; 
-	string passwordHash = 5; 
-	string firstName = 6; 
-	string lastName = 7; 
-	string sex = 8;
-	string birthDate = 9; 
-	string avatarSrc = 10; 
+	repeated common.UserResponse users = 1;
 }
 
 service User {
-    rpc GetByID(Id) returns (UserResponse) {};
+    rpc GetByID(Id) returns (common.UserResponse) {};
 	rpc UpdateInfo(UpdateInfoMsg) returns (UpdateInfoResponse) {};
 	rpc UploadAvatar(stream UploadAvatarMsg) returns (UploadAvatarResponse) {}
 	rpc GetByPlaylist(GetByPlaylistMsg) returns (GetByPlaylistResponse) {}
 }
-
-

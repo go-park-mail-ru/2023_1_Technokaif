@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net"
 	"os"
 
 	"github.com/joho/godotenv" // load environment
 	"google.golang.org/grpc"
 
-	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/config"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
 	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	userGRPC "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/user/delivery/grpc"
@@ -22,8 +22,7 @@ import (
 func main() {
 	logger, err := logger.NewLogger(commonHttp.GetReqIDFromRequest)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "logger can not be defined: %v\n", err)
-		return
+		log.Fatalf("logger can not be defined: %v\n", err)
 	}
 
 	db, tables, err := postgresql.InitPostgresDB()
@@ -36,7 +35,7 @@ func main() {
 
 	userUsecase := userUsecase.NewUsecase(userRepo)
 
-	listener, err := net.Listen("tcp", ":"+os.Getenv(cmd.UserPortParam))
+	listener, err := net.Listen("tcp", os.Getenv(config.UserListenParam))
 	if err != nil {
 		logger.Errorf("Cant listen port: %v", err)
 		return

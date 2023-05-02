@@ -1,11 +1,9 @@
 syntax = "proto3";
 
 package auth;
-option go_package = "microservices/auth/proto";
+option go_package = "auth/proto/generated";
 
-message Error {
-	uint32 code = 1; 
-}
+import "common.proto";
 
 message SignUpMsg {
 	string username = 1; 
@@ -31,19 +29,6 @@ message AuthData {
     uint32 version = 2;
 }
 
-message UserResponse {
-    uint32 id = 1;
-	uint32 version = 2;
-    string username = 3; 
-	string email = 4; 
-	string passwordHash = 5; 
-	string firstName = 6; 
-	string lastName = 7; 
-	string sex = 8; 
-	string birthDate = 9; 
-	string avatarSrc = 10;
-}
-
 message IncreaseUserVersionMsg {
 	uint32 userId = 1;
 }
@@ -59,8 +44,8 @@ message ChangePassResponse {}
 
 service Authorization {
     rpc SignUpUser(SignUpMsg) returns (SignUpResponse) {};
-	rpc GetUserByCreds(Creds) returns (UserResponse) {};
-	rpc GetUserByAuthData(AuthData) returns (UserResponse) {};
+	rpc GetUserByCreds(Creds) returns (common.UserResponse) {};
+	rpc GetUserByAuthData(AuthData) returns (common.UserResponse) {};
 	rpc IncreaseUserVersion(IncreaseUserVersionMsg) returns (IncreaseUserVersionResponse) {};
 	rpc ChangePassword(ChangePassMsg) returns (ChangePassResponse) {};
 }
