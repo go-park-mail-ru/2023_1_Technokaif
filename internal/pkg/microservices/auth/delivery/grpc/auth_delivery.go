@@ -43,6 +43,7 @@ func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto
 		LastName:  msg.LastName,
 		Password:  msg.Password,
 		BirthDate: models.Date{Time: msg.BirthDate.AsTime()},
+		Sex: models.Sex("M"),
 	}
 
 	userId, err := a.authServices.SignUpUser(ctx, user)
