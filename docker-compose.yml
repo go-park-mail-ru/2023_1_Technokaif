@@ -3,7 +3,7 @@ version: '3.8'
 services:
   api:
     container_name: api
-    image: yariktri/fluire_api:latest
+    image: technokaif/fluire_api:latest
     depends_on:
       - auth
     ports:
@@ -19,7 +19,7 @@ services:
 
   auth:
     container_name: auth
-    image: yariktri/fluire_auth:latest
+    image: technokaif/fluire_auth:latest
     depends_on:
       - db
     volumes:
@@ -28,15 +28,15 @@ services:
 
   search:
     container_name: search
-    image: yariktri/fluire_search:latest
+    image: technokaif/fluire_search:latest
     depends_on:
       - db
     volumes:
       - .env:/out/.env
-    
+
   user:
     container_name: user
-    image: yariktri/fluire_user:latest
+    image: technokaif/fluire_user:latest
     depends_on:
       - db
     volumes:

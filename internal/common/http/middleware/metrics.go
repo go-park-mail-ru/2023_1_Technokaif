@@ -18,11 +18,11 @@ var responseTimeMetrics = promauto.NewSummaryVec(
 		Name:       "response_time",
 		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01},
 	},
-	[]string{"method", "path", "code"},
+	[]string{"method", "route", "code"},
 )
 
-func observeResponseTime(duration time.Duration, method, path, code string) {
-	responseTimeMetrics.WithLabelValues(method, path, code).
+func observeResponseTime(duration time.Duration, method, route, code string) {
+	responseTimeMetrics.WithLabelValues(method, route, code).
 		Observe(float64(duration.Microseconds()))
 }
 
