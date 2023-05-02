@@ -1,6 +1,8 @@
 #!/bin/bash
 
-docker push yarik_tri/fluire_api:latest
-docker push yarik_tri/fluire_auth:latest
-docker push yarik_tri/fluire_search:latest
-docker push yarik_tri/fluire_user:latest
+docker login
+
+docker push technokaif/fluire_api:latest
+docker push technokaif/fluire_auth:latest
+docker push technokaif/fluire_search:latest
+docker push technokaif/fluire_user:latest

@@ -1,7 +1,7 @@
 package common
 
 import (
-	"time"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	commonProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common/proto/generated"
@@ -16,19 +16,17 @@ func UserToProto(user *models.User) *commonProto.UserResponse {
 		PasswordHash: user.Password,
 		FirstName:    user.FirstName,
 		LastName:     user.LastName,
-		Sex:          string(user.Sex),
 		AvatarSrc:    user.AvatarSrc,
-		BirthDate:    user.BirthDate.Format("2006-01-02"),
+		BirthDate:    timestamppb.New(user.BirthDate.Time),
 	}
 }
 
 func ProtoToUser(userProto *commonProto.UserResponse) (*models.User, error) {
-	time, err := time.Parse("2006-01-02", userProto.BirthDate)
-	if err != nil {
+	if err := userProto.BirthDate.CheckValid(); err != nil {
 		return nil, err
 	}
 
-	user := &models.User{
+	return &models.User{
 		ID:        userProto.Id,
 		Version:   userProto.Version,
 		Username:  userProto.Username,
@@ -36,10 +34,7 @@ func ProtoToUser(userProto *commonProto.UserResponse) (*models.User, error) {
 		Password:  userProto.PasswordHash,
 		FirstName: userProto.FirstName,
 		LastName:  userProto.LastName,
-		Sex:       models.Sex(userProto.Sex),
 		AvatarSrc: userProto.AvatarSrc,
-		BirthDate: models.Date{Time: time},
-	}
-
-	return user, nil
+		BirthDate: models.Date{Time: userProto.BirthDate.AsTime()},
+	}, nil
 }

@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	commonProtoUtils "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common"
 	proto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/user/proto/generated"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type UserAgent struct {
@@ -149,7 +151,6 @@ func userToProtoUserInfo(user *models.User) *proto.UpdateInfoMsg {
 		Email:     user.Email,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
-		Sex:       string(user.Sex),
-		BirthDate: user.BirthDate.Format("2006-01-02"),
+		BirthDate: timestamppb.New(user.BirthDate.Time),
 	}
 }

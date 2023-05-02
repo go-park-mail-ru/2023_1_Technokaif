@@ -6,6 +6,7 @@ import (
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	proto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/auth/proto/generated"
@@ -29,8 +30,7 @@ func (a *AuthAgent) SignUpUser(ctx context.Context, u models.User) (uint32, erro
 		Password:  u.Password,
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
-		Sex:       string(u.Sex),
-		BirthDate: u.BirthDate.Format("2006-01-02"), // TODO Check format
+		BirthDate: timestamppb.New(u.BirthDate.Time),
 	}
 
 	resp, err := a.client.SignUpUser(ctx, msg)

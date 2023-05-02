@@ -3,6 +3,8 @@ syntax = "proto3";
 package common;
 option go_package = "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common/proto/generated";
 
+import "google/protobuf/timestamp.proto";
+
 message UserResponse {
     uint32 id = 1;
 	uint32 version = 2;
@@ -11,7 +13,6 @@ message UserResponse {
 	string passwordHash = 5; 
 	string firstName = 6; 
 	string lastName = 7; 
-	string sex = 8; 
-	string birthDate = 9; 
-	string avatarSrc = 10;
+	google.protobuf.Timestamp birthDate = 8; 
+	string avatarSrc = 9;
 }

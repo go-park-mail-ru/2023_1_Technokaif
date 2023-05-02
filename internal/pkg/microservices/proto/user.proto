@@ -4,6 +4,7 @@ package user;
 option go_package = "user/proto/generated";
 
 import "common.proto";
+import "google/protobuf/timestamp.proto";
 
 message Id {
 	uint32 id = 1; 
@@ -14,8 +15,7 @@ message UpdateInfoMsg {
 	string email = 2;
 	string firstName = 3;
 	string lastName = 4;
-	string sex = 5; 
-	string birthDate = 6; 
+	google.protobuf.Timestamp birthDate = 5; 
 }
 
 message UpdateInfoResponse {}

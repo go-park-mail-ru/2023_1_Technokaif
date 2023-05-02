@@ -37,7 +37,7 @@ func main() {
 
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo)
 
-	listener, err := net.Listen("tcp", os.Getenv(config.ApiListenParam))
+	listener, err := net.Listen("tcp", os.Getenv(config.AuthListenParam))
 	if err != nil {
 		logger.Errorf("Cant listen port: %v", err)
 		return

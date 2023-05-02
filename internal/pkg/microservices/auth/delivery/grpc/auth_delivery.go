@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -12,8 +11,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
 
 	proto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/auth/proto/generated"
-	commonProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common/proto/generated"
 	commonProtoUtils "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common"
+	commonProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common/proto/generated"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
@@ -33,10 +32,8 @@ func NewAuthGRPC(authServices auth.Usecase, l logger.Logger) *authGRPC {
 }
 
 func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto.SignUpResponse, error) {
-
-	time, err := time.Parse("2006-01-02", msg.BirthDate)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "failed to parse date")
+	if err := msg.BirthDate.CheckValid(); err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	user := models.User{
@@ -45,7 +42,7 @@ func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto
 		FirstName: msg.FirstName,
 		LastName:  msg.LastName,
 		Password:  msg.Password,
-		BirthDate: models.Date{Time: time},
+		BirthDate: models.Date{Time: msg.BirthDate.AsTime()},
 	}
 
 	userId, err := a.authServices.SignUpUser(ctx, user)
@@ -120,4 +117,3 @@ func (a *authGRPC) ChangePassword(ctx context.Context, msg *proto.ChangePassMsg)
 
 	return &proto.ChangePassResponse{}, nil
 }
-

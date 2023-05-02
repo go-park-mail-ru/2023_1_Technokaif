@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -54,9 +55,9 @@ func NewHandler(su search.Usecase, alu album.Usecase, aru artist.Usecase,
 // @Router		/api/albums/search [post]
 func (h *Handler) FindAlbums(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHTTP.GetUserFromRequest(r)
-	if err != nil {
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
-			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+			albumsFindServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -106,9 +107,9 @@ func (h *Handler) FindAlbums(w http.ResponseWriter, r *http.Request) {
 // @Router		/api/artists/search [post]
 func (h *Handler) FindArtists(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHTTP.GetUserFromRequest(r)
-	if err != nil {
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
-			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+			artistsFindServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -157,9 +158,9 @@ func (h *Handler) FindArtists(w http.ResponseWriter, r *http.Request) {
 // @Router		/api/tracks/search [post]
 func (h *Handler) FindTracks(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHTTP.GetUserFromRequest(r)
-	if err != nil {
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
-			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+			tracksFindServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
@@ -209,9 +210,9 @@ func (h *Handler) FindTracks(w http.ResponseWriter, r *http.Request) {
 // @Router		/api/playlists/search [post]
 func (h *Handler) FindPlaylists(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHTTP.GetUserFromRequest(r)
-	if err != nil {
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
-			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+			playlistsFindServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 

@@ -4,6 +4,7 @@ package auth;
 option go_package = "auth/proto/generated";
 
 import "common.proto";
+import "google/protobuf/timestamp.proto";
 
 message SignUpMsg {
 	string username = 1; 
@@ -11,8 +12,7 @@ message SignUpMsg {
 	string password = 3; 
 	string firstName = 4; 
 	string lastName = 5; 
-	string sex = 6; 
-	string birthDate = 7;
+	google.protobuf.Timestamp birthDate = 6;
 }
 
 message SignUpResponse {
