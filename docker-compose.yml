@@ -93,3 +93,6 @@ services:
       - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d # isn't used if pgdata exists
       - ${DB_PATH}:/var/lib/postgresql/data
     command: ["postgres"] # "-c", "logging_collector=on", "-c", "log_statement=all"]
+
+volumes:
+  grafana-data: {}
