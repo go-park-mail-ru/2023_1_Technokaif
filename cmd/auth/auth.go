@@ -10,9 +10,9 @@ import (
 	"syscall"
 
 	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
-	"github.com/joho/godotenv" // load environment
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/joho/godotenv" // load environment
 	"google.golang.org/grpc"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/config"
@@ -29,14 +29,7 @@ import (
 
 var (
 	reg = prometheus.NewRegistry()
-
 	grpcMetrics = grpcPrometheus.NewServerMetrics()
-
-	customizedCounterMetric = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace: "fluire",
-		Subsystem: "auth",
-		Name:      "req_counter",
-	}, []string{"name"})
 )
 
 func main() {
@@ -68,7 +61,8 @@ func main() {
 		logger.Errorf("Cant listen port: %v", err)
 		return
 	}
-	reg.MustRegister(grpcMetrics, customizedCounterMetric.WithLabelValues("auth_test"))
+
+	reg.MustRegister(grpcMetrics)
 
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
@@ -80,7 +74,7 @@ func main() {
 	httpMetricsServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: os.Getenv("AUTH_EXPORTER_ENDPOINT")}
 	go func() {
 		if err := httpMetricsServer.ListenAndServe(); err != nil {
-			logger.Errorf("Unable to start a http album metrics server:", err)
+			logger.Errorf("Unable to start a http auth metrics server:", err)
 		}
 	}()
 

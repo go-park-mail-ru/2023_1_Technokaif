@@ -3,13 +3,17 @@ package main
 import (
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 
-	"github.com/joho/godotenv" // load environment
+	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
+	"github.com/joho/godotenv" // load environment
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/config"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
@@ -20,6 +24,11 @@ import (
 
 	userRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/repository/postgresql"
 	userUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/usecase"
+)
+
+var (
+	reg         = prometheus.NewRegistry()
+	grpcMetrics = grpcPrometheus.NewServerMetrics()
 )
 
 func main() {
@@ -51,7 +60,21 @@ func main() {
 		return
 	}
 
-	server := grpc.NewServer()
+	reg.MustRegister(grpcMetrics)
+
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
+	)
+
+	grpcMetrics.InitializeMetrics(server)
+
+	httpMetricsServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: os.Getenv("USER_EXPORTER_ENDPOINT")}
+	go func() {
+		if err := httpMetricsServer.ListenAndServe(); err != nil {
+			logger.Errorf("Unable to start a http user metrics server:", err)
+		}
+	}()
 	userProto.RegisterUserServer(server, userGRPC.NewUserGRPC(userUsecase, logger))
 
 	stop := make(chan os.Signal, 1)

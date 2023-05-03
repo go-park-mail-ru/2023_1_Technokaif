@@ -3,12 +3,16 @@ package main
 import (
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 
+	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/joho/godotenv" // load environment
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/config"
@@ -20,6 +24,11 @@ import (
 
 	searchRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/repository/postgresql"
 	searchUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/usecase"
+)
+
+var (
+	reg         = prometheus.NewRegistry()
+	grpcMetrics = grpcPrometheus.NewServerMetrics()
 )
 
 func main() {
@@ -51,7 +60,21 @@ func main() {
 		return
 	}
 
-	server := grpc.NewServer()
+	reg.MustRegister(grpcMetrics)
+
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
+	)
+
+	grpcMetrics.InitializeMetrics(server)
+
+	httpMetricsServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: os.Getenv("SEARCH_EXPORTER_ENDPOINT")}
+	go func() {
+		if err := httpMetricsServer.ListenAndServe(); err != nil {
+			logger.Errorf("Unable to start a http search metrics server:", err)
+		}
+	}()
 	searchProto.RegisterSearchServer(server, searchGRPC.NewSearchGRPC(searchUsecase, logger))
 
 	stop := make(chan os.Signal, 1)
@@ -67,7 +90,7 @@ func main() {
 		server.GracefulStop()
 	}()
 
-	logger.Info("Starting grpc server server")
+	logger.Info("Starting grpc server search")
 	if err := server.Serve(listener); err != nil {
 		logger.Errorf("Server search error: %v", err)
 		os.Exit(1)
