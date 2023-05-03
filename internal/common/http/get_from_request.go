@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
@@ -42,10 +43,10 @@ func GetResponseCodeFromRequest(r *http.Request) int {
 	return code
 }
 
-func GetReqIDFromRequest(r *http.Request) (uint32, error) {
-	reqID, ok := r.Context().Value(contextKeyReqIDType{}).(uint32)
+func GetReqIDFromContext(ctx context.Context) (uint32, error) {
+	reqID, ok := ctx.Value(contextKeyReqIDType{}).(uint32)
 	if !ok {
-		return 0, errors.New("no reqID in request")
+		return 0, errors.New("no reqID in context")
 	}
 
 	return reqID, nil

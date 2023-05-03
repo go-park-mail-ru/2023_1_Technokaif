@@ -44,7 +44,7 @@ func (u *userGRPC) GetByID(ctx context.Context, msg *proto.Id) (*commonProto.Use
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return commonProtoUtils.UserToProto(user), nil
+	return commonProtoUtils.UserToProto(*user), nil
 }
 
 func (u *userGRPC) UpdateInfo(ctx context.Context, msg *proto.UpdateInfoMsg) (*proto.UpdateInfoResponse, error) {
@@ -80,12 +80,12 @@ type uploadAvatarUsecaseInput struct {
 
 func (u *userGRPC) UploadAvatar(instream proto.User_UploadAvatarServer) error {
 	usecaseInput := uploadAvatarUsecaseInput{}
-	buffer := bytes.Buffer{}
+	buffer := bytes.NewBuffer(nil)
 
 	streamGotExtra := false
 	for {
 		req, err := instream.Recv()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -102,7 +102,7 @@ func (u *userGRPC) UploadAvatar(instream proto.User_UploadAvatarServer) error {
 			streamGotExtra = true
 		case *proto.UploadAvatarMsg_FileChunk:
 			if _, err := buffer.Write(data.FileChunk); err != nil {
-				return status.Error(codes.InvalidArgument, "got invalid file chunk")
+				return status.Error(codes.Internal, "got invalid file chunk")
 			}
 		}
 	}
@@ -140,7 +140,7 @@ func (u *userGRPC) GetByPlaylist(ctx context.Context, msg *proto.GetByPlaylistMs
 
 	usersProto := make([]*commonProto.UserResponse, 0, len(users))
 	for _, u := range users {
-		usersProto = append(usersProto, commonProtoUtils.UserToProto(&u))
+		usersProto = append(usersProto, commonProtoUtils.UserToProto(u))
 	}
 
 	return &proto.GetByPlaylistResponse{Users: usersProto}, nil

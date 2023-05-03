@@ -7,11 +7,11 @@ import "common.proto";
 import "google/protobuf/timestamp.proto";
 
 message SignUpMsg {
-	string username = 1; 
-	string email = 2; 
-	string password = 3; 
-	string firstName = 4; 
-	string lastName = 5; 
+	string 					  username  = 1; 
+	string 					  email     = 2; 
+	string 					  password  = 3; 
+	string 					  firstName = 4; 
+	string 					  lastName	= 5; 
 	google.protobuf.Timestamp birthDate = 6;
 }
 
@@ -25,7 +25,7 @@ message Creds {
 }
 
 message AuthData {
-    uint32 id = 1;
+    uint32 id 	   = 1;
     uint32 version = 2;
 }
 
@@ -36,16 +36,16 @@ message IncreaseUserVersionMsg {
 message IncreaseUserVersionResponse {}
 
 message ChangePassMsg {
-	uint32 userId = 1;
+	uint32 userId        = 1;
 	string plainPassword = 2;
 }
 
 message ChangePassResponse {}
 
 service Authorization {
-    rpc SignUpUser(SignUpMsg) returns (SignUpResponse) {};
-	rpc GetUserByCreds(Creds) returns (common.UserResponse) {};
-	rpc GetUserByAuthData(AuthData) returns (common.UserResponse) {};
+    rpc SignUpUser(SignUpMsg) 						returns (SignUpResponse) 			  {};
+	rpc GetUserByCreds(Creds) 						returns (common.UserResponse) 		  {};
+	rpc GetUserByAuthData(AuthData) 				returns (common.UserResponse) 		  {};
 	rpc IncreaseUserVersion(IncreaseUserVersionMsg) returns (IncreaseUserVersionResponse) {};
-	rpc ChangePassword(ChangePassMsg) returns (ChangePassResponse) {};
+	rpc ChangePassword(ChangePassMsg) 				returns (ChangePassResponse) 		  {};
 }

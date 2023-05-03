@@ -47,8 +47,10 @@ func InitRouter(
 	loggger logger.Logger) *chi.Mux {
 
 	r := chi.NewRouter()
-
+	
 	r.Use(middleware.Panic(loggger))
+	
+	r.Use(middleware.SetReqId)
 	r.Use(middleware.Logging(loggger))
 	r.Use(middleware.Metrics())
 

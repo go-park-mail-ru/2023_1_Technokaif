@@ -5,7 +5,7 @@
 package mock_logger
 
 import (
-	http "net/http"
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -47,15 +47,15 @@ func (mr *MockLoggerMockRecorder) Error(msg interface{}) *gomock.Call {
 }
 
 // ErrorReqID mocks base method.
-func (m *MockLogger) ErrorReqID(r *http.Request, msg string) {
+func (m *MockLogger) ErrorReqID(ctx context.Context, msg string) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ErrorReqID", r, msg)
+	m.ctrl.Call(m, "ErrorReqID", ctx, msg)
 }
 
 // ErrorReqID indicates an expected call of ErrorReqID.
-func (mr *MockLoggerMockRecorder) ErrorReqID(r, msg interface{}) *gomock.Call {
+func (mr *MockLoggerMockRecorder) ErrorReqID(ctx, msg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ErrorReqID", reflect.TypeOf((*MockLogger)(nil).ErrorReqID), r, msg)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ErrorReqID", reflect.TypeOf((*MockLogger)(nil).ErrorReqID), ctx, msg)
 }
 
 // Errorf mocks base method.
@@ -76,9 +76,9 @@ func (mr *MockLoggerMockRecorder) Errorf(format interface{}, a ...interface{}) *
 }
 
 // ErrorfReqID mocks base method.
-func (m *MockLogger) ErrorfReqID(r *http.Request, format string, a ...any) {
+func (m *MockLogger) ErrorfReqID(ctx context.Context, format string, a ...any) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{r, format}
+	varargs := []interface{}{ctx, format}
 	for _, a_2 := range a {
 		varargs = append(varargs, a_2)
 	}
@@ -86,9 +86,9 @@ func (m *MockLogger) ErrorfReqID(r *http.Request, format string, a ...any) {
 }
 
 // ErrorfReqID indicates an expected call of ErrorfReqID.
-func (mr *MockLoggerMockRecorder) ErrorfReqID(r, format interface{}, a ...interface{}) *gomock.Call {
+func (mr *MockLoggerMockRecorder) ErrorfReqID(ctx, format interface{}, a ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{r, format}, a...)
+	varargs := append([]interface{}{ctx, format}, a...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ErrorfReqID", reflect.TypeOf((*MockLogger)(nil).ErrorfReqID), varargs...)
 }
 
@@ -105,15 +105,15 @@ func (mr *MockLoggerMockRecorder) Info(msg interface{}) *gomock.Call {
 }
 
 // InfoReqID mocks base method.
-func (m *MockLogger) InfoReqID(r *http.Request, msg string) {
+func (m *MockLogger) InfoReqID(ctx context.Context, msg string) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "InfoReqID", r, msg)
+	m.ctrl.Call(m, "InfoReqID", ctx, msg)
 }
 
 // InfoReqID indicates an expected call of InfoReqID.
-func (mr *MockLoggerMockRecorder) InfoReqID(r, msg interface{}) *gomock.Call {
+func (mr *MockLoggerMockRecorder) InfoReqID(ctx, msg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InfoReqID", reflect.TypeOf((*MockLogger)(nil).InfoReqID), r, msg)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InfoReqID", reflect.TypeOf((*MockLogger)(nil).InfoReqID), ctx, msg)
 }
 
 // Infof mocks base method.
@@ -134,9 +134,9 @@ func (mr *MockLoggerMockRecorder) Infof(format interface{}, a ...interface{}) *g
 }
 
 // InfofReqID mocks base method.
-func (m *MockLogger) InfofReqID(r *http.Request, format string, a ...any) {
+func (m *MockLogger) InfofReqID(ctx context.Context, format string, a ...any) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{r, format}
+	varargs := []interface{}{ctx, format}
 	for _, a_2 := range a {
 		varargs = append(varargs, a_2)
 	}
@@ -144,8 +144,8 @@ func (m *MockLogger) InfofReqID(r *http.Request, format string, a ...any) {
 }
 
 // InfofReqID indicates an expected call of InfofReqID.
-func (mr *MockLoggerMockRecorder) InfofReqID(r, format interface{}, a ...interface{}) *gomock.Call {
+func (mr *MockLoggerMockRecorder) InfofReqID(ctx, format interface{}, a ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{r, format}, a...)
+	varargs := append([]interface{}{ctx, format}, a...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InfofReqID", reflect.TypeOf((*MockLogger)(nil).InfofReqID), varargs...)
 }

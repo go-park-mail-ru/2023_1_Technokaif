@@ -43,7 +43,7 @@ func (a *authGRPC) SignUpUser(ctx context.Context, msg *proto.SignUpMsg) (*proto
 		LastName:  msg.LastName,
 		Password:  msg.Password,
 		BirthDate: models.Date{Time: msg.BirthDate.AsTime()},
-		Sex: models.Sex("M"),
+		Sex:       models.Sex("M"),
 	}
 
 	userId, err := a.authServices.SignUpUser(ctx, user)
@@ -76,7 +76,7 @@ func (a *authGRPC) GetUserByCreds(ctx context.Context, msg *proto.Creds) (*commo
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return commonProtoUtils.UserToProto(user), nil
+	return commonProtoUtils.UserToProto(*user), nil
 }
 
 func (a *authGRPC) GetUserByAuthData(ctx context.Context, msg *proto.AuthData) (*commonProto.UserResponse, error) {
@@ -90,7 +90,7 @@ func (a *authGRPC) GetUserByAuthData(ctx context.Context, msg *proto.AuthData) (
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return commonProtoUtils.UserToProto(user), nil
+	return commonProtoUtils.UserToProto(*user), nil
 }
 
 func (a *authGRPC) IncreaseUserVersion(ctx context.Context, msg *proto.IncreaseUserVersionMsg) (*proto.IncreaseUserVersionResponse, error) {

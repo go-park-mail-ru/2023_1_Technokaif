@@ -38,7 +38,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	logger, err := logger.NewLogger(commonHttp.GetReqIDFromRequest)
+	logger, err := logger.NewLogger(commonHttp.GetReqIDFromContext)
 	if err != nil {
 		log.Fatalf("logger can not be defined: %v\n", err)
 	}
