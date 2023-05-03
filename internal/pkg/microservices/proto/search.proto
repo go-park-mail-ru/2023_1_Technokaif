@@ -4,46 +4,46 @@ package auth;
 option go_package = "search/proto/generated";
 
 message SearchMsg {
-	string query = 1;
+	string query  = 1;
 	uint32 amount = 2;
 }
 
 message AlbumResponse {
-    uint32 id = 1;
-    string name = 2;
+    uint32 id 		   = 1;
+    string name        = 2;
     string description = 3;
-    string coverSrc = 4;
+    string coverSrc    = 4;
 }
 
 message TrackResponse {
-    uint32 id = 1;
-    string name = 2;
-    uint32 albumID = 3; 
+    uint32 id 			 = 1;
+    string name          = 2;
+    uint32 albumID       = 3; 
 	uint32 albumPosition = 4; 
-	string coverSrc = 5;     
-	string recordSrc = 6;     
-	uint32 duration = 7;      
-	uint32 listens = 8;   
+	string coverSrc 	 = 5;
+	string recordSrc 	 = 6;     
+	uint32 duration 	 = 7;      
+	uint32 listens 		 = 8;   
 }
 
 message PlaylistResponse {
-    uint32 id = 1;         
-	string name = 2;        
+    uint32 id 		   = 1;         
+	string name 	   = 2;        
 	string description = 3; 
-	string coverSrc = 4;
+	string coverSrc    = 4;
 }
 
 message ArtistResponse {
-    uint32 id = 1;       
-	uint32 userID = 2;   
-	string name = 3;     
+    uint32 id 		 = 1;       
+	uint32 userID 	 = 2;   
+	string name 	 = 3;     
 	string avatarSrc = 4; 
 }
 
 
 service Search {
-	rpc FindAlbums(SearchMsg) returns (stream AlbumResponse) {};
-	rpc FindTracks(SearchMsg) returns (stream TrackResponse) {};
+	rpc FindAlbums(SearchMsg) returns (stream AlbumResponse) 	   {};
+	rpc FindTracks(SearchMsg) returns (stream TrackResponse)       {};
 	rpc FindPlaylists(SearchMsg) returns (stream PlaylistResponse) {};
-	rpc FindArtists(SearchMsg) returns (stream ArtistResponse) {};
+	rpc FindArtists(SearchMsg) returns (stream ArtistResponse)     {};
 }

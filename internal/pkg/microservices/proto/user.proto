@@ -11,10 +11,10 @@ message Id {
 }
 
 message UpdateInfoMsg {
-	uint32 id = 1;
-	string email = 2;
-	string firstName = 3;
-	string lastName = 4;
+	uint32 				      id 		= 1;
+	string 					  email	    = 2;
+	string 					  firstName = 3;
+	string 					  lastName  = 4;
 	google.protobuf.Timestamp birthDate = 5; 
 }
 
@@ -22,13 +22,13 @@ message UpdateInfoResponse {}
 
 message UploadAvatarMsg {
 	oneof data {
-		UploadAvatarExtra extra = 1;
-		bytes fileChunk = 2;
+		UploadAvatarExtra extra 	= 1;
+		bytes 			  fileChunk = 2;
 	}
 }
 
 message UploadAvatarExtra {
-	uint32 userId = 1;
+	uint32 userId 		 = 1;
 	string fileExtension = 2;
 }
 
@@ -43,8 +43,8 @@ message GetByPlaylistResponse {
 }
 
 service User {
-    rpc GetByID(Id) returns (common.UserResponse) {};
-	rpc UpdateInfo(UpdateInfoMsg) returns (UpdateInfoResponse) {};
-	rpc UploadAvatar(stream UploadAvatarMsg) returns (UploadAvatarResponse) {}
-	rpc GetByPlaylist(GetByPlaylistMsg) returns (GetByPlaylistResponse) {}
+    rpc GetByID(Id) 			  			 returns (common.UserResponse)   {};
+	rpc UpdateInfo(UpdateInfoMsg) 			 returns (UpdateInfoResponse)    {};
+	rpc UploadAvatar(stream UploadAvatarMsg) returns (UploadAvatarResponse)  {};
+	rpc GetByPlaylist(GetByPlaylistMsg) 	 returns (GetByPlaylistResponse) {};
 }
