@@ -7,7 +7,7 @@ import (
 	commonProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/common/proto/generated"
 )
 
-func UserToProto(user *models.User) *commonProto.UserResponse {
+func UserToProto(user models.User) *commonProto.UserResponse {
 	return &commonProto.UserResponse{
 		Id:           user.ID,
 		Version:      user.Version,

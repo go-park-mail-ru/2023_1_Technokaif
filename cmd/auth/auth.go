@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	logger, err := logger.NewLogger(commonHttp.GetReqIDFromRequest)
+	logger, err := logger.NewLogger(commonHttp.GetReqIDFromContext)
 	if err != nil {
 		log.Fatalf("logger can not be defined: %v\n", err)
 	}
