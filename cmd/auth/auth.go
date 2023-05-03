@@ -4,6 +4,9 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
 	"github.com/joho/godotenv" // load environment
 	"google.golang.org/grpc"
@@ -31,6 +34,11 @@ func main() {
 		logger.Errorf("Error while connecting to database: %v", err)
 		return
 	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			logger.Errorf("Error while closing DB connection: %v", err)
+		}
+	}()
 
 	userRepo := userRepository.NewPostgreSQL(db, tables)
 	authRepo := authRepository.NewPostgreSQL(db, tables)
@@ -38,6 +46,8 @@ func main() {
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo)
 
 	listener, err := net.Listen("tcp", os.Getenv(config.AuthListenParam))
+	defer listener.Close()
+
 	if err != nil {
 		logger.Errorf("Cant listen port: %v", err)
 		return
@@ -45,10 +55,26 @@ func main() {
 
 	server := grpc.NewServer()
 	authProto.RegisterAuthorizationServer(server, authGRPC.NewAuthGRPC(authUsecase, logger))
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	wg := sync.WaitGroup{}
+
+	wg.Add(1)
+	go func() {
+		<-stop
+		logger.Info("Server auth gracefully shutting down...")
+
+		server.GracefulStop()
+		wg.Done()
+	}()
+
+	logger.Info("Starting grpc server auth")
 	if err := server.Serve(listener); err != nil {
 		logger.Errorf("Auth Server error: %v", err)
-		return
+		os.Exit(1)
 	}
+	wg.Wait()
 }
 
 func init() {
