@@ -68,10 +68,12 @@ func main() {
 		logger.Errorf("Cant listen port: %v", err)
 		return
 	}
-	reg.MustRegister(grpcMetrics, customizedCounterMetric)
-	customizedCounterMetric.WithLabelValues("auth_test")
+	reg.MustRegister(grpcMetrics, customizedCounterMetric.WithLabelValues("auth_test"))
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
+	)
 
 	grpcMetrics.InitializeMetrics(server)
 
