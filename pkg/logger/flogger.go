@@ -52,7 +52,6 @@ func (l *FLogger) Infof(format string, a ...any) {
 func (l *FLogger) ErrorReqID(ctx context.Context, msg string) {
 	reqId, err := l.reqIdGetter(ctx)
 	if err != nil {
-		l.Info("Can't get request id")
 		l.Error(msg)
 		return
 	}
@@ -63,7 +62,6 @@ func (l *FLogger) ErrorReqID(ctx context.Context, msg string) {
 func (l *FLogger) ErrorfReqID(ctx context.Context, format string, a ...any) {
 	reqId, err := l.reqIdGetter(ctx)
 	if err != nil {
-		l.Info("Can't get request id")
 		l.Errorf(format, a...)
 		return
 	}
@@ -74,7 +72,6 @@ func (l *FLogger) ErrorfReqID(ctx context.Context, format string, a ...any) {
 func (l *FLogger) InfoReqID(ctx context.Context, msg string) {
 	reqId, err := l.reqIdGetter(ctx)
 	if err != nil {
-		l.Info("Can't get request id")
 		l.Info(msg)
 		return
 	}
@@ -85,7 +82,6 @@ func (l *FLogger) InfoReqID(ctx context.Context, msg string) {
 func (l *FLogger) InfofReqID(ctx context.Context, format string, a ...any) {
 	reqId, err := l.reqIdGetter(ctx)
 	if err != nil {
-		l.Info("Can't get request id")
 		l.Infof(format, a...)
 		return
 	}
