@@ -58,7 +58,7 @@ func InitRouter(
 	r.Get("/swagger/*", swagger.WrapHandler)
 
 	r.Route("/api", func(r chi.Router) {
-
+		
 		r.Route("/users", func(r chi.Router) {
 			r.With(authM.Authorization, userM.CheckUserAuthAndResponce).Route(userIdRoute, func(r chi.Router) {
 				r.Get("/playlists", playlistH.GetByUser)

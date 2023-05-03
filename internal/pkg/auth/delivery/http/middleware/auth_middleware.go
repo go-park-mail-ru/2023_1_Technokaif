@@ -83,6 +83,6 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 		m.logger.InfofReqID(r.Context(), "user version : %d", user.Version)
 
 		reqWithUser := commonHTTP.WrapUser(r, user)
-		next.ServeHTTP(w, reqWithUser) // token check successed
+		next.ServeHTTP(w, commonHTTP.WrapWithCode(reqWithUser, commonHTTP.GetResponseCodeFromRequest(r))) // token check successed
 	})
 }
