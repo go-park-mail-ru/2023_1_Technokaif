@@ -60,11 +60,11 @@ func main() {
 
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-stop
 		logger.Info("Server search gracefully shutting down...")
 
 		server.GracefulStop()
-		wg.Done()
 	}()
 
 	logger.Info("Starting grpc server server")
