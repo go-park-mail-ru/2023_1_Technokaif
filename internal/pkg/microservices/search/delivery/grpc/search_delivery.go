@@ -94,7 +94,7 @@ func (s *searchGRPC) FindArtists(msg *proto.SearchMsg, stream proto.Search_FindA
 }
 
 func (s *searchGRPC) FindPlaylists(msg *proto.SearchMsg, stream proto.Search_FindPlaylistsServer) error {
-	playlists, err := s.searchServices.FindAlbums(stream.Context(), msg.Query, msg.Amount)
+	playlists, err := s.searchServices.FindPlaylists(stream.Context(), msg.Query, msg.Amount)
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
