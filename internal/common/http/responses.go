@@ -14,6 +14,7 @@ const (
 	IncorrectRequestBody = "incorrect input body"
 	InvalidURLParameter  = "invalid url parameter"
 	UnathorizedUser      = "unathorized"
+	ForbiddenUser        = "user has no rights"
 
 	SetLikeServerError    = "can't set like"
 	DeleteLikeServerError = "can't remove like"
@@ -48,20 +49,22 @@ func ErrorResponse(w http.ResponseWriter, msg string, code int, logger logger.Lo
 
 const minErrorToLogCode = 500
 
-func ErrorResponseWithErrLogging(w http.ResponseWriter, msg string, code int, logger logger.Logger, err error) {
+func ErrorResponseWithErrLogging(w http.ResponseWriter, r *http.Request,
+	msg string, code int, logger logger.Logger, err error) {
+
 	if err != nil {
 		if code < minErrorToLogCode {
-			logger.Info(err.Error())
+			logger.InfoReqID(r.Context(), err.Error())
 		} else {
-			logger.Error(err.Error())
+			logger.ErrorReqID(r.Context(), err.Error())
 		}
 	}
 
 	ErrorResponse(w, msg, code, logger)
 }
 
-func SuccessResponse(w http.ResponseWriter, r any, logger logger.Logger) {
-	message, err := json.Marshal(r)
+func SuccessResponse(w http.ResponseWriter, response any, logger logger.Logger) {
+	message, err := json.Marshal(response)
 	if err != nil {
 		logger.Error(err.Error())
 		ErrorResponse(w, "can't encode response into json", http.StatusInternalServerError, logger)

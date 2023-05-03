@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -9,32 +10,29 @@ import (
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
-	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 )
 
 // PostgreSQL implements auth.Repository
 type PostgreSQL struct {
 	db     *sqlx.DB
 	tables auth.Tables
-	logger logger.Logger
 }
 
-func NewPostgreSQL(db *sqlx.DB, t auth.Tables, l logger.Logger) *PostgreSQL {
+func NewPostgreSQL(db *sqlx.DB, t auth.Tables) *PostgreSQL {
 	return &PostgreSQL{
 		db:     db,
 		tables: t,
-		logger: l,
 	}
 }
 
-func (p *PostgreSQL) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
+func (p *PostgreSQL) GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, version, username, email, password_hash, salt, 
 			first_name, last_name, sex, birth_date, avatar_src 
 		FROM %s
 		WHERE id = $1 AND version = $2;`,
 		p.tables.Users())
-	row := p.db.QueryRow(query, userID, userVersion)
+	row := p.db.QueryRowContext(ctx, query, userID, userVersion)
 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
@@ -51,14 +49,14 @@ func (p *PostgreSQL) GetUserByAuthData(userID, userVersion uint32) (*models.User
 	return &u, nil
 }
 
-func (p *PostgreSQL) IncreaseUserVersion(userID uint32) error {
+func (p *PostgreSQL) IncreaseUserVersion(ctx context.Context, userID uint32) error {
 	query := fmt.Sprintf(
 		`UPDATE %s
 		SET version = version + 1
 		WHERE id = $1
 		RETURNING id;`,
 		p.tables.Users())
-	row := p.db.QueryRow(query, userID)
+	row := p.db.QueryRowContext(ctx, query, userID)
 
 	err := row.Scan(&userID)
 
@@ -73,7 +71,7 @@ func (p *PostgreSQL) IncreaseUserVersion(userID uint32) error {
 	return nil
 }
 
-func (p *PostgreSQL) UpdatePassword(userID uint32, passwordHash, salt string) error {
+func (p *PostgreSQL) UpdatePassword(ctx context.Context, userID uint32, passwordHash, salt string) error {
 	query := fmt.Sprintf(
 		`UPDATE %s
 		SET password_hash = $1,
@@ -81,7 +79,7 @@ func (p *PostgreSQL) UpdatePassword(userID uint32, passwordHash, salt string) er
 		WHERE id = $3
 		RETURNING id;`,
 		p.tables.Users())
-	row := p.db.QueryRow(query, passwordHash, salt, userID)
+	row := p.db.QueryRowContext(ctx, query, passwordHash, salt, userID)
 
 	if err := row.Scan(&userID); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

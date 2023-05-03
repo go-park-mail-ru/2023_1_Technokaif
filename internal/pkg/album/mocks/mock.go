@@ -5,6 +5,7 @@
 package mock_album
 
 import (
+	context "context"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -35,152 +36,152 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUsecase) Create(album models.Album, artistsID []uint32, userID uint32) (uint32, error) {
+func (m *MockUsecase) Create(ctx context.Context, album models.Album, artistsID []uint32, userID uint32) (uint32, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", album, artistsID, userID)
+	ret := m.ctrl.Call(m, "Create", ctx, album, artistsID, userID)
 	ret0, _ := ret[0].(uint32)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockUsecaseMockRecorder) Create(album, artistsID, userID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) Create(ctx, album, artistsID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsecase)(nil).Create), album, artistsID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsecase)(nil).Create), ctx, album, artistsID, userID)
 }
 
 // Delete mocks base method.
-func (m *MockUsecase) Delete(albumID, userID uint32) error {
+func (m *MockUsecase) Delete(ctx context.Context, albumID, userID uint32) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", albumID, userID)
+	ret := m.ctrl.Call(m, "Delete", ctx, albumID, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockUsecaseMockRecorder) Delete(albumID, userID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) Delete(ctx, albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), albumID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), ctx, albumID, userID)
 }
 
 // GetByArtist mocks base method.
-func (m *MockUsecase) GetByArtist(artistID uint32) ([]models.Album, error) {
+func (m *MockUsecase) GetByArtist(ctx context.Context, artistID uint32) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByArtist", artistID)
+	ret := m.ctrl.Call(m, "GetByArtist", ctx, artistID)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByArtist indicates an expected call of GetByArtist.
-func (mr *MockUsecaseMockRecorder) GetByArtist(artistID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetByArtist(ctx, artistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByArtist", reflect.TypeOf((*MockUsecase)(nil).GetByArtist), artistID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByArtist", reflect.TypeOf((*MockUsecase)(nil).GetByArtist), ctx, artistID)
 }
 
 // GetByID mocks base method.
-func (m *MockUsecase) GetByID(albumID uint32) (*models.Album, error) {
+func (m *MockUsecase) GetByID(ctx context.Context, albumID uint32) (*models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByID", albumID)
+	ret := m.ctrl.Call(m, "GetByID", ctx, albumID)
 	ret0, _ := ret[0].(*models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByID indicates an expected call of GetByID.
-func (mr *MockUsecaseMockRecorder) GetByID(albumID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetByID(ctx, albumID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), albumID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUsecase)(nil).GetByID), ctx, albumID)
 }
 
 // GetByTrack mocks base method.
-func (m *MockUsecase) GetByTrack(trackID uint32) (*models.Album, error) {
+func (m *MockUsecase) GetByTrack(ctx context.Context, trackID uint32) (*models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByTrack", trackID)
+	ret := m.ctrl.Call(m, "GetByTrack", ctx, trackID)
 	ret0, _ := ret[0].(*models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByTrack indicates an expected call of GetByTrack.
-func (mr *MockUsecaseMockRecorder) GetByTrack(trackID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetByTrack(ctx, trackID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByTrack", reflect.TypeOf((*MockUsecase)(nil).GetByTrack), trackID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByTrack", reflect.TypeOf((*MockUsecase)(nil).GetByTrack), ctx, trackID)
 }
 
 // GetFeed mocks base method.
-func (m *MockUsecase) GetFeed() ([]models.Album, error) {
+func (m *MockUsecase) GetFeed(ctx context.Context) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed")
+	ret := m.ctrl.Call(m, "GetFeed", ctx)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockUsecaseMockRecorder) GetFeed() *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetFeed(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockUsecase)(nil).GetFeed))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockUsecase)(nil).GetFeed), ctx)
 }
 
 // GetLikedByUser mocks base method.
-func (m *MockUsecase) GetLikedByUser(userID uint32) ([]models.Album, error) {
+func (m *MockUsecase) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetLikedByUser", userID)
+	ret := m.ctrl.Call(m, "GetLikedByUser", ctx, userID)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetLikedByUser indicates an expected call of GetLikedByUser.
-func (mr *MockUsecaseMockRecorder) GetLikedByUser(userID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetLikedByUser(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockUsecase)(nil).GetLikedByUser), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockUsecase)(nil).GetLikedByUser), ctx, userID)
 }
 
 // IsLiked mocks base method.
-func (m *MockUsecase) IsLiked(albumID, userID uint32) (bool, error) {
+func (m *MockUsecase) IsLiked(ctx context.Context, albumID, userID uint32) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsLiked", albumID, userID)
+	ret := m.ctrl.Call(m, "IsLiked", ctx, albumID, userID)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // IsLiked indicates an expected call of IsLiked.
-func (mr *MockUsecaseMockRecorder) IsLiked(albumID, userID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) IsLiked(ctx, albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockUsecase)(nil).IsLiked), albumID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockUsecase)(nil).IsLiked), ctx, albumID, userID)
 }
 
 // SetLike mocks base method.
-func (m *MockUsecase) SetLike(albumID, userID uint32) (bool, error) {
+func (m *MockUsecase) SetLike(ctx context.Context, albumID, userID uint32) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetLike", albumID, userID)
+	ret := m.ctrl.Call(m, "SetLike", ctx, albumID, userID)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SetLike indicates an expected call of SetLike.
-func (mr *MockUsecaseMockRecorder) SetLike(albumID, userID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) SetLike(ctx, albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLike", reflect.TypeOf((*MockUsecase)(nil).SetLike), albumID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLike", reflect.TypeOf((*MockUsecase)(nil).SetLike), ctx, albumID, userID)
 }
 
 // UnLike mocks base method.
-func (m *MockUsecase) UnLike(albumID, userID uint32) (bool, error) {
+func (m *MockUsecase) UnLike(ctx context.Context, albumID, userID uint32) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UnLike", albumID, userID)
+	ret := m.ctrl.Call(m, "UnLike", ctx, albumID, userID)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UnLike indicates an expected call of UnLike.
-func (mr *MockUsecaseMockRecorder) UnLike(albumID, userID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) UnLike(ctx, albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnLike", reflect.TypeOf((*MockUsecase)(nil).UnLike), albumID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnLike", reflect.TypeOf((*MockUsecase)(nil).UnLike), ctx, albumID, userID)
 }
 
 // MockRepository is a mock of Repository interface.
@@ -207,166 +208,166 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Check mocks base method.
-func (m *MockRepository) Check(albumID uint32) error {
+func (m *MockRepository) Check(ctx context.Context, albumID uint32) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Check", albumID)
+	ret := m.ctrl.Call(m, "Check", ctx, albumID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Check indicates an expected call of Check.
-func (mr *MockRepositoryMockRecorder) Check(albumID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Check(ctx, albumID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockRepository)(nil).Check), albumID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockRepository)(nil).Check), ctx, albumID)
 }
 
 // DeleteByID mocks base method.
-func (m *MockRepository) DeleteByID(albumID uint32) error {
+func (m *MockRepository) DeleteByID(ctx context.Context, albumID uint32) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteByID", albumID)
+	ret := m.ctrl.Call(m, "DeleteByID", ctx, albumID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteByID indicates an expected call of DeleteByID.
-func (mr *MockRepositoryMockRecorder) DeleteByID(albumID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) DeleteByID(ctx, albumID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockRepository)(nil).DeleteByID), albumID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockRepository)(nil).DeleteByID), ctx, albumID)
 }
 
 // DeleteLike mocks base method.
-func (m *MockRepository) DeleteLike(albumID, userID uint32) (bool, error) {
+func (m *MockRepository) DeleteLike(ctx context.Context, albumID, userID uint32) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteLike", albumID, userID)
+	ret := m.ctrl.Call(m, "DeleteLike", ctx, albumID, userID)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DeleteLike indicates an expected call of DeleteLike.
-func (mr *MockRepositoryMockRecorder) DeleteLike(albumID, userID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) DeleteLike(ctx, albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLike", reflect.TypeOf((*MockRepository)(nil).DeleteLike), albumID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLike", reflect.TypeOf((*MockRepository)(nil).DeleteLike), ctx, albumID, userID)
 }
 
 // GetByArtist mocks base method.
-func (m *MockRepository) GetByArtist(artistID uint32) ([]models.Album, error) {
+func (m *MockRepository) GetByArtist(ctx context.Context, artistID uint32) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByArtist", artistID)
+	ret := m.ctrl.Call(m, "GetByArtist", ctx, artistID)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByArtist indicates an expected call of GetByArtist.
-func (mr *MockRepositoryMockRecorder) GetByArtist(artistID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetByArtist(ctx, artistID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByArtist", reflect.TypeOf((*MockRepository)(nil).GetByArtist), artistID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByArtist", reflect.TypeOf((*MockRepository)(nil).GetByArtist), ctx, artistID)
 }
 
 // GetByID mocks base method.
-func (m *MockRepository) GetByID(albumID uint32) (*models.Album, error) {
+func (m *MockRepository) GetByID(ctx context.Context, albumID uint32) (*models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByID", albumID)
+	ret := m.ctrl.Call(m, "GetByID", ctx, albumID)
 	ret0, _ := ret[0].(*models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByID indicates an expected call of GetByID.
-func (mr *MockRepositoryMockRecorder) GetByID(albumID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetByID(ctx, albumID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepository)(nil).GetByID), albumID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockRepository)(nil).GetByID), ctx, albumID)
 }
 
 // GetByTrack mocks base method.
-func (m *MockRepository) GetByTrack(trackID uint32) (*models.Album, error) {
+func (m *MockRepository) GetByTrack(ctx context.Context, trackID uint32) (*models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByTrack", trackID)
+	ret := m.ctrl.Call(m, "GetByTrack", ctx, trackID)
 	ret0, _ := ret[0].(*models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByTrack indicates an expected call of GetByTrack.
-func (mr *MockRepositoryMockRecorder) GetByTrack(trackID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetByTrack(ctx, trackID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByTrack", reflect.TypeOf((*MockRepository)(nil).GetByTrack), trackID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByTrack", reflect.TypeOf((*MockRepository)(nil).GetByTrack), ctx, trackID)
 }
 
 // GetFeed mocks base method.
-func (m *MockRepository) GetFeed(amountLimit int) ([]models.Album, error) {
+func (m *MockRepository) GetFeed(ctx context.Context, limit uint32) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed", amountLimit)
+	ret := m.ctrl.Call(m, "GetFeed", ctx, limit)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockRepositoryMockRecorder) GetFeed(amountLimit interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetFeed(ctx, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), amountLimit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx, limit)
 }
 
 // GetLikedByUser mocks base method.
-func (m *MockRepository) GetLikedByUser(userID uint32) ([]models.Album, error) {
+func (m *MockRepository) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Album, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetLikedByUser", userID)
+	ret := m.ctrl.Call(m, "GetLikedByUser", ctx, userID)
 	ret0, _ := ret[0].([]models.Album)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetLikedByUser indicates an expected call of GetLikedByUser.
-func (mr *MockRepositoryMockRecorder) GetLikedByUser(userID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetLikedByUser(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockRepository)(nil).GetLikedByUser), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockRepository)(nil).GetLikedByUser), ctx, userID)
 }
 
 // Insert mocks base method.
-func (m *MockRepository) Insert(album models.Album, artistsID []uint32) (uint32, error) {
+func (m *MockRepository) Insert(ctx context.Context, album models.Album, artistsID []uint32) (uint32, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", album, artistsID)
+	ret := m.ctrl.Call(m, "Insert", ctx, album, artistsID)
 	ret0, _ := ret[0].(uint32)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Insert indicates an expected call of Insert.
-func (mr *MockRepositoryMockRecorder) Insert(album, artistsID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Insert(ctx, album, artistsID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), album, artistsID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), ctx, album, artistsID)
 }
 
 // InsertLike mocks base method.
-func (m *MockRepository) InsertLike(albumID, userID uint32) (bool, error) {
+func (m *MockRepository) InsertLike(ctx context.Context, albumID, userID uint32) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InsertLike", albumID, userID)
+	ret := m.ctrl.Call(m, "InsertLike", ctx, albumID, userID)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // InsertLike indicates an expected call of InsertLike.
-func (mr *MockRepositoryMockRecorder) InsertLike(albumID, userID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) InsertLike(ctx, albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertLike", reflect.TypeOf((*MockRepository)(nil).InsertLike), albumID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertLike", reflect.TypeOf((*MockRepository)(nil).InsertLike), ctx, albumID, userID)
 }
 
 // IsLiked mocks base method.
-func (m *MockRepository) IsLiked(albumID, userID uint32) (bool, error) {
+func (m *MockRepository) IsLiked(ctx context.Context, albumID, userID uint32) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsLiked", albumID, userID)
+	ret := m.ctrl.Call(m, "IsLiked", ctx, albumID, userID)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // IsLiked indicates an expected call of IsLiked.
-func (mr *MockRepositoryMockRecorder) IsLiked(albumID, userID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) IsLiked(ctx, albumID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockRepository)(nil).IsLiked), albumID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockRepository)(nil).IsLiked), ctx, albumID, userID)
 }
 
 // MockTables is a mock of Tables interface.

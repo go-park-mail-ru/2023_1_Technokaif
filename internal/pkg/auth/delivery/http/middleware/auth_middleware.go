@@ -1,11 +1,10 @@
 package middleware
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token"
@@ -40,7 +39,7 @@ func NewMiddleware(u auth.Usecase, t token.Usecase, l logger.Logger) *Middleware
 func (m *Middleware) Authorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		token, err := commonHttp.GetAccessTokenFromCookie(r)
+		token, err := commonHTTP.GetAccessTokenFromCookie(r)
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
 				m.logger.Infof("middleware: %v", err)
@@ -49,7 +48,7 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			}
 
 			m.logger.Errorf("middleware: %v", err)
-			commonHttp.ErrorResponse(w, tokenGetServerError, http.StatusInternalServerError, m.logger)
+			commonHTTP.ErrorResponse(w, tokenGetServerError, http.StatusInternalServerError, m.logger)
 			return
 		}
 		if token == "" {
@@ -61,29 +60,29 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 		userId, userVersion, err := m.tokenServices.CheckAccessToken(token)
 		if err != nil {
 			m.logger.Infof("middleware: %v", err)
-			commonHttp.SetAccessTokenCookie(w, "")
-			commonHttp.ErrorResponse(w, tokenCheckFail, http.StatusBadRequest, m.logger) // token check failed
+			commonHTTP.SetAccessTokenCookie(w, "")
+			commonHTTP.ErrorResponse(w, tokenCheckFail, http.StatusBadRequest, m.logger) // token check failed
 			return
 		}
 
-		user, err := m.authServices.GetUserByAuthData(userId, userVersion)
+		user, err := m.authServices.GetUserByAuthData(r.Context(), userId, userVersion)
 		if err != nil {
 			var errNoSuchUser *models.NoSuchUserError
 			if errors.As(err, &errNoSuchUser) {
 				m.logger.Infof("middleware: %v", err)
-				commonHttp.SetAccessTokenCookie(w, "")
-				commonHttp.ErrorResponse(w, authDataCheckFail, http.StatusBadRequest, m.logger) // auth data check failed
+				commonHTTP.SetAccessTokenCookie(w, "")
+				commonHTTP.ErrorResponse(w, authDataCheckFail, http.StatusBadRequest, m.logger) // auth data check failed
 				return
 			}
 
 			m.logger.Errorf("middleware: %v", err)
-			commonHttp.ErrorResponse(w, authCheckServerErorr, http.StatusInternalServerError, m.logger)
+			commonHTTP.ErrorResponse(w, authCheckServerErorr, http.StatusInternalServerError, m.logger)
 			return
 		}
 
-		m.logger.Infof("user version : %d", user.Version)
+		m.logger.InfofReqID(r.Context(), "user version : %d", user.Version)
 
-		ctx := context.WithValue(r.Context(), models.ContextKeyUserType{}, user)
-		next.ServeHTTP(w, r.WithContext(ctx)) // token check successed
+		reqWithUser := commonHTTP.WrapUser(r, user)
+		next.ServeHTTP(w, reqWithUser) // token check successed
 	})
 }

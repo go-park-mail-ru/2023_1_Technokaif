@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"testing"
@@ -13,12 +14,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	authMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/mocks"
 )
 
 const usersTable = "Users"
+
+var ctx = context.Background()
 
 func defaultUser() (models.User, error) {
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
@@ -44,7 +46,7 @@ func defaultUser() (models.User, error) {
 
 var errPqInternal = errors.New("postgres is dead")
 
-func TestAuthPostgresGetUserByAuthData(t *testing.T) {
+func TestAuthRepositoryPostgreSQL_GetUserByAuthData(t *testing.T) {
 	// Init
 	type mockBehavior func(userID, userVersion uint32, u *models.User)
 
@@ -61,11 +63,9 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := authMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	u, err := defaultUser()
 	require.NoError(t, err, "can't create default user")
@@ -138,7 +138,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.authData.userID, tc.authData.userVersion, tc.expectedUser)
 
-			user, err := repo.GetUserByAuthData(tc.authData.userID, tc.authData.userVersion)
+			user, err := repo.GetUserByAuthData(ctx, tc.authData.userID, tc.authData.userVersion)
 
 			// Test
 			if tc.expectError {
@@ -151,7 +151,7 @@ func TestAuthPostgresGetUserByAuthData(t *testing.T) {
 	}
 }
 
-func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
+func TestAuthPostgres_IncreaseUserVersion(t *testing.T) {
 	// Init
 	type mockBehavior func(userID uint32)
 
@@ -163,11 +163,9 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := authMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	testTable := []struct {
 		name          string
@@ -225,7 +223,7 @@ func TestAuthPostgresIncreaseUserVersion(t *testing.T) {
 			tc.mockBehavior(tc.userID)
 
 			// Test
-			err := repo.IncreaseUserVersion(tc.userID)
+			err := repo.IncreaseUserVersion(ctx, tc.userID)
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedError.Error())
 			} else {

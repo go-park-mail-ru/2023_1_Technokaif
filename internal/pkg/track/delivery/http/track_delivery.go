@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	commonHttp "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
+	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
@@ -40,41 +40,45 @@ func NewHandler(tu track.Usecase, au artist.Usecase, l logger.Logger) *Handler {
 // @Failure		500		{object}	http.Error				 "Server error"
 // @Router		/api/tracks/ [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := commonHTTP.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
 	var tci trackCreateInput
 	if err := json.NewDecoder(r.Body).Decode(&tci); err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	if err := tci.validateAndEscape(); err != nil {
-		h.logger.Infof("track create input validation failed: %s", err.Error())
-		commonHttp.ErrorResponse(w, commonHttp.IncorrectRequestBody, http.StatusBadRequest, h.logger)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
 	track := tci.ToTrack()
 
-	trackID, err := h.trackServices.Create(track, tci.ArtistsID, user.ID)
+	trackID, err := h.trackServices.Create(r.Context(), track, tci.ArtistsID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, trackCreateNorights, http.StatusForbidden, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				trackCreateNorights, http.StatusForbidden, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, trackCreateServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			trackCreateServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	tcr := trackCreateResponse{ID: trackID}
 
-	commonHttp.SuccessResponse(w, tcr, h.logger)
+	commonHTTP.SuccessResponse(w, tcr, h.logger)
 }
 
 // @Summary		Get Track
@@ -87,39 +91,43 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			 "Server error"
 // @Router		/api/tracks/{trackID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
-	trackID, err := commonHttp.GetTrackIDFromRequest(r)
+	trackID, err := commonHTTP.GetTrackIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("get track by id: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	track, err := h.trackServices.GetByID(trackID)
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			trackGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	track, err := h.trackServices.GetByID(r.Context(), trackID)
 	if err != nil {
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {
-			commonHttp.ErrorResponseWithErrLogging(w, trackNotFound, http.StatusBadRequest, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				trackNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, trackGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			trackGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, trackGetServerError, http.StatusInternalServerError, h.logger, err)
-		return
-	}
-
-	tt, err := models.TrackTransferFromEntry(*track, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromEntry(r.Context(), *track, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, trackGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			trackGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	commonHttp.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, tt, h.logger)
 }
 
 // @Summary		Delete Track
@@ -133,40 +141,44 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			"Server error"
 // @Router		/api/tracks/{trackID}/ [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	trackID, err := commonHttp.GetTrackIDFromRequest(r)
+	trackID, err := commonHTTP.GetTrackIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get track by id: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := commonHTTP.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
-	err = h.trackServices.Delete(trackID, user.ID)
+	err = h.trackServices.Delete(r.Context(), trackID, user.ID)
 	if err != nil {
 		var errForbiddenUser *models.ForbiddenUserError
 		if errors.As(err, &errForbiddenUser) {
-			commonHttp.ErrorResponseWithErrLogging(w, trackDeleteNoRights, http.StatusForbidden, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				trackDeleteNoRights, http.StatusForbidden, h.logger, err)
 			return
 		}
 
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {
-			commonHttp.ErrorResponseWithErrLogging(w, trackNotFound, http.StatusBadRequest, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				trackNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, trackDeleteServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			trackDeleteServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
 	tdr := trackDeleteResponse{Status: trackDeletedSuccessfully}
 
-	commonHttp.SuccessResponse(w, tdr, h.logger)
+	commonHTTP.SuccessResponse(w, tdr, h.logger)
 }
 
 // @Summary		Tracks of Artist
@@ -178,39 +190,43 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/artists/{artistID}/tracks [get]
 func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
-	artistID, err := commonHttp.GetArtistIDFromRequest(r)
+	artistID, err := commonHTTP.GetArtistIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get by artist: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	tracks, err := h.trackServices.GetByArtist(artistID)
+	tracks, err := h.trackServices.GetByArtist(r.Context(), artistID)
 	if err != nil {
 		var errNoSuchArtist *models.NoSuchArtistError
 		if errors.As(err, &errNoSuchArtist) {
-			commonHttp.ErrorResponseWithErrLogging(w, artistNotFound, http.StatusBadRequest, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				artistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	commonHttp.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, tt, h.logger)
 }
 
 // @Summary		Tracks of Playlist
@@ -222,39 +238,43 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/playlists/{playlistID}/tracks [get]
 func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
-	playlistID, err := commonHttp.GetPlaylistIDFromRequest(r)
+	playlistID, err := commonHTTP.GetPlaylistIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get by playlist: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	tracks, err := h.trackServices.GetByPlaylist(playlistID)
+	tracks, err := h.trackServices.GetByPlaylist(r.Context(), playlistID)
 	if err != nil {
 		var errNoSuchPlaylist *models.NoSuchPlaylistError
 		if errors.As(err, &errNoSuchPlaylist) {
-			commonHttp.ErrorResponseWithErrLogging(w, playlistNotFound, http.StatusBadRequest, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				playlistNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	commonHttp.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, tt, h.logger)
 }
 
 // @Summary		Tracks of Album
@@ -266,39 +286,43 @@ func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/albums/{albumID}/tracks [get]
 func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
-	albumID, err := commonHttp.GetAlbumIDFromRequest(r)
+	albumID, err := commonHTTP.GetAlbumIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get by album: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	tracks, err := h.trackServices.GetByAlbum(albumID)
+	tracks, err := h.trackServices.GetByAlbum(r.Context(), albumID)
 	if err != nil {
 		var errNoSuchAlbum *models.NoSuchAlbumError
 		if errors.As(err, &errNoSuchAlbum) {
-			commonHttp.ErrorResponseWithErrLogging(w, albumNotFound, http.StatusBadRequest, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				albumNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	commonHttp.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, tt, h.logger)
 }
 
 // @Summary		Track Feed
@@ -309,26 +333,29 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/tracks/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
-	tracks, err := h.trackServices.GetFeed()
+	tracks, err := h.trackServices.GetFeed(r.Context())
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
-	if err != nil && !errors.Is(err, commonHttp.ErrUnauthorized) {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	commonHttp.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, tt, h.logger)
 }
 
 // @Summary      Favorite Tracks
@@ -342,26 +369,29 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 // @Failure      500    {object}  	http.Error  			"Server error"
 // @Router       /api/users/{userID}/favorite/tracks [get]
 func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := commonHTTP.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	favTracks, err := h.trackServices.GetLikedByUser(user.ID)
+	favTracks, err := h.trackServices.GetLikedByUser(r.Context(), user.ID)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	tt, err := models.TrackTransferFromQuery(favTracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), favTracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	commonHttp.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, tt, h.logger)
 }
 
 // @Summary		Set like
@@ -374,36 +404,39 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			"Server error"
 // @Router		/api/tracks/{trackID}/like [post]
 func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
-	trackID, err := commonHttp.GetTrackIDFromRequest(r)
+	trackID, err := commonHTTP.GetTrackIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get track by id: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := commonHTTP.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
-	notExisted, err := h.trackServices.SetLike(trackID, user.ID)
+	notExisted, err := h.trackServices.SetLike(r.Context(), trackID, user.ID)
 	if err != nil {
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {
-			commonHttp.ErrorResponseWithErrLogging(w, trackNotFound, http.StatusBadRequest, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				trackNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.SetLikeServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.SetLikeServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	tlr := trackLikeResponse{Status: commonHttp.LikeSuccess}
+	tlr := trackLikeResponse{Status: commonHTTP.LikeSuccess}
 	if !notExisted {
-		tlr.Status = commonHttp.LikeAlreadyExists
+		tlr.Status = commonHTTP.LikeAlreadyExists
 	}
-	commonHttp.SuccessResponse(w, tlr, h.logger)
+	commonHTTP.SuccessResponse(w, tlr, h.logger)
 }
 
 // @Summary		Remove like
@@ -416,34 +449,37 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 // @Failure		500		{object}	http.Error			"Server error"
 // @Router		/api/tracks/{trackID}/unlike [post]
 func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
-	trackID, err := commonHttp.GetTrackIDFromRequest(r)
+	trackID, err := commonHTTP.GetTrackIDFromRequest(r)
 	if err != nil {
-		h.logger.Infof("Get track by id: %v", err)
-		commonHttp.ErrorResponse(w, commonHttp.InvalidURLParameter, http.StatusBadRequest, h.logger)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
-	user, err := commonHttp.GetUserFromRequest(r)
+	user, err := commonHTTP.GetUserFromRequest(r)
 	if err != nil {
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
 		return
 	}
 
-	notExisted, err := h.trackServices.UnLike(trackID, user.ID)
+	notExisted, err := h.trackServices.UnLike(r.Context(), trackID, user.ID)
 	if err != nil {
 		var errNoSuchTrack *models.NoSuchTrackError
 		if errors.As(err, &errNoSuchTrack) {
-			commonHttp.ErrorResponseWithErrLogging(w, trackNotFound, http.StatusBadRequest, h.logger, err)
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				trackNotFound, http.StatusBadRequest, h.logger, err)
 			return
 		}
 
-		commonHttp.ErrorResponseWithErrLogging(w, commonHttp.DeleteLikeServerError, http.StatusInternalServerError, h.logger, err)
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.DeleteLikeServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	tlr := trackLikeResponse{Status: commonHttp.UnLikeSuccess}
+	tlr := trackLikeResponse{Status: commonHTTP.UnLikeSuccess}
 	if !notExisted {
-		tlr.Status = commonHttp.LikeDoesntExist
+		tlr.Status = commonHTTP.LikeDoesntExist
 	}
-	commonHttp.SuccessResponse(w, tlr, h.logger)
+	commonHTTP.SuccessResponse(w, tlr, h.logger)
 }

@@ -43,8 +43,6 @@ type UserTransfer struct {
 	AvatarSrc string `json:"avatarSrc,omitempty"`
 }
 
-type ContextKeyUserType struct{}
-
 func (d *Date) UnmarshalJSON(b []byte) error {
 	s := strings.Trim(string(b), "\"")
 
@@ -67,7 +65,7 @@ func UserTransferFromEntry(user User) UserTransfer {
 	}
 }
 
-func UserTransferFromQuery(users []User) []UserTransfer {
+func UserTransferFromList(users []User) []UserTransfer {
 	userTransfers := make([]UserTransfer, 0, len(users))
 	for _, u := range users {
 		userTransfers = append(userTransfers, UserTransferFromEntry(u))

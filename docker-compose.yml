@@ -1,9 +1,56 @@
 version: '3.8'
 
 services:
+  api:
+    container_name: api
+    image:  technokaif/fluire_api:latest
+    depends_on:
+      - auth
+    ports:
+      - "4444:4444"
+    env_file:
+      - .env
+    volumes:
+      - .env:/out/.env
+      - type: bind
+        source: ${MEDIA_PATH}
+        target: ${MEDIA_PATH}
+    restart: always
+
+  auth:
+    container_name: auth
+    image: technokaif/fluire_auth:latest
+    depends_on:
+      - db
+    volumes:
+      - .env:/out/.env
+    restart: always
+
+  search:
+    container_name: search
+    image: technokaif/fluire_search:latest
+    depends_on:
+      - db
+    volumes:
+      - .env:/out/.env
+    
+  user:
+    container_name: user
+    image: technokaif/fluire_user:latest
+    depends_on:
+      - db
+    volumes:
+      - .env:/out/.env
+      - type: bind
+        source: ${MEDIA_PATH}
+        target: ${MEDIA_PATH}
 
   db:
-    image: postgres:latest
+    container_name: db
+    image: postgres:14
+    # build: 
+    #   context: .
+    #   dockerfile: Dockerfile.postgres
     restart: always
     env_file:
       - .env
@@ -11,7 +58,10 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
     ports:
       - 5436:5432
     volumes:
-      - ./cmd/app/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d
+      - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d # isn't used if pgdata exists
+      - ${DB_PATH}:/var/lib/postgresql/data
+    command: ["postgres"] # "-c", "logging_collector=on", "-c", "log_statement=all"]

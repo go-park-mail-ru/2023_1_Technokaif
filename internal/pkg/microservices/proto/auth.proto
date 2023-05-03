@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package auth;
+option go_package = "auth/proto/generated";
+
+import "common.proto";
+import "google/protobuf/timestamp.proto";
+
+message SignUpMsg {
+	string 					  username  = 1; 
+	string 					  email     = 2; 
+	string 					  password  = 3; 
+	string 					  firstName = 4; 
+	string 					  lastName	= 5; 
+	google.protobuf.Timestamp birthDate = 6;
+}
+
+message SignUpResponse {
+    uint32 userID = 1;
+}
+
+message Creds {
+	string username = 1;
+	string password = 2;
+}
+
+message AuthData {
+    uint32 id 	   = 1;
+    uint32 version = 2;
+}
+
+message IncreaseUserVersionMsg {
+	uint32 userId = 1;
+}
+
+message IncreaseUserVersionResponse {}
+
+message ChangePassMsg {
+	uint32 userId        = 1;
+	string plainPassword = 2;
+}
+
+message ChangePassResponse {}
+
+service Authorization {
+    rpc SignUpUser(SignUpMsg) 						returns (SignUpResponse) 			  {};
+	rpc GetUserByCreds(Creds) 						returns (common.UserResponse) 		  {};
+	rpc GetUserByAuthData(AuthData) 				returns (common.UserResponse) 		  {};
+	rpc IncreaseUserVersion(IncreaseUserVersionMsg) returns (IncreaseUserVersionResponse) {};
+	rpc ChangePassword(ChangePassMsg) 				returns (ChangePassResponse) 		  {};
+}

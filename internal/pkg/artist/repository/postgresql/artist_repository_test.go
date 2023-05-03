@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"context"
 	"database/sql"
 	"database/sql/driver"
 	"errors"
@@ -12,10 +13,11 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
 )
+
+var ctx = context.Background()
 
 const artistTable = "Artists"
 const likedArtistsTable = "Liked_artists"
@@ -24,7 +26,91 @@ const artistsTracksTable = "Artists_Tracks"
 
 var errPqInternal = errors.New("postgres is dead")
 
-func TestArtistRepositoryInsert(t *testing.T) {
+func TestArtistRepositoryPostgreSQL_Check(t *testing.T) {
+	// Init
+	type mockBehavior func(artistID uint32)
+
+	dbMock, sqlxMock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	defer dbMock.Close()
+
+	c := gomock.NewController(t)
+
+	tablesMock := artistMocks.NewMockTables(c)
+
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
+
+	// Test filling
+	const defaultArtistToCheckID uint32 = 1
+
+	testTable := []struct {
+		name            string
+		artistToCheckID uint32
+		mockBehavior    mockBehavior
+		expectError     bool
+		expectedError   error
+	}{
+		{
+			name:            "Common",
+			artistToCheckID: defaultArtistToCheckID,
+			mockBehavior: func(artistID uint32) {
+				tablesMock.EXPECT().Artists().Return(artistTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(true)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID).
+					WillReturnRows(row)
+			},
+		},
+		{
+			name:            "No Such Artist",
+			artistToCheckID: defaultArtistToCheckID,
+			mockBehavior: func(artistID uint32) {
+				tablesMock.EXPECT().Artists().Return(artistTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(false)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID).
+					WillReturnRows(row)
+			},
+			expectError:   true,
+			expectedError: &models.NoSuchArtistError{ArtistID: defaultArtistToCheckID},
+		},
+		{
+			name:            "Internal PostgreSQL Error",
+			artistToCheckID: defaultArtistToCheckID,
+			mockBehavior: func(artistID uint32) {
+				tablesMock.EXPECT().Artists().Return(artistTable)
+
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID).
+					WillReturnError(errPqInternal)
+			},
+			expectError:   true,
+			expectedError: errPqInternal,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(tc.artistToCheckID)
+
+			err := repo.Check(ctx, tc.artistToCheckID)
+
+			// Test
+			if tc.expectError {
+				assert.ErrorContains(t, err, tc.expectedError.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestArtistRepositoryPostgreSQL_Insert(t *testing.T) {
 	// Init
 	type mockBehavior func(a models.Artist, id uint32)
 
@@ -36,16 +122,14 @@ func TestArtistRepositoryInsert(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	var defaultUserOfArtistID uint32 = 1
 
-	defaultArtistToIsert := models.Artist{
+	defaultArtistToInsert := models.Artist{
 		Name:      "Oxxxymiron",
 		UserID:    &defaultUserOfArtistID,
 		AvatarSrc: "/artists/avatars/oxxxymiron.png",
@@ -61,7 +145,7 @@ func TestArtistRepositoryInsert(t *testing.T) {
 	}{
 		{
 			name:   "Common",
-			artist: defaultArtistToIsert,
+			artist: defaultArtistToInsert,
 			mockBehavior: func(a models.Artist, id uint32) {
 				tablesMock.EXPECT().Artists().Return(artistTable)
 
@@ -74,7 +158,7 @@ func TestArtistRepositoryInsert(t *testing.T) {
 		},
 		{
 			name:   "Insert Artists Issue",
-			artist: defaultArtistToIsert,
+			artist: defaultArtistToInsert,
 			mockBehavior: func(a models.Artist, id uint32) {
 				tablesMock.EXPECT().Artists().Return(artistTable)
 
@@ -93,7 +177,7 @@ func TestArtistRepositoryInsert(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.artist, tc.expectedID)
 
-			id, err := repo.Insert(tc.artist)
+			id, err := repo.Insert(ctx, tc.artist)
 
 			// Test
 			if tc.expectError {
@@ -106,7 +190,7 @@ func TestArtistRepositoryInsert(t *testing.T) {
 	}
 }
 
-func TestArtistRepositoryGetByID(t *testing.T) {
+func TestArtistRepositoryPostgreSQL_GetByID(t *testing.T) {
 	// Init
 	type mockBehavior func(artistID uint32, a models.Artist)
 
@@ -118,11 +202,9 @@ func TestArtistRepositoryGetByID(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultArtistToGetID uint32 = 1
@@ -188,7 +270,7 @@ func TestArtistRepositoryGetByID(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.artistToGetID, tc.expectedArtist)
 
-			a, err := repo.GetByID(tc.artistToGetID)
+			a, err := repo.GetByID(ctx, tc.artistToGetID)
 
 			// Test
 			if tc.expectError {
@@ -201,7 +283,7 @@ func TestArtistRepositoryGetByID(t *testing.T) {
 	}
 }
 
-func TestArtistRepositoryDeleteByID(t *testing.T) {
+func TestArtistRepositoryPostgreSQL_DeleteByID(t *testing.T) {
 	// Init
 	type mockBehavior func(artistID uint32)
 
@@ -213,11 +295,9 @@ func TestArtistRepositoryDeleteByID(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultArtistToDeleteID uint32 = 1
@@ -273,7 +353,7 @@ func TestArtistRepositoryDeleteByID(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.artistToDeleteID)
 
-			err := repo.DeleteByID(tc.artistToDeleteID)
+			err := repo.DeleteByID(ctx, tc.artistToDeleteID)
 
 			// Test
 			if tc.expectError {
@@ -285,7 +365,7 @@ func TestArtistRepositoryDeleteByID(t *testing.T) {
 	}
 }
 
-func TestArtistRepositoryGetFeed(t *testing.T) {
+func TestArtistRepositoryPostgreSQL_GetFeed(t *testing.T) {
 	// Init
 	type mockBehavior func(artists []models.Artist)
 
@@ -297,11 +377,9 @@ func TestArtistRepositoryGetFeed(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	defaultArtists := []models.Artist{
@@ -350,13 +428,13 @@ func TestArtistRepositoryGetFeed(t *testing.T) {
 		},
 	}
 
-	feedAmountLimit := 100
+	var feedAmountLimit uint32 = 100
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.expectedArtists)
 
-			a, err := repo.GetFeed(feedAmountLimit)
+			a, err := repo.GetFeed(ctx, feedAmountLimit)
 
 			// Test
 			if tc.expectError {
@@ -369,7 +447,7 @@ func TestArtistRepositoryGetFeed(t *testing.T) {
 	}
 }
 
-func TestArtistRepositoryGetByAlbum(t *testing.T) {
+func TestArtistRepositoryPostgreSQL_GetByAlbum(t *testing.T) {
 	// Init
 	type mockBehavior func(albumID uint32, artists []models.Artist)
 
@@ -381,11 +459,9 @@ func TestArtistRepositoryGetByAlbum(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultAlbumID uint32 = 1
@@ -465,7 +541,7 @@ func TestArtistRepositoryGetByAlbum(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.albumID, tc.expectedArtists)
 
-			a, err := repo.GetByAlbum(tc.albumID)
+			a, err := repo.GetByAlbum(ctx, tc.albumID)
 
 			// Test
 			if tc.expectError {
@@ -478,7 +554,7 @@ func TestArtistRepositoryGetByAlbum(t *testing.T) {
 	}
 }
 
-func TestArtistRepositoryGetByTrack(t *testing.T) {
+func TestArtistRepositoryPostgreSQL_GetByTrack(t *testing.T) {
 	// Init
 	type mockBehavior func(trackID uint32, artist []models.Artist)
 
@@ -490,11 +566,9 @@ func TestArtistRepositoryGetByTrack(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultTrackID uint32 = 1
@@ -574,7 +648,7 @@ func TestArtistRepositoryGetByTrack(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.trackID, tc.expectedArtists)
 
-			a, err := repo.GetByTrack(tc.trackID)
+			a, err := repo.GetByTrack(ctx, tc.trackID)
 
 			// Test
 			if tc.expectError {
@@ -587,7 +661,7 @@ func TestArtistRepositoryGetByTrack(t *testing.T) {
 	}
 }
 
-func TestArtistRepositoryGetLikedByUser(t *testing.T) {
+func TestArtistRepositoryPostgreSQL_GetLikedByUser(t *testing.T) {
 	// Init
 	type mockBehavior func(userID uint32, artists []models.Artist)
 
@@ -599,11 +673,9 @@ func TestArtistRepositoryGetLikedByUser(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultUserID uint32 = 1
@@ -683,7 +755,7 @@ func TestArtistRepositoryGetLikedByUser(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.userID, tc.expectedArtists)
 
-			a, err := repo.GetLikedByUser(tc.userID)
+			a, err := repo.GetLikedByUser(ctx, tc.userID)
 
 			// Test
 			if tc.expectError {
@@ -696,7 +768,7 @@ func TestArtistRepositoryGetLikedByUser(t *testing.T) {
 	}
 }
 
-func TestArtistRepositoryLike(t *testing.T) {
+func TestArtistRepositoryPostgreSQL_Like(t *testing.T) {
 	// Init
 	type mockBehavior func(artistID uint32, userID uint32)
 
@@ -713,11 +785,9 @@ func TestArtistRepositoryLike(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	const defaultArtistToLikeID uint32 = 1
@@ -781,7 +851,7 @@ func TestArtistRepositoryLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.likeInfo.artistID, tc.likeInfo.userID)
 
-			inserted, err := repo.InsertLike(tc.likeInfo.artistID, tc.likeInfo.userID)
+			inserted, err := repo.InsertLike(ctx, tc.likeInfo.artistID, tc.likeInfo.userID)
 
 			// Test
 			if tc.expectError {
@@ -811,11 +881,9 @@ func TestAlbumRepositoryDeleteLike(t *testing.T) {
 
 	c := gomock.NewController(t)
 
-	l := commonTests.MockLogger(c)
-
 	tablesMock := artistMocks.NewMockTables(c)
 
-	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock, l)
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
 
 	// Test filling
 	defaultLikeInfo := LikeInfo{
@@ -875,7 +943,7 @@ func TestAlbumRepositoryDeleteLike(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.likeInfo.artistID, tc.likeInfo.userID)
 
-			inserted, err := repo.DeleteLike(tc.likeInfo.artistID, tc.likeInfo.userID)
+			inserted, err := repo.DeleteLike(ctx, tc.likeInfo.artistID, tc.likeInfo.userID)
 
 			// Test
 			if tc.expectError {
@@ -883,6 +951,96 @@ func TestAlbumRepositoryDeleteLike(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, inserted, tc.expectInserted)
+			}
+		})
+	}
+}
+
+func TestArtistRepositoryPostgreSQL_IsLiked(t *testing.T) {
+	// Init
+	type mockBehavior func(trackID, userID uint32)
+
+	dbMock, sqlxMock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	defer dbMock.Close()
+
+	c := gomock.NewController(t)
+
+	tablesMock := artistMocks.NewMockTables(c)
+
+	repo := NewPostgreSQL(sqlx.NewDb(dbMock, "postgres"), tablesMock)
+
+	// Test filling
+	const defaultArtistID uint32 = 1
+	const defaultUserID uint32 = 1
+
+	testTable := []struct {
+		name          string
+		artistID      uint32
+		userID        uint32
+		mockBehavior  mockBehavior
+		expectError   bool
+		expectedError error
+		isLiked       bool
+	}{
+		{
+			name:     "Liked",
+			artistID: defaultArtistID,
+			userID:   defaultUserID,
+			mockBehavior: func(artistID, userID uint32) {
+				tablesMock.EXPECT().LikedArtists().Return(likedArtistsTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(true)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID, userID).
+					WillReturnRows(row)
+			},
+			isLiked: true,
+		},
+		{
+			name:     "Isn't liked",
+			artistID: defaultArtistID,
+			userID:   defaultUserID,
+			mockBehavior: func(artistID, userID uint32) {
+				tablesMock.EXPECT().LikedArtists().Return(likedArtistsTable)
+
+				row := sqlxMock.NewRows([]string{"exists"}).AddRow(false)
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID, userID).
+					WillReturnRows(row)
+			},
+		},
+		{
+			name:     "Internal PostgreSQL Error",
+			artistID: defaultArtistID,
+			userID:   defaultUserID,
+			mockBehavior: func(artistID, userID uint32) {
+				tablesMock.EXPECT().LikedArtists().Return(likedArtistsTable)
+
+				sqlxMock.ExpectQuery("SELECT EXISTS").
+					WithArgs(artistID, userID).
+					WillReturnError(errPqInternal)
+			},
+			expectError:   true,
+			expectedError: errPqInternal,
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call mock
+			tc.mockBehavior(tc.artistID, tc.userID)
+
+			isLiked, err := repo.IsLiked(ctx, tc.artistID, tc.userID)
+
+			// Test
+			if tc.expectError {
+				assert.ErrorContains(t, err, tc.expectedError.Error())
+			} else {
+				assert.Equal(t, tc.isLiked, isLiked)
+				assert.NoError(t, err)
 			}
 		})
 	}

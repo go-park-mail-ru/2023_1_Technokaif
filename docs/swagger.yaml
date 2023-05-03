@@ -1,5 +1,40 @@
 basePath: /api/albums/feed
 definitions:
+  delivery.searchAlbumsResponse:
+    properties:
+      albums:
+        items:
+          $ref: '#/definitions/models.AlbumTransfer'
+        type: array
+    type: object
+  delivery.searchArtistsResponse:
+    properties:
+      artists:
+        items:
+          $ref: '#/definitions/models.ArtistTransfer'
+        type: array
+    type: object
+  delivery.searchPlaylistsResponse:
+    properties:
+      playlists:
+        items:
+          $ref: '#/definitions/models.PlaylistTransfer'
+        type: array
+    type: object
+  delivery.searchRequest:
+    properties:
+      amount:
+        type: integer
+      query:
+        type: string
+    type: object
+  delivery.searchTracksResponse:
+    properties:
+      tracks:
+        items:
+          $ref: '#/definitions/models.TrackTransfer'
+        type: array
+    type: object
   http.Error:
     properties:
       message:
@@ -229,6 +264,8 @@ definitions:
         type: array
       cover:
         type: string
+      duration:
+        type: integer
       id:
         type: integer
       isLiked:
@@ -470,6 +507,40 @@ paths:
       summary: Album Feed
       tags:
       - Feed
+  /api/albums/search:
+    post:
+      consumes:
+      - application/json
+      description: Find amount of albums by search-query
+      parameters:
+      - description: Query for search
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.searchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Albums found
+          schema:
+            $ref: '#/definitions/delivery.searchAlbumsResponse'
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Find Albums
+      tags:
+      - Search
   /api/artists/:
     post:
       consumes:
@@ -668,6 +739,40 @@ paths:
       summary: Artist Feed
       tags:
       - Feed
+  /api/artists/search:
+    post:
+      consumes:
+      - application/json
+      description: Find amount of artists by search-query
+      parameters:
+      - description: Query for search
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.searchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Artists found
+          schema:
+            $ref: '#/definitions/delivery.searchArtistsResponse'
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Find Artists
+      tags:
+      - Search
   /api/auth/login:
     post:
       consumes:
@@ -1066,6 +1171,40 @@ paths:
       summary: Playlist Feed
       tags:
       - Feed
+  /api/playlists/search:
+    post:
+      consumes:
+      - application/json
+      description: Find amount of playlists by search-query
+      parameters:
+      - description: Query for search
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.searchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Playlists found
+          schema:
+            $ref: '#/definitions/delivery.searchPlaylistsResponse'
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Find Playlists
+      tags:
+      - Search
   /api/tracks/:
     post:
       consumes:
@@ -1226,6 +1365,40 @@ paths:
       summary: Track Feed
       tags:
       - Feed
+  /api/tracks/search:
+    post:
+      consumes:
+      - application/json
+      description: Find amount of tracks by search-query
+      parameters:
+      - description: Query for search
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.searchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tracks found
+          schema:
+            $ref: '#/definitions/delivery.searchTracksResponse'
+        "400":
+          description: Incorrect body
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Find Tracks
+      tags:
+      - Search
   /api/users/{userID}/:
     get:
       description: Get user with chosen ID

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package user;
+option go_package = "user/proto/generated";
+
+import "common.proto";
+import "google/protobuf/timestamp.proto";
+
+message Id {
+	uint32 id = 1; 
+}
+
+message UpdateInfoMsg {
+	uint32 				      id 		= 1;
+	string 					  email	    = 2;
+	string 					  firstName = 3;
+	string 					  lastName  = 4;
+	google.protobuf.Timestamp birthDate = 5; 
+}
+
+message UpdateInfoResponse {}
+
+message UploadAvatarMsg {
+	oneof data {
+		UploadAvatarExtra extra 	= 1;
+		bytes 			  fileChunk = 2;
+	}
+}
+
+message UploadAvatarExtra {
+	uint32 userId 		 = 1;
+	string fileExtension = 2;
+}
+
+message UploadAvatarResponse {}
+
+message GetByPlaylistMsg {
+	uint32 playlistId = 1;
+}
+
+message GetByPlaylistResponse {
+	repeated common.UserResponse users = 1;
+}
+
+service User {
+    rpc GetByID(Id) 			  			 returns (common.UserResponse)   {};
+	rpc UpdateInfo(UpdateInfoMsg) 			 returns (UpdateInfoResponse)    {};
+	rpc UploadAvatar(stream UploadAvatarMsg) returns (UploadAvatarResponse)  {};
+	rpc GetByPlaylist(GetByPlaylistMsg) 	 returns (GetByPlaylistResponse) {};
+}

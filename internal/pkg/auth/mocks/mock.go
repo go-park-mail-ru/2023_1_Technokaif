@@ -5,6 +5,7 @@
 package mock_auth
 
 import (
+	context "context"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -35,76 +36,76 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 }
 
 // ChangePassword mocks base method.
-func (m *MockUsecase) ChangePassword(userID uint32, password string) error {
+func (m *MockUsecase) ChangePassword(ctx context.Context, userID uint32, password string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ChangePassword", userID, password)
+	ret := m.ctrl.Call(m, "ChangePassword", ctx, userID, password)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ChangePassword indicates an expected call of ChangePassword.
-func (mr *MockUsecaseMockRecorder) ChangePassword(userID, password interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) ChangePassword(ctx, userID, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockUsecase)(nil).ChangePassword), userID, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockUsecase)(nil).ChangePassword), ctx, userID, password)
 }
 
 // GetUserByAuthData mocks base method.
-func (m *MockUsecase) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
+func (m *MockUsecase) GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserByAuthData", userID, userVersion)
+	ret := m.ctrl.Call(m, "GetUserByAuthData", ctx, userID, userVersion)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserByAuthData indicates an expected call of GetUserByAuthData.
-func (mr *MockUsecaseMockRecorder) GetUserByAuthData(userID, userVersion interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetUserByAuthData(ctx, userID, userVersion interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByAuthData", reflect.TypeOf((*MockUsecase)(nil).GetUserByAuthData), userID, userVersion)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByAuthData", reflect.TypeOf((*MockUsecase)(nil).GetUserByAuthData), ctx, userID, userVersion)
 }
 
 // GetUserByCreds mocks base method.
-func (m *MockUsecase) GetUserByCreds(username, plainPassword string) (*models.User, error) {
+func (m *MockUsecase) GetUserByCreds(ctx context.Context, username, plainPassword string) (*models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserByCreds", username, plainPassword)
+	ret := m.ctrl.Call(m, "GetUserByCreds", ctx, username, plainPassword)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserByCreds indicates an expected call of GetUserByCreds.
-func (mr *MockUsecaseMockRecorder) GetUserByCreds(username, plainPassword interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetUserByCreds(ctx, username, plainPassword interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByCreds", reflect.TypeOf((*MockUsecase)(nil).GetUserByCreds), username, plainPassword)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByCreds", reflect.TypeOf((*MockUsecase)(nil).GetUserByCreds), ctx, username, plainPassword)
 }
 
 // IncreaseUserVersion mocks base method.
-func (m *MockUsecase) IncreaseUserVersion(userID uint32) error {
+func (m *MockUsecase) IncreaseUserVersion(ctx context.Context, userID uint32) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IncreaseUserVersion", userID)
+	ret := m.ctrl.Call(m, "IncreaseUserVersion", ctx, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // IncreaseUserVersion indicates an expected call of IncreaseUserVersion.
-func (mr *MockUsecaseMockRecorder) IncreaseUserVersion(userID interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) IncreaseUserVersion(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncreaseUserVersion", reflect.TypeOf((*MockUsecase)(nil).IncreaseUserVersion), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncreaseUserVersion", reflect.TypeOf((*MockUsecase)(nil).IncreaseUserVersion), ctx, userID)
 }
 
 // SignUpUser mocks base method.
-func (m *MockUsecase) SignUpUser(user models.User) (uint32, error) {
+func (m *MockUsecase) SignUpUser(ctx context.Context, user models.User) (uint32, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SignUpUser", user)
+	ret := m.ctrl.Call(m, "SignUpUser", ctx, user)
 	ret0, _ := ret[0].(uint32)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SignUpUser indicates an expected call of SignUpUser.
-func (mr *MockUsecaseMockRecorder) SignUpUser(user interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) SignUpUser(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignUpUser", reflect.TypeOf((*MockUsecase)(nil).SignUpUser), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SignUpUser", reflect.TypeOf((*MockUsecase)(nil).SignUpUser), ctx, user)
 }
 
 // MockRepository is a mock of Repository interface.
@@ -131,46 +132,46 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // GetUserByAuthData mocks base method.
-func (m *MockRepository) GetUserByAuthData(userID, userVersion uint32) (*models.User, error) {
+func (m *MockRepository) GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserByAuthData", userID, userVersion)
+	ret := m.ctrl.Call(m, "GetUserByAuthData", ctx, userID, userVersion)
 	ret0, _ := ret[0].(*models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserByAuthData indicates an expected call of GetUserByAuthData.
-func (mr *MockRepositoryMockRecorder) GetUserByAuthData(userID, userVersion interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetUserByAuthData(ctx, userID, userVersion interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByAuthData", reflect.TypeOf((*MockRepository)(nil).GetUserByAuthData), userID, userVersion)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByAuthData", reflect.TypeOf((*MockRepository)(nil).GetUserByAuthData), ctx, userID, userVersion)
 }
 
 // IncreaseUserVersion mocks base method.
-func (m *MockRepository) IncreaseUserVersion(userID uint32) error {
+func (m *MockRepository) IncreaseUserVersion(ctx context.Context, userID uint32) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IncreaseUserVersion", userID)
+	ret := m.ctrl.Call(m, "IncreaseUserVersion", ctx, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // IncreaseUserVersion indicates an expected call of IncreaseUserVersion.
-func (mr *MockRepositoryMockRecorder) IncreaseUserVersion(userID interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) IncreaseUserVersion(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncreaseUserVersion", reflect.TypeOf((*MockRepository)(nil).IncreaseUserVersion), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncreaseUserVersion", reflect.TypeOf((*MockRepository)(nil).IncreaseUserVersion), ctx, userID)
 }
 
 // UpdatePassword mocks base method.
-func (m *MockRepository) UpdatePassword(userID uint32, passwordHash, salt string) error {
+func (m *MockRepository) UpdatePassword(ctx context.Context, userID uint32, passwordHash, salt string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdatePassword", userID, passwordHash, salt)
+	ret := m.ctrl.Call(m, "UpdatePassword", ctx, userID, passwordHash, salt)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdatePassword indicates an expected call of UpdatePassword.
-func (mr *MockRepositoryMockRecorder) UpdatePassword(userID, passwordHash, salt interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) UpdatePassword(ctx, userID, passwordHash, salt interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePassword", reflect.TypeOf((*MockRepository)(nil).UpdatePassword), userID, passwordHash, salt)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdatePassword", reflect.TypeOf((*MockRepository)(nil).UpdatePassword), ctx, userID, passwordHash, salt)
 }
 
 // MockTables is a mock of Tables interface.

@@ -60,15 +60,21 @@ type NoSuchUserError struct {
 }
 
 func (e *NoSuchUserError) Error() string {
+	if e.UserID == 0 {
+		return "user doesn't exist"
+	}
 	return fmt.Sprintf("user #%d doesn't exist", e.UserID)
 }
 
 type IncorrectPasswordError struct {
-	UserId uint32
+	UserID uint32
 }
 
 func (e *IncorrectPasswordError) Error() string {
-	return fmt.Sprintf("incorrect password for user #%d", e.UserId)
+	if e.UserID == 0 {
+		return "incorrect password for user"
+	}
+	return fmt.Sprintf("incorrect password for user #%d", e.UserID)
 }
 
 type UnathorizedError struct{}

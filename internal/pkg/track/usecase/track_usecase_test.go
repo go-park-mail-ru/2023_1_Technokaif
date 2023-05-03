@@ -1,10 +1,10 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"testing"
 
-	commonTests "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/tests"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	albumMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/mocks"
 	artistMocks "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/mocks"
@@ -14,7 +14,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTrackUsecaseCreate(t *testing.T) {
+var ctx = context.Background()
+
+func TestTrackUsecase_Create(t *testing.T) {
 	type mockBehavior func(tr *trackMocks.MockRepository, ar *artistMocks.MockRepository,
 		track models.Track, artistsID []uint32, userID uint32)
 
@@ -25,9 +27,7 @@ func TestTrackUsecaseCreate(t *testing.T) {
 	alr := albumMocks.NewMockRepository(c)
 	pr := playlistMocks.NewMockRepository(c)
 
-	l := commonTests.MockLogger(c)
-
-	u := NewUsecase(tr, arr, alr, pr, l)
+	u := NewUsecase(tr, arr, alr, pr)
 
 	var correctUserID uint32 = 1
 	correctArtists := []models.Artist{
@@ -64,9 +64,9 @@ func TestTrackUsecaseCreate(t *testing.T) {
 				track models.Track, artistsID []uint32, userID uint32) {
 
 				for ind, id := range artistsID {
-					arr.EXPECT().GetByID(id).Return(&correctArtists[ind], nil)
+					arr.EXPECT().GetByID(ctx, id).Return(&correctArtists[ind], nil)
 				}
-				tr.EXPECT().Insert(track, artistsID).Return(correctTrack.ID, nil)
+				tr.EXPECT().Insert(ctx, track, artistsID).Return(correctTrack.ID, nil)
 			},
 		},
 		{
@@ -78,7 +78,7 @@ func TestTrackUsecaseCreate(t *testing.T) {
 				track models.Track, artistsID []uint32, userID uint32) {
 
 				for ind, id := range artistsID {
-					arr.EXPECT().GetByID(id).Return(&correctArtists[ind], nil)
+					arr.EXPECT().GetByID(ctx, id).Return(&correctArtists[ind], nil)
 				}
 			},
 			expectError:      true,
@@ -93,7 +93,7 @@ func TestTrackUsecaseCreate(t *testing.T) {
 				track models.Track, artistsID []uint32, userID uint32) {
 
 				for _, id := range artistsID {
-					arr.EXPECT().GetByID(id).Return(nil, errors.New(""))
+					arr.EXPECT().GetByID(ctx, id).Return(nil, errors.New(""))
 				}
 			},
 			expectError:      true,
@@ -108,9 +108,9 @@ func TestTrackUsecaseCreate(t *testing.T) {
 				track models.Track, artistsID []uint32, userID uint32) {
 
 				for ind, id := range artistsID {
-					arr.EXPECT().GetByID(id).Return(&correctArtists[ind], nil)
+					arr.EXPECT().GetByID(ctx, id).Return(&correctArtists[ind], nil)
 				}
-				tr.EXPECT().Insert(track, artistsID).Return(uint32(0), errors.New(""))
+				tr.EXPECT().Insert(ctx, track, artistsID).Return(uint32(0), errors.New(""))
 			},
 			expectError:      true,
 			expectedErrorMsg: "can't insert track",
@@ -121,7 +121,7 @@ func TestTrackUsecaseCreate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockBehavior(tr, arr, tc.album, tc.artistsID, tc.userID)
 
-			albumID, err := u.Create(tc.album, tc.artistsID, tc.userID)
+			albumID, err := u.Create(ctx, tc.album, tc.artistsID, tc.userID)
 
 			if tc.expectError {
 				assert.ErrorContains(t, err, tc.expectedErrorMsg)

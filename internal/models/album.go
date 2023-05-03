@@ -1,5 +1,9 @@
 package models
 
+import (
+	"context"
+)
+
 type Album struct {
 	ID          uint32  `db:"id"`
 	Name        string  `db:"name"`
@@ -16,27 +20,27 @@ type AlbumTransfer struct {
 	CoverSrc    string           `json:"cover"`
 }
 
-type artistsByAlbumGetter func(albumID uint32) ([]Artist, error)
-type albumLikeChecker func(albumID, userID uint32) (bool, error)
+type artistsByAlbumGetter func(ctx context.Context, albumID uint32) ([]Artist, error)
+type albumLikeChecker func(ctx context.Context, albumID, userID uint32) (bool, error)
 
 // AlbumTransferFromEntry converts Album to AlbumTransfer
-func AlbumTransferFromEntry(a Album, user *User, likeChecker albumLikeChecker,
+func AlbumTransferFromEntry(ctx context.Context, a Album, user *User, likeChecker albumLikeChecker,
 	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) (AlbumTransfer, error) {
 
-	artists, err := artistsGetter(a.ID)
+	artists, err := artistsGetter(ctx, a.ID)
 	if err != nil {
 		return AlbumTransfer{}, err
 	}
 
 	var isLiked = false
 	if user != nil {
-		isLiked, err = likeChecker(a.ID, user.ID)
+		isLiked, err = likeChecker(ctx, a.ID, user.ID)
 		if err != nil {
 			return AlbumTransfer{}, err
 		}
 	}
 
-	at, err := ArtistTransferFromQuery(artists, user, artistLikeChecker)
+	at, err := ArtistTransferFromList(ctx, artists, user, artistLikeChecker)
 	if err != nil {
 		return AlbumTransfer{}, err
 	}
@@ -51,13 +55,13 @@ func AlbumTransferFromEntry(a Album, user *User, likeChecker albumLikeChecker,
 	}, nil
 }
 
-// AlbumTransferFromQuery converts []Album to []AlbumTransfer
-func AlbumTransferFromQuery(albums []Album, user *User, likeChecker albumLikeChecker,
+// AlbumTransferFromList converts []Album to []AlbumTransfer
+func AlbumTransferFromList(ctx context.Context, albums []Album, user *User, likeChecker albumLikeChecker,
 	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
 
 	albumTransfers := make([]AlbumTransfer, 0, len(albums))
 	for _, a := range albums {
-		at, err := AlbumTransferFromEntry(a, user, likeChecker, artistLikeChecker, artistsGetter)
+		at, err := AlbumTransferFromEntry(ctx, a, user, likeChecker, artistLikeChecker, artistsGetter)
 		if err != nil {
 			return nil, err
 		}

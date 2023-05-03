@@ -1,5 +1,9 @@
 package models
 
+import (
+	"context"
+)
+
 type Playlist struct {
 	ID          uint32  `db:"id"`
 	Name        string  `db:"name"`
@@ -16,21 +20,21 @@ type PlaylistTransfer struct {
 	CoverSrc    string         `json:"cover,omitempty"`
 }
 
-type usersByPlaylistsGetter func(playlistID uint32) ([]User, error)
-type playlistLikeChecker func(playlistID, userID uint32) (bool, error)
+type usersByPlaylistsGetter func(ctx context.Context, playlistID uint32) ([]User, error)
+type playlistLikeChecker func(ctx context.Context, playlistID, userID uint32) (bool, error)
 
 // PlaylistTransferFromEntry converts Playlist to PlaylistTransfer
-func PlaylistTransferFromEntry(p Playlist, user *User, likeChecker playlistLikeChecker,
+func PlaylistTransferFromEntry(ctx context.Context, p Playlist, user *User, likeChecker playlistLikeChecker,
 	usersGetter usersByPlaylistsGetter) (PlaylistTransfer, error) {
 
-	users, err := usersGetter(p.ID)
+	users, err := usersGetter(ctx, p.ID)
 	if err != nil {
 		return PlaylistTransfer{}, err
 	}
 
 	isLiked := false
 	if user != nil {
-		isLiked, err = likeChecker(p.ID, user.ID)
+		isLiked, err = likeChecker(ctx, p.ID, user.ID)
 		if err != nil {
 			return PlaylistTransfer{}, err
 		}
@@ -39,21 +43,21 @@ func PlaylistTransferFromEntry(p Playlist, user *User, likeChecker playlistLikeC
 	return PlaylistTransfer{
 		ID:          p.ID,
 		Name:        p.Name,
-		Users:       UserTransferFromQuery(users),
+		Users:       UserTransferFromList(users),
 		Description: p.Description,
 		IsLiked:     isLiked,
 		CoverSrc:    p.CoverSrc,
 	}, nil
 }
 
-// PlaylistTransferFromQuery converts []Playlist to []PlaylistTransfer
-func PlaylistTransferFromQuery(playlists []Playlist, user *User, likeChecker playlistLikeChecker,
+// PlaylistTransferFromList converts []Playlist to []PlaylistTransfer
+func PlaylistTransferFromList(ctx context.Context, playlists []Playlist, user *User, likeChecker playlistLikeChecker,
 	usersGetter usersByPlaylistsGetter) ([]PlaylistTransfer, error) {
 
 	playlistTransfers := make([]PlaylistTransfer, 0, len(playlists))
 
 	for _, p := range playlists {
-		pt, err := PlaylistTransferFromEntry(p, user, likeChecker, usersGetter)
+		pt, err := PlaylistTransferFromEntry(ctx, p, user, likeChecker, usersGetter)
 		if err != nil {
 			return nil, err
 		}

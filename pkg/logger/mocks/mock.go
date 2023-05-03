@@ -5,6 +5,7 @@
 package mock_logger
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -45,6 +46,18 @@ func (mr *MockLoggerMockRecorder) Error(msg interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Error", reflect.TypeOf((*MockLogger)(nil).Error), msg)
 }
 
+// ErrorReqID mocks base method.
+func (m *MockLogger) ErrorReqID(ctx context.Context, msg string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ErrorReqID", ctx, msg)
+}
+
+// ErrorReqID indicates an expected call of ErrorReqID.
+func (mr *MockLoggerMockRecorder) ErrorReqID(ctx, msg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ErrorReqID", reflect.TypeOf((*MockLogger)(nil).ErrorReqID), ctx, msg)
+}
+
 // Errorf mocks base method.
 func (m *MockLogger) Errorf(format string, a ...any) {
 	m.ctrl.T.Helper()
@@ -62,6 +75,23 @@ func (mr *MockLoggerMockRecorder) Errorf(format interface{}, a ...interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Errorf", reflect.TypeOf((*MockLogger)(nil).Errorf), varargs...)
 }
 
+// ErrorfReqID mocks base method.
+func (m *MockLogger) ErrorfReqID(ctx context.Context, format string, a ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, format}
+	for _, a_2 := range a {
+		varargs = append(varargs, a_2)
+	}
+	m.ctrl.Call(m, "ErrorfReqID", varargs...)
+}
+
+// ErrorfReqID indicates an expected call of ErrorfReqID.
+func (mr *MockLoggerMockRecorder) ErrorfReqID(ctx, format interface{}, a ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, format}, a...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ErrorfReqID", reflect.TypeOf((*MockLogger)(nil).ErrorfReqID), varargs...)
+}
+
 // Info mocks base method.
 func (m *MockLogger) Info(msg string) {
 	m.ctrl.T.Helper()
@@ -72,6 +102,18 @@ func (m *MockLogger) Info(msg string) {
 func (mr *MockLoggerMockRecorder) Info(msg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Info", reflect.TypeOf((*MockLogger)(nil).Info), msg)
+}
+
+// InfoReqID mocks base method.
+func (m *MockLogger) InfoReqID(ctx context.Context, msg string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "InfoReqID", ctx, msg)
+}
+
+// InfoReqID indicates an expected call of InfoReqID.
+func (mr *MockLoggerMockRecorder) InfoReqID(ctx, msg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InfoReqID", reflect.TypeOf((*MockLogger)(nil).InfoReqID), ctx, msg)
 }
 
 // Infof mocks base method.
@@ -89,4 +131,21 @@ func (mr *MockLoggerMockRecorder) Infof(format interface{}, a ...interface{}) *g
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{format}, a...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Infof", reflect.TypeOf((*MockLogger)(nil).Infof), varargs...)
+}
+
+// InfofReqID mocks base method.
+func (m *MockLogger) InfofReqID(ctx context.Context, format string, a ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, format}
+	for _, a_2 := range a {
+		varargs = append(varargs, a_2)
+	}
+	m.ctrl.Call(m, "InfofReqID", varargs...)
+}
+
+// InfofReqID indicates an expected call of InfofReqID.
+func (mr *MockLoggerMockRecorder) InfofReqID(ctx, format interface{}, a ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, format}, a...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InfofReqID", reflect.TypeOf((*MockLogger)(nil).InfofReqID), varargs...)
 }
