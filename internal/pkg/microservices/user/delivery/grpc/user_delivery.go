@@ -80,12 +80,12 @@ type uploadAvatarUsecaseInput struct {
 
 func (u *userGRPC) UploadAvatar(instream proto.User_UploadAvatarServer) error {
 	usecaseInput := uploadAvatarUsecaseInput{}
-	buffer := bytes.Buffer{}
+	buffer := bytes.NewBuffer(nil)
 
 	streamGotExtra := false
 	for {
 		req, err := instream.Recv()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -102,7 +102,7 @@ func (u *userGRPC) UploadAvatar(instream proto.User_UploadAvatarServer) error {
 			streamGotExtra = true
 		case *proto.UploadAvatarMsg_FileChunk:
 			if _, err := buffer.Write(data.FileChunk); err != nil {
-				return status.Error(codes.InvalidArgument, "got invalid file chunk")
+				return status.Error(codes.Internal, "got invalid file chunk")
 			}
 		}
 	}

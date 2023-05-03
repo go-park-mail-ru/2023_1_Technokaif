@@ -36,7 +36,7 @@ func (s *SearchAgent) FindAlbums(ctx context.Context, query string, amount uint3
 	albums := make([]models.Album, 0, amount)
 	for i := 0; uint32(i) < amount; i++ {
 		albumProto, err := stream.Recv()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -73,7 +73,7 @@ func (s *SearchAgent) FindArtists(ctx context.Context, query string, amount uint
 	artists := make([]models.Artist, 0, amount)
 	for i := 0; uint32(i) < amount; i++ {
 		artistProto, err := stream.Recv()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -151,7 +151,7 @@ func (s *SearchAgent) FindPlaylists(ctx context.Context, query string, amount ui
 	playlists := make([]models.Playlist, 0, amount)
 	for i := 0; uint32(i) < amount; i++ {
 		playlistProto, err := stream.Recv()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
