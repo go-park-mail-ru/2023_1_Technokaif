@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"io"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -109,7 +110,7 @@ func (s *SearchAgent) FindTracks(ctx context.Context, query string, amount uint3
 	tracks := make([]models.Track, 0, amount)
 	for i := 0; uint32(i) < amount; i++ {
 		trackProto, err := stream.Recv()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {

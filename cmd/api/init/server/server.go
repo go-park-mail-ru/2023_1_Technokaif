@@ -37,8 +37,8 @@ func initServerRunConfig(endp string) (runConfig, error) {
 	return cfg, nil
 }
 
-func (s *Server) Init(port string, handler http.Handler) error {
-	cfg, err := initServerRunConfig(port)
+func (s *Server) Init(endpoint string, handler http.Handler) error {
+	cfg, err := initServerRunConfig(endpoint)
 	if err != nil {
 		return fmt.Errorf("can't init server config: %w", err)
 	}

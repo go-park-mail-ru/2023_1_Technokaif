@@ -1,8 +1,8 @@
 package logger
 
 import (
+	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
@@ -49,8 +49,8 @@ func (l *FLogger) Infof(format string, a ...any) {
 	l.logger.Info(fmt.Sprintf(format, a...))
 }
 
-func (l *FLogger) ErrorReqID(r *http.Request, msg string) {
-	reqId, err := l.reqIdGetter(r)
+func (l *FLogger) ErrorReqID(ctx context.Context, msg string) {
+	reqId, err := l.reqIdGetter(ctx)
 	if err != nil {
 		l.Info("Can't get request id")
 		l.Error(msg)
@@ -60,8 +60,8 @@ func (l *FLogger) ErrorReqID(r *http.Request, msg string) {
 	l.Errorf("ReqID:%d %s", reqId, msg)
 }
 
-func (l *FLogger) ErrorfReqID(r *http.Request, format string, a ...any) {
-	reqId, err := l.reqIdGetter(r)
+func (l *FLogger) ErrorfReqID(ctx context.Context, format string, a ...any) {
+	reqId, err := l.reqIdGetter(ctx)
 	if err != nil {
 		l.Info("Can't get request id")
 		l.Errorf(format, a...)
@@ -71,19 +71,19 @@ func (l *FLogger) ErrorfReqID(r *http.Request, format string, a ...any) {
 	l.Errorf(fmt.Sprintf("ReID:%d ", reqId)+format, a...)
 }
 
-func (l *FLogger) InfoReqID(r *http.Request, msg string) {
-	reqId, err := l.reqIdGetter(r)
+func (l *FLogger) InfoReqID(ctx context.Context, msg string) {
+	reqId, err := l.reqIdGetter(ctx)
 	if err != nil {
 		l.Info("Can't get request id")
-		l.Error(msg)
+		l.Info(msg)
 		return
 	}
 
 	l.Infof("ReqID:%d %s", reqId, msg)
 }
 
-func (l *FLogger) InfofReqID(r *http.Request, format string, a ...any) {
-	reqId, err := l.reqIdGetter(r)
+func (l *FLogger) InfofReqID(ctx context.Context, format string, a ...any) {
+	reqId, err := l.reqIdGetter(ctx)
 	if err != nil {
 		l.Info("Can't get request id")
 		l.Infof(format, a...)
