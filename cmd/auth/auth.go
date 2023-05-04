@@ -55,7 +55,11 @@ func main() {
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo)
 
 	listener, err := net.Listen("tcp", os.Getenv(config.AuthListenParam))
-	defer listener.Close()
+	defer func() {
+		if err := listener.Close(); err != nil {
+			logger.Errorf("Error while closing auth tcp listener: %v", err)
+		}
+	}()
 
 	if err != nil {
 		logger.Errorf("Cant listen port: %v", err)
@@ -71,7 +75,7 @@ func main() {
 
 	grpcMetrics.InitializeMetrics(server)
 
-	httpMetricsServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: os.Getenv("AUTH_EXPORTER_ENDPOINT")}
+	httpMetricsServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: os.Getenv(config.AuthExporterListenParam)}
 	go func() {
 		if err := httpMetricsServer.ListenAndServe(); err != nil {
 			logger.Errorf("Unable to start a http auth metrics server:", err)

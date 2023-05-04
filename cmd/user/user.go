@@ -53,7 +53,11 @@ func main() {
 	userUsecase := userUsecase.NewUsecase(userRepo)
 
 	listener, err := net.Listen("tcp", os.Getenv(config.UserListenParam))
-	defer listener.Close()
+	defer func() {
+		if err := listener.Close(); err != nil {
+			logger.Errorf("Error while closing user tcp listener: %v", err)
+		}
+	}()
 
 	if err != nil {
 		logger.Errorf("Cant listen port: %v", err)
@@ -69,7 +73,7 @@ func main() {
 
 	grpcMetrics.InitializeMetrics(server)
 
-	httpMetricsServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: os.Getenv("USER_EXPORTER_ENDPOINT")}
+	httpMetricsServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: os.Getenv(config.UserExporterListenParam)}
 	go func() {
 		if err := httpMetricsServer.ListenAndServe(); err != nil {
 			logger.Errorf("Unable to start a http user metrics server:", err)
