@@ -26,4 +26,3 @@ scrape_configs:
         - search:9042
         - user:9041
         - node_exporter:9100
-

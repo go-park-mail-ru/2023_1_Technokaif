@@ -6,10 +6,26 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
+
+type ResponseWriterStatusCodeSaver struct {
+	http.ResponseWriter
+	statusCode int  // TODO check negative
+}
+
+func (w ResponseWriterStatusCodeSaver) WriteHeader(code int) {
+	w.statusCode = code
+	w.WriteHeader(code)
+}
+
+func (w ResponseWriterStatusCodeSaver) StatusCode() int {
+	if w.statusCode == 0 {
+		return 200
+	}
+	return w.statusCode
+}
 
 var responseTimeMetrics = promauto.NewSummaryVec(
 	prometheus.SummaryOpts{
@@ -29,13 +45,20 @@ func observeResponseTime(duration time.Duration, method, route, code string) {
 func Metrics() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// API route (URL Pattern)
+			routePattern := chi.RouteContext(r.Context()).RoutePattern()
+			if routePattern == "" {
+				routePattern = "NIL"
+			}
+
+			writerSaver := ResponseWriterStatusCodeSaver{
+				ResponseWriter: w,
+			}
+
 			start := time.Now()
 			defer func() {
-				// API route (URL Pattern)
-				routePattern := chi.RouteContext(r.Context()).RoutePattern()
-
 				// Status code
-				code := commonHTTP.GetResponseCodeFromRequest(r)
+				code := writerSaver.StatusCode()
 				codeStr := ""
 				if code != 0 {
 					codeStr = strconv.Itoa(code)
@@ -44,7 +67,7 @@ func Metrics() func(next http.Handler) http.Handler {
 				observeResponseTime(time.Since(start), r.Method, routePattern, codeStr)
 			}()
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(writerSaver, r)
 		})
 	}
 }

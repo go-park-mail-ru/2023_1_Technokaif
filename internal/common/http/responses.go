@@ -38,12 +38,10 @@ func ErrorResponse(w http.ResponseWriter, r *http.Request, msg string, code int,
 			logger.Errorf("failed to write response: %v", err)
 		}
 		w.WriteHeader(http.StatusInternalServerError)
-		*r = *WrapWithCode(r, http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(code)
-	*r = *WrapWithCode(r, code)
 	if _, err := w.Write(message); err != nil {
 		logger.Errorf("failed to write response: %v", err)
 	}
@@ -70,7 +68,6 @@ func SuccessResponse(w http.ResponseWriter, r *http.Request, response any, logge
 	if err != nil {
 		logger.Error(err.Error())
 		ErrorResponseWithErrLogging(w, r, "can't encode response into json", http.StatusInternalServerError, logger, err)
-		WrapWithCode(r, http.StatusInternalServerError)
 		return
 	}
 
@@ -78,5 +75,4 @@ func SuccessResponse(w http.ResponseWriter, r *http.Request, response any, logge
 	if _, err := w.Write(message); err != nil {
 		logger.Errorf("failed to write response: %v", err)
 	}
-	*r = *WrapWithCode(r, http.StatusOK)
 }

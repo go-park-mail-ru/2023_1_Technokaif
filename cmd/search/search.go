@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/joho/godotenv" // load environment
@@ -24,6 +25,12 @@ import (
 
 	searchRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/repository/postgresql"
 	searchUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/search/usecase"
+)
+
+const (
+	maxHeaderBytesHTTP = 1 << 20
+	readTimeoutHTTP    = 10 * time.Second
+	writeTimeoutHTTP   = 10 * time.Second
 )
 
 var (
@@ -73,7 +80,14 @@ func main() {
 
 	grpcMetrics.InitializeMetrics(server)
 
-	httpMetricsServer := &http.Server{Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), Addr: os.Getenv(config.SearchExporterListenParam)}
+	httpMetricsServer := &http.Server{
+		Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), 
+		Addr: os.Getenv(config.SearchExporterListenParam),
+		MaxHeaderBytes: maxHeaderBytesHTTP,
+		ReadTimeout:    readTimeoutHTTP,
+		WriteTimeout:   writeTimeoutHTTP,
+	}
+
 	go func() {
 		if err := httpMetricsServer.ListenAndServe(); err != nil {
 			logger.Errorf("Unable to start a http search metrics server:", err)
