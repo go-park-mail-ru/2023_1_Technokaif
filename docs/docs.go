@@ -91,10 +91,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Albums feed",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.AlbumTransfer"
-                            }
+                            "$ref": "#/definitions/models.AlbumTransfer"
                         }
                     },
                     "500": {
@@ -172,7 +169,10 @@ const docTemplate = `{
                     "200": {
                         "description": "Album got",
                         "schema": {
-                            "$ref": "#/definitions/models.AlbumTransfer"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AlbumTransfer"
+                            }
                         }
                     },
                     "400": {
@@ -803,7 +803,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/http.signUpInput"
                         }
                     }
                 ],
@@ -2256,6 +2256,35 @@ const docTemplate = `{
                 }
             }
         },
+        "http.signUpInput": {
+            "type": "object",
+            "properties": {
+                "avatarSrc": {
+                    "type": "string"
+                },
+                "birthDate": {
+                    "$ref": "#/definitions/models.Date"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "sex": {
+                    "$ref": "#/definitions/models.Sex"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "http.signUpResponse": {
             "type": "object",
             "properties": {
@@ -2467,35 +2496,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "avatarSrc": {
-                    "type": "string"
-                },
-                "birthDate": {
-                    "$ref": "#/definitions/models.Date"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "sex": {
-                    "$ref": "#/definitions/models.Sex"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
         "models.UserTransfer": {
             "type": "object",
             "properties": {
@@ -2538,6 +2538,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "Server API for Fluire Streaming Service Application",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

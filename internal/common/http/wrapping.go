@@ -9,7 +9,6 @@ import (
 
 type contextKeyReqIDType struct{}
 type contextKeyUserType struct{}
-type contextKeyResponseCodeType struct{}
 
 func WrapUser(r *http.Request, user *models.User) *http.Request {
 	ctx := context.WithValue(r.Context(), contextKeyUserType{}, user)

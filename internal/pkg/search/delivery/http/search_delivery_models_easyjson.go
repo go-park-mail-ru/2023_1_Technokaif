@@ -4,10 +4,6 @@ package delivery
 
 import (
 	json "encoding/json"
-	http3 "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/delivery/http"
-	http2 "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/delivery/http"
-	http1 "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/delivery/http"
-	http "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -41,28 +37,7 @@ func easyjsonE86c8d54DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgSearch
 		}
 		switch key {
 		case "tracks":
-			if in.IsNull() {
-				in.Skip()
-				out.Tracks = nil
-			} else {
-				in.Delim('[')
-				if out.Tracks == nil {
-					if !in.IsDelim(']') {
-						out.Tracks = make([]http.TrackTransfer, 0, 0)
-					} else {
-						out.Tracks = []http.TrackTransfer{}
-					}
-				} else {
-					out.Tracks = (out.Tracks)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v1 http.TrackTransfer
-					(v1).UnmarshalEasyJSON(in)
-					out.Tracks = append(out.Tracks, v1)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
+			(out.Tracks).UnmarshalEasyJSON(in)
 		default:
 			in.SkipRecursive()
 		}
@@ -80,18 +55,7 @@ func easyjsonE86c8d54EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgSearch
 	{
 		const prefix string = ",\"tracks\":"
 		out.RawString(prefix[1:])
-		if in.Tracks == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v2, v3 := range in.Tracks {
-				if v2 > 0 {
-					out.RawByte(',')
-				}
-				(v3).MarshalEasyJSON(out)
-			}
-			out.RawByte(']')
-		}
+		(in.Tracks).MarshalEasyJSON(out)
 	}
 	out.RawByte('}')
 }
@@ -184,28 +148,7 @@ func easyjsonE86c8d54DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgSearch
 		}
 		switch key {
 		case "playlists":
-			if in.IsNull() {
-				in.Skip()
-				out.Playlists = nil
-			} else {
-				in.Delim('[')
-				if out.Playlists == nil {
-					if !in.IsDelim(']') {
-						out.Playlists = make([]http1.PlaylistTransfer, 0, 0)
-					} else {
-						out.Playlists = []http1.PlaylistTransfer{}
-					}
-				} else {
-					out.Playlists = (out.Playlists)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v4 http1.PlaylistTransfer
-					(v4).UnmarshalEasyJSON(in)
-					out.Playlists = append(out.Playlists, v4)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
+			(out.Playlists).UnmarshalEasyJSON(in)
 		default:
 			in.SkipRecursive()
 		}
@@ -223,18 +166,7 @@ func easyjsonE86c8d54EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgSearch
 	{
 		const prefix string = ",\"playlists\":"
 		out.RawString(prefix[1:])
-		if in.Playlists == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v5, v6 := range in.Playlists {
-				if v5 > 0 {
-					out.RawByte(',')
-				}
-				(v6).MarshalEasyJSON(out)
-			}
-			out.RawByte(']')
-		}
+		(in.Playlists).MarshalEasyJSON(out)
 	}
 	out.RawByte('}')
 }
@@ -268,28 +200,7 @@ func easyjsonE86c8d54DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgSearch
 		}
 		switch key {
 		case "artists":
-			if in.IsNull() {
-				in.Skip()
-				out.Artists = nil
-			} else {
-				in.Delim('[')
-				if out.Artists == nil {
-					if !in.IsDelim(']') {
-						out.Artists = make([]http2.ArtistTransfer, 0, 1)
-					} else {
-						out.Artists = []http2.ArtistTransfer{}
-					}
-				} else {
-					out.Artists = (out.Artists)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v7 http2.ArtistTransfer
-					(v7).UnmarshalEasyJSON(in)
-					out.Artists = append(out.Artists, v7)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
+			(out.Artists).UnmarshalEasyJSON(in)
 		default:
 			in.SkipRecursive()
 		}
@@ -307,18 +218,7 @@ func easyjsonE86c8d54EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgSearch
 	{
 		const prefix string = ",\"artists\":"
 		out.RawString(prefix[1:])
-		if in.Artists == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v8, v9 := range in.Artists {
-				if v8 > 0 {
-					out.RawByte(',')
-				}
-				(v9).MarshalEasyJSON(out)
-			}
-			out.RawByte(']')
-		}
+		(in.Artists).MarshalEasyJSON(out)
 	}
 	out.RawByte('}')
 }
@@ -352,28 +252,7 @@ func easyjsonE86c8d54DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgSearch
 		}
 		switch key {
 		case "albums":
-			if in.IsNull() {
-				in.Skip()
-				out.Albums = nil
-			} else {
-				in.Delim('[')
-				if out.Albums == nil {
-					if !in.IsDelim(']') {
-						out.Albums = make([]http3.AlbumTransfer, 0, 0)
-					} else {
-						out.Albums = []http3.AlbumTransfer{}
-					}
-				} else {
-					out.Albums = (out.Albums)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v10 http3.AlbumTransfer
-					(v10).UnmarshalEasyJSON(in)
-					out.Albums = append(out.Albums, v10)
-					in.WantComma()
-				}
-				in.Delim(']')
-			}
+			(out.Albums).UnmarshalEasyJSON(in)
 		default:
 			in.SkipRecursive()
 		}
@@ -391,18 +270,7 @@ func easyjsonE86c8d54EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgSearch
 	{
 		const prefix string = ",\"albums\":"
 		out.RawString(prefix[1:])
-		if in.Albums == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
-			out.RawByte('[')
-			for v11, v12 := range in.Albums {
-				if v11 > 0 {
-					out.RawByte(',')
-				}
-				(v12).MarshalEasyJSON(out)
-			}
-			out.RawByte(']')
-		}
+		(in.Albums).MarshalEasyJSON(out)
 	}
 	out.RawByte('}')
 }

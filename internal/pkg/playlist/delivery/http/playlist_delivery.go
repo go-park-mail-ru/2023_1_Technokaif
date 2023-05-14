@@ -11,7 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	"github.com/mailru/easyjson"
+	easyjson "github.com/mailru/easyjson"
 )
 
 type Handler struct {
@@ -88,7 +88,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags		Playlist
 // @Description	Get playlist with chosen ID
 // @Produce		json
-// @Success		200		{object}	PlaylistTransfer	"Playlist got"
+// @Success		200		{object}	models.PlaylistTransfer	"Playlist got"
 // @Failure		400		{object}	http.Error				"Incorrect input"
 // @Failure		401		{object}	http.Error  			"User unathorized"
 // @Failure		500		{object}	http.Error				"Server error"
@@ -122,7 +122,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := PlaylistTransferFromEntry(r.Context(),
+	resp, err := models.PlaylistTransferFromEntry(r.Context(),
 		*playlist, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -333,7 +333,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Tags		User
 // @Description	All playlists of user with chosen ID
 // @Produce		json
-// @Success		200		{object}	[]PlaylistTransfer	"Show playlists"
+// @Success		200		{object}	models.PlaylistTransfers	"Show playlists"
 // @Failure		400		{object}	http.Error					"Client error"
 // @Failure		500		{object}	http.Error					"Server error"
 // @Router		/api/users/{userID}/playlists [get]
@@ -366,7 +366,7 @@ func (h *Handler) GetByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, err := PlaylistTransferFromList(r.Context(),
+	pt, err := models.PlaylistTransferFromList(r.Context(),
 		playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -509,7 +509,7 @@ func (h *Handler) DeleteTrack(w http.ResponseWriter, r *http.Request) {
 // @Tags		Feed
 // @Description	Feed playlists
 // @Produce		json
-// @Success		200		{object}	[]PlaylistTransfer	 "Playlist feed"
+// @Success		200		{object}	models.PlaylistTransfers	 "Playlist feed"
 // @Failure		500		{object}	http.Error "Server error"
 // @Router		/api/playlists/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
@@ -527,7 +527,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := PlaylistTransferFromList(r.Context(),
+	resp, err := models.PlaylistTransferFromList(r.Context(),
 		playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -542,7 +542,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 // @Tags         Favorite
 // @Description  Get user's favorite playlists
 // @Produce      json
-// @Success      200    {object}  	[]PlaylistTransfer 	"Playlists got"
+// @Success      200    {object}  	models.PlaylistTransfers 	"Playlists got"
 // @Failure		 400	{object}	http.Error					"Incorrect input"
 // @Failure      401    {object}  	http.Error  				"Unauthorized user"
 // @Failure      403    {object}  	http.Error  				"Forbidden user"
@@ -563,7 +563,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := PlaylistTransferFromList(r.Context(), favPlaylists, user,
+	at, err := models.PlaylistTransferFromList(r.Context(), favPlaylists, user,
 		h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,

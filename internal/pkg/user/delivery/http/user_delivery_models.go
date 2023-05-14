@@ -29,40 +29,6 @@ const (
 )
 
 //easyjson:json
-type UserTransfer struct {
-	ID        uint32      `json:"id"`
-	Username  string      `json:"username"`
-	Email     string      `json:"email"`
-	FirstName string      `json:"firstName"`
-	LastName  string      `json:"lastName"`
-	Sex       models.Sex  `json:"sex"`
-	BirthDate models.Date `json:"birthDate,omitempty"`
-	AvatarSrc string      `json:"avatarSrc,omitempty"`
-}
-
-func UserTransferFromEntry(user models.User) UserTransfer {
-	return UserTransfer{
-		ID:        user.ID,
-		Username:  user.Username,
-		Email:     user.Email,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Sex:       user.Sex,
-		BirthDate: user.BirthDate,
-		AvatarSrc: user.AvatarSrc,
-	}
-}
-
-func UserTransferFromList(users []models.User) []UserTransfer {
-	userTransfers := make([]UserTransfer, 0, len(users))
-	for _, u := range users {
-		userTransfers = append(userTransfers, UserTransferFromEntry(u))
-	}
-
-	return userTransfers
-}
-
-//easyjson:json
 type userUploadAvatarResponse struct {
 	Status string `json:"status"`
 }

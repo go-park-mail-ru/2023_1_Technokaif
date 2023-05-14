@@ -9,7 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	"github.com/mailru/easyjson"
+	easyjson "github.com/mailru/easyjson"
 )
 
 type Handler struct {
@@ -85,10 +85,10 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags		Track
 // @Description	Get track with chosen ID
 // @Produce		json
-// @Success		200		{object}	TrackTransfer 	"Track got"
-// @Failure		400		{object}	http.Error		"Client error"
-// @Failure		401		{object}	http.Error  	"User unathorized"
-// @Failure		500		{object}	http.Error		"Server error"
+// @Success		200		{object}	models.TrackTransfer 	"Track got"
+// @Failure		400		{object}	http.Error				"Client error"
+// @Failure		401		{object}	http.Error  			"User unathorized"
+// @Failure		500		{object}	http.Error				"Server error"
 // @Router		/api/tracks/{trackID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	trackID, err := commonHTTP.GetTrackIDFromRequest(r)
@@ -119,7 +119,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := TrackTransferFromEntry(r.Context(), *track, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromEntry(r.Context(), *track, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -185,9 +185,9 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Tags		Artist
 // @Description	All tracks of artist with chosen ID
 // @Produce		json
-// @Success		200		{object}	[]TrackTransfer "Show tracks"
-// @Failure		400		{object}	http.Error			   "Incorrect body"
-// @Failure		500		{object}	http.Error			   "Server error"
+// @Success		200		{object}	models.TrackTransfers 	"Show tracks"
+// @Failure		400		{object}	http.Error			   	"Incorrect body"
+// @Failure		500		{object}	http.Error			   	"Server error"
 // @Router		/api/artists/{artistID}/tracks [get]
 func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHTTP.GetArtistIDFromRequest(r)
@@ -218,7 +218,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -233,7 +233,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 // @Tags		Playlist
 // @Description	All tracks of playlist with chosen ID
 // @Produce		json
-// @Success		200		{object}	[]TrackTransfer "Show tracks"
+// @Success		200		{object}	models.TrackTransfers  "Show tracks"
 // @Failure		400		{object}	http.Error			   "Incorrect body"
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/playlists/{playlistID}/tracks [get]
@@ -266,7 +266,7 @@ func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -281,7 +281,7 @@ func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
 // @Tags		Album
 // @Description	All tracks of album with chosen ID
 // @Produce		json
-// @Success		200		{object}	[]TrackTransfer "Show tracks"
+// @Success		200		{object}	models.TrackTransfers  "Show tracks"
 // @Failure		400		{object}	http.Error			   "Bad request"
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/albums/{albumID}/tracks [get]
@@ -314,7 +314,7 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -329,7 +329,7 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 // @Tags		Feed
 // @Description	Feed tracks
 // @Produce		json
-// @Success		200		{object}	[]TrackTransfer "Tracks feed"
+// @Success		200		{object}	models.TrackTransfers  "Tracks feed"
 // @Failure		500		{object}	http.Error			   "Server error"
 // @Router		/api/tracks/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
@@ -347,7 +347,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -362,7 +362,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 // @Tags         Favorite
 // @Description  Get ser's avorite tracks
 // @Produce      json
-// @Success      200    {object}  	[]TrackTransfer 	"Tracks got"
+// @Success      200    {object}  	models.TrackTransfers 	"Tracks got"
 // @Failure		 400	{object}	http.Error				"Incorrect input"
 // @Failure      401    {object}  	http.Error  			"Unauthorized user"
 // @Failure      403    {object}  	http.Error  			"Forbidden user"
@@ -383,7 +383,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := TrackTransferFromList(r.Context(), favTracks, user, h.trackServices.IsLiked,
+	tt, err := models.TrackTransferFromList(r.Context(), favTracks, user, h.trackServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,

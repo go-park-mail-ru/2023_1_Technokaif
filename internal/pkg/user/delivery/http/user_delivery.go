@@ -9,7 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	"github.com/mailru/easyjson"
+	easyjson "github.com/mailru/easyjson"
 )
 
 type Handler struct {
@@ -28,7 +28,7 @@ func NewHandler(uu user.Usecase, l logger.Logger) *Handler {
 // @Tags		User
 // @Description	Get user with chosen ID
 // @Produce		json
-// @Success		200		{object}	UserTransfer "User got"
+// @Success		200		{object}	models.UserTransfer "User got"
 // @Failure		400		{object}	http.Error			"Client error"
 // @Failure     401    	{object}  	http.Error  		"Unauthorized user"
 // @Failure     403    	{object}  	http.Error  		"Forbidden user"
@@ -42,7 +42,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ut := UserTransferFromEntry(*user)
+	ut := models.UserTransferFromEntry(*user)
 
 	commonHTTP.SuccessResponse(w, r, ut, h.logger)
 }

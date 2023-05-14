@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist"
@@ -12,11 +13,6 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 	"github.com/mailru/easyjson"
-
-	albumHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/delivery/http"
-	artistHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/delivery/http"
-	playlistHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/delivery/http"
-	trackHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/delivery/http"
 
 	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 )
@@ -85,7 +81,7 @@ func (h *Handler) FindAlbums(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := albumHTTP.AlbumTransferFromList(r.Context(),
+	at, err := models.AlbumTransferFromList(r.Context(),
 		albums, user, h.albumServices.IsLiked, h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -137,7 +133,7 @@ func (h *Handler) FindArtists(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := artistHTTP.ArtistTransferFromList(r.Context(), artists, user, h.artistServices.IsLiked)
+	at, err := models.ArtistTransferFromList(r.Context(), artists, user, h.artistServices.IsLiked)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			artistsFindServerError, http.StatusInternalServerError, h.logger, err)
@@ -188,7 +184,7 @@ func (h *Handler) FindTracks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tt, err := trackHTTP.TrackTransferFromList(r.Context(),
+	tt, err := models.TrackTransferFromList(r.Context(),
 		tracks, user, h.trackServices.IsLiked, h.artistServices.IsLiked, h.artistServices.GetByTrack)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -240,7 +236,7 @@ func (h *Handler) FindPlaylists(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pt, err := playlistHTTP.PlaylistTransferFromList(r.Context(),
+	pt, err := models.PlaylistTransferFromList(r.Context(),
 		playlists, user, h.playlistServices.IsLiked, h.userServices.GetByPlaylist)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,

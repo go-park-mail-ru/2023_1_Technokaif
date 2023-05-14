@@ -9,7 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/token"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
-	"github.com/mailru/easyjson"
+	easyjson "github.com/mailru/easyjson"
 )
 
 type Handler struct {
@@ -32,7 +32,7 @@ func NewHandler(au auth.Usecase, tu token.Usecase, l logger.Logger) *Handler {
 // @Description	Create account
 // @Accept		json
 // @Produce		json
-// @Param		user	body		models.User	true	"User info"
+// @Param		user	body		signUpInput	true	"User info"
 // @Success		200		{object}	signUpResponse		"User created"
 // @Failure		400		{object}	http.Error			"Incorrect input"
 // @Failure		500		{object}	http.Error			"Server error"
@@ -81,8 +81,8 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 // @Produce		json
 // @Param		userInput	body		loginInput		true	"username and password"
 // @Success		200			{object}	loginResponse	"User created"
-// @Failure		400			{object}	http.Error	"Incorrect input"
-// @Failure		500			{object}	http.Error	"Server error"
+// @Failure		400			{object}	http.Error		"Incorrect input"
+// @Failure		500			{object}	http.Error		"Server error"
 // @Router		/api/auth/login [post]
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var userInput loginInput
@@ -140,8 +140,8 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 // @Accept		json
 // @Produce		json
 // @Success		200	{object}	logoutResponse	"User loged out"
-// @Failure		400	{object}	http.Error	"Logout fail"
-// @Failure		500	{object}	http.Error	"Server error"
+// @Failure		400	{object}	http.Error		"Logout fail"
+// @Failure		500	{object}	http.Error		"Server error"
 // @Router		/api/auth/logout [get]
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHTTP.GetUserFromRequest(r)
