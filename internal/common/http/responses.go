@@ -1,11 +1,13 @@
 package http
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	easyjson "github.com/mailru/easyjson"
 )
+
+//go:generate easyjson -no_std_marshalers responses.go
 
 const (
 	LikeSuccess   = "ok"
@@ -23,6 +25,7 @@ const (
 	LikeDoesntExist   = "wasn't liked"
 )
 
+//easyjson:json
 type Error struct {
 	Message string `json:"message"`
 }
@@ -31,7 +34,7 @@ func ErrorResponse(w http.ResponseWriter, r *http.Request, msg string, code int,
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	errorResp := Error{Message: msg}
-	message, err := json.Marshal(errorResp)
+	message, err := easyjson.Marshal(errorResp)
 	if err != nil {
 		logger.Errorf("failed to marshal error message: %v", err)
 		if _, err = w.Write([]byte(`{"message": "can't encode error response into json"}`)); err != nil {
@@ -63,8 +66,8 @@ func ErrorResponseWithErrLogging(w http.ResponseWriter, r *http.Request,
 	ErrorResponse(w, r, msg, code, logger)
 }
 
-func SuccessResponse(w http.ResponseWriter, r *http.Request, response any, logger logger.Logger) {
-	message, err := json.Marshal(response)
+func SuccessResponse(w http.ResponseWriter, r *http.Request, response easyjson.Marshaler, logger logger.Logger) {
+	message, err := easyjson.Marshal(response)
 	if err != nil {
 		logger.Error(err.Error())
 		ErrorResponseWithErrLogging(w, r, "can't encode response into json", http.StatusInternalServerError, logger, err)

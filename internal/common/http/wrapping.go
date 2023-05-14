@@ -20,4 +20,3 @@ func WrapReqID(r *http.Request, id uint32) *http.Request {
 	ctx := context.WithValue(r.Context(), contextKeyReqIDType{}, id)
 	return r.WithContext(ctx)
 }
-

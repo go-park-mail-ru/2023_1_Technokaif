@@ -79,7 +79,7 @@ func main() {
 	logger.Info("trying to launch server")
 
 	timer := time.AfterFunc(2*time.Second, func() {
-		logger.Infof("server launched at :%s", os.Getenv(config.ApiListenParam))
+		logger.Infof("server launched at %s", os.Getenv(config.ApiListenParam))
 	})
 	defer timer.Stop()
 

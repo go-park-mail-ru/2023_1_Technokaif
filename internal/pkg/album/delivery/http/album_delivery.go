@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	"github.com/mailru/easyjson"
 )
 
 type Handler struct {
@@ -48,7 +48,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var aci albumCreateInput
-	if err := json.NewDecoder(r.Body).Decode(&aci); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, &aci); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
@@ -85,10 +85,10 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags		Album
 // @Description	Get album with chosen ID
 // @Produce		json
-// @Success		200		{object}	models.AlbumTransfer	"Album got"
-// @Failure		400		{object}	http.Error				"Incorrect input"
-// @Failure		401		{object}	http.Error  			"User unathorized"
-// @Failure		500		{object}	http.Error				"Server error"
+// @Success		200		{object}	AlbumTransfer		"Album got"
+// @Failure		400		{object}	http.Error			"Incorrect input"
+// @Failure		401		{object}	http.Error  		"User unathorized"
+// @Failure		500		{object}	http.Error			"Server error"
 // @Router		/api/albums/{albumID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	albumID, err := commonHTTP.GetAlbumIDFromRequest(r)
@@ -119,7 +119,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromEntry(r.Context(), *album, user, h.albumServices.IsLiked,
+	resp, err := AlbumTransferFromEntry(r.Context(), *album, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -185,9 +185,9 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Tags		Artist
 // @Description	All albums of artist with chosen ID
 // @Produce		json
-// @Success		200		{object}	[]models.AlbumTransfer "Show albums"
-// @Failure		400		{object}	http.Error			   "Client error"
-// @Failure		500		{object}	http.Error			   "Server error"
+// @Success		200		{object}	AlbumTransfers 	"Show albums"
+// @Failure		400		{object}	http.Error		"Client error"
+// @Failure		500		{object}	http.Error		"Server error"
 // @Router		/api/artists/{artistID}/albums [get]
 func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHTTP.GetArtistIDFromRequest(r)
@@ -218,7 +218,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromList(r.Context(), albums, user,
+	resp, err := AlbumTransferFromList(r.Context(), albums, user,
 		h.albumServices.IsLiked, h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -233,7 +233,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 // @Tags		Feed
 // @Description	Feed albums
 // @Produce		json
-// @Success		200		{object}	[]models.AlbumTransfer	"Albums feed"
+// @Success		200		{object}	AlbumTransfer	"Albums feed"
 // @Failure		500		{object}	http.Error 				"Server error"
 // @Router		/api/albums/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
@@ -251,7 +251,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := models.AlbumTransferFromList(r.Context(), albums, user, h.albumServices.IsLiked,
+	resp, err := AlbumTransferFromList(r.Context(), albums, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -265,12 +265,12 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 // @Summary      Favorite Albums
 // @Tags         Favorite
 // @Description  Get user's favorite albums
-// @Produce      application/json
-// @Success      200    {object}  	[]models.AlbumTransfer 	"Albums got"
-// @Failure		 400	{object}	http.Error				"Incorrect input"
-// @Failure      401    {object}  	http.Error  			"Unauthorized user"
-// @Failure      403    {object}  	http.Error  			"Forbidden user"
-// @Failure      500    {object}  	http.Error  			"Server error"
+// @Produce      json
+// @Success      200    {object}  	AlbumTransfers 		"Albums got"
+// @Failure		 400	{object}	http.Error			"Incorrect input"
+// @Failure      401    {object}  	http.Error  		"Unauthorized user"
+// @Failure      403    {object}  	http.Error  		"Forbidden user"
+// @Failure      500    {object}  	http.Error  		"Server error"
 // @Router       /api/users/{userID}/favorite/albums [get]
 func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 	user, err := commonHTTP.GetUserFromRequest(r)
@@ -287,7 +287,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	at, err := models.AlbumTransferFromList(r.Context(), favAlbums, user, h.albumServices.IsLiked,
+	at, err := AlbumTransferFromList(r.Context(), favAlbums, user, h.albumServices.IsLiked,
 		h.artistServices.IsLiked, h.artistServices.GetByAlbum)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,

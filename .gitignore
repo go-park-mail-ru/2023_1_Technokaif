@@ -34,3 +34,7 @@ avatars
 avatar
 tracks
 covers
+
+# Autogen
+*.pb.go
+*easyjson.go

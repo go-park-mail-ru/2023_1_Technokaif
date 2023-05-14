@@ -8,6 +8,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+//go:generate easyjson -no_std_marshalers user_delivery_models.go
+
 // UploadAvatar
 const MaxAvatarMemory = 5 << 20
 const avatarFormKey = "avatar"
@@ -26,11 +28,48 @@ const (
 	userAvatarUploadedSuccessfully = "ok"
 )
 
+//easyjson:json
+type UserTransfer struct {
+	ID        uint32      `json:"id"`
+	Username  string      `json:"username"`
+	Email     string      `json:"email"`
+	FirstName string      `json:"firstName"`
+	LastName  string      `json:"lastName"`
+	Sex       models.Sex  `json:"sex"`
+	BirthDate models.Date `json:"birthDate,omitempty"`
+	AvatarSrc string      `json:"avatarSrc,omitempty"`
+}
+
+func UserTransferFromEntry(user models.User) UserTransfer {
+	return UserTransfer{
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Sex:       user.Sex,
+		BirthDate: user.BirthDate,
+		AvatarSrc: user.AvatarSrc,
+	}
+}
+
+func UserTransferFromList(users []models.User) []UserTransfer {
+	userTransfers := make([]UserTransfer, 0, len(users))
+	for _, u := range users {
+		userTransfers = append(userTransfers, UserTransferFromEntry(u))
+	}
+
+	return userTransfers
+}
+
+//easyjson:json
 type userUploadAvatarResponse struct {
 	Status string `json:"status"`
 }
 
 // Update Info
+//
+//easyjson:json
 type userInfoInput struct {
 	Email     string      `json:"email" valid:"required,email,maxstringlength(255)"`
 	FirstName string      `json:"firstName" valid:"required,runelength(2|20)"`
@@ -65,6 +104,7 @@ func (ui *userInfoInput) ToUser(user *models.User) *models.User {
 	}
 }
 
+//easyjson:json
 type userChangeInfoResponse struct {
 	Status string `json:"status"`
 }
