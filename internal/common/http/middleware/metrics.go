@@ -12,15 +12,15 @@ import (
 
 type ResponseWriterStatusCodeSaver struct {
 	http.ResponseWriter
-	statusCode int  // TODO check negative
+	statusCode int
 }
 
-func (w ResponseWriterStatusCodeSaver) WriteHeader(code int) {
+func (w *ResponseWriterStatusCodeSaver) WriteHeader(code int) {
 	w.statusCode = code
-	w.WriteHeader(code)
+	w.ResponseWriter.WriteHeader(code)
 }
 
-func (w ResponseWriterStatusCodeSaver) StatusCode() int {
+func (w *ResponseWriterStatusCodeSaver) StatusCode() int {
 	if w.statusCode == 0 {
 		return 200
 	}
@@ -51,7 +51,7 @@ func Metrics() func(next http.Handler) http.Handler {
 				routePattern = "NIL"
 			}
 
-			writerSaver := ResponseWriterStatusCodeSaver{
+			writerSaver := &ResponseWriterStatusCodeSaver{
 				ResponseWriter: w,
 			}
 
