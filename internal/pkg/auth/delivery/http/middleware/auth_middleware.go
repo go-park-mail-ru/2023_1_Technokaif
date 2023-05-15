@@ -48,7 +48,7 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			}
 
 			m.logger.Errorf("middleware: %v", err)
-			commonHTTP.ErrorResponse(w, tokenGetServerError, http.StatusInternalServerError, m.logger)
+			commonHTTP.ErrorResponse(w, r, tokenGetServerError, http.StatusInternalServerError, m.logger)
 			return
 		}
 		if token == "" {
@@ -61,7 +61,7 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 		if err != nil {
 			m.logger.Infof("middleware: %v", err)
 			commonHTTP.SetAccessTokenCookie(w, "")
-			commonHTTP.ErrorResponse(w, tokenCheckFail, http.StatusBadRequest, m.logger) // token check failed
+			commonHTTP.ErrorResponse(w, r, tokenCheckFail, http.StatusBadRequest, m.logger) // token check failed
 			return
 		}
 
@@ -71,12 +71,12 @@ func (m *Middleware) Authorization(next http.Handler) http.Handler {
 			if errors.As(err, &errNoSuchUser) {
 				m.logger.Infof("middleware: %v", err)
 				commonHTTP.SetAccessTokenCookie(w, "")
-				commonHTTP.ErrorResponse(w, authDataCheckFail, http.StatusBadRequest, m.logger) // auth data check failed
+				commonHTTP.ErrorResponse(w, r, authDataCheckFail, http.StatusBadRequest, m.logger) // auth data check failed
 				return
 			}
 
 			m.logger.Errorf("middleware: %v", err)
-			commonHTTP.ErrorResponse(w, authCheckServerErorr, http.StatusInternalServerError, m.logger)
+			commonHTTP.ErrorResponse(w, r, authCheckServerErorr, http.StatusInternalServerError, m.logger)
 			return
 		}
 

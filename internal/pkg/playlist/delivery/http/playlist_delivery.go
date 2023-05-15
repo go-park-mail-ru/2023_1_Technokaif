@@ -81,7 +81,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	pcr := playlistCreateResponse{ID: playlistID}
 
-	commonHTTP.SuccessResponse(w, pcr, h.logger)
+	commonHTTP.SuccessResponse(w, r, pcr, h.logger)
 }
 
 // @Summary		Get Playlist
@@ -130,7 +130,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // @Summary      Upload Cover
@@ -206,7 +206,7 @@ func (h *Handler) UploadCover(w http.ResponseWriter, r *http.Request) {
 
 	resp := defaultResponse{Status: playlistCoverUploadedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 
 }
 
@@ -275,7 +275,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	dr := defaultResponse{Status: playlistUpdatedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, dr, h.logger)
+	commonHTTP.SuccessResponse(w, r, dr, h.logger)
 }
 
 // @Summary		Delete Playlist
@@ -326,7 +326,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	dr := defaultResponse{Status: playlistDeletedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, dr, h.logger)
+	commonHTTP.SuccessResponse(w, r, dr, h.logger)
 }
 
 // @Summary		Playlists of User
@@ -374,7 +374,7 @@ func (h *Handler) GetByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, pt, h.logger)
+	commonHTTP.SuccessResponse(w, r, pt, h.logger)
 }
 
 // @Summary		Add Track
@@ -438,7 +438,7 @@ func (h *Handler) AddTrack(w http.ResponseWriter, r *http.Request) {
 
 	dr := defaultResponse{Status: playlistTrackAddedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, dr, h.logger)
+	commonHTTP.SuccessResponse(w, r, dr, h.logger)
 }
 
 // @Summary		Delete Track
@@ -502,7 +502,7 @@ func (h *Handler) DeleteTrack(w http.ResponseWriter, r *http.Request) {
 
 	dr := defaultResponse{Status: playlistTrackDeletedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, dr, h.logger)
+	commonHTTP.SuccessResponse(w, r, dr, h.logger)
 }
 
 // @Summary		Playlist Feed
@@ -535,7 +535,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // @Summary      Favorite Playlists
@@ -571,7 +571,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, at, h.logger)
+	commonHTTP.SuccessResponse(w, r, at, h.logger)
 }
 
 // @Summary		Set like
@@ -616,7 +616,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	if !notExisted {
 		dr.Status = commonHTTP.LikeAlreadyExists
 	}
-	commonHTTP.SuccessResponse(w, dr, h.logger)
+	commonHTTP.SuccessResponse(w, r, dr, h.logger)
 }
 
 // @Summary		Remove like
@@ -661,5 +661,5 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	if !notExisted {
 		dr.Status = commonHTTP.LikeDoesntExist
 	}
-	commonHTTP.SuccessResponse(w, dr, h.logger)
+	commonHTTP.SuccessResponse(w, r, dr, h.logger)
 }

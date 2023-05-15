@@ -78,7 +78,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	tcr := trackCreateResponse{ID: trackID}
 
-	commonHTTP.SuccessResponse(w, tcr, h.logger)
+	commonHTTP.SuccessResponse(w, r, tcr, h.logger)
 }
 
 // @Summary		Get Track
@@ -127,7 +127,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, r, tt, h.logger)
 }
 
 // @Summary		Delete Track
@@ -178,7 +178,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	tdr := trackDeleteResponse{Status: trackDeletedSuccessfully}
 
-	commonHTTP.SuccessResponse(w, tdr, h.logger)
+	commonHTTP.SuccessResponse(w, r, tdr, h.logger)
 }
 
 // @Summary		Tracks of Artist
@@ -226,7 +226,7 @@ func (h *Handler) GetByArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, r, tt, h.logger)
 }
 
 // @Summary		Tracks of Playlist
@@ -274,7 +274,7 @@ func (h *Handler) GetByPlaylist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, r, tt, h.logger)
 }
 
 // @Summary		Tracks of Album
@@ -322,7 +322,7 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, r, tt, h.logger)
 }
 
 // @Summary		Track Feed
@@ -355,7 +355,7 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, r, tt, h.logger)
 }
 
 // @Summary      Favorite Tracks
@@ -391,7 +391,7 @@ func (h *Handler) GetFavorite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, tt, h.logger)
+	commonHTTP.SuccessResponse(w, r, tt, h.logger)
 }
 
 // @Summary		Set like
@@ -436,7 +436,7 @@ func (h *Handler) Like(w http.ResponseWriter, r *http.Request) {
 	if !notExisted {
 		tlr.Status = commonHTTP.LikeAlreadyExists
 	}
-	commonHTTP.SuccessResponse(w, tlr, h.logger)
+	commonHTTP.SuccessResponse(w, r, tlr, h.logger)
 }
 
 // @Summary		Remove like
@@ -481,5 +481,5 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 	if !notExisted {
 		tlr.Status = commonHTTP.LikeDoesntExist
 	}
-	commonHTTP.SuccessResponse(w, tlr, h.logger)
+	commonHTTP.SuccessResponse(w, r, tlr, h.logger)
 }

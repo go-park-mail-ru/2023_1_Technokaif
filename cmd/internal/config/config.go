@@ -11,4 +11,8 @@ const (
 
 	UserListenParam  = "USER_LISTEN_ENDPOINT"
 	UserConnectParam = "USER_CONNECT_ENDPOINT"
+
+	AuthExporterListenParam   = "AUTH_EXPORTER_ENDPOINT"
+	UserExporterListenParam   = "USER_EXPORTER_ENDPOINT"
+	SearchExporterListenParam = "SEARCH_EXPORTER_ENDPOINT"
 )

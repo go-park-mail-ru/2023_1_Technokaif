@@ -3,12 +3,17 @@ package main
 import (
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
+	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/joho/godotenv" // load environment
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/config"
@@ -21,6 +26,17 @@ import (
 	authRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/repository/postgresql"
 	authUsecase "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/usecase"
 	userRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/repository/postgresql"
+)
+
+const (
+	maxHeaderBytesHTTP = 1 << 20
+	readTimeoutHTTP    = 10 * time.Second
+	writeTimeoutHTTP   = 10 * time.Second
+)
+
+var (
+	reg         = prometheus.NewRegistry()
+	grpcMetrics = grpcPrometheus.NewServerMetrics()
 )
 
 func main() {
@@ -46,14 +62,40 @@ func main() {
 	authUsecase := authUsecase.NewUsecase(authRepo, userRepo)
 
 	listener, err := net.Listen("tcp", os.Getenv(config.AuthListenParam))
-	defer listener.Close()
+	defer func() {
+		if err := listener.Close(); err != nil {
+			logger.Errorf("Error while closing auth tcp listener: %v", err)
+		}
+	}()
 
 	if err != nil {
 		logger.Errorf("Cant listen port: %v", err)
 		return
 	}
 
-	server := grpc.NewServer()
+	reg.MustRegister(grpcMetrics)
+
+	server := grpc.NewServer(
+		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
+	)
+
+	grpcMetrics.InitializeMetrics(server)
+
+	httpMetricsServer := &http.Server{
+		Handler:        promhttp.HandlerFor(reg, promhttp.HandlerOpts{}),
+		Addr:           os.Getenv(config.AuthExporterListenParam),
+		MaxHeaderBytes: maxHeaderBytesHTTP,
+		ReadTimeout:    readTimeoutHTTP,
+		WriteTimeout:   writeTimeoutHTTP,
+	}
+
+	go func() {
+		if err := httpMetricsServer.ListenAndServe(); err != nil {
+			logger.Errorf("Unable to start a http auth metrics server:", err)
+		}
+	}()
+
 	authProto.RegisterAuthorizationServer(server, authGRPC.NewAuthGRPC(authUsecase, logger))
 
 	stop := make(chan os.Signal, 1)

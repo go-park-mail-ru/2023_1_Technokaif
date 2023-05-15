@@ -91,7 +91,7 @@ func (h *Handler) FindAlbums(w http.ResponseWriter, r *http.Request) {
 
 	resp := searchAlbumsResponse{Albums: at}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // @Summary		Find Artists
@@ -142,7 +142,7 @@ func (h *Handler) FindArtists(w http.ResponseWriter, r *http.Request) {
 
 	resp := searchArtistsResponse{Artists: at}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // @Summary		Find Tracks
@@ -194,7 +194,7 @@ func (h *Handler) FindTracks(w http.ResponseWriter, r *http.Request) {
 
 	resp := searchTracksResponse{Tracks: tt}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }
 
 // @Summary		Find Playlists
@@ -246,5 +246,5 @@ func (h *Handler) FindPlaylists(w http.ResponseWriter, r *http.Request) {
 
 	resp := searchPlaylistsResponse{Playlists: pt}
 
-	commonHTTP.SuccessResponse(w, resp, h.logger)
+	commonHTTP.SuccessResponse(w, r, resp, h.logger)
 }

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   api:
     container_name: api
-    image:  technokaif/fluire_api:latest
+    image: technokaif/fluire_api:latest
     depends_on:
       - auth
     ports:
@@ -33,7 +33,7 @@ services:
       - db
     volumes:
       - .env:/out/.env
-    
+
   user:
     container_name: user
     image: technokaif/fluire_user:latest
@@ -44,6 +44,34 @@ services:
       - type: bind
         source: ${MEDIA_PATH}
         target: ${MEDIA_PATH}
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - ./metrics/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  nodeexporter:
+    container_name: node_exporter
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:9.4.3
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+
 
   db:
     container_name: db
@@ -65,3 +93,6 @@ services:
       - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d # isn't used if pgdata exists
       - ${DB_PATH}:/var/lib/postgresql/data
     command: ["postgres"] # "-c", "logging_collector=on", "-c", "log_statement=all"]
+
+volumes:
+  grafana-data: {}
