@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -107,11 +106,6 @@ func (u *Usecase) UpdateInfoAndMembers(ctx context.Context,
 }
 
 var dirForPlaylistCovers = filepath.Join(commonFile.MediaPath(), commonFile.PlaylistCoverFolder())
-var ErrCoverWrongFormat = errors.New("wrong cover file fromat")
-
-func (u *Usecase) UploadCoverWrongFormatError() error {
-	return ErrCoverWrongFormat
-}
 
 func (u *Usecase) UploadCover(ctx context.Context,
 	playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error {

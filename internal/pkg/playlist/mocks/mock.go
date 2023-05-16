@@ -226,20 +226,6 @@ func (mr *MockUsecaseMockRecorder) UploadCover(ctx, playlistID, userID, file, fi
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCover", reflect.TypeOf((*MockUsecase)(nil).UploadCover), ctx, playlistID, userID, file, fileExtension)
 }
 
-// UploadCoverWrongFormatError mocks base method.
-func (m *MockUsecase) UploadCoverWrongFormatError() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadCoverWrongFormatError")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UploadCoverWrongFormatError indicates an expected call of UploadCoverWrongFormatError.
-func (mr *MockUsecaseMockRecorder) UploadCoverWrongFormatError() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCoverWrongFormatError", reflect.TypeOf((*MockUsecase)(nil).UploadCoverWrongFormatError))
-}
-
 // MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
