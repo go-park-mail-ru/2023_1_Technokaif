@@ -4,11 +4,14 @@ on:
       - main
       - F3-2_CI
 
+env:
+  tag: ${GITHUB_REF##*/}_${GITHUB_SHA::8}
+
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
           go-version: '1.20'
@@ -29,14 +32,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: check
     steps:
-    - uses: actions/checkout@v2 
+    - uses: actions/checkout@v3 
     - uses: actions/setup-go@v3
       with:
         go-version: '1.20'
 
     - run: make check_html_coverage
     - name: Upload coverage
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         path: ./cover.html
 
@@ -45,13 +48,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
         run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
       - name: Build Docker image
-        run: TAG=$(git branch --show-current)_$(git rev-parse --short HEAD) ./scripts/deploy/build_all.sh
+        run: TAG=${{ env.tag }} ./scripts/deploy/build_all.sh
       - name: Push the image
-        run: TAG=$(git branch --show-current)_$(git rev-parse --short HEAD) ./scripts/deploy/push.sh
+        run: TAG=${{ env.tag }} ./scripts/deploy/push.sh
 
 
   deploy:
@@ -65,7 +68,9 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: TAG=$(git branch --show-current)_$(git rev-parse --short HEAD) sudo docker-compose pull
+          script: |
+            cd /home/ubuntu/backend/2023_1_Technokaif
+            TAG=${{ env.tag }} sudo docker-compose pull
 
       - name: deploy docker images
         uses: appleboy/ssh-action@master
@@ -75,6 +80,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
+            cd /home/ubuntu/backend/2023_1_Technokaif
             sudo docker-compose down
             sudo docker-compose up -d
             sudo docker-compose up
