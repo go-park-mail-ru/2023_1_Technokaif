@@ -64,7 +64,7 @@ func main() {
 		logger.Errorf("Error while connecting to S3: %v", err)
 		return
 	}
-	userS3 := userS3.NewS3AvatarSaver(os.Getenv(config.S3BucketParam), os.Getenv(config.S3AvatarFolderParam), s3Client) 
+	userS3 := userS3.NewS3AvatarSaver(os.Getenv(config.S3BucketParam), os.Getenv(config.S3AvatarFolderParam), s3Client)
 
 	userUsecase := userUsecase.NewUsecase(userRepo, userS3)
 
