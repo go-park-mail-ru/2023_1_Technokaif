@@ -65,9 +65,7 @@ jobs:
       - name: pull docker images
         uses: appleboy/ssh-action@master
         with:
-          envs: 
-            GITHUB_SHA
-            GITHUB_REF
+          envs: GITHUB_SHA,GITHUB_REF
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
@@ -78,9 +76,7 @@ jobs:
       - name: deploy docker images
         uses: appleboy/ssh-action@master
         with:
-          envs: 
-            GITHUB_SHA
-            GITHUB_REF
+          envs: GITHUB_SHA,GITHUB_REF
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
