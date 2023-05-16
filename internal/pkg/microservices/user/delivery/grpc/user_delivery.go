@@ -76,6 +76,7 @@ func (u *userGRPC) UpdateInfo(ctx context.Context, msg *proto.UpdateInfoMsg) (*p
 type uploadAvatarUsecaseInput struct {
 	userID        uint32
 	file          io.ReadSeeker
+	fileSize      int64
 	fileExtension string
 }
 
@@ -109,9 +110,11 @@ func (u *userGRPC) UploadAvatar(instream proto.User_UploadAvatarServer) error {
 	}
 
 	usecaseInput.file = bytes.NewReader(buffer.Bytes())
+	usecaseInput.fileSize = int64(buffer.Len())
 	if err := u.userServices.UploadAvatar(instream.Context(),
 		usecaseInput.userID,
 		usecaseInput.file,
+		usecaseInput.fileSize,
 		usecaseInput.fileExtension); err != nil {
 		var errNoSuchUser *models.NoSuchUserError
 		if errors.As(err, &errNoSuchUser) {

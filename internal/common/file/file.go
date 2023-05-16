@@ -15,18 +15,10 @@ func CreateFile(file io.ReadSeeker, extension string, dirPath string) (filename 
 		return "", "", fmt.Errorf("can't do file seek: %w", err)
 	}
 
-	// Create standard filename
-	hasher := sha256.New()
-	if _, err := io.Copy(hasher, file); err != nil {
-		return "", "", fmt.Errorf("can't write sent avatar to hasher: %w", err)
+	filename, err = FileHash(file, extension)
+	if err != nil {
+		return "", "", fmt.Errorf("can't get fil hash: %w", err)
 	}
-	newFileName := hex.EncodeToString(hasher.Sum(nil))
-
-	if _, err = file.Seek(beginPosition, io.SeekStart); err != nil { // go back to beginPosition
-		return "", "", fmt.Errorf("can't do file seek: %w", err)
-	}
-
-	filename = newFileName + extension
 
 	path = filepath.Join(dirPath, filename)
 
@@ -50,4 +42,24 @@ func CreateFile(file io.ReadSeeker, extension string, dirPath string) (filename 
 	}
 
 	return filename, path, nil
+}
+
+func FileHash(file io.ReadSeeker, extension string) (string, error) {
+	beginPosition, err := file.Seek(0, io.SeekCurrent) // save begin position
+	if err != nil {
+		return "", fmt.Errorf("can't do file seek: %w", err)
+	}
+
+	// Create standard filename
+	hasher := sha256.New()
+	if _, err := io.Copy(hasher, file); err != nil {
+		return "", fmt.Errorf("can't write sent avatar to hasher: %w", err)
+	}
+	newFileName := hex.EncodeToString(hasher.Sum(nil))
+
+	if _, err = file.Seek(beginPosition, io.SeekStart); err != nil { // go back to beginPosition
+		return "", fmt.Errorf("can't do file seek: %w", err)
+	}
+
+	return newFileName + extension, nil
 }

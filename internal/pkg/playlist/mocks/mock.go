@@ -213,17 +213,17 @@ func (mr *MockUsecaseMockRecorder) UpdateInfoAndMembers(ctx, playlist, usersID, 
 }
 
 // UploadCover mocks base method.
-func (m *MockUsecase) UploadCover(ctx context.Context, playlistID, userID uint32, file io.ReadSeeker, fileExtension string) error {
+func (m *MockUsecase) UploadCover(ctx context.Context, playlistID, userID uint32, file io.ReadSeeker, fileSize int64, fileExtension string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadCover", ctx, playlistID, userID, file, fileExtension)
+	ret := m.ctrl.Call(m, "UploadCover", ctx, playlistID, userID, file, fileSize, fileExtension)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadCover indicates an expected call of UploadCover.
-func (mr *MockUsecaseMockRecorder) UploadCover(ctx, playlistID, userID, file, fileExtension interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) UploadCover(ctx, playlistID, userID, file, fileSize, fileExtension interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCover", reflect.TypeOf((*MockUsecase)(nil).UploadCover), ctx, playlistID, userID, file, fileExtension)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadCover", reflect.TypeOf((*MockUsecase)(nil).UploadCover), ctx, playlistID, userID, file, fileSize, fileExtension)
 }
 
 // MockRepository is a mock of Repository interface.

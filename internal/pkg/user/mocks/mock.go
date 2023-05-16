@@ -81,17 +81,17 @@ func (mr *MockUsecaseMockRecorder) UpdateInfo(ctx, user interface{}) *gomock.Cal
 }
 
 // UploadAvatar mocks base method.
-func (m *MockUsecase) UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, fileExtension string) error {
+func (m *MockUsecase) UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, size int64, fileExtension string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadAvatar", ctx, userID, file, fileExtension)
+	ret := m.ctrl.Call(m, "UploadAvatar", ctx, userID, file, size, fileExtension)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadAvatar indicates an expected call of UploadAvatar.
-func (mr *MockUsecaseMockRecorder) UploadAvatar(ctx, userID, file, fileExtension interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) UploadAvatar(ctx, userID, file, size, fileExtension interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockUsecase)(nil).UploadAvatar), ctx, userID, file, fileExtension)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockUsecase)(nil).UploadAvatar), ctx, userID, file, size, fileExtension)
 }
 
 // MockRepository is a mock of Repository interface.
