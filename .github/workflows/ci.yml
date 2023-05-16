@@ -81,7 +81,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/backend/2023_1_Technokaif
-            sudo docker-compose down
-            sudo docker-compose up -d
-            sudo docker-compose up
-            sudo docker system prune
+            sudo TAG=${{ env.tag }} docker-compose down
+            sudo TAG=${{ env.tag }} docker-compose up -d
+            sudo docker system prune -f
+            
