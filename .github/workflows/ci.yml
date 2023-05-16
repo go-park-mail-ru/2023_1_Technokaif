@@ -70,7 +70,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/backend/2023_1_Technokaif
-            TAG=${{ env.tag }} sudo docker-compose pull
+            sudo TAG=${{ env.tag }} docker-compose pull
 
       - name: deploy docker images
         uses: appleboy/ssh-action@master
