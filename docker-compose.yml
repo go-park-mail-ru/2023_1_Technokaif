@@ -33,6 +33,7 @@ services:
       - db
     volumes:
       - .env:/out/.env
+    restart: always
 
   user:
     container_name: user
@@ -43,7 +44,8 @@ services:
       - .env:/out/.env
       - type: bind
         source: ${MEDIA_PATH}
-        target: ${MEDIA_PATH}
+        target: ${MEDIA_PATH}  
+    restart: always
 
   prometheus:
     container_name: prometheus
