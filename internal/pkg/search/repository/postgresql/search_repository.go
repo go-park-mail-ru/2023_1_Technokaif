@@ -68,7 +68,7 @@ func (p *PostgreSQL) FullTextSearchTracks(
 	ctx context.Context, ftsQuery string, limit uint32) ([]models.Track, error) {
 
 	query := fmt.Sprintf(
-		`SELECT id, name, cover_src, record_src, duration, listens
+		`SELECT id, name, album_id, cover_src, record_src, duration, listens
 		FROM %s
 		WHERE to_tsvector(lang, name) @@ plainto_tsquery(lang, $1)
 			OR LOWER(name) LIKE LOWER('%%' || $1 || '%%')

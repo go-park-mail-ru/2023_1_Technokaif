@@ -40,7 +40,6 @@ type userInfoInput struct {
 	Email     string      `json:"email" valid:"required,email,maxstringlength(255)"`
 	FirstName string      `json:"firstName" valid:"required,runelength(2|20)"`
 	LastName  string      `json:"lastName" valid:"required,runelength(2|20)"`
-	Sex       models.Sex  `json:"sex" valid:"required,in(F|M|O)"`
 	BirthDate models.Date `json:"birthDate" valid:"required,born"`
 }
 
@@ -64,7 +63,6 @@ func (ui *userInfoInput) ToUser(user *models.User) *models.User {
 		Email:     ui.Email,
 		FirstName: ui.FirstName,
 		LastName:  ui.LastName,
-		Sex:       ui.Sex,
 		BirthDate: ui.BirthDate,
 		AvatarSrc: user.AvatarSrc,
 	}

@@ -93,7 +93,28 @@ func easyjson3b1bf41aDecodeGithubComGoParkMailRu20231TechnokaifInternalModels1(i
 		case "name":
 			out.Name = string(in.String())
 		case "users":
-			(out.Users).UnmarshalEasyJSON(in)
+			if in.IsNull() {
+				in.Skip()
+				out.Users = nil
+			} else {
+				in.Delim('[')
+				if out.Users == nil {
+					if !in.IsDelim(']') {
+						out.Users = make(UserTransfers, 0, 0)
+					} else {
+						out.Users = UserTransfers{}
+					}
+				} else {
+					out.Users = (out.Users)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v4 UserTransfer
+					easyjson3b1bf41aDecodeGithubComGoParkMailRu20231TechnokaifInternalModels2(in, &v4)
+					out.Users = append(out.Users, v4)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "description":
 			if in.IsNull() {
 				in.Skip()
@@ -135,7 +156,18 @@ func easyjson3b1bf41aEncodeGithubComGoParkMailRu20231TechnokaifInternalModels1(o
 	{
 		const prefix string = ",\"users\":"
 		out.RawString(prefix)
-		(in.Users).MarshalEasyJSON(out)
+		if in.Users == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
+			out.RawString("null")
+		} else {
+			out.RawByte('[')
+			for v5, v6 := range in.Users {
+				if v5 > 0 {
+					out.RawByte(',')
+				}
+				easyjson3b1bf41aEncodeGithubComGoParkMailRu20231TechnokaifInternalModels2(out, v6)
+			}
+			out.RawByte(']')
+		}
 	}
 	if in.Description != nil {
 		const prefix string = ",\"description\":"
@@ -163,4 +195,90 @@ func (v PlaylistTransfer) MarshalEasyJSON(w *jwriter.Writer) {
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *PlaylistTransfer) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson3b1bf41aDecodeGithubComGoParkMailRu20231TechnokaifInternalModels1(l, v)
+}
+func easyjson3b1bf41aDecodeGithubComGoParkMailRu20231TechnokaifInternalModels2(in *jlexer.Lexer, out *UserTransfer) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "id":
+			out.ID = uint32(in.Uint32())
+		case "username":
+			out.Username = string(in.String())
+		case "email":
+			out.Email = string(in.String())
+		case "firstName":
+			out.FirstName = string(in.String())
+		case "lastName":
+			out.LastName = string(in.String())
+		case "birthDate":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.BirthDate).UnmarshalJSON(data))
+			}
+		case "avatarSrc":
+			out.AvatarSrc = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson3b1bf41aEncodeGithubComGoParkMailRu20231TechnokaifInternalModels2(out *jwriter.Writer, in UserTransfer) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"id\":"
+		out.RawString(prefix[1:])
+		out.Uint32(uint32(in.ID))
+	}
+	{
+		const prefix string = ",\"username\":"
+		out.RawString(prefix)
+		out.String(string(in.Username))
+	}
+	{
+		const prefix string = ",\"email\":"
+		out.RawString(prefix)
+		out.String(string(in.Email))
+	}
+	{
+		const prefix string = ",\"firstName\":"
+		out.RawString(prefix)
+		out.String(string(in.FirstName))
+	}
+	{
+		const prefix string = ",\"lastName\":"
+		out.RawString(prefix)
+		out.String(string(in.LastName))
+	}
+	if true {
+		const prefix string = ",\"birthDate\":"
+		out.RawString(prefix)
+		out.Raw((in.BirthDate).MarshalJSON())
+	}
+	if in.AvatarSrc != "" {
+		const prefix string = ",\"avatarSrc\":"
+		out.RawString(prefix)
+		out.String(string(in.AvatarSrc))
+	}
+	out.RawByte('}')
 }

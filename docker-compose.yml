@@ -6,6 +6,8 @@ services:
     image: technokaif/fluire_api:$TAG
     depends_on:
       - auth
+      - user
+      - search
     ports:
       - "4444:4444"
     env_file:

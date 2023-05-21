@@ -38,7 +38,6 @@ type signUpInput struct {
 	Password  string      `json:"password" valid:"required,runelength(8|30),passwordcheck"`
 	FirstName string      `json:"firstName" valid:"required,runelength(2|20)"`
 	LastName  string      `json:"lastName" valid:"required,runelength(2|20)"`
-	Sex       models.Sex  `json:"sex" valid:"required,in(F|M|O)"`
 	BirthDate models.Date `json:"birthDate" valid:"required,born"`
 	AvatarSrc string      `json:"avatarSrc" valid:"-"`
 }
@@ -50,7 +49,6 @@ func (sui *signUpInput) ToUser() models.User {
 		Password:  sui.Password,
 		FirstName: sui.FirstName,
 		LastName:  sui.LastName,
-		Sex:       sui.Sex,
 		BirthDate: sui.BirthDate,
 		AvatarSrc: sui.AvatarSrc,
 	}

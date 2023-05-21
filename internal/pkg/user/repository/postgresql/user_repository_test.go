@@ -36,7 +36,6 @@ func getCorrectUser(t *testing.T) *models.User {
 		Email:     "yarik1448kuzmin@gmail.com",
 		FirstName: "Yaroslav",
 		LastName:  "Kuzmin",
-		Sex:       models.Male,
 		BirthDate: birthDate,
 		AvatarSrc: "/users/avatars/yarik_tri.png",
 	}
@@ -162,9 +161,9 @@ func TestUserRepositoryPostgreSQL_GetByID(t *testing.T) {
 
 				row := sqlxMock.NewRows(
 					[]string{"id", "version", "username", "email", "password_hash", "salt",
-						"first_name", "last_name", "sex", "birth_date", "avatar_src"}).
+						"first_name", "last_name", "birth_date", "avatar_src"}).
 					AddRow(u.ID, u.Version, u.Username, u.Email, u.Password, u.Salt,
-						u.FirstName, u.LastName, u.Sex, u.BirthDate.Time, u.AvatarSrc)
+						u.FirstName, u.LastName, u.BirthDate.Time, u.AvatarSrc)
 				sqlxMock.ExpectQuery("SELECT (.+) FROM " + userTable).
 					WithArgs(userID).
 					WillReturnRows(row)
@@ -253,9 +252,9 @@ func TestUserRepositoryPostgreSQL_GetByUsername(t *testing.T) {
 
 				rows := sqlxMock.NewRows(
 					[]string{"id", "version", "username", "email", "password_hash", "salt",
-						"first_name", "last_name", "sex", "birth_date", "avatar_src"}).
+						"first_name", "last_name", "birth_date", "avatar_src"}).
 					AddRow(u.ID, u.Version, u.Username, u.Email, u.Password, u.Salt,
-						u.FirstName, u.LastName, u.Sex, u.BirthDate.Time, u.AvatarSrc)
+						u.FirstName, u.LastName, u.BirthDate.Time, u.AvatarSrc)
 				sqlxMock.ExpectQuery("SELECT (.+) FROM " + userTable).
 					WithArgs(username).
 					WillReturnRows(rows)
@@ -332,10 +331,10 @@ func TestUserRepositoryPostgreSQL_GetByPlaylist(t *testing.T) {
 
 				rows := sqlxMock.NewRows(
 					[]string{"id", "username", "email", "first_name",
-						"last_name", "sex", "birth_date", "avatar_src"})
+						"last_name", "birth_date", "avatar_src"})
 				for ind := range u {
 					rows.AddRow(u[ind].ID, u[ind].Username, u[ind].Email, u[ind].FirstName,
-						u[ind].LastName, u[ind].Sex, u[ind].BirthDate.Time, u[ind].AvatarSrc)
+						u[ind].LastName, u[ind].BirthDate.Time, u[ind].AvatarSrc)
 				}
 				sqlxMock.ExpectQuery("SELECT (.+) FROM " + userTable).
 					WithArgs(playlistID).

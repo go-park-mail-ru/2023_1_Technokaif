@@ -58,7 +58,6 @@ func (u *userGRPC) UpdateInfo(ctx context.Context, msg *proto.UpdateInfoMsg) (*p
 		FirstName: msg.FirstName,
 		LastName:  msg.LastName,
 		BirthDate: models.Date{Time: msg.BirthDate.AsTime()},
-		Sex:       models.Male,
 	}
 
 	if err := u.userServices.UpdateInfo(ctx, userInfo); err != nil {
