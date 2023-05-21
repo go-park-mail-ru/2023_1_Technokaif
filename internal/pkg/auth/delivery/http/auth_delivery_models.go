@@ -1,7 +1,9 @@
 package http
 
 import (
+	"fmt"
 	"html"
+	"strings"
 
 	valid "github.com/asaskevich/govalidator"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -118,6 +120,22 @@ type isAuthenticatedResponse struct {
 	Authenticated bool `json:"auth"`
 }
 
+type signUpValidateErrors struct {
+	Err    error
+	Fields []string
+}
+
+func (e *signUpValidateErrors) HttpErrorResponce() string {
+	if len(e.Fields) == 1 {
+		return fmt.Sprintf("incorrect field: %s", e.Fields[0])
+	}
+	return fmt.Sprintf("incorrect fields: %s", strings.Join(e.Fields, ", "))
+}
+
+func (e *signUpValidateErrors) Error() string {
+	return e.Err.Error()
+}
+
 func signUpInputAuthDeliveryValidate(user *signUpInput) error {
 	user.Username = html.EscapeString(user.Username)
 	user.Email = html.EscapeString(user.Email)
@@ -126,5 +144,21 @@ func signUpInputAuthDeliveryValidate(user *signUpInput) error {
 	user.LastName = html.EscapeString(user.LastName)
 
 	_, err := valid.ValidateStruct(*user)
+	if errsValidate, ok := err.(valid.Errors); ok {
+		var fields []string
+		for _, err := range errsValidate {
+			if errValidate, ok := err.(valid.Error); ok {
+				fields = append(fields, errValidate.Name)
+			}
+		}
+
+		if len(fields) > 0 {
+			return &signUpValidateErrors{
+				Fields: fields,
+				Err:    err,
+			}
+		}
+	}
+
 	return err
 }

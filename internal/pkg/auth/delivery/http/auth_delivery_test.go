@@ -101,7 +101,7 @@ func TestDeliverySignUp(t *testing.T) {
 			userFromBody:     models.User{},
 			mockBehavior:     func(a *authMocks.MockUsecase, u models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse("incorrect field: username"),
 		},
 		{
 			name:         "Creating existing user Error",

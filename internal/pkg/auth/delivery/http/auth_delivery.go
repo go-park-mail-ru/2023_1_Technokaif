@@ -46,8 +46,15 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := signUpInputAuthDeliveryValidate(&sui); err != nil {
+		var errValidate *signUpValidateErrors
+		if errors.As(err, &errValidate) {
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				errValidate.HttpErrorResponce(), http.StatusBadRequest, h.logger, err)
+			return
+		}
+
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
-			err.Error(), http.StatusBadRequest, h.logger, err)
+			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
 	}
 
