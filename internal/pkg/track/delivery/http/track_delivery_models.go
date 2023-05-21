@@ -24,8 +24,10 @@ const (
 	trackGetServerError    = "can't get track"
 	tracksGetServerError   = "can't get tracks"
 	trackDeleteServerError = "can't delete track"
+	listenAddError         = "can't add listen of track"
 
 	trackDeletedSuccessfully = "ok"
+	listenAddedSuccessfully  = "ok"
 )
 
 //easyjson:json
@@ -74,5 +76,10 @@ type trackDeleteResponse struct {
 
 //easyjson:json
 type trackLikeResponse struct {
+	Status string `json:"status"`
+}
+
+//easyjson:json
+type trackIncrementListensResponse struct {
 	Status string `json:"status"`
 }

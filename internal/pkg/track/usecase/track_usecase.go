@@ -184,3 +184,32 @@ func (u *Usecase) IsLiked(ctx context.Context, trackID, userID uint32) (bool, er
 
 	return isLiked, nil
 }
+
+func (u *Usecase) IncrementListens(ctx context.Context, trackID, userID uint32) error {
+	if err := u.trackRepo.Check(ctx, trackID); err != nil {
+		return fmt.Errorf("(usecase) can't find track with id #%d: %w", trackID, err)
+	}
+
+	if err := u.trackRepo.IncrementListens(ctx, trackID, userID); err != nil {
+		return fmt.Errorf("(usecase) can't add listen into repository: %w", err)
+	}
+
+	return nil
+}
+
+func (u *Usecase) GetListens(ctx context.Context, trackID uint32) (uint32, error) {
+	listens, err := u.trackRepo.GetListens(ctx, trackID)
+	if err != nil {
+		return 0, fmt.Errorf("(usecase) can't get listens of track in repository: %w", err)
+	}
+
+	return listens, nil
+}
+
+func (u *Usecase) UpdateListens(ctx context.Context, trackID uint32) error {
+	if err := u.trackRepo.UpdateListens(ctx, trackID); err != nil {
+		return fmt.Errorf("(usecase) can't update listens of track in repository: %w", err)
+	}
+
+	return nil
+}

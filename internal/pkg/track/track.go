@@ -2,6 +2,7 @@ package track
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -21,6 +22,10 @@ type Usecase interface {
 	SetLike(ctx context.Context, trackID, userID uint32) (bool, error)
 	UnLike(ctx context.Context, trackID, userID uint32) (bool, error)
 	IsLiked(ctx context.Context, trackID, userID uint32) (bool, error)
+
+	IncrementListens(ctx context.Context, trackID, userID uint32) error
+	GetListens(ctx context.Context, trackID uint32) (uint32, error)
+	UpdateListens(ctx context.Context, trackID uint32) error
 }
 
 // Repository includes DBMS-relatable methods to work with tracks
@@ -38,6 +43,11 @@ type Repository interface {
 	InsertLike(ctx context.Context, trackID, userID uint32) (bool, error)
 	DeleteLike(ctx context.Context, trackID, userID uint32) (bool, error)
 	IsLiked(ctx context.Context, trackID, userID uint32) (bool, error)
+
+	IncrementListens(ctx context.Context, trackID, userID uint32) error
+	GetListens(ctx context.Context, trackID uint32) (uint32, error)
+	GetListensByInterval(ctx context.Context, start, end time.Time, trackID uint32) (uint32, error)
+	UpdateListens(ctx context.Context, trackID uint32) error
 }
 
 // Tables includes methods which return needed tables
@@ -47,4 +57,5 @@ type Tables interface {
 	ArtistsTracks() string
 	PlaylistsTracks() string
 	LikedTracks() string
+	Listens() string
 }

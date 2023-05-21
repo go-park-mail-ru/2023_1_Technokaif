@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -282,10 +283,76 @@ func (p *PostgreSQL) IsLiked(ctx context.Context, trackID, userID uint32) (bool,
 		p.tables.LikedTracks())
 
 	var isLiked bool
-	err := p.db.GetContext(ctx, &isLiked, query, trackID, userID)
-	if err != nil {
+	if err := p.db.GetContext(ctx, &isLiked, query, trackID, userID); err != nil {
 		return false, fmt.Errorf("(repo) failed to check if track is liked by user: %w", err)
 	}
 
 	return isLiked, nil
+}
+
+func (p *PostgreSQL) IncrementListens(ctx context.Context, trackID, userID uint32) error {
+	query := fmt.Sprintf(
+		`INSERT INTO %s (track_id, user_id)
+		VALUES ($1, $2);`,
+		p.tables.Listens())
+
+	if _, err := p.db.ExecContext(ctx, query, trackID, userID); err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) GetListens(ctx context.Context, trackID uint32) (uint32, error) {
+	query := fmt.Sprintf(
+		`SELECT COUNT(track_id)
+		FROM %s
+		WHERE track_id = $1;`,
+		p.tables.Listens())
+
+	var listens uint32
+	err := p.db.GetContext(ctx, &listens, query, trackID)
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to get listens of track: %w", err)
+	}
+
+	return listens, nil
+}
+
+func (p *PostgreSQL) GetListensByInterval(ctx context.Context,
+	start, end time.Time, trackID uint32) (uint32, error) {
+
+	query := fmt.Sprintf(
+		`SELECT COUNT(track_id)
+		FROM %s
+		WHERE track_id = $1
+			AND commited_at BETWEEN($2, $3);`,
+		p.tables.Listens())
+
+	var listens uint32
+	err := p.db.GetContext(ctx, &listens, query, trackID, start.Unix(), end.Unix())
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to get listens of track: %w", err)
+	}
+
+	return listens, nil
+}
+
+func (p *PostgreSQL) UpdateListens(ctx context.Context, trackID uint32) error {
+	listens, err := p.GetListens(ctx, trackID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to get amount of listens of track: %w", err)
+	}
+
+	query := fmt.Sprintf(
+		`UPDATE %s
+		SET listens = $1
+		WHERE id = $2;`,
+		p.tables.Listens())
+
+	if _, err := p.db.ExecContext(ctx, query, listens, trackID); err != nil {
+		return fmt.Errorf("(repo) failed to update amount of listens of track: %w", err)
+	}
+
+	return nil
 }

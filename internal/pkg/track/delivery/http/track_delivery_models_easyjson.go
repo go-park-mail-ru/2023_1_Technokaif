@@ -69,7 +69,7 @@ func (v trackLikeResponse) MarshalEasyJSON(w *jwriter.Writer) {
 func (v *trackLikeResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp(l, v)
 }
-func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp1(in *jlexer.Lexer, out *trackDeleteResponse) {
+func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp1(in *jlexer.Lexer, out *trackIncrementListensResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -100,7 +100,59 @@ func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackD
 		in.Consumed()
 	}
 }
-func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp1(out *jwriter.Writer, in trackDeleteResponse) {
+func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp1(out *jwriter.Writer, in trackIncrementListensResponse) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"status\":"
+		out.RawString(prefix[1:])
+		out.String(string(in.Status))
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v trackIncrementListensResponse) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp1(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *trackIncrementListensResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp1(l, v)
+}
+func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp2(in *jlexer.Lexer, out *trackDeleteResponse) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "status":
+			out.Status = string(in.String())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp2(out *jwriter.Writer, in trackDeleteResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -114,14 +166,14 @@ func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackD
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v trackDeleteResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp1(w, v)
+	easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp2(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *trackDeleteResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp1(l, v)
+	easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp2(l, v)
 }
-func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp2(in *jlexer.Lexer, out *trackCreateResponse) {
+func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp3(in *jlexer.Lexer, out *trackCreateResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -152,7 +204,7 @@ func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackD
 		in.Consumed()
 	}
 }
-func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp2(out *jwriter.Writer, in trackCreateResponse) {
+func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp3(out *jwriter.Writer, in trackCreateResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -166,14 +218,14 @@ func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackD
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v trackCreateResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp2(w, v)
+	easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp3(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *trackCreateResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp2(l, v)
+	easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp3(l, v)
 }
-func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp3(in *jlexer.Lexer, out *trackCreateInput) {
+func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp4(in *jlexer.Lexer, out *trackCreateInput) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -249,7 +301,7 @@ func easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackD
 		in.Consumed()
 	}
 }
-func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp3(out *jwriter.Writer, in trackCreateInput) {
+func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp4(out *jwriter.Writer, in trackCreateInput) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -302,10 +354,10 @@ func easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackD
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v trackCreateInput) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp3(w, v)
+	easyjson6036cd6fEncodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp4(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *trackCreateInput) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp3(l, v)
+	easyjson6036cd6fDecodeGithubComGoParkMailRu20231TechnokaifInternalPkgTrackDeliveryHttp4(l, v)
 }
