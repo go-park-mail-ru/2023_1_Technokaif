@@ -2,6 +2,7 @@ package album
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
@@ -36,6 +37,11 @@ type Repository interface {
 	InsertLike(ctx context.Context, albumID, userID uint32) (bool, error)
 	DeleteLike(ctx context.Context, albumID, userID uint32) (bool, error)
 	IsLiked(ctx context.Context, albumID, userID uint32) (bool, error)
+
+	GetListens(ctx context.Context, albumID uint32) (uint32, error)
+	GetCurrentListens(ctx context.Context, albumID uint32) (uint32, error)
+	GetListensByInterval(ctx context.Context, start, end time.Time, albumID uint32) (uint32, error)
+	GetCurrentListensByInterval(ctx context.Context, start, end time.Time, albumID uint32) (uint32, error)
 }
 
 // Tables includes methods which return needed tables
@@ -45,4 +51,5 @@ type Tables interface {
 	Tracks() string
 	ArtistsAlbums() string
 	LikedAlbums() string
+	Listens() string
 }

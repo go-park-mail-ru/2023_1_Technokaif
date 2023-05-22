@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -264,4 +265,57 @@ func (p *PostgreSQL) IsLiked(ctx context.Context, albumID, userID uint32) (bool,
 	}
 
 	return isLiked, nil
+}
+
+func (p *PostgreSQL) GetListens(ctx context.Context, albumID uint32) (uint32, error) {
+	query := fmt.Sprintf(
+		`SELECT SUM(listens)
+		FROM %s
+		WHERE album_id = $1;`,
+		p.tables.Tracks())
+
+	var listens uint32
+	err := p.db.GetContext(ctx, &listens, query, albumID)
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to get listens of album: %w", err)
+	}
+
+	return listens, nil
+}
+
+func (p *PostgreSQL) GetCurrentListens(ctx context.Context, albumID uint32) (uint32, error) {
+	query := fmt.Sprintf(
+		`SELECT COUNT(l.track_id)
+		FROM %s l
+			INNER JOIN %s t ON l.track_id = t.id
+		WHERE t.album_id = $1;`,
+		p.tables.Listens(), p.tables.Tracks())
+
+	var listens uint32
+	err := p.db.GetContext(ctx, &listens, query, albumID)
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to get listens of album: %w", err)
+	}
+
+	return listens, nil
+}
+
+func (p *PostgreSQL) GetCurrentListensByInterval(ctx context.Context,
+	start, end time.Time, albumID uint32) (uint32, error) {
+
+	query := fmt.Sprintf(
+		`SELECT COUNT(l.track_id)
+		FROM %s l
+			INNER JOIN %s t ON l.track_id = t.id
+		WHERE t.album_id = $1
+			AND l.commited_at BETWEEN($2, $3);`,
+		p.tables.Listens(), p.tables.Tracks())
+
+	var listens uint32
+	err := p.db.GetContext(ctx, &listens, query, albumID, start.Unix(), end.Unix())
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to get listens of album: %w", err)
+	}
+
+	return listens, nil
 }
