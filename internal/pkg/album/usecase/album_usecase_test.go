@@ -127,3 +127,115 @@ func TestAlbumUsecase_Create(t *testing.T) {
 		})
 	}
 }
+
+func TestAlbumUsecase_Delete(t *testing.T) {
+	type mockBehavior func(alr *albumMocks.MockRepository,
+		arr *artistMocks.MockRepository, albumID, userID uint32)
+
+	c := gomock.NewController(t)
+
+	alr := albumMocks.NewMockRepository(c)
+	arr := artistMocks.NewMockRepository(c)
+
+	u := NewUsecase(alr, arr)
+
+	var correctUserID uint32 = 1
+	var correctAlbumID uint32 = 1
+
+	correctArtists := []models.Artist{
+		{
+			ID:        1,
+			UserID:    &correctUserID,
+			Name:      "Oxxxymiron",
+			AvatarSrc: "/artists/avatars/1.png",
+		},
+	}
+
+	testTable := []struct {
+		name             string
+		albumID          uint32
+		userID           uint32
+		mockBehavior     mockBehavior
+		expectError      bool
+		expectedErrorMsg string
+	}{
+		{
+			name:    "Common",
+			albumID: correctAlbumID,
+			userID:  correctUserID,
+			mockBehavior: func(alr *albumMocks.MockRepository,
+				arr *artistMocks.MockRepository, albumID, userID uint32) {
+
+				alr.EXPECT().Check(ctx, albumID).Return(nil)
+				arr.EXPECT().GetByAlbum(ctx, albumID).Return(correctArtists, nil)
+				alr.EXPECT().DeleteByID(ctx, albumID).Return(nil)
+			},
+		},
+		{
+			name:    "No Such Album",
+			albumID: correctAlbumID,
+			userID:  correctUserID,
+			mockBehavior: func(alr *albumMocks.MockRepository,
+				arr *artistMocks.MockRepository, albumID, userID uint32) {
+
+				alr.EXPECT().Check(ctx, albumID).Return(errors.New(""))
+			},
+			expectError:      true,
+			expectedErrorMsg: "can't find album",
+		},
+		{
+			name:    "Artists Issue",
+			albumID: correctAlbumID,
+			userID:  correctUserID,
+			mockBehavior: func(alr *albumMocks.MockRepository,
+				arr *artistMocks.MockRepository, albumID, userID uint32) {
+
+				alr.EXPECT().Check(ctx, albumID).Return(nil)
+				arr.EXPECT().GetByAlbum(ctx, albumID).Return(nil, errors.New(""))
+			},
+			expectError:      true,
+			expectedErrorMsg: "can't get artists",
+		},
+		{
+			name:    "User Has No Rights",
+			albumID: correctAlbumID,
+			userID:  uint32(2),
+			mockBehavior: func(alr *albumMocks.MockRepository,
+				arr *artistMocks.MockRepository, albumID, userID uint32) {
+
+				alr.EXPECT().Check(ctx, albumID).Return(nil)
+				arr.EXPECT().GetByAlbum(ctx, albumID).Return(correctArtists, nil)
+			},
+			expectError:      true,
+			expectedErrorMsg: "album can't be deleted",
+		},
+		{
+			name:    "Delete Issue",
+			albumID: correctAlbumID,
+			userID:  correctUserID,
+			mockBehavior: func(alr *albumMocks.MockRepository,
+				arr *artistMocks.MockRepository, albumID, userID uint32) {
+
+				alr.EXPECT().Check(ctx, albumID).Return(nil)
+				arr.EXPECT().GetByAlbum(ctx, albumID).Return(correctArtists, nil)
+				alr.EXPECT().DeleteByID(ctx, albumID).Return(errors.New(""))
+			},
+			expectError:      true,
+			expectedErrorMsg: "can't delete album",
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.mockBehavior(alr, arr, tc.albumID, tc.userID)
+
+			err := u.Delete(ctx, tc.albumID, tc.userID)
+
+			if tc.expectError {
+				assert.ErrorContains(t, err, tc.expectedErrorMsg)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
