@@ -1,8 +1,8 @@
 package models
 
-import (
-	"context"
-)
+import "context"
+
+//go:generate easyjson -no_std_marshalers artist.go
 
 type Artist struct {
 	ID        uint32  `db:"id"`
@@ -11,6 +11,7 @@ type Artist struct {
 	AvatarSrc string  `db:"avatar_src"`
 }
 
+//easyjson:json
 type ArtistTransfer struct {
 	ID        uint32 `json:"id"`
 	Name      string `json:"name"`
@@ -18,11 +19,14 @@ type ArtistTransfer struct {
 	AvatarSrc string `json:"cover"`
 }
 
-type artistLikeChecker func(ctx context.Context, artistID, userID uint32) (bool, error)
+//easyjson:json
+type ArtistTransfers []ArtistTransfer
+
+type ArtistLikeChecker func(ctx context.Context, artistID, userID uint32) (bool, error)
 
 // ArtistTransferFromEntry converts Artist to ArtistTransfer
 func ArtistTransferFromEntry(ctx context.Context, a Artist, user *User,
-	likeChecker artistLikeChecker) (ArtistTransfer, error) {
+	likeChecker ArtistLikeChecker) (ArtistTransfer, error) {
 
 	var isLiked bool
 	var err error
@@ -44,7 +48,7 @@ func ArtistTransferFromEntry(ctx context.Context, a Artist, user *User,
 
 // ArtistTransferFromList converts []Artist to []ArtistTransfer
 func ArtistTransferFromList(ctx context.Context, artists []Artist, user *User,
-	likeChecker artistLikeChecker) ([]ArtistTransfer, error) {
+	likeChecker ArtistLikeChecker) (ArtistTransfers, error) {
 
 	artistTransfers := make([]ArtistTransfer, 0, len(artists))
 	for _, a := range artists {

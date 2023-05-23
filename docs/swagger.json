@@ -84,10 +84,7 @@
                     "200": {
                         "description": "Albums feed",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.AlbumTransfer"
-                            }
+                            "$ref": "#/definitions/models.AlbumTransfer"
                         }
                     },
                     "500": {
@@ -165,7 +162,10 @@
                     "200": {
                         "description": "Album got",
                         "schema": {
-                            "$ref": "#/definitions/models.AlbumTransfer"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AlbumTransfer"
+                            }
                         }
                     },
                     "400": {
@@ -796,7 +796,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/http.signUpInput"
                         }
                     }
                 ],
@@ -2249,6 +2249,35 @@
                 }
             }
         },
+        "http.signUpInput": {
+            "type": "object",
+            "properties": {
+                "avatarSrc": {
+                    "type": "string"
+                },
+                "birthDate": {
+                    "$ref": "#/definitions/models.Date"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "sex": {
+                    "$ref": "#/definitions/models.Sex"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "http.signUpResponse": {
             "type": "object",
             "properties": {
@@ -2456,35 +2485,6 @@
                     "type": "string"
                 },
                 "recordSrc": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "avatarSrc": {
-                    "type": "string"
-                },
-                "birthDate": {
-                    "$ref": "#/definitions/models.Date"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "sex": {
-                    "$ref": "#/definitions/models.Sex"
-                },
-                "username": {
                     "type": "string"
                 }
             }

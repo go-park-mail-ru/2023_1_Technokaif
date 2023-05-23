@@ -1,7 +1,6 @@
 package delivery
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	"github.com/mailru/easyjson"
 
 	commonHTTP "github.com/go-park-mail-ru/2023_1_Technokaif/internal/common/http"
 )
@@ -62,7 +62,7 @@ func (h *Handler) FindAlbums(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var sr searchRequest
-	if err := json.NewDecoder(r.Body).Decode(&sr); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, &sr); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
@@ -114,7 +114,7 @@ func (h *Handler) FindArtists(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var sr searchRequest
-	if err := json.NewDecoder(r.Body).Decode(&sr); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, &sr); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
@@ -165,7 +165,7 @@ func (h *Handler) FindTracks(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var sr searchRequest
-	if err := json.NewDecoder(r.Body).Decode(&sr); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, &sr); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
@@ -217,7 +217,7 @@ func (h *Handler) FindPlaylists(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var sr searchRequest
-	if err := json.NewDecoder(r.Body).Decode(&sr); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, &sr); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return

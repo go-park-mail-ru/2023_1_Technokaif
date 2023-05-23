@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	easyjson "github.com/mailru/easyjson"
 )
 
 type Handler struct {
@@ -43,7 +43,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var aci artistCreateInput
-	if err := json.NewDecoder(r.Body).Decode(&aci); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, &aci); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
@@ -73,9 +73,9 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags		Artist
 // @Description	Get artist with chosen ID
 // @Produce		json
-// @Success		200		{object}	models.ArtistTransfer "Artist got"
-// @Failure		400		{object}	http.Error			  "Incorrect body"
-// @Failure		500		{object}	http.Error			  "Server error"
+// @Success		200		{object}	models.ArtistTransfer 		"Artist got"
+// @Failure		400		{object}	http.Error					"Incorrect body"
+// @Failure		500		{object}	http.Error					"Server error"
 // @Router		/api/artists/{artistID}/ [get]
 func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	artistID, err := commonHTTP.GetArtistIDFromRequest(r)
@@ -171,7 +171,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Tags		Feed
 // @Description	Feed artists
 // @Produce		json
-// @Success		200		{object}	[]models.ArtistTransfer	"Artists feed"
+// @Success		200		{object}	models.ArtistTransfers	"Artists feed"
 // @Failure		500		{object}	http.Error				"Server error"
 // @Router		/api/artists/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
@@ -189,21 +189,21 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	artistsTransfer, err := models.ArtistTransferFromList(r.Context(), artists, user, h.artistServices.IsLiked)
+	at, err := models.ArtistTransferFromList(r.Context(), artists, user, h.artistServices.IsLiked)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
 		return
 	}
 
-	commonHTTP.SuccessResponse(w, r, artistsTransfer, h.logger)
+	commonHTTP.SuccessResponse(w, r, at, h.logger)
 }
 
 // @Summary      Favorite Artists
 // @Tags         Favorite
 // @Description  Get user's favorite artists
-// @Produce      application/json
-// @Success      200    {object}  	[]models.ArtistTransfer "Artists got"
+// @Produce      json
+// @Success      200    {object}  	models.ArtistTransfers 	"Artists got"
 // @Failure		 400	{object}	http.Error				"Incorrect input"
 // @Failure      401    {object}  	http.Error  			"Unauthorized user"
 // @Failure      403    {object}  	http.Error  			"Forbidden user"

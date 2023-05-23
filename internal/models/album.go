@@ -1,8 +1,8 @@
 package models
 
-import (
-	"context"
-)
+import "context"
+
+//go:generate easyjson -no_std_marshalers album.go
 
 type Album struct {
 	ID          uint32  `db:"id"`
@@ -11,21 +11,25 @@ type Album struct {
 	CoverSrc    string  `db:"cover_src"`
 }
 
+//easyjson:json
 type AlbumTransfer struct {
-	ID          uint32           `json:"id"`
-	Name        string           `json:"name"`
-	Artists     []ArtistTransfer `json:"artists"`
-	Description *string          `json:"description,omitempty"`
-	IsLiked     bool             `json:"isLiked"`
-	CoverSrc    string           `json:"cover"`
+	ID          uint32          `json:"id"`
+	Name        string          `json:"name"`
+	Artists     ArtistTransfers `json:"artists"`
+	Description *string         `json:"description,omitempty"`
+	IsLiked     bool            `json:"isLiked"`
+	CoverSrc    string          `json:"cover"`
 }
+
+//easyjson:json
+type AlbumTransfers []AlbumTransfer
 
 type artistsByAlbumGetter func(ctx context.Context, albumID uint32) ([]Artist, error)
 type albumLikeChecker func(ctx context.Context, albumID, userID uint32) (bool, error)
 
 // AlbumTransferFromEntry converts Album to AlbumTransfer
 func AlbumTransferFromEntry(ctx context.Context, a Album, user *User, likeChecker albumLikeChecker,
-	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) (AlbumTransfer, error) {
+	artistLikeChecker ArtistLikeChecker, artistsGetter artistsByAlbumGetter) (AlbumTransfer, error) {
 
 	artists, err := artistsGetter(ctx, a.ID)
 	if err != nil {
@@ -57,7 +61,7 @@ func AlbumTransferFromEntry(ctx context.Context, a Album, user *User, likeChecke
 
 // AlbumTransferFromList converts []Album to []AlbumTransfer
 func AlbumTransferFromList(ctx context.Context, albums []Album, user *User, likeChecker albumLikeChecker,
-	artistLikeChecker artistLikeChecker, artistsGetter artistsByAlbumGetter) ([]AlbumTransfer, error) {
+	artistLikeChecker ArtistLikeChecker, artistsGetter artistsByAlbumGetter) (AlbumTransfers, error) {
 
 	albumTransfers := make([]AlbumTransfer, 0, len(albums))
 	for _, a := range albums {

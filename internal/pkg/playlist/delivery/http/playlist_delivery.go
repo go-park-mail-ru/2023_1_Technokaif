@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"path/filepath"
@@ -12,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
+	easyjson "github.com/mailru/easyjson"
 )
 
 type Handler struct {
@@ -52,7 +52,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var pci playlistCreateInput
-	if err := json.NewDecoder(r.Body).Decode(&pci); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, &pci); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
@@ -238,7 +238,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var pui playlistUpdateInput
-	if err := json.NewDecoder(r.Body).Decode(&pui); err != nil {
+	if err := easyjson.UnmarshalFromReader(r.Body, &pui); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
 		return
@@ -333,7 +333,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Tags		User
 // @Description	All playlists of user with chosen ID
 // @Produce		json
-// @Success		200		{object}	[]models.PlaylistTransfer	"Show playlists"
+// @Success		200		{object}	models.PlaylistTransfers	"Show playlists"
 // @Failure		400		{object}	http.Error					"Client error"
 // @Failure		500		{object}	http.Error					"Server error"
 // @Router		/api/users/{userID}/playlists [get]
@@ -509,7 +509,7 @@ func (h *Handler) DeleteTrack(w http.ResponseWriter, r *http.Request) {
 // @Tags		Feed
 // @Description	Feed playlists
 // @Produce		json
-// @Success		200		{object}	[]models.PlaylistTransfer	 "Playlist feed"
+// @Success		200		{object}	models.PlaylistTransfers	 "Playlist feed"
 // @Failure		500		{object}	http.Error "Server error"
 // @Router		/api/playlists/feed [get]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
@@ -541,8 +541,8 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 // @Summary      Favorite Playlists
 // @Tags         Favorite
 // @Description  Get user's favorite playlists
-// @Produce      application/json
-// @Success      200    {object}  	[]models.PlaylistTransfer 	"Playlists got"
+// @Produce      json
+// @Success      200    {object}  	models.PlaylistTransfers 	"Playlists got"
 // @Failure		 400	{object}	http.Error					"Incorrect input"
 // @Failure      401    {object}  	http.Error  				"Unauthorized user"
 // @Failure      403    {object}  	http.Error  				"Forbidden user"

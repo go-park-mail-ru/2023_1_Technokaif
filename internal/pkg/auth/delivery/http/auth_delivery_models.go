@@ -7,6 +7,8 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 )
 
+//go:generate easyjson -no_std_marshalers auth_delivery_models.go
+
 // Response messages
 const (
 	userNotFound = "no such user"
@@ -28,11 +30,40 @@ const (
 )
 
 // Signup
+//
+//easyjson:json
+type signUpInput struct {
+	Username  string      `json:"username" valid:"required,runelength(4|20)"`
+	Email     string      `json:"email" valid:"required,email,maxstringlength(255)"`
+	Password  string      `json:"password" valid:"required,runelength(8|30),passwordcheck"`
+	FirstName string      `json:"firstName" valid:"required,runelength(2|20)"`
+	LastName  string      `json:"lastName" valid:"required,runelength(2|20)"`
+	Sex       models.Sex  `json:"sex" valid:"required,in(F|M|O)"`
+	BirthDate models.Date `json:"birthDate" valid:"required,born"`
+	AvatarSrc string      `json:"avatarSrc" valid:"-"`
+}
+
+func (sui *signUpInput) ToUser() models.User {
+	return models.User{
+		Username:  sui.Username,
+		Email:     sui.Email,
+		Password:  sui.Password,
+		FirstName: sui.FirstName,
+		LastName:  sui.LastName,
+		Sex:       sui.Sex,
+		BirthDate: sui.BirthDate,
+		AvatarSrc: sui.AvatarSrc,
+	}
+}
+
+//easyjson:json
 type signUpResponse struct {
 	ID uint32 `json:"id"`
 }
 
 // Login
+//
+//easyjson:json
 type loginInput struct {
 	Username string `json:"username" valid:"required"`
 	Password string `json:"password" valid:"required"`
@@ -51,16 +82,21 @@ func (li *loginInput) escapeHtml() {
 	li.Password = html.EscapeString(li.Password)
 }
 
+//easyjson:json
 type loginResponse struct {
 	UserID uint32 `json:"id"`
 }
 
 // Logout
+//
+//easyjson:json
 type logoutResponse struct {
 	Status string `json:"status"`
 }
 
 // ChangePassword
+//
+//easyjson:json
 type changePassInput struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword" valid:"required,runelength(8|30),passwordcheck"`
@@ -74,15 +110,17 @@ func (c *changePassInput) validate() error {
 	return err
 }
 
+//easyjson:json
 type changePassResponse struct {
 	Status string `json:"status"`
 }
 
+//easyjson:json
 type isAuthenticatedResponse struct {
 	Authenticated bool `json:"auth"`
 }
 
-func userAuthDeliveryValidate(user *models.User) error {
+func signUpInputAuthDeliveryValidate(user *signUpInput) error {
 	user.Username = html.EscapeString(user.Username)
 	user.Email = html.EscapeString(user.Email)
 	user.Password = html.EscapeString(user.Password)
