@@ -1,3 +1,5 @@
+name: linters_and_tests
+
 on: push
 
 jobs:
