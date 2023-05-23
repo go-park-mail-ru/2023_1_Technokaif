@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"io"
 	"testing"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
@@ -16,13 +15,6 @@ import (
 
 var ctx = context.Background()
 
-type coverSaverMock struct{}
-
-func (cs coverSaverMock) Save(ctx context.Context,
-	cover io.Reader, objectName string, size int64) error {
-	return nil
-}
-
 func TestPlaylistUsecase_Create(t *testing.T) {
 	type mockBehavior func(pr *playlistMocks.MockRepository, ur *userMocks.MockRepository,
 		playlist models.Playlist, usersID []uint32, userID uint32)
@@ -32,7 +24,7 @@ func TestPlaylistUsecase_Create(t *testing.T) {
 	pr := playlistMocks.NewMockRepository(c)
 	tr := trackMocks.NewMockRepository(c)
 	ur := userMocks.NewMockRepository(c)
-	cs := coverSaverMock{}
+	cs := playlistMocks.NewMockCoverSaver(c)
 
 	u := NewUsecase(pr, tr, ur, cs)
 
@@ -135,7 +127,7 @@ func TestPlaylistUsecase_Delete(t *testing.T) {
 	pr := playlistMocks.NewMockRepository(c)
 	tr := trackMocks.NewMockRepository(c)
 	ur := userMocks.NewMockRepository(c)
-	cs := coverSaverMock{}
+	cs := playlistMocks.NewMockCoverSaver(c)
 
 	u := NewUsecase(pr, tr, ur, cs)
 
@@ -240,7 +232,7 @@ func TestPlaylistUsecase_AddTrack(t *testing.T) {
 	pr := playlistMocks.NewMockRepository(c)
 	tr := trackMocks.NewMockRepository(c)
 	ur := userMocks.NewMockRepository(c)
-	cs := coverSaverMock{}
+	cs := playlistMocks.NewMockCoverSaver(c)
 
 	u := NewUsecase(pr, tr, ur, cs)
 
@@ -362,7 +354,7 @@ func TestPlaylistUsecase_DeleteTrack(t *testing.T) {
 	pr := playlistMocks.NewMockRepository(c)
 	tr := trackMocks.NewMockRepository(c)
 	ur := userMocks.NewMockRepository(c)
-	cs := coverSaverMock{}
+	cs := playlistMocks.NewMockCoverSaver(c)
 
 	u := NewUsecase(pr, tr, ur, cs)
 
@@ -484,7 +476,7 @@ func TestPlaylistUsecase_UpdateInfoAndMembers(t *testing.T) {
 	pr := playlistMocks.NewMockRepository(c)
 	tr := trackMocks.NewMockRepository(c)
 	ur := userMocks.NewMockRepository(c)
-	cs := coverSaverMock{}
+	cs := playlistMocks.NewMockCoverSaver(c)
 
 	u := NewUsecase(pr, tr, ur, cs)
 

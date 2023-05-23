@@ -140,7 +140,7 @@ func TestAlbumUsecase_Delete(t *testing.T) {
 	u := NewUsecase(alr, arr)
 
 	var correctUserID uint32 = 1
-	var correctAlbumID uint32 = 1
+	const correctAlbumID uint32 = 1
 
 	correctArtists := []models.Artist{
 		{
