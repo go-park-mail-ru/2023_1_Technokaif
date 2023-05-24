@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -21,13 +20,19 @@ type Usecase struct {
 	playlistRepo playlist.Repository
 	trackRepo    track.Repository
 	userRepo     user.Repository
+	coverSaver   CoverSaver
 }
 
-func NewUsecase(pr playlist.Repository, tr track.Repository, ur user.Repository) *Usecase {
+type CoverSaver interface {
+	Save(ctx context.Context, cover io.Reader, objectName string, size int64) error
+}
+
+func NewUsecase(pr playlist.Repository, tr track.Repository, ur user.Repository, saver CoverSaver) *Usecase {
 	return &Usecase{
 		playlistRepo: pr,
 		trackRepo:    tr,
 		userRepo:     ur,
+		coverSaver:   saver,
 	}
 }
 
@@ -106,15 +111,8 @@ func (u *Usecase) UpdateInfoAndMembers(ctx context.Context,
 	return nil
 }
 
-var dirForPlaylistCovers = filepath.Join(commonFile.MediaPath(), commonFile.PlaylistCoverFolder())
-var ErrCoverWrongFormat = errors.New("wrong cover file fromat")
-
-func (u *Usecase) UploadCoverWrongFormatError() error {
-	return ErrCoverWrongFormat
-}
-
 func (u *Usecase) UploadCover(ctx context.Context,
-	playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error {
+	playlistID uint32, userID uint32, file io.ReadSeeker, fileSize int64, fileExtension string) error {
 
 	playlist, err := u.playlistRepo.GetByID(ctx, playlistID)
 	if err != nil {
@@ -134,9 +132,13 @@ func (u *Usecase) UploadCover(ctx context.Context,
 		return fmt.Errorf("(usecase) file format %s: %w", fileType, &models.CoverWrongFormatError{FileType: fileType})
 	}
 
-	filenameWithExtension, _, err := commonFile.CreateFile(file, fileExtension, dirForPlaylistCovers)
+	filenameWithExtension, err := commonFile.FileHash(file, fileExtension)
 	if err != nil {
-		return fmt.Errorf("(usecase) can't create file: %w", err)
+		return fmt.Errorf("(usecase) can't get file hash: %w", err)
+	}
+
+	if err := u.coverSaver.Save(ctx, file, filenameWithExtension, fileSize); err != nil {
+		return fmt.Errorf("(usecase) can't save cover: %w", err)
 	}
 
 	playlist.CoverSrc = filepath.Join(commonFile.PlaylistCoverFolder(), filenameWithExtension)

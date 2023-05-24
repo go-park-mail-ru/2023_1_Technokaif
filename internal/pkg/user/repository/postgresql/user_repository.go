@@ -61,7 +61,6 @@ func (p *PostgreSQL) GetByID(ctx context.Context, userID uint32) (*models.User, 
 				salt, 
 				first_name, 
 				last_name, 
-				sex, 
 				birth_date, 
 				avatar_src
 		FROM %s 
@@ -71,7 +70,7 @@ func (p *PostgreSQL) GetByID(ctx context.Context, userID uint32) (*models.User, 
 	row := p.db.QueryRowContext(ctx, query, userID)
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
-		&u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time, &u.AvatarSrc)
+		&u.FirstName, &u.LastName, &u.BirthDate.Time, &u.AvatarSrc)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -87,12 +86,12 @@ func (p *PostgreSQL) GetByID(ctx context.Context, userID uint32) (*models.User, 
 func (p *PostgreSQL) CreateUser(ctx context.Context, u models.User) (uint32, error) {
 	query := fmt.Sprintf(
 		`INSERT INTO %s 
-			(username, email, password_hash, salt, first_name, last_name, sex, birth_date, avatar_src) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;`,
+			(username, email, password_hash, salt, first_name, last_name, birth_date, avatar_src) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`,
 		p.tables.Users())
 
 	row := p.db.QueryRowContext(ctx, query, u.Username, u.Email, u.Password, u.Salt,
-		u.FirstName, u.LastName, u.Sex, u.BirthDate.Format(time.RFC3339), u.AvatarSrc)
+		u.FirstName, u.LastName, u.BirthDate.Format(time.RFC3339), u.AvatarSrc)
 
 	var id uint32
 
@@ -113,14 +112,14 @@ func (p *PostgreSQL) CreateUser(ctx context.Context, u models.User) (uint32, err
 func (p *PostgreSQL) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, version, username, email, password_hash, salt, 
-			first_name, last_name, sex, birth_date, avatar_src
+			first_name, last_name, birth_date, avatar_src
 		FROM %s WHERE (username=$1 OR email=$1);`,
 		p.tables.Users())
 	row := p.db.QueryRowContext(ctx, query, username)
 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
-		&u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time, &u.AvatarSrc)
+		&u.FirstName, &u.LastName, &u.BirthDate.Time, &u.AvatarSrc)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -139,12 +138,11 @@ func (p *PostgreSQL) UpdateInfo(ctx context.Context, u *models.User) error {
 		SET email = $2,
 			first_name = $3,
 			last_name = $4,
-			sex = $5,
-			birth_date = $6
+			birth_date = $5
 		WHERE id = $1;`,
 		p.tables.Users())
 	if _, err := p.db.ExecContext(ctx, query, u.ID, u.Email, u.FirstName, u.LastName,
-		u.Sex, u.BirthDate.Format(time.RFC3339)); err != nil {
+		u.BirthDate.Format(time.RFC3339)); err != nil {
 
 		return fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
@@ -173,7 +171,6 @@ func (p *PostgreSQL) GetByPlaylist(ctx context.Context, playlistID uint32) ([]mo
 				email,
 				first_name,
 				last_name,
-				sex,
 				birth_date,
 				avatar_src
 		FROM %s u
@@ -191,7 +188,7 @@ func (p *PostgreSQL) GetByPlaylist(ctx context.Context, playlistID uint32) ([]mo
 	for rows.Next() {
 		var u models.User
 		err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.FirstName,
-			&u.LastName, &u.Sex, &u.BirthDate.Time, &u.AvatarSrc)
+			&u.LastName, &u.BirthDate.Time, &u.AvatarSrc)
 
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {

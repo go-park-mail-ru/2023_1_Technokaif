@@ -1,8 +1,6 @@
 FROM golang:1.20-alpine AS build_stage
 ARG APP
 
-LABEL maintainer="yarik1448kuzmin@gmail.com"
-
 WORKDIR /app
 COPY . .
 RUN go build -o ./out/app_bin cmd/${APP}
@@ -13,6 +11,13 @@ ARG PORT
 
 WORKDIR /out
 COPY --from=build_stage /app/out/app_bin /out/
+
+RUN addgroup -g 1001 fluire && \
+    adduser -S -u 1001 -G fluire fluire
+RUN chown -R fluire:fluire ./app_bin
+
+USER fluire
+
 RUN chmod +x ./app_bin
 EXPOSE ${PORT}/tcp
 

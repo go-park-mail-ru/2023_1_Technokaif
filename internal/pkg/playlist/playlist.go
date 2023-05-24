@@ -13,8 +13,7 @@ type Usecase interface {
 	Create(ctx context.Context, playlist models.Playlist, usersID []uint32, userID uint32) (uint32, error)
 	GetByID(ctx context.Context, playlistID uint32) (*models.Playlist, error)
 	UpdateInfoAndMembers(ctx context.Context, playlist models.Playlist, usersID []uint32, userID uint32) error
-	UploadCover(ctx context.Context, playlistID uint32, userID uint32, file io.ReadSeeker, fileExtension string) error
-	UploadCoverWrongFormatError() error
+	UploadCover(ctx context.Context, playlistID uint32, userID uint32, file io.ReadSeeker, fileSize int64, fileExtension string) error
 	Delete(ctx context.Context, playlistID uint32, userID uint32) error
 
 	AddTrack(ctx context.Context, trackID, playlistID, userID uint32) error

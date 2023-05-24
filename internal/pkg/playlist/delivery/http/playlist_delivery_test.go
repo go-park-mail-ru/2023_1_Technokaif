@@ -35,7 +35,6 @@ func getCorrectUser(t *testing.T) *models.User {
 		Email:     "yarik1448kuzmin@gmail.com",
 		FirstName: "Yaroslav",
 		LastName:  "Kuzmin",
-		Sex:       models.Male,
 		BirthDate: birthDate,
 		AvatarSrc: "/users/avatars/yarik_tri.png",
 	}
@@ -203,7 +202,6 @@ func TestPlaylistDeliveryHTTP_Get(t *testing.T) {
 				"username": "yarik_tri",
 				"firstName": "Yaroslav",
 				"lastName": "Kuzmin",
-				"sex": "M",
 				"birthDate": "2003-08-23T00:00:00Z",
 				"avatarSrc": "/users/avatars/yarik_tri.png"
 			}
@@ -853,7 +851,6 @@ func TestPlaylistDeliveryHTTP_Feed(t *testing.T) {
 					"username": "yarik_tri",
 					"firstName": "Yaroslav",
 					"lastName": "Kuzmin",
-					"sex": "M",
 					"birthDate": "2003-08-23T00:00:00Z",
 					"avatarSrc": "/users/avatars/yarik_tri.png"
 				}
@@ -872,7 +869,6 @@ func TestPlaylistDeliveryHTTP_Feed(t *testing.T) {
 					"username": "yarik_tri",
 					"firstName": "Yaroslav",
 					"lastName": "Kuzmin",
-					"sex": "M",
 					"birthDate": "2003-08-23T00:00:00Z",
 					"avatarSrc": "/users/avatars/yarik_tri.png"
 				}
@@ -991,7 +987,6 @@ func TestPlaylistDeliveryHTTP_GetByUser(t *testing.T) {
 					"username": "yarik_tri",
 					"firstName": "Yaroslav",
 					"lastName": "Kuzmin",
-					"sex": "M",
 					"birthDate": "2003-08-23T00:00:00Z",
 					"avatarSrc": "/users/avatars/yarik_tri.png"
 				}
@@ -1010,7 +1005,6 @@ func TestPlaylistDeliveryHTTP_GetByUser(t *testing.T) {
 					"username": "yarik_tri",
 					"firstName": "Yaroslav",
 					"lastName": "Kuzmin",
-					"sex": "M",
 					"birthDate": "2003-08-23T00:00:00Z",
 					"avatarSrc": "/users/avatars/yarik_tri.png"
 				}
@@ -1126,7 +1120,6 @@ func TestPlaylistDeliveryHTTP_GetFavorite(t *testing.T) {
 					"username": "yarik_tri",
 					"firstName": "Yaroslav",
 					"lastName": "Kuzmin",
-					"sex": "M",
 					"birthDate": "2003-08-23T00:00:00Z",
 					"avatarSrc": "/users/avatars/yarik_tri.png"
 				}
@@ -1145,7 +1138,6 @@ func TestPlaylistDeliveryHTTP_GetFavorite(t *testing.T) {
 					"username": "yarik_tri",
 					"firstName": "Yaroslav",
 					"lastName": "Kuzmin",
-					"sex": "M",
 					"birthDate": "2003-08-23T00:00:00Z",
 					"avatarSrc": "/users/avatars/yarik_tri.png"
 				}

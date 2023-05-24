@@ -13,12 +13,15 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/router"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/config"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/db/postgresql"
+	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/internal/s3"
 
 	albumRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/album/repository/postgresql"
 	artistRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist/repository/postgresql"
 	playlistRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/repository/postgresql"
 	trackRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track/repository/postgresql"
 	userRepository "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/user/repository/postgresql"
+
+	playlistS3 "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/playlist/client/s3"
 
 	authAgent "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/auth/client/grpc"
 	authProto "github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/microservices/auth/proto/generated"
@@ -67,8 +70,14 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 		return nil, err
 	}
 
+	s3Client, err := s3.MakeS3MinioClient(os.Getenv(config.S3HostParam), os.Getenv(config.S3AccessKeyParam), os.Getenv(config.S3SecretKeyParam))
+	if err != nil {
+		return nil, fmt.Errorf("error while connecting to S3: %v", err)
+	}
+	playlistS3 := playlistS3.NewS3PlaylistCoverSaver(os.Getenv(config.S3BucketParam), os.Getenv(config.S3PlaylistCoversFolderParam), s3Client)
+
 	albumUsecase := albumUsecase.NewUsecase(albumRepo, artistRepo)
-	playlistUsecase := playlistUsecase.NewUsecase(playlistRepo, trackRepo, userRepo)
+	playlistUsecase := playlistUsecase.NewUsecase(playlistRepo, trackRepo, userRepo, playlistS3)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo)
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, playlistRepo)
 	tokenUsecase := tokenUsecase.NewUsecase()

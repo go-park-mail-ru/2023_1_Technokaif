@@ -5,8 +5,8 @@
 build:
 	./scripts/deploy/build_all.sh
 
-deploy:
-	./scripts/deploy/deploy.sh
+push:
+	./scripts/deploy/push.sh
 
 start:
 	docker-compose down
@@ -31,7 +31,7 @@ check_html_coverage:
 	go test -coverpkg=./... -coverprofile=coverage.out ./... \
 	&& cat coverage.out | fgrep -v "mocks" | fgrep -v "docs" > purified_coverage.out \
 	&& go tool cover -func purified_coverage.out | grep total \
-	&& go tool cover -html=purified_coverage.out 
+	&& go tool cover -html purified_coverage.out -o cover.html 
 
 generate_api_docs:
 	swag init -g cmd/api/main.go

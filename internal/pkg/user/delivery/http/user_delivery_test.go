@@ -30,7 +30,6 @@ func getCorrectUser(t *testing.T) *models.User {
 		Email:     "yarik1448kuzmin@gmail.com",
 		FirstName: "Yaroslav",
 		LastName:  "Kuzmin",
-		Sex:       models.Male,
 		BirthDate: birthDate,
 		AvatarSrc: "/users/avatars/yarik_tri.png",
 	}
@@ -47,7 +46,6 @@ func getCorrectUserInfo(t *testing.T) *models.User {
 		Email:     "yarik1448kuzmin@gmail.com",
 		FirstName: "Yaroslav",
 		LastName:  "Kuzmin",
-		Sex:       models.Male,
 		BirthDate: birthDate,
 		AvatarSrc: "/users/avatars/yarik_tri.png",
 	}
@@ -77,7 +75,7 @@ func TestUserDeliveryHTTP_Get(t *testing.T) {
 		"email": "yarik1448kuzmin@gmail.com",
 		"firstName": "Yaroslav",
 		"lastName": "Kuzmin",
-		"sex": "M",
+
 		"birthDate": "2003-08-23T00:00:00Z",
 		"avatarSrc": "/users/avatars/yarik_tri.png"
 	}`
@@ -138,7 +136,6 @@ func TestUserDeliveryHTTP_UpdateInfo(t *testing.T) {
 		"email": "yarik1448kuzmin@gmail.com",
 		"firstName": "Yaroslav",
 		"lastName": "Kuzmin",
-		"sex": "M",
 		"birthDate": "2003-08-23",
 		"avatarSrc": "/users/avatars/yarik_tri.png"
 	}`

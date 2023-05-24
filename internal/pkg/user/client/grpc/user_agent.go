@@ -91,7 +91,7 @@ func (u *UserAgent) UpdateInfo(ctx context.Context, user *models.User) error {
 	return nil
 }
 
-func (u *UserAgent) UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, fileExtension string) error {
+func (u *UserAgent) UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, _ int64, fileExtension string) error {
 	stream, err := u.client.UploadAvatar(ctx)
 	if err != nil {
 		return err

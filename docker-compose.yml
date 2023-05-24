@@ -3,9 +3,11 @@ version: '3.8'
 services:
   api:
     container_name: api
-    image: technokaif/fluire_api:latest
+    image: technokaif/fluire_api:$TAG
     depends_on:
       - auth
+      - user
+      - search
     ports:
       - "4444:4444"
     env_file:
@@ -19,7 +21,7 @@ services:
 
   auth:
     container_name: auth
-    image: technokaif/fluire_auth:latest
+    image: technokaif/fluire_auth:$TAG
     depends_on:
       - db
     volumes:
@@ -28,22 +30,24 @@ services:
 
   search:
     container_name: search
-    image: technokaif/fluire_search:latest
+    image: technokaif/fluire_search:$TAG
     depends_on:
       - db
     volumes:
       - .env:/out/.env
+    restart: always
 
   user:
     container_name: user
-    image: technokaif/fluire_user:latest
+    image: technokaif/fluire_user:$TAG
     depends_on:
       - db
     volumes:
       - .env:/out/.env
       - type: bind
         source: ${MEDIA_PATH}
-        target: ${MEDIA_PATH}
+        target: ${MEDIA_PATH}  
+    restart: always
 
   prometheus:
     container_name: prometheus

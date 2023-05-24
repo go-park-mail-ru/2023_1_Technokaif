@@ -44,7 +44,7 @@ func TestDeliverySignUp(t *testing.T) {
 	// Test filling
 	correctTestRequestBody := `{"username": "yarik_tri", "password": "Love1234",
 	"email": "yarik1448kuzmin@gmail.com", "firstName": "Yaroslav", "lastName": "Kuzmin",
-	"birthDate": "2003-08-23", "sex": "M"}`
+	"birthDate": "2003-08-23"}`
 
 	birthTime, err := time.Parse(time.RFC3339, "2003-08-23T00:00:00Z")
 	if err != nil {
@@ -59,7 +59,6 @@ func TestDeliverySignUp(t *testing.T) {
 		FirstName: "Yaroslav",
 		LastName:  "Kuzmin",
 		BirthDate: birthDate,
-		Sex:       models.Male,
 	}
 
 	testTable := []struct {
@@ -85,7 +84,7 @@ func TestDeliverySignUp(t *testing.T) {
 			name: "Incorrect request body",
 			requestBody: `{"username": "yarik_tri", "password": "Love1234",
 			"email": "yarik1448kuzmin@gmail.com", "firstName: "Yaroslav, "lastName": "Kuzmin",
-			"birthDate": "2003-08-23", "sex": "M"}`,
+			"birthDate": "2003-08-23"}`,
 			userFromBody:     correctTestUser,
 			mockBehavior:     func(a *authMocks.MockUsecase, u models.User) {},
 			expectedStatus:   http.StatusBadRequest,
@@ -98,11 +97,11 @@ func TestDeliverySignUp(t *testing.T) {
 			name: "Validation Error",
 			requestBody: `{"username": "yar", "password": "Love1234",
 			"email": "yarik1448kuzmin@gmail.com", "firstName": "Yaroslav", "lastName": "Kuzmin",
-			"birthDate": "2003-08-23", "sex": "M"}`,
+			"birthDate": "2003-08-23"}`,
 			userFromBody:     models.User{},
 			mockBehavior:     func(a *authMocks.MockUsecase, u models.User) {},
 			expectedStatus:   http.StatusBadRequest,
-			expectedResponse: commonTests.ErrorResponse(commonHTTP.IncorrectRequestBody),
+			expectedResponse: commonTests.ErrorResponse("incorrect field: username"),
 		},
 		{
 			name:         "Creating existing user Error",

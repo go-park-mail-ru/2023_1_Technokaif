@@ -176,7 +176,7 @@ func (h *Handler) UploadCover(w http.ResponseWriter, r *http.Request) {
 
 	extension := filepath.Ext(coverHeader.Filename)
 
-	err = h.playlistServices.UploadCover(r.Context(), playlistRequestID, user.ID, coverFile, extension)
+	err = h.playlistServices.UploadCover(r.Context(), playlistRequestID, user.ID, coverFile, coverHeader.Size, extension)
 	if err != nil {
 		var errCoverWrongFormat *models.CoverWrongFormatError
 		if errors.As(err, &errCoverWrongFormat) {

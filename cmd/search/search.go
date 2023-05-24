@@ -81,8 +81,8 @@ func main() {
 	grpcMetrics.InitializeMetrics(server)
 
 	httpMetricsServer := &http.Server{
-		Handler: promhttp.HandlerFor(reg, promhttp.HandlerOpts{}), 
-		Addr: os.Getenv(config.SearchExporterListenParam),
+		Handler:        promhttp.HandlerFor(reg, promhttp.HandlerOpts{}),
+		Addr:           os.Getenv(config.SearchExporterListenParam),
 		MaxHeaderBytes: maxHeaderBytesHTTP,
 		ReadTimeout:    readTimeoutHTTP,
 		WriteTimeout:   writeTimeoutHTTP,

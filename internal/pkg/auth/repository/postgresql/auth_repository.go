@@ -28,7 +28,7 @@ func NewPostgreSQL(db *sqlx.DB, t auth.Tables) *PostgreSQL {
 func (p *PostgreSQL) GetUserByAuthData(ctx context.Context, userID, userVersion uint32) (*models.User, error) {
 	query := fmt.Sprintf(
 		`SELECT id, version, username, email, password_hash, salt, 
-			first_name, last_name, sex, birth_date, avatar_src 
+			first_name, last_name, birth_date, avatar_src 
 		FROM %s
 		WHERE id = $1 AND version = $2;`,
 		p.tables.Users())
@@ -36,7 +36,7 @@ func (p *PostgreSQL) GetUserByAuthData(ctx context.Context, userID, userVersion 
 
 	var u models.User
 	err := row.Scan(&u.ID, &u.Version, &u.Username, &u.Email, &u.Password, &u.Salt,
-		&u.FirstName, &u.LastName, &u.Sex, &u.BirthDate.Time, &u.AvatarSrc)
+		&u.FirstName, &u.LastName, &u.BirthDate.Time, &u.AvatarSrc)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

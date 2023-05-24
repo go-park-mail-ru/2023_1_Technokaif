@@ -38,7 +38,6 @@ func defaultUser() (models.User, error) {
 		Salt:      "salt",
 		FirstName: "Yaroslav",
 		LastName:  "Kuzmin",
-		Sex:       models.Male,
 		BirthDate: birthDate,
 		AvatarSrc: "/yarik_champion.png",
 	}, nil
@@ -89,9 +88,9 @@ func TestAuthRepositoryPostgreSQL_GetUserByAuthData(t *testing.T) {
 
 				row := sqlmock.
 					NewRows([]string{"id", "version", "username", "email", "password_hash",
-						"salt", "first_name", "last_name", "sex", "birth_date", "avatar_src"}).
+						"salt", "first_name", "last_name", "birth_date", "avatar_src"}).
 					AddRow(u.ID, u.Version, u.Username, u.Email, u.Password, u.Salt,
-						u.FirstName, u.LastName, u.Sex, u.BirthDate.Time, u.AvatarSrc)
+						u.FirstName, u.LastName, u.BirthDate.Time, u.AvatarSrc)
 
 				sqlMock.ExpectQuery("SELECT (.+) FROM "+usersTable).
 					WithArgs(userID, userVersion).

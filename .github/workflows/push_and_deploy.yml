@@ -1,0 +1,53 @@
+name: deploy
+
+on:
+  pull_request:
+      branches: main
+      types: closed
+  workflow_dispatch:
+
+env:
+  tag: ${GITHUB_REF##*/}_${GITHUB_SHA::8}
+
+jobs:
+  push:
+    if: ${{ github.event.pull_request.merged }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      - name: Build Docker image
+        run: TAG=${{ env.tag }} ./scripts/deploy/build_all.sh
+      - name: Push the image
+        run: TAG=${{ env.tag }} ./scripts/deploy/push.sh
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: push
+    steps:
+      - uses: actions/checkout@v3
+      - name: pull docker images
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA,GITHUB_REF
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/backend/2023_1_Technokaif
+            sudo TAG=${{ env.tag }} docker-compose pull
+
+      - name: deploy docker images
+        uses: appleboy/ssh-action@master
+        with:
+          envs: GITHUB_SHA,GITHUB_REF
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/backend/2023_1_Technokaif
+            sudo TAG=${{ env.tag }} docker-compose down
+            sudo TAG=${{ env.tag }} docker-compose up -d
+            sudo docker system prune -f

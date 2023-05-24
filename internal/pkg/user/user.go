@@ -13,7 +13,7 @@ import (
 type Usecase interface {
 	GetByID(ctx context.Context, userID uint32) (*models.User, error)
 	UpdateInfo(ctx context.Context, user *models.User) error
-	UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, fileExtension string) error
+	UploadAvatar(ctx context.Context, userID uint32, file io.ReadSeeker, size int64, fileExtension string) error
 	GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.User, error)
 }
 
