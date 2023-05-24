@@ -44,7 +44,7 @@ func TestArtistUsecase_Create(t *testing.T) {
 			},
 		},
 		{
-			name:   "Insert Error",
+			name:   "Insert Issue",
 			artist: correctArtist,
 			mockBehavior: func(ar *artistMocks.MockRepository, artist models.Artist) {
 				ar.EXPECT().Insert(ctx, artist).Return(uint32(0), errors.New(""))
@@ -64,6 +64,99 @@ func TestArtistUsecase_Create(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, correctArtist.ID, artistID)
+			}
+		})
+	}
+}
+
+func TestArtistUsecase_Delete(t *testing.T) {
+	type mockBehavior func(ar *artistMocks.MockRepository, artistID, userID uint32)
+
+	c := gomock.NewController(t)
+
+	au := artistMocks.NewMockRepository(c)
+
+	u := NewUsecase(au)
+
+	var correctArtistID uint32 = 1
+	var correctUserID uint32 = 1
+	correctArtist := &models.Artist{
+		ID:        correctArtistID,
+		UserID:    &correctUserID,
+		Name:      "Oxxxymiron",
+		AvatarSrc: "/artists/avatars/1.png",
+	}
+
+	testTable := []struct {
+		name             string
+		artistID         uint32
+		userID           uint32
+		mockBehavior     mockBehavior
+		expectError      bool
+		expectedErrorMsg string
+	}{
+		{
+			name:     "Common",
+			artistID: correctArtistID,
+			userID:   correctUserID,
+			mockBehavior: func(ar *artistMocks.MockRepository, artistID, userID uint32) {
+				ar.EXPECT().GetByID(ctx, artistID).Return(correctArtist, nil)
+				ar.EXPECT().DeleteByID(ctx, artistID).Return(nil)
+			},
+		},
+		{
+			name:     "No Such Artist",
+			artistID: correctArtistID,
+			userID:   correctUserID,
+			mockBehavior: func(ar *artistMocks.MockRepository, artistID, userID uint32) {
+				ar.EXPECT().GetByID(ctx, artistID).Return(nil, errors.New(""))
+			},
+			expectError:      true,
+			expectedErrorMsg: "can't find artist",
+		},
+		{
+			name:     "No User",
+			artistID: correctArtistID,
+			userID:   correctUserID,
+			mockBehavior: func(ar *artistMocks.MockRepository, artistID, userID uint32) {
+				ar.EXPECT().GetByID(ctx, artistID).Return(&models.Artist{UserID: nil}, nil)
+			},
+			expectError:      true,
+			expectedErrorMsg: "artist can't be deleted",
+		},
+		{
+			name:     "User Has No Rights",
+			artistID: correctArtistID,
+			userID:   uint32(2),
+			mockBehavior: func(ar *artistMocks.MockRepository, artistID, userID uint32) {
+				ar.EXPECT().GetByID(ctx, artistID).Return(correctArtist, nil)
+			},
+			expectError:      true,
+			expectedErrorMsg: "artist can't be deleted",
+		},
+		{
+			name:     "Delete Issue",
+			artistID: correctArtistID,
+			userID:   correctUserID,
+			mockBehavior: func(ar *artistMocks.MockRepository, artistID, userID uint32) {
+				ar.EXPECT().GetByID(ctx, artistID).Return(correctArtist, nil)
+				ar.EXPECT().DeleteByID(ctx, artistID).Return(errors.New(""))
+			},
+			expectError:      true,
+			expectedErrorMsg: "can't delete artist",
+		},
+	}
+
+	for _, tc := range testTable {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.mockBehavior(au, tc.artistID, tc.userID)
+
+			err := u.Delete(ctx, tc.artistID, tc.userID)
+
+			if tc.expectError {
+				assert.ErrorContains(t, err, tc.expectedErrorMsg)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}
