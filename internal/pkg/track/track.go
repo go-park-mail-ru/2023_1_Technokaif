@@ -26,6 +26,7 @@ type Usecase interface {
 	IncrementListens(ctx context.Context, trackID, userID uint32) error
 	GetListens(ctx context.Context, trackID uint32) (uint32, error)
 	UpdateListens(ctx context.Context, trackID uint32) error
+	UpdateAllListens(ctx context.Context) error
 }
 
 // Repository includes DBMS-relatable methods to work with tracks
@@ -48,6 +49,7 @@ type Repository interface {
 	GetListens(ctx context.Context, trackID uint32) (uint32, error)
 	GetListensByInterval(ctx context.Context, start, end time.Time, trackID uint32) (uint32, error)
 	UpdateListens(ctx context.Context, trackID uint32) error
+	UpdateAllListens(ctx context.Context) error
 }
 
 // Tables includes methods which return needed tables

@@ -164,6 +164,7 @@ func InitRouter(
 					r.Delete("/", trackH.Delete)
 					r.Post("/like", trackH.Like)
 					r.Post("/unlike", trackH.UnLike)
+					r.Post("/listen", trackH.IncrementListens)
 				})
 			})
 			r.Get("/feed", trackH.Feed)

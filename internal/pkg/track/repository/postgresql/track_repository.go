@@ -356,3 +356,24 @@ func (p *PostgreSQL) UpdateListens(ctx context.Context, trackID uint32) error {
 
 	return nil
 }
+
+func (p *PostgreSQL) UpdateAllListens(ctx context.Context) error {
+	query := fmt.Sprintf(
+		`WITH new_listens_by_track AS (
+			SELECT track_id AS id, COUNT(track_id) AS new_listens
+			FROM %s
+			WHERE commited_at > current_timestamp - time '00:01'
+			GROUP BY track_id
+		)
+		UPDATE %s AS t
+		SET listens = listens + nlt.new_listens
+		FROM new_listens_by_track AS nlt
+		WHERE t.id = nlt.id;`,
+		p.tables.Listens(), p.tables.Tracks())
+
+	if _, err := p.db.ExecContext(ctx, query); err != nil {
+		return fmt.Errorf("(repo) failed to update all listens: %w", err)
+	}
+
+	return nil
+}

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv" // load environment
+	"github.com/robfig/cron/v3"
 
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/app"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/cmd/api/init/server"
@@ -59,11 +60,15 @@ func main() {
 		}
 	}()
 
-	router, err := app.Init(db, tables, logger)
+	c := cron.New()
+	router, err := app.Init(db, tables, c, logger)
 	if err != nil {
 		logger.Errorf("error while initialization api app: %v", err)
 		return
 	}
+
+	c.Start()
+	defer c.Stop()
 
 	var srv server.Server
 	if err := srv.Init(os.Getenv(config.ApiListenParam), router); err != nil {

@@ -435,6 +435,20 @@ func (mr *MockTablesMockRecorder) LikedAlbums() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LikedAlbums", reflect.TypeOf((*MockTables)(nil).LikedAlbums))
 }
 
+// Listens mocks base method.
+func (m *MockTables) Listens() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Listens")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Listens indicates an expected call of Listens.
+func (mr *MockTablesMockRecorder) Listens() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Listens", reflect.TypeOf((*MockTables)(nil).Listens))
+}
+
 // Tracks mocks base method.
 func (m *MockTables) Tracks() string {
 	m.ctrl.T.Helper()

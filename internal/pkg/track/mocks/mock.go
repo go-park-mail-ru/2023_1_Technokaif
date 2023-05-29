@@ -229,6 +229,20 @@ func (mr *MockUsecaseMockRecorder) UnLike(ctx, trackID, userID interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnLike", reflect.TypeOf((*MockUsecase)(nil).UnLike), ctx, trackID, userID)
 }
 
+// UpdateAllListens mocks base method.
+func (m *MockUsecase) UpdateAllListens(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAllListens", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAllListens indicates an expected call of UpdateAllListens.
+func (mr *MockUsecaseMockRecorder) UpdateAllListens(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAllListens", reflect.TypeOf((*MockUsecase)(nil).UpdateAllListens), ctx)
+}
+
 // UpdateListens mocks base method.
 func (m *MockUsecase) UpdateListens(ctx context.Context, trackID uint32) error {
 	m.ctrl.T.Helper()
@@ -486,6 +500,20 @@ func (m *MockRepository) IsLiked(ctx context.Context, trackID, userID uint32) (b
 func (mr *MockRepositoryMockRecorder) IsLiked(ctx, trackID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockRepository)(nil).IsLiked), ctx, trackID, userID)
+}
+
+// UpdateAllListens mocks base method.
+func (m *MockRepository) UpdateAllListens(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAllListens", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAllListens indicates an expected call of UpdateAllListens.
+func (mr *MockRepositoryMockRecorder) UpdateAllListens(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAllListens", reflect.TypeOf((*MockRepository)(nil).UpdateAllListens), ctx)
 }
 
 // UpdateListens mocks base method.

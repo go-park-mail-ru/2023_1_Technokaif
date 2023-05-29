@@ -1,12 +1,15 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"runtime/debug"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 	"github.com/jmoiron/sqlx"
+	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -58,7 +61,7 @@ type Agents struct {
 	*userAgent.UserAgent
 }
 
-func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger) (*chi.Mux, error) {
+func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, c *cron.Cron, logger logger.Logger) (*chi.Mux, error) {
 	albumRepo := albumRepository.NewPostgreSQL(db, tables)
 	playlistRepo := playlistRepository.NewPostgreSQL(db, tables)
 	artistRepo := artistRepository.NewPostgreSQL(db, tables)
@@ -81,6 +84,21 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo)
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, playlistRepo)
 	tokenUsecase := tokenUsecase.NewUsecase()
+
+	c.AddFunc("@every 1m", func() {
+		logger.Info("Count all listens started..")
+		defer func() {
+			if err := recover(); err != nil {
+				logger.Errorf("PANIC (recovered): %s\n stacktrace:\n%s", err, string(debug.Stack()))
+			}
+		}()
+
+		if err := trackUsecase.UpdateAllListens(context.Background()); err != nil {
+			logger.Error(fmt.Sprintf("Count all listens fail: %v", err))
+			return
+		}
+		logger.Info("Count all listens succeeded")
+	})
 
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)
 	playlistHandler := playlistDelivery.NewHandler(playlistUsecase, trackUsecase, agents.UserAgent, logger)

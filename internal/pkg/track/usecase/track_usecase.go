@@ -213,3 +213,11 @@ func (u *Usecase) UpdateListens(ctx context.Context, trackID uint32) error {
 
 	return nil
 }
+
+func (u *Usecase) UpdateAllListens(ctx context.Context) error {
+	if err := u.trackRepo.UpdateAllListens(ctx); err != nil {
+		return fmt.Errorf("(usecase) can't update all listens in repository: %w", err)
+	}
+
+	return nil
+}
