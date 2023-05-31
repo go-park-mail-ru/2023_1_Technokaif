@@ -93,8 +93,8 @@ func (u *Usecase) Delete(ctx context.Context, trackID uint32, userID uint32) err
 	return nil
 }
 
-func (u *Usecase) GetFeed(ctx context.Context) ([]models.Track, error) {
-	tracks, err := u.trackRepo.GetFeed(ctx, feedTracksAmountLimit)
+func (u *Usecase) GetFeed(ctx context.Context, days uint32) ([]models.Track, error) {
+	tracks, err := u.trackRepo.GetFeed(ctx, days, feedTracksAmountLimit)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get feed tracks from repository: %w", err)
 	}

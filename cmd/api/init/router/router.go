@@ -167,7 +167,7 @@ func InitRouter(
 					r.Post("/listen", trackH.IncrementListens)
 				})
 			})
-			r.Get("/feed", trackH.Feed)
+			r.Post("/feed", trackH.Feed)
 		})
 
 		r.Route("/auth", func(r chi.Router) {

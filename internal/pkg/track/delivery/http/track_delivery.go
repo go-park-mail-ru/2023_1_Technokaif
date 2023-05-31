@@ -328,12 +328,21 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 // @Summary		Track Feed
 // @Tags		Feed
 // @Description	Feed tracks
+// @Accept		json
 // @Produce		json
-// @Success		200		{object}	models.TrackTransfers  "Tracks feed"
-// @Failure		500		{object}	http.Error			   "Server error"
-// @Router		/api/tracks/feed [get]
+// @Param		tfi		body		trackFeedInput    true	"Feed info"
+// @Success		200		{object}	models.TrackTransfers  	"Tracks feed"
+// @Failure		500		{object}	http.Error			   	"Server error"
+// @Router		/api/tracks/feed [post]
 func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
-	tracks, err := h.trackServices.GetFeed(r.Context())
+	var tfi trackFeedInput
+	if err := easyjson.UnmarshalFromReader(r.Body, &tfi); err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		return
+	}
+
+	tracks, err := h.trackServices.GetFeed(r.Context(), 7)
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			tracksGetServerError, http.StatusInternalServerError, h.logger, err)

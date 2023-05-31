@@ -39,6 +39,11 @@ type trackCreateInput struct {
 	RecordSrc     string   `json:"record" valid:"required"`
 }
 
+//easyjson:json
+type trackFeedInput struct {
+	Days uint32 `json:"days" valid:"required"`
+}
+
 func (t *trackCreateInput) validateAndEscape() error {
 	t.escapeHTML()
 

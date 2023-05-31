@@ -126,18 +126,18 @@ func (mr *MockUsecaseMockRecorder) GetByPlaylist(ctx, playlistID interface{}) *g
 }
 
 // GetFeed mocks base method.
-func (m *MockUsecase) GetFeed(ctx context.Context) ([]models.Track, error) {
+func (m *MockUsecase) GetFeed(ctx context.Context, days uint32) ([]models.Track, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed", ctx)
+	ret := m.ctrl.Call(m, "GetFeed", ctx, days)
 	ret0, _ := ret[0].([]models.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockUsecaseMockRecorder) GetFeed(ctx interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetFeed(ctx, days interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockUsecase)(nil).GetFeed), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockUsecase)(nil).GetFeed), ctx, days)
 }
 
 // GetLikedByUser mocks base method.
@@ -384,18 +384,18 @@ func (mr *MockRepositoryMockRecorder) GetByPlaylist(ctx, playlistID interface{})
 }
 
 // GetFeed mocks base method.
-func (m *MockRepository) GetFeed(ctx context.Context, limit uint32) ([]models.Track, error) {
+func (m *MockRepository) GetFeed(ctx context.Context, days, limit uint32) ([]models.Track, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeed", ctx, limit)
+	ret := m.ctrl.Call(m, "GetFeed", ctx, days, limit)
 	ret0, _ := ret[0].([]models.Track)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetFeed indicates an expected call of GetFeed.
-func (mr *MockRepositoryMockRecorder) GetFeed(ctx, limit interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetFeed(ctx, days, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx, limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx, days, limit)
 }
 
 // GetLikedByUser mocks base method.

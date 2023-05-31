@@ -495,12 +495,13 @@ func TestTrackRepositoryPostgreSQL_GetFeed(t *testing.T) {
 	}
 
 	var feedAmountLimit uint32 = 100
+	var feedDays uint32 = 7
 	for _, tc := range testTable {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.expectedTracks)
 
-			tr, err := repo.GetFeed(ctx, feedAmountLimit)
+			tr, err := repo.GetFeed(ctx, feedDays, feedAmountLimit)
 
 			// Test
 			if tc.expectError {

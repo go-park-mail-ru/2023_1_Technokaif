@@ -14,7 +14,7 @@ type Usecase interface {
 	Create(ctx context.Context, track models.Track, artistsID []uint32, userID uint32) (uint32, error)
 	GetByID(ctx context.Context, trackID uint32) (*models.Track, error)
 	Delete(ctx context.Context, trackID uint32, userID uint32) error
-	GetFeed(ctx context.Context) ([]models.Track, error)
+	GetFeed(ctx context.Context, days uint32) ([]models.Track, error)
 	GetByAlbum(ctx context.Context, albumID uint32) ([]models.Track, error)
 	GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.Track, error)
 	GetByArtist(ctx context.Context, artistID uint32) ([]models.Track, error)
@@ -36,7 +36,7 @@ type Repository interface {
 	Insert(ctx context.Context, track models.Track, artistsID []uint32) (uint32, error)
 	GetByID(ctx context.Context, trackID uint32) (*models.Track, error)
 	DeleteByID(ctx context.Context, trackID uint32) error
-	GetFeed(ctx context.Context, limit uint32) ([]models.Track, error)
+	GetFeed(ctx context.Context, days, limit uint32) ([]models.Track, error)
 	GetByAlbum(ctx context.Context, albumID uint32) ([]models.Track, error)
 	GetByPlaylist(ctx context.Context, playlistID uint32) ([]models.Track, error)
 	GetByArtist(ctx context.Context, artistID uint32) ([]models.Track, error)
