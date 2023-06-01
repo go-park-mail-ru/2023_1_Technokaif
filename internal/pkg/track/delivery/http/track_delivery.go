@@ -334,7 +334,7 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 // @Success		200		{object}	models.TrackTransfers  	"Tracks feed"
 // @Failure		500		{object}	http.Error			   	"Server error"
 // @Router		/api/tracks/feed [post]
-func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) FeedTop(w http.ResponseWriter, r *http.Request) {
 	var tfi trackFeedInput
 	if err := easyjson.UnmarshalFromReader(r.Body, &tfi); err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
@@ -342,7 +342,40 @@ func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tracks, err := h.trackServices.GetFeed(r.Context(), 7)
+	tracks, err := h.trackServices.GetFeedTop(r.Context(), tfi.Days)
+	if err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
+	if err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHTTP.SuccessResponse(w, r, tt, h.logger)
+}
+
+// @Summary		Track Feed
+// @Tags		Feed
+// @Description	Feed tracks
+// @Produce		json
+// @Success		200		{object}	models.TrackTransfers  "Tracks feed"
+// @Failure		500		{object}	http.Error			   "Server error"
+// @Router		/api/tracks/feed [get]
+func (h *Handler) Feed(w http.ResponseWriter, r *http.Request) {
+	tracks, err := h.trackServices.GetFeed(r.Context())
 	if err != nil {
 		commonHTTP.ErrorResponseWithErrLogging(w, r,
 			tracksGetServerError, http.StatusInternalServerError, h.logger, err)

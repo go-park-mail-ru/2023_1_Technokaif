@@ -69,7 +69,59 @@ func (v albumLikeResponse) MarshalEasyJSON(w *jwriter.Writer) {
 func (v *albumLikeResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp(l, v)
 }
-func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp1(in *jlexer.Lexer, out *albumDeleteResponse) {
+func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp1(in *jlexer.Lexer, out *albumFeedInput) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "days":
+			out.Days = uint32(in.Uint32())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp1(out *jwriter.Writer, in albumFeedInput) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"days\":"
+		out.RawString(prefix[1:])
+		out.Uint32(uint32(in.Days))
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v albumFeedInput) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp1(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *albumFeedInput) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp1(l, v)
+}
+func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp2(in *jlexer.Lexer, out *albumDeleteResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -100,7 +152,7 @@ func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDe
 		in.Consumed()
 	}
 }
-func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp1(out *jwriter.Writer, in albumDeleteResponse) {
+func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp2(out *jwriter.Writer, in albumDeleteResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -114,14 +166,14 @@ func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDe
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v albumDeleteResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp1(w, v)
+	easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp2(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *albumDeleteResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp1(l, v)
+	easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp2(l, v)
 }
-func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp2(in *jlexer.Lexer, out *albumCreateResponse) {
+func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp3(in *jlexer.Lexer, out *albumCreateResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -152,7 +204,7 @@ func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDe
 		in.Consumed()
 	}
 }
-func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp2(out *jwriter.Writer, in albumCreateResponse) {
+func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp3(out *jwriter.Writer, in albumCreateResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -166,14 +218,14 @@ func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDe
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v albumCreateResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp2(w, v)
+	easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp3(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *albumCreateResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp2(l, v)
+	easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp3(l, v)
 }
-func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp3(in *jlexer.Lexer, out *albumCreateInput) {
+func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp4(in *jlexer.Lexer, out *albumCreateInput) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -239,7 +291,7 @@ func easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDe
 		in.Consumed()
 	}
 }
-func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp3(out *jwriter.Writer, in albumCreateInput) {
+func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp4(out *jwriter.Writer, in albumCreateInput) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -283,10 +335,10 @@ func easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDe
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v albumCreateInput) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp3(w, v)
+	easyjsonBc29487EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp4(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *albumCreateInput) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp3(l, v)
+	easyjsonBc29487DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgAlbumDeliveryHttp4(l, v)
 }

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -124,6 +125,30 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, albumID uint32) error {
 	}
 
 	return nil
+}
+
+func (p *PostgreSQL) GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Album, error) {
+	query := fmt.Sprintf(
+		`SELECT a.id, a.name, a.description, a.cover_src
+		FROM (
+			SELECT track_id, COUNT(*) AS listens_by_time
+			FROM %s
+			WHERE commited_at BETWEEN (current_timestamp - $1 * interval '1 day') AND current_timestamp
+			GROUP BY track_id
+		) AS tbl
+			RIGHT JOIN %s AS t ON tbl.track_id = t.id
+			INNER JOIN %s AS a ON t.album_id = a.id
+		GROUP BY a.id
+		ORDER BY SUM(tbl.listens_by_time) DESC NULLS LAST
+		LIMIT $2;`,
+		p.tables.Listens(), p.tables.Tracks(), p.tables.Albums())
+
+	var albums []models.Album
+	if err := p.db.SelectContext(ctx, &albums, query, strconv.Itoa(int(days)), limit); err != nil {
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return albums, nil
 }
 
 func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Album, error) {

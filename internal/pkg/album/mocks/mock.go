@@ -124,6 +124,21 @@ func (mr *MockUsecaseMockRecorder) GetFeed(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockUsecase)(nil).GetFeed), ctx)
 }
 
+// GetFeedTop mocks base method.
+func (m *MockUsecase) GetFeedTop(ctx context.Context, days uint32) ([]models.Album, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFeedTop", ctx, days)
+	ret0, _ := ret[0].([]models.Album)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFeedTop indicates an expected call of GetFeedTop.
+func (mr *MockUsecaseMockRecorder) GetFeedTop(ctx, days interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedTop", reflect.TypeOf((*MockUsecase)(nil).GetFeedTop), ctx, days)
+}
+
 // GetLikedByUser mocks base method.
 func (m *MockUsecase) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Album, error) {
 	m.ctrl.T.Helper()
@@ -308,6 +323,21 @@ func (m *MockRepository) GetFeed(ctx context.Context, limit uint32) ([]models.Al
 func (mr *MockRepositoryMockRecorder) GetFeed(ctx, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx, limit)
+}
+
+// GetFeedTop mocks base method.
+func (m *MockRepository) GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Album, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFeedTop", ctx, days, limit)
+	ret0, _ := ret[0].([]models.Album)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFeedTop indicates an expected call of GetFeedTop.
+func (mr *MockRepositoryMockRecorder) GetFeedTop(ctx, days, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedTop", reflect.TypeOf((*MockRepository)(nil).GetFeedTop), ctx, days, limit)
 }
 
 // GetLikedByUser mocks base method.

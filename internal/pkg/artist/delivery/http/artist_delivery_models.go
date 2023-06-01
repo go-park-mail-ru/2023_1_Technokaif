@@ -28,6 +28,11 @@ const (
 )
 
 //easyjson:json
+type artistFeedInput struct {
+	Days uint32 `json:"days" valid:"required"`
+}
+
+//easyjson:json
 type artistCreateInput struct {
 	Name      string `json:"name" valid:"required"`
 	AvatarSrc string `json:"cover" valid:"required"`

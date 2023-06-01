@@ -11,7 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 )
 
-const feedTracksAmountLimit uint32 = 100
+const feedTracksAmountLimit uint32 = 30
 
 // Usecase implements track.Usecase
 type Usecase struct {
@@ -93,8 +93,17 @@ func (u *Usecase) Delete(ctx context.Context, trackID uint32, userID uint32) err
 	return nil
 }
 
-func (u *Usecase) GetFeed(ctx context.Context, days uint32) ([]models.Track, error) {
-	tracks, err := u.trackRepo.GetFeed(ctx, days, feedTracksAmountLimit)
+func (u *Usecase) GetFeedTop(ctx context.Context, days uint32) ([]models.Track, error) {
+	tracks, err := u.trackRepo.GetFeedTop(ctx, days, feedTracksAmountLimit)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get feed tracks from repository: %w", err)
+	}
+
+	return tracks, nil
+}
+
+func (u *Usecase) GetFeed(ctx context.Context) ([]models.Track, error) {
+	tracks, err := u.trackRepo.GetFeed(ctx, feedTracksAmountLimit)
 	if err != nil {
 		return nil, fmt.Errorf("(usecase) can't get feed tracks from repository: %w", err)
 	}

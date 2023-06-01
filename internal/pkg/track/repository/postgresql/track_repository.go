@@ -129,22 +129,7 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, trackID uint32) error {
 	return nil
 }
 
-// func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Track, error) {
-// 	query := fmt.Sprintf(
-// 		`SELECT id, name, album_id, cover_src, record_src, listens, duration
-// 		FROM %s
-// 		LIMIT $1;`,
-// 		p.tables.Tracks())
-
-// 	var tracks []models.Track
-// 	if err := p.db.SelectContext(ctx, &tracks, query, limit); err != nil {
-// 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
-// 	}
-
-// 	return tracks, nil
-// }
-
-func (p *PostgreSQL) GetFeed(ctx context.Context, days, limit uint32) ([]models.Track, error) {
+func (p *PostgreSQL) GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
 		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens, t.duration
 		FROM (
@@ -152,14 +137,29 @@ func (p *PostgreSQL) GetFeed(ctx context.Context, days, limit uint32) ([]models.
 			FROM %s
 			WHERE commited_at BETWEEN (current_timestamp - $1 * interval '1 day') AND current_timestamp
 			GROUP BY track_id
-			ORDER BY listens_by_time DESC
 		) AS tbl
-			INNER JOIN %s AS t ON tbl.track_id = t.id
+			RIGHT JOIN %s AS t ON tbl.track_id = t.id
+		ORDER BY tbl.listens_by_time DESC NULLS LAST
 		LIMIT $2;`,
 		p.tables.Listens(), p.tables.Tracks())
 
 	var tracks []models.Track
 	if err := p.db.SelectContext(ctx, &tracks, query, strconv.Itoa(int(days)), limit); err != nil {
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return tracks, nil
+}
+
+func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Track, error) {
+	query := fmt.Sprintf(
+		`SELECT id, name, album_id, cover_src, record_src, listens, duration
+		FROM %s 
+		LIMIT $1;`,
+		p.tables.Tracks())
+
+	var tracks []models.Track
+	if err := p.db.SelectContext(ctx, &tracks, query, limit); err != nil {
 		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
 	}
 
@@ -385,7 +385,7 @@ func (p *PostgreSQL) UpdateAllListens(ctx context.Context) error {
 		`WITH new_listens_by_track AS (
 			SELECT track_id AS id, COUNT(track_id) AS new_listens
 			FROM %s
-			WHERE commited_at > current_timestamp - time '00:01'
+			WHERE commited_at > current_timestamp - time '00:10'
 			GROUP BY track_id
 		)
 		UPDATE %s AS t

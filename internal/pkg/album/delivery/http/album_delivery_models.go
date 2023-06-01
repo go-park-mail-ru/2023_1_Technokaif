@@ -27,6 +27,11 @@ const (
 )
 
 //easyjson:json
+type albumFeedInput struct {
+	Days uint32 `json:"days" valid:"required"`
+}
+
+//easyjson:json
 type albumCreateInput struct {
 	Name        string   `json:"name" valid:"required"`
 	ArtistsID   []uint32 `json:"artists" valid:"required"`

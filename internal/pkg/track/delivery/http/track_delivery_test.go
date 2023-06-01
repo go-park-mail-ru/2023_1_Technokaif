@@ -495,7 +495,7 @@ func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 		{
 			name: "Common",
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
-				tu.EXPECT().GetFeed(gomock.Any(), feedDays).Return(expectedReturnTracks, nil)
+				tu.EXPECT().GetFeedTop(gomock.Any(), feedDays).Return(expectedReturnTracks, nil)
 				au.EXPECT().GetByTrack(gomock.Any(), expectedReturnTracks[0].ID).Return(expectedReturnArtists[0:1], nil)
 				au.EXPECT().GetByTrack(gomock.Any(), expectedReturnTracks[1].ID).Return(expectedReturnArtists[1:3], nil)
 			},
@@ -505,7 +505,7 @@ func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 		{
 			name: "No Tracks",
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
-				tu.EXPECT().GetFeed(gomock.Any(), feedDays).Return([]models.Track{}, nil)
+				tu.EXPECT().GetFeedTop(gomock.Any(), feedDays).Return([]models.Track{}, nil)
 			},
 			expectedStatus:   http.StatusOK,
 			expectedResponse: `[]`,
@@ -513,7 +513,7 @@ func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 		{
 			name: "Tracks Issues",
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
-				tu.EXPECT().GetFeed(gomock.Any(), feedDays).Return(nil, errors.New(""))
+				tu.EXPECT().GetFeedTop(gomock.Any(), feedDays).Return(nil, errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,
 			expectedResponse: commonTests.ErrorResponse(tracksGetServerError),
@@ -521,7 +521,7 @@ func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 		{
 			name: "Artists Issues",
 			mockBehavior: func(tu *trackMocks.MockUsecase, au *artistMocks.MockUsecase) {
-				tu.EXPECT().GetFeed(gomock.Any(), feedDays).Return(expectedReturnTracks, nil)
+				tu.EXPECT().GetFeedTop(gomock.Any(), feedDays).Return(expectedReturnTracks, nil)
 				au.EXPECT().GetByTrack(gomock.Any(), expectedReturnTracks[0].ID).Return(nil, errors.New(""))
 			},
 			expectedStatus:   http.StatusInternalServerError,

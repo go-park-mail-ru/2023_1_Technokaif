@@ -501,7 +501,7 @@ func TestTrackRepositoryPostgreSQL_GetFeed(t *testing.T) {
 			// Call mock
 			tc.mockBehavior(tc.expectedTracks)
 
-			tr, err := repo.GetFeed(ctx, feedDays, feedAmountLimit)
+			tr, err := repo.GetFeedTop(ctx, feedDays, feedAmountLimit)
 
 			// Test
 			if tc.expectError {

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -105,6 +106,31 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, artistID uint32) error {
 	}
 
 	return nil
+}
+
+func (p *PostgreSQL) GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Artist, error) {
+	query := fmt.Sprintf(
+		`SELECT a.id, a.name, a.avatar_src
+		FROM (
+			SELECT track_id, COUNT(*) AS listens_by_time
+			FROM %s
+			WHERE commited_at BETWEEN (current_timestamp - $1 * interval '1 day') AND current_timestamp
+			GROUP BY track_id
+		) AS tbl
+			RIGHT JOIN %s AS t ON tbl.track_id = t.id
+			INNER JOIN %s AS at ON t.id = at.track_id
+			INNER JOIN %s AS a on at.artist_id = a.id
+		GROUP BY a.id
+		ORDER BY SUM(tbl.listens_by_time) DESC NULLS LAST
+		LIMIT $2;`,
+		p.tables.Listens(), p.tables.Tracks(), p.tables.ArtistsTracks(), p.tables.Artists())
+
+	var artists []models.Artist
+	if err := p.db.SelectContext(ctx, &artists, query, strconv.Itoa(int(days)), limit); err != nil {
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return artists, nil
 }
 
 func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Artist, error) {

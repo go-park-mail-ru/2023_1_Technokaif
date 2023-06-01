@@ -124,6 +124,21 @@ func (mr *MockUsecaseMockRecorder) GetFeed(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockUsecase)(nil).GetFeed), ctx)
 }
 
+// GetFeedTop mocks base method.
+func (m *MockUsecase) GetFeedTop(ctx context.Context, days uint32) ([]models.Artist, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFeedTop", ctx, days)
+	ret0, _ := ret[0].([]models.Artist)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFeedTop indicates an expected call of GetFeedTop.
+func (mr *MockUsecaseMockRecorder) GetFeedTop(ctx, days interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedTop", reflect.TypeOf((*MockUsecase)(nil).GetFeedTop), ctx, days)
+}
+
 // GetLikedByUser mocks base method.
 func (m *MockUsecase) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Artist, error) {
 	m.ctrl.T.Helper()
@@ -310,6 +325,21 @@ func (mr *MockRepositoryMockRecorder) GetFeed(ctx, limit interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx, limit)
 }
 
+// GetFeedTop mocks base method.
+func (m *MockRepository) GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Artist, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFeedTop", ctx, days, limit)
+	ret0, _ := ret[0].([]models.Artist)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFeedTop indicates an expected call of GetFeedTop.
+func (mr *MockRepositoryMockRecorder) GetFeedTop(ctx, days, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedTop", reflect.TypeOf((*MockRepository)(nil).GetFeedTop), ctx, days, limit)
+}
+
 // GetLikedByUser mocks base method.
 func (m *MockRepository) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Artist, error) {
 	m.ctrl.T.Helper()
@@ -447,4 +477,32 @@ func (m *MockTables) LikedArtists() string {
 func (mr *MockTablesMockRecorder) LikedArtists() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LikedArtists", reflect.TypeOf((*MockTables)(nil).LikedArtists))
+}
+
+// Listens mocks base method.
+func (m *MockTables) Listens() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Listens")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Listens indicates an expected call of Listens.
+func (mr *MockTablesMockRecorder) Listens() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Listens", reflect.TypeOf((*MockTables)(nil).Listens))
+}
+
+// Tracks mocks base method.
+func (m *MockTables) Tracks() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Tracks")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Tracks indicates an expected call of Tracks.
+func (mr *MockTablesMockRecorder) Tracks() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Tracks", reflect.TypeOf((*MockTables)(nil).Tracks))
 }

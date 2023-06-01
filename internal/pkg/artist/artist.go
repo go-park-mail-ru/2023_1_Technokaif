@@ -13,6 +13,7 @@ type Usecase interface {
 	Create(ctx context.Context, artist models.Artist) (uint32, error)
 	GetByID(ctx context.Context, artistID uint32) (*models.Artist, error)
 	Delete(ctx context.Context, artistID uint32, userID uint32) error
+	GetFeedTop(ctx context.Context, days uint32) ([]models.Artist, error)
 	GetFeed(ctx context.Context) ([]models.Artist, error)
 	GetByAlbum(ctx context.Context, albumID uint32) ([]models.Artist, error)
 	GetByTrack(ctx context.Context, trackID uint32) ([]models.Artist, error)
@@ -36,12 +37,14 @@ type Repository interface {
 	// DeleteByID deletes one entry of artist with given ID
 	DeleteByID(ctx context.Context, artistID uint32) error
 
+	GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Artist, error)
+
 	// GetFeed returns artist entries with biggest amount of likes per some duration
 	GetFeed(ctx context.Context, limit uint32) ([]models.Artist, error)
 
 	// GetByAlbum returns all artist entries related with album entry with given ID
 	GetByAlbum(ctx context.Context, albumID uint32) ([]models.Artist, error)
-
+	
 	// GetByTrack returns all artist entries related with Track with given ID
 	GetByTrack(ctx context.Context, trackID uint32) ([]models.Artist, error)
 
@@ -62,4 +65,6 @@ type Tables interface {
 	ArtistsAlbums() string
 	ArtistsTracks() string
 	LikedArtists() string
+	Listens() string
+	Tracks() string
 }
