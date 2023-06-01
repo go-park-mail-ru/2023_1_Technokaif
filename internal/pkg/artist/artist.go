@@ -44,7 +44,7 @@ type Repository interface {
 
 	// GetByAlbum returns all artist entries related with album entry with given ID
 	GetByAlbum(ctx context.Context, albumID uint32) ([]models.Artist, error)
-	
+
 	// GetByTrack returns all artist entries related with Track with given ID
 	GetByTrack(ctx context.Context, trackID uint32) ([]models.Artist, error)
 
