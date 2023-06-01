@@ -1,56 +1,16 @@
-on: 
+name: deploy
+
+on:
   push:
-    branches:
-      - main
-      - F3-2_CI
-      - F3-3_S3
-      - F3-4_Fixes
+      branches: main
+  workflow_dispatch:
 
 env:
   tag: ${GITHUB_REF##*/}_${GITHUB_SHA::8}
 
 jobs:
-  check:
+  push:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '1.20'
-
-      - name: Formatting
-        run: gofmt -s -w -d . && git diff --exit-code
-
-      - name: Verify dependencies
-        run: go mod verify
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          args: --timeout=10m
-
-      - name: go-vet
-        run: go vet ./...
-
-  test:
-    runs-on: ubuntu-latest
-    needs: check
-    steps:
-    - uses: actions/checkout@v3 
-    - uses: actions/setup-go@v3
-      with:
-        go-version: '1.20'
-
-    - run: make check_html_coverage
-    - name: Upload coverage
-      uses: actions/upload-artifact@v3
-      with:
-        path: ./cover.html
-
-
-  build:
-    runs-on: ubuntu-latest
-    needs: test
     steps:
       - uses: actions/checkout@v3
       - name: Login to DockerHub Registry
@@ -63,7 +23,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: push
     steps:
       - uses: actions/checkout@v3
       - name: pull docker images
@@ -89,4 +49,3 @@ jobs:
             sudo TAG=${{ env.tag }} docker-compose down
             sudo TAG=${{ env.tag }} docker-compose up -d
             sudo docker system prune -f
-            

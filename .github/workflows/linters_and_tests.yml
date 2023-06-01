@@ -1,0 +1,41 @@
+name: linters_and_tests
+
+on: push
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Formatting
+        run: gofmt -s -w -d . && git diff --exit-code
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          args: --timeout=10m
+
+      - name: go-vet
+        run: go vet ./...
+
+  test:
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+    - uses: actions/checkout@v3 
+    - uses: actions/setup-go@v4
+      with:
+        go-version: '1.20'
+
+    - run: make check_html_coverage
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        path: ./cover.html

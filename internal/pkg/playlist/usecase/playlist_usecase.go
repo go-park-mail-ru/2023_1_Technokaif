@@ -23,6 +23,7 @@ type Usecase struct {
 	coverSaver   CoverSaver
 }
 
+//go:generate mockgen -source=playlist_usecase.go -destination=../mocks/saver.go -package mock_playlist
 type CoverSaver interface {
 	Save(ctx context.Context, cover io.Reader, objectName string, size int64) error
 }

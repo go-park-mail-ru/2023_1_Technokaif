@@ -87,7 +87,7 @@ func (p *PostgreSQL) CreateUser(ctx context.Context, u models.User) (uint32, err
 	query := fmt.Sprintf(
 		`INSERT INTO %s 
 			(username, email, password_hash, salt, first_name, last_name, birth_date, avatar_src) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;`,
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`,
 		p.tables.Users())
 
 	row := p.db.QueryRowContext(ctx, query, u.Username, u.Email, u.Password, u.Salt,
