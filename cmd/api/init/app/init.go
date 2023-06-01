@@ -85,7 +85,7 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, c *cron.Cron, logger 
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, playlistRepo)
 	tokenUsecase := tokenUsecase.NewUsecase()
 
-	c.AddFunc("@every 10m", func() {
+	if _, err := c.AddFunc("@every 10m", func() {
 		logger.Info("Count all listens started..")
 		defer func() {
 			if err := recover(); err != nil {
@@ -98,7 +98,9 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, c *cron.Cron, logger 
 			return
 		}
 		logger.Info("Count all listens succeeded")
-	})
+	}); err != nil {
+		return nil, err
+	}
 
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)
 	playlistHandler := playlistDelivery.NewHandler(playlistUsecase, trackUsecase, agents.UserAgent, logger)
