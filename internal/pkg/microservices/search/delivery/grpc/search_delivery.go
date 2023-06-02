@@ -83,6 +83,7 @@ func (s *searchGRPC) FindArtists(msg *proto.SearchMsg, stream proto.Search_FindA
 			UserID:    nilCheckUint32(artist.UserID),
 			Name:      artist.Name,
 			AvatarSrc: artist.AvatarSrc,
+			Listens:   artist.Listens,
 		}
 
 		if err := stream.Send(resp); err != nil {

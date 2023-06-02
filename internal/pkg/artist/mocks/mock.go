@@ -199,6 +199,20 @@ func (mr *MockUsecaseMockRecorder) UnLike(ctx, artistID, userID interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnLike", reflect.TypeOf((*MockUsecase)(nil).UnLike), ctx, artistID, userID)
 }
 
+// UpdateMonthListensPerUser mocks base method.
+func (m *MockUsecase) UpdateMonthListensPerUser(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateMonthListensPerUser", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateMonthListensPerUser indicates an expected call of UpdateMonthListensPerUser.
+func (mr *MockUsecaseMockRecorder) UpdateMonthListensPerUser(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMonthListensPerUser", reflect.TypeOf((*MockUsecase)(nil).UpdateMonthListensPerUser), ctx)
+}
+
 // MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
@@ -398,6 +412,20 @@ func (m *MockRepository) IsLiked(ctx context.Context, artistID, userID uint32) (
 func (mr *MockRepositoryMockRecorder) IsLiked(ctx, artistID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockRepository)(nil).IsLiked), ctx, artistID, userID)
+}
+
+// UpdateMonthListensPerUser mocks base method.
+func (m *MockRepository) UpdateMonthListensPerUser(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateMonthListensPerUser", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateMonthListensPerUser indicates an expected call of UpdateMonthListensPerUser.
+func (mr *MockRepositoryMockRecorder) UpdateMonthListensPerUser(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateMonthListensPerUser", reflect.TypeOf((*MockRepository)(nil).UpdateMonthListensPerUser), ctx)
 }
 
 // MockTables is a mock of Tables interface.

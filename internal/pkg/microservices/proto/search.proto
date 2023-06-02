@@ -37,7 +37,8 @@ message ArtistResponse {
     uint32 id 		 = 1;       
 	uint32 userID 	 = 2;   
 	string name 	 = 3;     
-	string avatarSrc = 4; 
+	string avatarSrc = 4;
+	uint32 listens   = 5; 
 }
 
 

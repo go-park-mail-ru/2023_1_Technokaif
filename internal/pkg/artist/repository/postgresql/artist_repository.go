@@ -66,7 +66,7 @@ func (p *PostgreSQL) Insert(ctx context.Context, artist models.Artist) (uint32, 
 
 func (p *PostgreSQL) GetByID(ctx context.Context, artistID uint32) (*models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT id, user_id, name, avatar_src 
+		`SELECT id, user_id, name, avatar_src, listens
 		FROM %s 
 		WHERE id = $1;`,
 		p.tables.Artists())
@@ -110,7 +110,7 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, artistID uint32) error {
 
 func (p *PostgreSQL) GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT a.id, a.name, a.avatar_src
+		`SELECT a.id, a.name, a.avatar_src, a.listens
 		FROM (
 			SELECT track_id, COUNT(*) AS listens_by_time
 			FROM %s
@@ -135,7 +135,7 @@ func (p *PostgreSQL) GetFeedTop(ctx context.Context, days, limit uint32) ([]mode
 
 func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT id, name, avatar_src  
+		`SELECT id, name, avatar_src, listens  
 		FROM %s 
 		LIMIT $1;`,
 		p.tables.Artists())
@@ -150,7 +150,7 @@ func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Artist
 
 func (p *PostgreSQL) GetByAlbum(ctx context.Context, albumID uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT a.id, a.user_id, a.name, a.avatar_src 
+		`SELECT a.id, a.user_id, a.name, a.avatar_src, a.listens
 		FROM %s a 
 			INNER JOIN %s aa ON a.id = aa.artist_id 
 		WHERE aa.album_id = $1;`,
@@ -170,7 +170,7 @@ func (p *PostgreSQL) GetByAlbum(ctx context.Context, albumID uint32) ([]models.A
 
 func (p *PostgreSQL) GetByTrack(ctx context.Context, trackID uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT a.id, a.user_id, a.name, a.avatar_src 
+		`SELECT a.id, a.user_id, a.name, a.avatar_src, a.listens 
 		FROM %s a 
 			INNER JOIN %s at ON a.id = at.artist_id 
 		WHERE at.track_id = $1;`,
@@ -190,7 +190,7 @@ func (p *PostgreSQL) GetByTrack(ctx context.Context, trackID uint32) ([]models.A
 
 func (p *PostgreSQL) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Artist, error) {
 	query := fmt.Sprintf(
-		`SELECT a.id, a.name, a.avatar_src
+		`SELECT a.id, a.name, a.avatar_src, a.listens
 		FROM %s a 
 			INNER JOIN %s ua ON a.id = ua.artist_id 
 		WHERE ua.user_id = $1
@@ -273,4 +273,31 @@ func (p *PostgreSQL) IsLiked(ctx context.Context, artistID, userID uint32) (bool
 	}
 
 	return isLiked, nil
+}
+
+func (p *PostgreSQL) UpdateMonthListensPerUser(ctx context.Context) error {
+	query := fmt.Sprintf(
+		`WITH new_users_by_artist AS (
+			SELECT a.id as id, COUNT(DISTINCT tu.user_id) as new_users
+			FROM (
+				SELECT track_id, user_id
+				FROM %s
+				WHERE commited_at BETWEEN (current_timestamp - interval '30 day') AND current_timestamp
+				GROUP BY track_id, user_id
+			) as tu 
+				INNER JOIN %s AS at ON tu.track_id = at.track_id
+				RIGHT JOIN %s AS a ON at.artist_id = a.id
+			GROUP BY a.id, tu.user_id
+		)
+		UPDATE %s AS a
+		SET listens = nla.new_users
+		FROM new_users_by_artist AS nla
+		WHERE a.id = nla.id;`,
+		p.tables.Listens(), p.tables.ArtistsTracks(), p.tables.Artists(), p.tables.Artists())
+
+	if _, err := p.db.ExecContext(ctx, query); err != nil {
+		return fmt.Errorf("(repo) failed to update artist listens per user: %w", err)
+	}
+
+	return nil
 }

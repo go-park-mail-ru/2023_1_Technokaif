@@ -178,6 +178,7 @@ func TestAlbumDeliveryHTTP_Get(t *testing.T) {
 			ID:        1,
 			Name:      "Oxxxymiron",
 			AvatarSrc: "/artists/avatars/oxxxymiron.png",
+			Listens:   0,
 		},
 	}
 

@@ -21,6 +21,7 @@ type Usecase interface {
 	SetLike(ctx context.Context, artistID, userID uint32) (bool, error)
 	UnLike(ctx context.Context, artistID, userID uint32) (bool, error)
 	IsLiked(ctx context.Context, artistID, userID uint32) (bool, error)
+	UpdateMonthListensPerUser(ctx context.Context) error
 }
 
 // Repository includes DBMS-relatable methods to work with artists
@@ -56,6 +57,8 @@ type Repository interface {
 	DeleteLike(ctx context.Context, artistID, userID uint32) (bool, error)
 
 	IsLiked(ctx context.Context, artistID, userID uint32) (bool, error)
+
+	UpdateMonthListensPerUser(ctx context.Context) error
 }
 
 // Tables includes methods which return needed tables

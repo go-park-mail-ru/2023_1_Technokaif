@@ -96,6 +96,8 @@ func easyjson75485a89DecodeGithubComGoParkMailRu20231TechnokaifInternalModels1(i
 			out.IsLiked = bool(in.Bool())
 		case "cover":
 			out.AvatarSrc = string(in.String())
+		case "listens":
+			out.Listens = uint32(in.Uint32())
 		default:
 			in.SkipRecursive()
 		}
@@ -129,6 +131,11 @@ func easyjson75485a89EncodeGithubComGoParkMailRu20231TechnokaifInternalModels1(o
 		const prefix string = ",\"cover\":"
 		out.RawString(prefix)
 		out.String(string(in.AvatarSrc))
+	}
+	{
+		const prefix string = ",\"listens\":"
+		out.RawString(prefix)
+		out.Uint32(uint32(in.Listens))
 	}
 	out.RawByte('}')
 }

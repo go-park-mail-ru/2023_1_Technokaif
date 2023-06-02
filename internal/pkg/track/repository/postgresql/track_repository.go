@@ -212,7 +212,8 @@ func (p *PostgreSQL) GetByArtist(ctx context.Context, artistID uint32) ([]models
 		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens, t.duration
 		FROM %s t
 			INNER JOIN %s at ON t.id = at.track_id 
-		WHERE at.artist_id = $1;`,
+		WHERE at.artist_id = $1
+		ORDER BY t.listens DESC;`,
 		p.tables.Tracks(), p.tables.ArtistsTracks())
 
 	var tracks []models.Track

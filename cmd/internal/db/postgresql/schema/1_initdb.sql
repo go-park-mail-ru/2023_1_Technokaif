@@ -17,7 +17,8 @@ CREATE TABLE Artists
     id         SERIAL      PRIMARY KEY,
     user_id    INT         REFERENCES Users(id) ON DELETE SET NULL,
     name       VARCHAR(30)                                         NOT NULL,
-    avatar_src TEXT                                                NOT NULL
+    avatar_src TEXT                                                NOT NULL,
+    listens        INT         DEFAULT 0                           NOT NULL,
 );
 
 CREATE TABLE Albums

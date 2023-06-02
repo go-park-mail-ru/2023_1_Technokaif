@@ -201,7 +201,8 @@ func TestTrackDeliveryHTTP_Get(t *testing.T) {
 				"id": 1,
 				"name": "Oxxxymiron",
 				"isLiked": false,
-				"cover": "/artists/avatars/oxxxymiron.png"
+				"cover": "/artists/avatars/oxxxymiron.png",
+				"listens" : 0
 			}
 		],
 		"cover": "/tracks/covers/hit.png",
@@ -429,16 +430,19 @@ func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 			ID:        1,
 			Name:      "Oxxxymiron",
 			AvatarSrc: "/artists/avatars/1.png",
+			Listens:   0,
 		},
 		{
 			ID:        2,
 			Name:      "SALUKI",
 			AvatarSrc: "/artists/avatars/2.png",
+			Listens:   0,
 		},
 		{
 			ID:        3,
 			Name:      "ATL",
 			AvatarSrc: "/artists/avatars/3.png",
+			Listens:   0,
 		},
 	}
 
@@ -451,7 +455,8 @@ func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 					"id": 1,
 					"name": "Oxxxymiron",
 					"isLiked": false,
-					"cover": "/artists/avatars/1.png"
+					"cover": "/artists/avatars/1.png",
+					"listens": 0
 				}
 			],
 			"cover": "/tracks/covers/1.png",
@@ -468,13 +473,15 @@ func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 					"id": 2,
 					"name": "SALUKI",
 					"isLiked": false,
-					"cover": "/artists/avatars/2.png"
+					"cover": "/artists/avatars/2.png",
+					"listens: 0
 				},
 				{
 					"id": 3,
 					"name": "ATL",
 					"isLiked": false,
-					"cover": "/artists/avatars/3.png"
+					"cover": "/artists/avatars/3.png",
+					"listens": 0
 				}
 			],
 			"cover": "/tracks/covers/2.png",

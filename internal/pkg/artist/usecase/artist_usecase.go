@@ -137,3 +137,11 @@ func (u *Usecase) IsLiked(ctx context.Context, artistID, userID uint32) (bool, e
 
 	return isLiked, nil
 }
+
+func (u *Usecase) UpdateMonthListensPerUser(ctx context.Context) error {
+	if err := u.repo.UpdateMonthListensPerUser(ctx); err != nil {
+		return fmt.Errorf("(usecase) can't update listens: %w", err)
+	}
+
+	return nil
+}

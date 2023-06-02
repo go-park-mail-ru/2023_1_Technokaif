@@ -47,7 +47,7 @@ func (p *PostgreSQL) FullTextSearchArtists(
 	ctx context.Context, ftsQuery string, limit uint32) ([]models.Artist, error) {
 
 	query := fmt.Sprintf(
-		`SELECT id, name, avatar_src
+		`SELECT id, name, avatar_src, listens
 		FROM %s
 		WHERE to_tsvector(lang, name) @@ plainto_tsquery(lang, $1)
 			OR LOWER(name) LIKE LOWER('%%' || $1 || '%%')
