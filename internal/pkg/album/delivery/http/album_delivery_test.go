@@ -178,6 +178,7 @@ func TestAlbumDeliveryHTTP_Get(t *testing.T) {
 			ID:        1,
 			Name:      "Oxxxymiron",
 			AvatarSrc: "/artists/avatars/oxxxymiron.png",
+			Listens:   0,
 		},
 	}
 
@@ -189,7 +190,8 @@ func TestAlbumDeliveryHTTP_Get(t *testing.T) {
 				"id": 1,
 				"name": "Oxxxymiron",
 				"isLiked": false,
-				"cover": "/artists/avatars/oxxxymiron.png"
+				"cover": "/artists/avatars/oxxxymiron.png",
+				"listens": 0
 			}
 		],
 		"description": "Антиутопия",
@@ -438,7 +440,8 @@ func TestAlbumDeliveryHTTP_Feed(t *testing.T) {
 					"id": 1,
 					"name": "Oxxxymiron",
 					"isLiked": false,
-					"cover": "/artists/avatars/oxxxymiron.png"
+					"cover": "/artists/avatars/oxxxymiron.png",
+					"listens": 0
 				}
 			],
 			"description": "Антиутопия",
@@ -453,13 +456,15 @@ func TestAlbumDeliveryHTTP_Feed(t *testing.T) {
 					"id": 2,
 					"name": "SALUKI",
 					"isLiked": false,
-					"cover": "/artists/avatars/saluki.png"
+					"cover": "/artists/avatars/saluki.png",
+					"listens": 0
 				},
 				{
 					"id": 3,
 					"name": "104",
 					"isLiked": false,
-					"cover": "/artists/avatars/104.png"
+					"cover": "/artists/avatars/104.png",
+					"listens": 0
 				}
 			],
 			"description": "Крутой альбом от крутого дуета",
@@ -582,7 +587,8 @@ func TestAlbumDeliveryHTTP_GetFavorite(t *testing.T) {
 					"id": 1,
 					"name": "Oxxxymiron",
 					"isLiked": false,
-					"cover": "/artists/avatars/oxxxymiron.png"
+					"cover": "/artists/avatars/oxxxymiron.png",
+					"listens": 0
 				}
 			],
 			"description": "Антиутопия",
@@ -597,7 +603,8 @@ func TestAlbumDeliveryHTTP_GetFavorite(t *testing.T) {
 					"id": 2,
 					"name": "SALUKI",
 					"isLiked": false,
-					"cover": "/artists/avatars/saluki.png"
+					"cover": "/artists/avatars/saluki.png",
+					"listens": 0
 				}
 			],
 			"description": "Стиль",

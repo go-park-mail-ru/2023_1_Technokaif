@@ -9,7 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 )
 
-const feedAlbumsAmountLimit uint32 = 100
+const feedAlbumsAmountLimit uint32 = 30
 
 // Usecase implements album.Usecase
 type Usecase struct {
@@ -82,6 +82,15 @@ func (u *Usecase) Delete(ctx context.Context, albumID uint32, userID uint32) err
 	}
 
 	return nil
+}
+
+func (u *Usecase) GetFeedTop(ctx context.Context, days uint32) ([]models.Album, error) {
+	albums, err := u.albumRepo.GetFeedTop(ctx, days, feedAlbumsAmountLimit)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get feed albums from repository: %w", err)
+	}
+
+	return albums, nil
 }
 
 func (u *Usecase) GetFeed(ctx context.Context) ([]models.Album, error) {

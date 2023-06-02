@@ -8,7 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/artist"
 )
 
-const feedArtistsAmountLimit uint32 = 100
+const feedArtistsAmountLimit uint32 = 30
 
 // Usecase implements artist.Usecase
 type Usecase struct {
@@ -56,6 +56,15 @@ func (u *Usecase) Delete(ctx context.Context, artistID uint32, userID uint32) er
 	}
 
 	return nil
+}
+
+func (u *Usecase) GetFeedTop(ctx context.Context, days uint32) ([]models.Artist, error) {
+	artists, err := u.repo.GetFeedTop(ctx, days, feedArtistsAmountLimit)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get feed artists from repository: %w", err)
+	}
+
+	return artists, nil
 }
 
 func (u *Usecase) GetFeed(ctx context.Context) ([]models.Artist, error) {
@@ -127,4 +136,12 @@ func (u *Usecase) IsLiked(ctx context.Context, artistID, userID uint32) (bool, e
 	}
 
 	return isLiked, nil
+}
+
+func (u *Usecase) UpdateMonthListensPerUser(ctx context.Context) error {
+	if err := u.repo.UpdateMonthListensPerUser(ctx); err != nil {
+		return fmt.Errorf("(usecase) can't update listens: %w", err)
+	}
+
+	return nil
 }

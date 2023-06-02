@@ -7,6 +7,7 @@ package mock_track
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	models "github.com/go-park-mail-ru/2023_1_Technokaif/internal/models"
 	gomock "github.com/golang/mock/gomock"
@@ -139,6 +140,21 @@ func (mr *MockUsecaseMockRecorder) GetFeed(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockUsecase)(nil).GetFeed), ctx)
 }
 
+// GetFeedTop mocks base method.
+func (m *MockUsecase) GetFeedTop(ctx context.Context, days uint32) ([]models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFeedTop", ctx, days)
+	ret0, _ := ret[0].([]models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFeedTop indicates an expected call of GetFeedTop.
+func (mr *MockUsecaseMockRecorder) GetFeedTop(ctx, days interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedTop", reflect.TypeOf((*MockUsecase)(nil).GetFeedTop), ctx, days)
+}
+
 // GetLikedByUser mocks base method.
 func (m *MockUsecase) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Track, error) {
 	m.ctrl.T.Helper()
@@ -152,6 +168,35 @@ func (m *MockUsecase) GetLikedByUser(ctx context.Context, userID uint32) ([]mode
 func (mr *MockUsecaseMockRecorder) GetLikedByUser(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockUsecase)(nil).GetLikedByUser), ctx, userID)
+}
+
+// GetListens mocks base method.
+func (m *MockUsecase) GetListens(ctx context.Context, trackID uint32) (uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetListens", ctx, trackID)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetListens indicates an expected call of GetListens.
+func (mr *MockUsecaseMockRecorder) GetListens(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetListens", reflect.TypeOf((*MockUsecase)(nil).GetListens), ctx, trackID)
+}
+
+// IncrementListens mocks base method.
+func (m *MockUsecase) IncrementListens(ctx context.Context, trackID, userID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncrementListens", ctx, trackID, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// IncrementListens indicates an expected call of IncrementListens.
+func (mr *MockUsecaseMockRecorder) IncrementListens(ctx, trackID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementListens", reflect.TypeOf((*MockUsecase)(nil).IncrementListens), ctx, trackID, userID)
 }
 
 // IsLiked mocks base method.
@@ -197,6 +242,34 @@ func (m *MockUsecase) UnLike(ctx context.Context, trackID, userID uint32) (bool,
 func (mr *MockUsecaseMockRecorder) UnLike(ctx, trackID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnLike", reflect.TypeOf((*MockUsecase)(nil).UnLike), ctx, trackID, userID)
+}
+
+// UpdateAllListens mocks base method.
+func (m *MockUsecase) UpdateAllListens(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAllListens", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAllListens indicates an expected call of UpdateAllListens.
+func (mr *MockUsecaseMockRecorder) UpdateAllListens(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAllListens", reflect.TypeOf((*MockUsecase)(nil).UpdateAllListens), ctx)
+}
+
+// UpdateListens mocks base method.
+func (m *MockUsecase) UpdateListens(ctx context.Context, trackID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateListens", ctx, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateListens indicates an expected call of UpdateListens.
+func (mr *MockUsecaseMockRecorder) UpdateListens(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateListens", reflect.TypeOf((*MockUsecase)(nil).UpdateListens), ctx, trackID)
 }
 
 // MockRepository is a mock of Repository interface.
@@ -340,6 +413,21 @@ func (mr *MockRepositoryMockRecorder) GetFeed(ctx, limit interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockRepository)(nil).GetFeed), ctx, limit)
 }
 
+// GetFeedTop mocks base method.
+func (m *MockRepository) GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Track, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFeedTop", ctx, days, limit)
+	ret0, _ := ret[0].([]models.Track)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFeedTop indicates an expected call of GetFeedTop.
+func (mr *MockRepositoryMockRecorder) GetFeedTop(ctx, days, limit interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedTop", reflect.TypeOf((*MockRepository)(nil).GetFeedTop), ctx, days, limit)
+}
+
 // GetLikedByUser mocks base method.
 func (m *MockRepository) GetLikedByUser(ctx context.Context, userID uint32) ([]models.Track, error) {
 	m.ctrl.T.Helper()
@@ -353,6 +441,50 @@ func (m *MockRepository) GetLikedByUser(ctx context.Context, userID uint32) ([]m
 func (mr *MockRepositoryMockRecorder) GetLikedByUser(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLikedByUser", reflect.TypeOf((*MockRepository)(nil).GetLikedByUser), ctx, userID)
+}
+
+// GetListens mocks base method.
+func (m *MockRepository) GetListens(ctx context.Context, trackID uint32) (uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetListens", ctx, trackID)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetListens indicates an expected call of GetListens.
+func (mr *MockRepositoryMockRecorder) GetListens(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetListens", reflect.TypeOf((*MockRepository)(nil).GetListens), ctx, trackID)
+}
+
+// GetListensByInterval mocks base method.
+func (m *MockRepository) GetListensByInterval(ctx context.Context, start, end time.Time, trackID uint32) (uint32, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetListensByInterval", ctx, start, end, trackID)
+	ret0, _ := ret[0].(uint32)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetListensByInterval indicates an expected call of GetListensByInterval.
+func (mr *MockRepositoryMockRecorder) GetListensByInterval(ctx, start, end, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetListensByInterval", reflect.TypeOf((*MockRepository)(nil).GetListensByInterval), ctx, start, end, trackID)
+}
+
+// IncrementListens mocks base method.
+func (m *MockRepository) IncrementListens(ctx context.Context, trackID, userID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncrementListens", ctx, trackID, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// IncrementListens indicates an expected call of IncrementListens.
+func (mr *MockRepositoryMockRecorder) IncrementListens(ctx, trackID, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrementListens", reflect.TypeOf((*MockRepository)(nil).IncrementListens), ctx, trackID, userID)
 }
 
 // Insert mocks base method.
@@ -398,6 +530,34 @@ func (m *MockRepository) IsLiked(ctx context.Context, trackID, userID uint32) (b
 func (mr *MockRepositoryMockRecorder) IsLiked(ctx, trackID, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLiked", reflect.TypeOf((*MockRepository)(nil).IsLiked), ctx, trackID, userID)
+}
+
+// UpdateAllListens mocks base method.
+func (m *MockRepository) UpdateAllListens(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAllListens", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAllListens indicates an expected call of UpdateAllListens.
+func (mr *MockRepositoryMockRecorder) UpdateAllListens(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAllListens", reflect.TypeOf((*MockRepository)(nil).UpdateAllListens), ctx)
+}
+
+// UpdateListens mocks base method.
+func (m *MockRepository) UpdateListens(ctx context.Context, trackID uint32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateListens", ctx, trackID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateListens indicates an expected call of UpdateListens.
+func (mr *MockRepositoryMockRecorder) UpdateListens(ctx, trackID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateListens", reflect.TypeOf((*MockRepository)(nil).UpdateListens), ctx, trackID)
 }
 
 // MockTables is a mock of Tables interface.
@@ -449,6 +609,20 @@ func (m *MockTables) LikedTracks() string {
 func (mr *MockTablesMockRecorder) LikedTracks() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LikedTracks", reflect.TypeOf((*MockTables)(nil).LikedTracks))
+}
+
+// Listens mocks base method.
+func (m *MockTables) Listens() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Listens")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Listens indicates an expected call of Listens.
+func (mr *MockTablesMockRecorder) Listens() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Listens", reflect.TypeOf((*MockTables)(nil).Listens))
 }
 
 // PlaylistsTracks mocks base method.

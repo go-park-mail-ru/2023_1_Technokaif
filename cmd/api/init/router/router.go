@@ -97,6 +97,7 @@ func InitRouter(
 					})
 				})
 			})
+			r.Post("/feed", albumH.FeedTop)
 			r.Get("/feed", albumH.Feed)
 		})
 
@@ -150,6 +151,7 @@ func InitRouter(
 				})
 				r.Get("/albums", albumH.GetByArtist)
 			})
+			r.Post("/feed", artistH.FeedTop)
 			r.Get("/feed", artistH.Feed)
 		})
 
@@ -164,8 +166,10 @@ func InitRouter(
 					r.Delete("/", trackH.Delete)
 					r.Post("/like", trackH.Like)
 					r.Post("/unlike", trackH.UnLike)
+					r.Post("/listen", trackH.IncrementListens)
 				})
 			})
+			r.Post("/feed", trackH.FeedTop)
 			r.Get("/feed", trackH.Feed)
 		})
 

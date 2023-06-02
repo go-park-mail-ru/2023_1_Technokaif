@@ -1,12 +1,15 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"runtime/debug"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-park-mail-ru/2023_1_Technokaif/pkg/logger"
 	"github.com/jmoiron/sqlx"
+	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -58,7 +61,7 @@ type Agents struct {
 	*userAgent.UserAgent
 }
 
-func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger) (*chi.Mux, error) {
+func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger) (*chi.Mux, *cron.Cron, error) {
 	albumRepo := albumRepository.NewPostgreSQL(db, tables)
 	playlistRepo := playlistRepository.NewPostgreSQL(db, tables)
 	artistRepo := artistRepository.NewPostgreSQL(db, tables)
@@ -67,12 +70,12 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 
 	agents, err := makeAgents()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	s3Client, err := s3.MakeS3MinioClient(os.Getenv(config.S3HostParam), os.Getenv(config.S3AccessKeyParam), os.Getenv(config.S3SecretKeyParam))
 	if err != nil {
-		return nil, fmt.Errorf("error while connecting to S3: %v", err)
+		return nil, nil, fmt.Errorf("error while connecting to S3: %v", err)
 	}
 	playlistS3 := playlistS3.NewS3PlaylistCoverSaver(os.Getenv(config.S3BucketParam), os.Getenv(config.S3PlaylistCoversFolderParam), s3Client)
 
@@ -81,6 +84,32 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 	artistUsecase := artistUsecase.NewUsecase(artistRepo)
 	trackUsecase := trackUsecase.NewUsecase(trackRepo, artistRepo, albumRepo, playlistRepo)
 	tokenUsecase := tokenUsecase.NewUsecase()
+
+	c := cron.New()
+	if _, err := c.AddFunc("@every 10m", func() {
+		logger.Info("Count all listens started..")
+		defer func() {
+			if err := recover(); err != nil {
+				logger.Errorf("PANIC (recovered): %s\n stacktrace:\n%s", err, string(debug.Stack()))
+			}
+		}()
+
+		if err := trackUsecase.UpdateAllListens(context.Background()); err != nil {
+			logger.Errorf("Count all tracks listens fail: %v", err)
+			return
+		}
+		logger.Info("Count all tracks listens succeeded")
+
+		if err := artistUsecase.UpdateMonthListensPerUser(context.Background()); err != nil {
+			logger.Errorf("Count all artists listens fail: %v", err)
+			return
+		}
+		logger.Info("Count all artists listens succeeded")
+
+		logger.Info("Count all listens succeeded")
+	}); err != nil {
+		return nil, nil, err
+	}
 
 	albumHandler := albumDelivery.NewHandler(albumUsecase, artistUsecase, logger)
 	playlistHandler := playlistDelivery.NewHandler(playlistUsecase, trackUsecase, agents.UserAgent, logger)
@@ -109,7 +138,7 @@ func Init(db *sqlx.DB, tables postgresql.PostgreSQLTables, logger logger.Logger)
 		csrfMiddlware,
 		searchHandler,
 		logger,
-	), nil
+	), c, nil
 }
 
 func makeAgents() (*Agents, error) {

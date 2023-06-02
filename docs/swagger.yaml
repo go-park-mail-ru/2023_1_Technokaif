@@ -153,8 +153,6 @@ definitions:
         type: string
       password:
         type: string
-      sex:
-        $ref: '#/definitions/models.Sex'
       username:
         type: string
     type: object
@@ -188,6 +186,16 @@ definitions:
       status:
         type: string
     type: object
+  http.trackFeedInput:
+    properties:
+      days:
+        type: integer
+    type: object
+  http.trackIncrementListensResponse:
+    properties:
+      status:
+        type: string
+    type: object
   http.trackLikeResponse:
     properties:
       status:
@@ -203,8 +211,6 @@ definitions:
         type: string
       lastName:
         type: string
-      sex:
-        $ref: '#/definitions/models.Sex'
     type: object
   http.userUploadAvatarResponse:
     properties:
@@ -261,16 +267,6 @@ definitions:
           $ref: '#/definitions/models.UserTransfer'
         type: array
     type: object
-  models.Sex:
-    enum:
-    - M
-    - F
-    - O
-    type: string
-    x-enum-varnames:
-    - Male
-    - Female
-    - Other
   models.TrackTransfer:
     properties:
       albumID:
@@ -310,8 +306,6 @@ definitions:
         type: integer
       lastName:
         type: string
-      sex:
-        $ref: '#/definitions/models.Sex'
       username:
         type: string
     type: object
@@ -1321,6 +1315,31 @@ paths:
       summary: Set like
       tags:
       - Track
+  /api/tracks/{trackID}/listen:
+    post:
+      description: Add one listen of track by current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Listen added
+          schema:
+            $ref: '#/definitions/http.trackIncrementListensResponse'
+        "400":
+          description: Client error
+          schema:
+            $ref: '#/definitions/http.Error'
+        "401":
+          description: User unathorized
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Increment track's listens
+      tags:
+      - Track
   /api/tracks/{trackID}/unlike:
     post:
       description: Remove like by user from chosen track (remove from favorite)
@@ -1347,8 +1366,17 @@ paths:
       tags:
       - Track
   /api/tracks/feed:
-    get:
+    post:
+      consumes:
+      - application/json
       description: Feed tracks
+      parameters:
+      - description: Feed info
+        in: body
+        name: tfi
+        required: true
+        schema:
+          $ref: '#/definitions/http.trackFeedInput'
       produces:
       - application/json
       responses:

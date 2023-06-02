@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -127,6 +129,28 @@ func (p *PostgreSQL) DeleteByID(ctx context.Context, trackID uint32) error {
 	return nil
 }
 
+func (p *PostgreSQL) GetFeedTop(ctx context.Context, days, limit uint32) ([]models.Track, error) {
+	query := fmt.Sprintf(
+		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens, t.duration
+		FROM (
+			SELECT track_id, COUNT(*) AS listens_by_time
+			FROM %s
+			WHERE commited_at BETWEEN (current_timestamp - $1 * interval '1 day') AND current_timestamp
+			GROUP BY track_id
+		) AS tbl
+			RIGHT JOIN %s AS t ON tbl.track_id = t.id
+		ORDER BY tbl.listens_by_time DESC NULLS LAST
+		LIMIT $2;`,
+		p.tables.Listens(), p.tables.Tracks())
+
+	var tracks []models.Track
+	if err := p.db.SelectContext(ctx, &tracks, query, strconv.Itoa(int(days)), limit); err != nil {
+		return nil, fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return tracks, nil
+}
+
 func (p *PostgreSQL) GetFeed(ctx context.Context, limit uint32) ([]models.Track, error) {
 	query := fmt.Sprintf(
 		`SELECT id, name, album_id, cover_src, record_src, listens, duration
@@ -188,7 +212,8 @@ func (p *PostgreSQL) GetByArtist(ctx context.Context, artistID uint32) ([]models
 		`SELECT t.id, t.name, t.album_id, t.cover_src, t.record_src, t.listens, t.duration
 		FROM %s t
 			INNER JOIN %s at ON t.id = at.track_id 
-		WHERE at.artist_id = $1;`,
+		WHERE at.artist_id = $1
+		ORDER BY t.listens DESC;`,
 		p.tables.Tracks(), p.tables.ArtistsTracks())
 
 	var tracks []models.Track
@@ -282,10 +307,97 @@ func (p *PostgreSQL) IsLiked(ctx context.Context, trackID, userID uint32) (bool,
 		p.tables.LikedTracks())
 
 	var isLiked bool
-	err := p.db.GetContext(ctx, &isLiked, query, trackID, userID)
-	if err != nil {
+	if err := p.db.GetContext(ctx, &isLiked, query, trackID, userID); err != nil {
 		return false, fmt.Errorf("(repo) failed to check if track is liked by user: %w", err)
 	}
 
 	return isLiked, nil
+}
+
+func (p *PostgreSQL) IncrementListens(ctx context.Context, trackID, userID uint32) error {
+	query := fmt.Sprintf(
+		`INSERT INTO %s (track_id, user_id)
+		VALUES ($1, $2);`,
+		p.tables.Listens())
+
+	if _, err := p.db.ExecContext(ctx, query, trackID, userID); err != nil {
+		return fmt.Errorf("(repo) failed to exec query: %w", err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) GetListens(ctx context.Context, trackID uint32) (uint32, error) {
+	query := fmt.Sprintf(
+		`SELECT COUNT(track_id)
+		FROM %s
+		WHERE track_id = $1;`,
+		p.tables.Listens())
+
+	var listens uint32
+	err := p.db.GetContext(ctx, &listens, query, trackID)
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to get listens of track: %w", err)
+	}
+
+	return listens, nil
+}
+
+func (p *PostgreSQL) GetListensByInterval(ctx context.Context,
+	start, end time.Time, trackID uint32) (uint32, error) {
+
+	query := fmt.Sprintf(
+		`SELECT COUNT(track_id)
+		FROM %s
+		WHERE track_id = $1
+			AND commited_at BETWEEN($2, $3);`,
+		p.tables.Listens())
+
+	var listens uint32
+	err := p.db.GetContext(ctx, &listens, query, trackID, start.Unix(), end.Unix())
+	if err != nil {
+		return 0, fmt.Errorf("(repo) failed to get listens of track: %w", err)
+	}
+
+	return listens, nil
+}
+
+func (p *PostgreSQL) UpdateListens(ctx context.Context, trackID uint32) error {
+	listens, err := p.GetListens(ctx, trackID)
+	if err != nil {
+		return fmt.Errorf("(repo) failed to get amount of listens of track: %w", err)
+	}
+
+	query := fmt.Sprintf(
+		`UPDATE %s
+		SET listens = $1
+		WHERE id = $2;`,
+		p.tables.Listens())
+
+	if _, err := p.db.ExecContext(ctx, query, listens, trackID); err != nil {
+		return fmt.Errorf("(repo) failed to update amount of listens of track: %w", err)
+	}
+
+	return nil
+}
+
+func (p *PostgreSQL) UpdateAllListens(ctx context.Context) error {
+	query := fmt.Sprintf(
+		`WITH new_listens_by_track AS (
+			SELECT track_id AS id, COUNT(track_id) AS new_listens
+			FROM %s
+			WHERE commited_at > current_timestamp - time '00:10'
+			GROUP BY track_id
+		)
+		UPDATE %s AS t
+		SET listens = listens + nlt.new_listens
+		FROM new_listens_by_track AS nlt
+		WHERE t.id = nlt.id;`,
+		p.tables.Listens(), p.tables.Tracks())
+
+	if _, err := p.db.ExecContext(ctx, query); err != nil {
+		return fmt.Errorf("(repo) failed to update all listens: %w", err)
+	}
+
+	return nil
 }

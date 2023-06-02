@@ -24,8 +24,10 @@ const (
 	trackGetServerError    = "can't get track"
 	tracksGetServerError   = "can't get tracks"
 	trackDeleteServerError = "can't delete track"
+	listenAddError         = "can't add listen of track"
 
 	trackDeletedSuccessfully = "ok"
+	listenAddedSuccessfully  = "ok"
 )
 
 //easyjson:json
@@ -35,6 +37,11 @@ type trackCreateInput struct {
 	AlbumPosition *uint32  `json:"albumPosition"`
 	ArtistsID     []uint32 `json:"artistsID" valid:"required"`
 	RecordSrc     string   `json:"record" valid:"required"`
+}
+
+//easyjson:json
+type trackFeedInput struct {
+	Days uint32 `json:"days" valid:"required"`
 }
 
 func (t *trackCreateInput) validateAndEscape() error {
@@ -74,5 +81,10 @@ type trackDeleteResponse struct {
 
 //easyjson:json
 type trackLikeResponse struct {
+	Status string `json:"status"`
+}
+
+//easyjson:json
+type trackIncrementListensResponse struct {
 	Status string `json:"status"`
 }

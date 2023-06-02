@@ -18,7 +18,7 @@ func NewUsecase() *Usecase {
 var tokenSecret = os.Getenv("SECRET")
 
 const csrfTokenTTL = 30 * time.Minute
-const accessTokenTTL = 24 * time.Hour
+const accessTokenTTL = 24 * 30 * time.Hour
 const jwtParsingMaxTime = 3 * time.Second
 
 type jwtAccessClaims struct {

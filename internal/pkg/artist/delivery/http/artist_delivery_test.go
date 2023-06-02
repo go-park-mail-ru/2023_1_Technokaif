@@ -146,7 +146,8 @@ func TestArtistDeliveryHTTP_Get(t *testing.T) {
 		"id": 1,
 		"name": "Oxxxymiron",
 		"isLiked": false,
-		"cover": "/artists/avatars/oxxxymiron.png"
+		"cover": "/artists/avatars/oxxxymiron.png",
+		"listens": 0
 	}`
 
 	testTable := []struct {
@@ -354,25 +355,29 @@ func TestArtistDeliveryHTTP_Feed(t *testing.T) {
 			"id": 1,
 			"name": "Oxxxymiron",
 			"isLiked": false,
-			"cover": "/artists/avatars/oxxxymiron.png"
+			"cover": "/artists/avatars/oxxxymiron.png",
+			"listens": 0
 		},
 		{
 			"id": 2,
 			"name": "SALUKI",
 			"isLiked": false,
-			"cover": "/artists/avatars/saluki.png"
+			"cover": "/artists/avatars/saluki.png",
+			"listens": 0
 		},
 		{
 			"id": 3,
 			"name": "ATL",
 			"isLiked": false,
-			"cover": "/artists/avatars/atl.png"
+			"cover": "/artists/avatars/atl.png",
+			"listens": 0
 		},
 		{
 			"id": 4,
 			"name": "104",
 			"isLiked": false,
-			"cover": "/artists/avatars/104.png"
+			"cover": "/artists/avatars/104.png",
+			"listens": 0
 		}
 	]`
 
@@ -457,13 +462,15 @@ func TestArtistDeliveryHTTP_GetFavorite(t *testing.T) {
 			"id": 1,
 			"name": "Oxxxymiron",
 			"isLiked": true,
-			"cover": "/artists/avatars/oxxxymiron.png"
+			"cover": "/artists/avatars/oxxxymiron.png",
+			"listens": 0
 		},
 		{
 			"id": 2,
 			"name": "SALUKI",
 			"isLiked": true,
-			"cover": "/artists/avatars/saluki.png"
+			"cover": "/artists/avatars/saluki.png",
+			"listens": 0
 		}
 	]`
 

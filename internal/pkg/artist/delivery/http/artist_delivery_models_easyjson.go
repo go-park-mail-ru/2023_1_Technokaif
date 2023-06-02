@@ -69,7 +69,59 @@ func (v artistLikeResponse) MarshalEasyJSON(w *jwriter.Writer) {
 func (v *artistLikeResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
 	easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp(l, v)
 }
-func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp1(in *jlexer.Lexer, out *artistDeleteResponse) {
+func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp1(in *jlexer.Lexer, out *artistFeedInput) {
+	isTopLevel := in.IsStart()
+	if in.IsNull() {
+		if isTopLevel {
+			in.Consumed()
+		}
+		in.Skip()
+		return
+	}
+	in.Delim('{')
+	for !in.IsDelim('}') {
+		key := in.UnsafeFieldName(false)
+		in.WantColon()
+		if in.IsNull() {
+			in.Skip()
+			in.WantComma()
+			continue
+		}
+		switch key {
+		case "days":
+			out.Days = uint32(in.Uint32())
+		default:
+			in.SkipRecursive()
+		}
+		in.WantComma()
+	}
+	in.Delim('}')
+	if isTopLevel {
+		in.Consumed()
+	}
+}
+func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp1(out *jwriter.Writer, in artistFeedInput) {
+	out.RawByte('{')
+	first := true
+	_ = first
+	{
+		const prefix string = ",\"days\":"
+		out.RawString(prefix[1:])
+		out.Uint32(uint32(in.Days))
+	}
+	out.RawByte('}')
+}
+
+// MarshalEasyJSON supports easyjson.Marshaler interface
+func (v artistFeedInput) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp1(w, v)
+}
+
+// UnmarshalEasyJSON supports easyjson.Unmarshaler interface
+func (v *artistFeedInput) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp1(l, v)
+}
+func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp2(in *jlexer.Lexer, out *artistDeleteResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -100,7 +152,7 @@ func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtist
 		in.Consumed()
 	}
 }
-func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp1(out *jwriter.Writer, in artistDeleteResponse) {
+func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp2(out *jwriter.Writer, in artistDeleteResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -114,14 +166,14 @@ func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtist
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v artistDeleteResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp1(w, v)
+	easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp2(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *artistDeleteResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp1(l, v)
+	easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp2(l, v)
 }
-func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp2(in *jlexer.Lexer, out *artistCreateResponse) {
+func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp3(in *jlexer.Lexer, out *artistCreateResponse) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -152,7 +204,7 @@ func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtist
 		in.Consumed()
 	}
 }
-func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp2(out *jwriter.Writer, in artistCreateResponse) {
+func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp3(out *jwriter.Writer, in artistCreateResponse) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -166,14 +218,14 @@ func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtist
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v artistCreateResponse) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp2(w, v)
+	easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp3(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *artistCreateResponse) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp2(l, v)
+	easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp3(l, v)
 }
-func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp3(in *jlexer.Lexer, out *artistCreateInput) {
+func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp4(in *jlexer.Lexer, out *artistCreateInput) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -206,7 +258,7 @@ func easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtist
 		in.Consumed()
 	}
 }
-func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp3(out *jwriter.Writer, in artistCreateInput) {
+func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp4(out *jwriter.Writer, in artistCreateInput) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -225,10 +277,10 @@ func easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtist
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v artistCreateInput) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp3(w, v)
+	easyjson11ae29f9EncodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp4(w, v)
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *artistCreateInput) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp3(l, v)
+	easyjson11ae29f9DecodeGithubComGoParkMailRu20231TechnokaifInternalPkgArtistDeliveryHttp4(l, v)
 }

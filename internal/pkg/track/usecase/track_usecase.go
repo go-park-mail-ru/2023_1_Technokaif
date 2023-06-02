@@ -11,7 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2023_1_Technokaif/internal/pkg/track"
 )
 
-const feedTracksAmountLimit uint32 = 100
+const feedTracksAmountLimit uint32 = 30
 
 // Usecase implements track.Usecase
 type Usecase struct {
@@ -91,6 +91,15 @@ func (u *Usecase) Delete(ctx context.Context, trackID uint32, userID uint32) err
 	}
 
 	return nil
+}
+
+func (u *Usecase) GetFeedTop(ctx context.Context, days uint32) ([]models.Track, error) {
+	tracks, err := u.trackRepo.GetFeedTop(ctx, days, feedTracksAmountLimit)
+	if err != nil {
+		return nil, fmt.Errorf("(usecase) can't get feed tracks from repository: %w", err)
+	}
+
+	return tracks, nil
 }
 
 func (u *Usecase) GetFeed(ctx context.Context) ([]models.Track, error) {
@@ -183,4 +192,41 @@ func (u *Usecase) IsLiked(ctx context.Context, trackID, userID uint32) (bool, er
 	}
 
 	return isLiked, nil
+}
+
+func (u *Usecase) IncrementListens(ctx context.Context, trackID, userID uint32) error {
+	if err := u.trackRepo.Check(ctx, trackID); err != nil {
+		return fmt.Errorf("(usecase) can't find track with id #%d: %w", trackID, err)
+	}
+
+	if err := u.trackRepo.IncrementListens(ctx, trackID, userID); err != nil {
+		return fmt.Errorf("(usecase) can't add listen into repository: %w", err)
+	}
+
+	return nil
+}
+
+func (u *Usecase) GetListens(ctx context.Context, trackID uint32) (uint32, error) {
+	listens, err := u.trackRepo.GetListens(ctx, trackID)
+	if err != nil {
+		return 0, fmt.Errorf("(usecase) can't get listens of track in repository: %w", err)
+	}
+
+	return listens, nil
+}
+
+func (u *Usecase) UpdateListens(ctx context.Context, trackID uint32) error {
+	if err := u.trackRepo.UpdateListens(ctx, trackID); err != nil {
+		return fmt.Errorf("(usecase) can't update listens of track in repository: %w", err)
+	}
+
+	return nil
+}
+
+func (u *Usecase) UpdateAllListens(ctx context.Context) error {
+	if err := u.trackRepo.UpdateAllListens(ctx); err != nil {
+		return fmt.Errorf("(usecase) can't update all listens in repository: %w", err)
+	}
+
+	return nil
 }

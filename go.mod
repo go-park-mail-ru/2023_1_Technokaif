@@ -16,6 +16,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.52
 	github.com/prometheus/client_golang v1.15.0
+	github.com/robfig/cron/v3 v3.0.0
 	github.com/stretchr/testify v1.8.2
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.1

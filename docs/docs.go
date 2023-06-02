@@ -1418,8 +1418,11 @@ const docTemplate = `{
             }
         },
         "/api/tracks/feed": {
-            "get": {
+            "post": {
                 "description": "Feed tracks",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1427,6 +1430,17 @@ const docTemplate = `{
                     "Feed"
                 ],
                 "summary": "Track Feed",
+                "parameters": [
+                    {
+                        "description": "Feed info",
+                        "name": "tfi",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.trackFeedInput"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Tracks feed",
@@ -1593,6 +1607,44 @@ const docTemplate = `{
                         "description": "Like set",
                         "schema": {
                             "$ref": "#/definitions/http.trackLikeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Client error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "User unathorized",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/http.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tracks/{trackID}/listen": {
+            "post": {
+                "description": "Add one listen of track by current user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Track"
+                ],
+                "summary": "Increment track's listens",
+                "responses": {
+                    "200": {
+                        "description": "Listen added",
+                        "schema": {
+                            "$ref": "#/definitions/http.trackIncrementListensResponse"
                         }
                     },
                     "400": {
@@ -2277,9 +2329,6 @@ const docTemplate = `{
                 "password": {
                     "type": "string"
                 },
-                "sex": {
-                    "$ref": "#/definitions/models.Sex"
-                },
                 "username": {
                     "type": "string"
                 }
@@ -2332,6 +2381,22 @@ const docTemplate = `{
                 }
             }
         },
+        "http.trackFeedInput": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "integer"
+                }
+            }
+        },
+        "http.trackIncrementListensResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "http.trackLikeResponse": {
             "type": "object",
             "properties": {
@@ -2354,9 +2419,6 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
-                },
-                "sex": {
-                    "$ref": "#/definitions/models.Sex"
                 }
             }
         },
@@ -2445,19 +2507,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Sex": {
-            "type": "string",
-            "enum": [
-                "M",
-                "F",
-                "O"
-            ],
-            "x-enum-varnames": [
-                "Male",
-                "Female",
-                "Other"
-            ]
-        },
         "models.TrackTransfer": {
             "type": "object",
             "properties": {
@@ -2516,9 +2565,6 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
-                },
-                "sex": {
-                    "$ref": "#/definitions/models.Sex"
                 },
                 "username": {
                     "type": "string"

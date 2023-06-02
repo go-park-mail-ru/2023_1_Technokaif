@@ -171,6 +171,46 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 // @Tags		Feed
 // @Description	Feed artists
 // @Produce		json
+// @Param		afi		body		artistFeedInput    true	"Feed info"
+// @Success		200		{object}	models.ArtistTransfers	"Artists feed"
+// @Failure		500		{object}	http.Error				"Server error"
+// @Router		/api/artists/feed [post]
+func (h *Handler) FeedTop(w http.ResponseWriter, r *http.Request) {
+	var afi artistFeedInput
+	if err := easyjson.UnmarshalFromReader(r.Body, &afi); err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		return
+	}
+
+	artists, err := h.artistServices.GetFeedTop(r.Context(), afi.Days)
+	if err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	at, err := models.ArtistTransferFromList(r.Context(), artists, user, h.artistServices.IsLiked)
+	if err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			artistsGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHTTP.SuccessResponse(w, r, at, h.logger)
+}
+
+// @Summary		Artist Feed
+// @Tags		Feed
+// @Description	Feed artists
+// @Produce		json
 // @Success		200		{object}	models.ArtistTransfers	"Artists feed"
 // @Failure		500		{object}	http.Error				"Server error"
 // @Router		/api/artists/feed [get]

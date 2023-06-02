@@ -10,17 +10,17 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: '1.20'
-
+        
       - name: Formatting
         run: gofmt -s -w -d . && git diff --exit-code
 
       - name: Verify dependencies
         run: go mod verify
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          args: --timeout=10m
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
+      - name: Run golangci-lint
+        run: golangci-lint run --version --verbose --out-format=github-actions
 
       - name: go-vet
         run: go vet ./...

@@ -328,6 +328,48 @@ func (h *Handler) GetByAlbum(w http.ResponseWriter, r *http.Request) {
 // @Summary		Track Feed
 // @Tags		Feed
 // @Description	Feed tracks
+// @Accept		json
+// @Produce		json
+// @Param		tfi		body		trackFeedInput    true	"Feed info"
+// @Success		200		{object}	models.TrackTransfers  	"Tracks feed"
+// @Failure		500		{object}	http.Error			   	"Server error"
+// @Router		/api/tracks/feed [post]
+func (h *Handler) FeedTop(w http.ResponseWriter, r *http.Request) {
+	var tfi trackFeedInput
+	if err := easyjson.UnmarshalFromReader(r.Body, &tfi); err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.IncorrectRequestBody, http.StatusBadRequest, h.logger, err)
+		return
+	}
+
+	tracks, err := h.trackServices.GetFeedTop(r.Context(), tfi.Days)
+	if err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil && !errors.Is(err, commonHTTP.ErrUnauthorized) {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	tt, err := models.TrackTransferFromList(r.Context(), tracks, user, h.trackServices.IsLiked,
+		h.artistServices.IsLiked, h.artistServices.GetByTrack)
+	if err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			tracksGetServerError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	commonHTTP.SuccessResponse(w, r, tt, h.logger)
+}
+
+// @Summary		Track Feed
+// @Tags		Feed
+// @Description	Feed tracks
 // @Produce		json
 // @Success		200		{object}	models.TrackTransfers  "Tracks feed"
 // @Failure		500		{object}	http.Error			   "Server error"
@@ -482,4 +524,47 @@ func (h *Handler) UnLike(w http.ResponseWriter, r *http.Request) {
 		tlr.Status = commonHTTP.LikeDoesntExist
 	}
 	commonHTTP.SuccessResponse(w, r, tlr, h.logger)
+}
+
+// @Summary		Increment track's listens
+// @Tags		Track
+// @Description	Add one listen of track by current user
+// @Produce		json
+// @Success		200		{object}	trackIncrementListensResponse	"Listen added"
+// @Failure		400		{object}	http.Error						"Client error"
+// @Failure		401		{object}	http.Error  					"User unathorized"
+// @Failure		500		{object}	http.Error						"Server error"
+// @Router		/api/tracks/{trackID}/listen [post]
+func (h *Handler) IncrementListens(w http.ResponseWriter, r *http.Request) {
+	trackID, err := commonHTTP.GetTrackIDFromRequest(r)
+	if err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.InvalidURLParameter, http.StatusBadRequest, h.logger, err)
+		return
+	}
+
+	user, err := commonHTTP.GetUserFromRequest(r)
+	if err != nil {
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			commonHTTP.UnathorizedUser, http.StatusUnauthorized, h.logger, err)
+		return
+	}
+
+	err = h.trackServices.IncrementListens(r.Context(), trackID, user.ID)
+	if err != nil {
+		var errNoSuchTrack *models.NoSuchTrackError
+		if errors.As(err, &errNoSuchTrack) {
+			commonHTTP.ErrorResponseWithErrLogging(w, r,
+				trackNotFound, http.StatusBadRequest, h.logger, err)
+			return
+		}
+
+		commonHTTP.ErrorResponseWithErrLogging(w, r,
+			listenAddError, http.StatusInternalServerError, h.logger, err)
+		return
+	}
+
+	tilr := trackIncrementListensResponse{Status: listenAddedSuccessfully}
+
+	commonHTTP.SuccessResponse(w, r, tilr, h.logger)
 }

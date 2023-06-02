@@ -59,11 +59,17 @@ func main() {
 		}
 	}()
 
-	router, err := app.Init(db, tables, logger)
+	router, sсheduler, err := app.Init(db, tables, logger)
 	if err != nil {
 		logger.Errorf("error while initialization api app: %v", err)
 		return
 	}
+	defer func() {
+		ctx := sсheduler.Stop()
+		<-ctx.Done()
+	}()
+
+	sсheduler.Start()
 
 	var srv server.Server
 	if err := srv.Init(os.Getenv(config.ApiListenParam), router); err != nil {

@@ -9,6 +9,7 @@ type Artist struct {
 	UserID    *uint32 `db:"user_id"`
 	Name      string  `db:"name"`
 	AvatarSrc string  `db:"avatar_src"`
+	Listens   uint32  `db:"listens"`
 }
 
 //easyjson:json
@@ -17,6 +18,7 @@ type ArtistTransfer struct {
 	Name      string `json:"name"`
 	IsLiked   bool   `json:"isLiked"`
 	AvatarSrc string `json:"cover"`
+	Listens   uint32 `json:"listens"`
 }
 
 //easyjson:json
@@ -43,6 +45,7 @@ func ArtistTransferFromEntry(ctx context.Context, a Artist, user *User,
 		Name:      a.Name,
 		IsLiked:   isLiked,
 		AvatarSrc: a.AvatarSrc,
+		Listens:   a.Listens,
 	}, nil
 }
 
