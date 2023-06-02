@@ -474,7 +474,7 @@ func TestTrackDeliveryHTTP_Feed(t *testing.T) {
 					"name": "SALUKI",
 					"isLiked": false,
 					"cover": "/artists/avatars/2.png",
-					"listens: 0
+					"listens": 0
 				},
 				{
 					"id": 3,
@@ -610,7 +610,8 @@ func TestTrackDeliveryHTTP_GetFavorite(t *testing.T) {
 					"id": 1,
 					"name": "Oxxxymiron",
 					"isLiked": false,
-					"cover": "/artists/avatars/1.png"
+					"cover": "/artists/avatars/1.png",
+					"listens": 0
 				}
 			],
 			"cover": "/tracks/covers/1.png",
@@ -627,7 +628,8 @@ func TestTrackDeliveryHTTP_GetFavorite(t *testing.T) {
 					"id": 2,
 					"name": "SALUKI",
 					"isLiked": false,
-					"cover": "/artists/avatars/2.png"
+					"cover": "/artists/avatars/2.png",
+					"listens": 0
 				}
 			],
 			"cover": "/tracks/covers/2.png",
