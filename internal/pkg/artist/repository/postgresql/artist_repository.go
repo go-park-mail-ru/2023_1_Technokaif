@@ -287,7 +287,7 @@ func (p *PostgreSQL) UpdateMonthListensPerUser(ctx context.Context) error {
 			) as tu 
 				INNER JOIN %s AS at ON tu.track_id = at.track_id
 				RIGHT JOIN %s AS a ON at.artist_id = a.id
-			GROUP BY a.id, tu.user_id
+			GROUP BY a.id
 		)
 		UPDATE %s AS a
 		SET listens = nla.new_users
