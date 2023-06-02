@@ -17,11 +17,10 @@ jobs:
       - name: Verify dependencies
         run: go mod verify
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.29
-          args: --timeout=10m
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.47.3
+      - name: Run golangci-lint
+        run: golangci-lint run --version --verbose --out-format=github-actions
 
       - name: go-vet
         run: go vet ./...
