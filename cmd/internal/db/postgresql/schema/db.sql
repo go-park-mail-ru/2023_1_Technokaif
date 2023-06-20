@@ -149,57 +149,8 @@ CREATE TABLE Liked_playlists
     PRIMARY KEY(user_id, playlist_id) -- Составной PK (unique + not null)
 );
 
--- B-tree-индекс для ускорения выборки треков по альбому
-CREATE INDEX idx_btree_track_album ON Tracks USING btree (album_id);
-
--- B-tree-индекс для ускорения выборки треков по артисту
-CREATE INDEX idx_btree_tracks_artists ON Artists_Tracks USING btree (artist_id, track_id);
-
--- B-tree-индекс для ускорения выборки альбомов по артисту
-CREATE INDEX idx_btree_albums_artists ON Artists_Albums USING btree (artist_id, album_id);
-
--- B-tree-индекс для ускорения выборки плейлистов по юзеру
-CREATE INDEX idx_btree_playlists_user ON Users_Playlists USING btree (user_id, playlist_id);
-
--- B-tree-индекс для ускорения выборки треков по плейлисту
-CREATE INDEX idx_btree_tracks_playlists ON Playlists_Tracks USING btree (playlist_id, track_id);
-
--- B-tree-индекс для ускорения выборки лайкнутых пользователем треков
--- и сортировки по времени лайка
-CREATE INDEX idx_btree_liked_tracks ON Liked_tracks USING btree (user_id, liked_at DESC);
-
--- B-tree-индекс для ускорения выборки лайкнутых пользователем альбомов
--- и сортировки по времени лайка
-CREATE INDEX idx_btree_liked_albums ON Liked_albums USING btree (user_id, liked_at DESC);
-
--- B-tree-индекс для ускорения выюорки лайкнутых пользователем артистов
--- и сортировки по времени лайка
-CREATE INDEX idx_btree_liked_artists ON Liked_artists USING btree (user_id, liked_at DESC);
-
--- B-tree-индекс для ускорения выборки лайкнутых пользователем плейлистов
--- и сортировки по времени лайка
-CREATE INDEX idx_btree_liked_playlists ON Liked_playlists USING btree (user_id, liked_at DESC);
-
--- GIN-индекс для ускорения Full Text Search артистов по name
-CREATE INDEX idx_gin_artists ON Artists USING gin (to_tsvector(lang, name));
-
--- B-tree-индекс для ускорения поиска артистов по name по совпадению подслов
-CREATE INDEX idx_btree_artists ON Artists USING btree (LOWER(name) varchar_pattern_ops);
-
--- GIN-индекс для ускорения Full Text Search альбомов по name
-CREATE INDEX idx_gin_albums ON Albums USING gin (to_tsvector(lang, name));
-
--- B-tree-индекс для ускорения поиска альбомов по name по совпадению подслов
-CREATE INDEX idx_btree_albums ON Albums USING btree (LOWER(name) varchar_pattern_ops);
-
--- GIN-индекс для ускорения Full Text Search треков по name
-CREATE INDEX idx_gin_tracks ON Tracks USING gin (to_tsvector(lang, name));
-
--- B-tree-индекс для ускорения поиска треков по name по совпадению подслов
-CREATE INDEX idx_btree_tracks ON Tracks USING btree (LOWER(name) varchar_pattern_ops);
-
--- GIN-индекс для ускорения Full Text Search плейлистов по name
-CREATE INDEX idx_gin_playlists ON Playlists USING gin (to_tsvector(lang, name));
+-- B-tree-индекс для ускорения выборки плейлистов по юзеру и их сортировки
+CREATE INDEX idx_btree_playlists_user ON Users_Playlists USING btree (user_id, created_at DESC, playlist_id);
 
 -- B-tree-индекс для ускорения поиска плейлистов по name по совпадению подслов
 CREATE INDEX idx_btree_playlists ON Playlists USING btree (LOWER(name) varchar_pattern_ops);
