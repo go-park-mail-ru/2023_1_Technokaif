@@ -11,8 +11,10 @@ import (
 )
 
 const (
-	maxIdleConns = 10
-	maxOpenConns = 10
+	// такое количество соединений было выбрано как компромисс между возможным количество параллельных запросов и количеством созданных процессов, нагружающих OC 
+
+	maxOpenConns = 10  // наш backend сервер имеет 4 микросервиса, поэтому суммарное количество созданных процессов не превысит 40 
+	maxIdleConns = 5   // еще 10 соединений могут находиться в ожидании при повышенной высокой нагрузке и ждать переиспользования
 )
 
 // Config includes info about postgres DB we want to connect to
@@ -26,11 +28,11 @@ type PostgresConfig struct {
 }
 
 // InitConfig inits DB configuration from environment variables
-func initPostgresConfig() (PostgresConfig, error) { // TODO CHECK FIELDS
+func initPostgresConfig() (PostgresConfig, error) {
 	cfg := PostgresConfig{
 		DBHost:     os.Getenv("DB_HOST"),
 		DBPort:     os.Getenv("DB_PORT"),
-		DBUser:     os.Getenv("DB_USER"),
+		DBUser:     "technokaif",
 		DBName:     os.Getenv("DB_NAME"),
 		DBPassword: os.Getenv("DB_PASSWORD"),
 		DBSSLMode:  os.Getenv("DB_SSLMODE"),

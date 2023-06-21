@@ -88,15 +88,15 @@ services:
       - .env
     environment:
       POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_SUPERUSER}
+      POSTGRES_PASSWORD: ${DB_SUPERUSER_PASSWORD}
       PGDATA: "/var/lib/postgresql/data/pgdata"
-    ports:
-      - 5436:5432
     volumes:
       - ./cmd/internal/db/postgresql/schema/:/docker-entrypoint-initdb.d # isn't used if pgdata exists
       - ${DB_PATH}:/var/lib/postgresql/data
-    command: ["postgres"] # "-c", "logging_collector=on", "-c", "log_statement=all"]
+      - ${DB_PATH}/log:/var/log/postgresql
+      - ./cmd/internal/db/postgresql/config/postgresql.conf:/etc/postgresql.conf
+    command: ["postgres", "-c", "config_file=/etc/postgresql.conf"]
 
 volumes:
   grafana-data: {}
